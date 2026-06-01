@@ -1,7 +1,7 @@
 """
 [INPUT]: 依赖 PipelineRunsRepo、StepRunsRepo 的 CRUD 能力，依赖 models.StepDef
-[OUTPUT]: 对外提供 PipelineEngine 类
-[POS]: pipeline 包的核心编排器，管理 PipelineRun/StepRun 生命周期与依赖解析
+[OUTPUT]: 对外提供 PipelineEngine 类（含 validation、rollback、failure cascade）
+[POS]: pipeline 包的核心编排器，管理 PipelineRun/StepRun 生命周期、依赖解析与状态转换
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
 
@@ -48,6 +48,10 @@ class PipelineEngine:
         operator: str = "",
     ) -> dict:
         """Create a PipelineRun and all associated StepRuns."""
+        if not step_defs:
+            raise ValueError("step_defs must not be empty")
+
+        _validate_step_defs(step_defs)
         pipeline_run_id = f"PR-{uuid.uuid4().hex[:12]}"
         now = datetime.now(timezone.utc).isoformat()
 
@@ -65,16 +69,31 @@ class PipelineEngine:
             "updated_at": now,
         })
 
-        for step_def in step_defs:
-            self._step_repo.create({
-                "step_run_id": f"SR-{uuid.uuid4().hex[:12]}",
-                "pipeline_run_id": pipeline_run_id,
-                "step_key": step_def.step_key,
-                "assigned_agent_id": step_def.assigned_agent_id,
-                "depends_on": ",".join(step_def.depends_on),
-                "status": "pending",
-                "retry_count": 0,
-            })
+        created_step_ids: list[str] = []
+        try:
+            for step_def in step_defs:
+                result = self._step_repo.create({
+                    "step_run_id": f"SR-{uuid.uuid4().hex[:12]}",
+                    "pipeline_run_id": pipeline_run_id,
+                    "step_key": step_def.step_key,
+                    "assigned_agent_id": step_def.assigned_agent_id,
+                    "depends_on": ",".join(step_def.depends_on),
+                    "status": "pending",
+                    "retry_count": 0,
+                })
+                created_step_ids.append(result.get("step_run_id", ""))
+        except Exception:
+            # rollback: delete created steps, then pipeline
+            for sid in created_step_ids:
+                try:
+                    self._step_repo.delete(sid)
+                except Exception:
+                    pass
+            try:
+                self._pipeline_repo.delete(pipeline_run_id)
+            except Exception:
+                pass
+            raise
 
         return pipeline
 
@@ -106,7 +125,27 @@ class PipelineEngine:
     def complete_step(
         self, step_run_id: str, output_refs: list[str] | None = None
     ) -> dict:
-        """Mark a step as success and advance the pipeline."""
+        """Mark a step as success and advance the pipeline.
+
+        Rechecks lease validity before completing — rejects if the
+        lease has expired (another worker may have reclaimed the step).
+        """
+        step = self._step_repo.get(step_run_id)
+        if step:
+            lease_until = step.get("lease_until", "")
+            if lease_until:
+                from datetime import datetime as _dt
+                try:
+                    deadline = _dt.fromisoformat(lease_until)
+                    if deadline.tzinfo is None:
+                        deadline = deadline.replace(tzinfo=timezone.utc)
+                    if datetime.now(timezone.utc) > deadline:
+                        raise RuntimeError(
+                            f"Lease expired for step {step_run_id}"
+                        )
+                except (ValueError, TypeError):
+                    pass
+
         update_data: dict = {"status": "success"}
         if output_refs:
             update_data["output_refs"] = ",".join(output_refs)
@@ -133,15 +172,31 @@ class PipelineEngine:
         return step
 
     def fail_step(self, step_run_id: str, error_message: str) -> dict:
-        """Mark a step as failed."""
+        """Mark a step as failed.
+
+        When retries are exhausted (retry_count >= 3), cascades failure
+        to the parent pipeline.
+        """
         step = self._step_repo.get(step_run_id)
         retry_count = step.get("retry_count", 0) if step else 0
 
-        return self._step_repo.update(step_run_id, {
+        result = self._step_repo.update(step_run_id, {
             "status": "failed",
             "error_message": error_message,
             "retry_count": retry_count + 1,
         })
+
+        # Cascade: when retries exhausted, fail the pipeline
+        if retry_count >= 3:
+            pipeline_run_id = result.get("pipeline_run_id", "")
+            if pipeline_run_id:
+                self._pipeline_repo.update(pipeline_run_id, {
+                    "status": "failed",
+                    "error_message": error_message,
+                    "updated_at": datetime.now(timezone.utc).isoformat(),
+                })
+
+        return result
 
 
 # ============================================================
@@ -154,3 +209,46 @@ def _parse_depends_on(depends_on: str) -> set[str]:
     if not depends_on:
         return set()
     return {d.strip() for d in depends_on.split(",") if d.strip()}
+
+
+def _validate_step_defs(step_defs: list[StepDef]) -> None:
+    """Validate step definitions: depends_on references and cycle detection."""
+    all_keys = {s.step_key for s in step_defs}
+
+    # Check depends_on references exist
+    for step in step_defs:
+        for dep in step.depends_on:
+            if dep not in all_keys:
+                raise ValueError(
+                    f"Step '{step.step_key}' depends on unknown step '{dep}'"
+                )
+
+    # Check for cycles using Kahn's algorithm
+    if _has_cycle(step_defs):
+        raise ValueError("Cyclic dependency detected in step definitions")
+
+
+def _has_cycle(step_defs: list[StepDef]) -> bool:
+    """Return True if the step dependency graph contains a cycle."""
+    # Build adjacency list and in-degree map
+    in_degree: dict[str, int] = {s.step_key: 0 for s in step_defs}
+    adj: dict[str, list[str]] = {s.step_key: [] for s in step_defs}
+
+    for step in step_defs:
+        for dep in step.depends_on:
+            adj[dep].append(step.step_key)
+            in_degree[step.step_key] += 1
+
+    # Kahn's algorithm
+    queue = [k for k, d in in_degree.items() if d == 0]
+    visited = 0
+
+    while queue:
+        node = queue.pop(0)
+        visited += 1
+        for neighbor in adj[node]:
+            in_degree[neighbor] -= 1
+            if in_degree[neighbor] == 0:
+                queue.append(neighbor)
+
+    return visited != len(step_defs)

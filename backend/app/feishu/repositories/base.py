@@ -1,6 +1,6 @@
 """
 [INPUT]: 依赖 app.feishu.client.FeishuClient 的 HTTP 能力
-[OUTPUT]: 对外提供 BaseRepository——通用 Bitable CRUD 基类
+[OUTPUT]: 对外提供 BaseRepository——通用 Bitable CRUD + CAS 基类
 [POS]: repositories 包的抽象基类，被 16 个具体 repository 继承
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
@@ -114,3 +114,25 @@ class BaseRepository:
         path = f"{self._base_path()}/{record_id}"
         self._client.delete(path)
         return True
+
+    def conditional_update(
+        self, record_id: str, fields: dict, condition: dict
+    ) -> dict:
+        """CAS update — applies *fields* only when *condition* matches.
+
+        Builds a Bitable filter from *condition* and includes it in the
+        PUT request.  Raises on mismatch so callers can detect races.
+        """
+        path = f"{self._base_path()}/{record_id}"
+        body = {"fields": self._to_feishu(fields)}
+
+        # Build filter from condition dict: CurrentValue.[field] = "value"
+        if condition:
+            parts = [
+                f'CurrentValue.[{self._field_map.get(k, k)}] = "{v}"'
+                for k, v in condition.items()
+            ]
+            body["filter"] = " AND ".join(parts)
+
+        resp = self._client.put(path, body=body)
+        return self._from_feishu(resp["data"]["record"])
