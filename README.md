@@ -58,6 +58,16 @@ External tools: OpenCLI, LLM APIs, optional image APIs
 - Key steps require human approval.
 - Revisions are versioned; no overwrite.
 
+## Backend gates
+
+```bash
+cd backend
+python -m pip install -e ".[dev]"
+BACKEND_API_KEY=local-test-key python -m pytest tests -q
+```
+
+The CI gate is behavior-based: it checks endpoint response contracts, API key enforcement, sanitized config output, missing env failure, and ZEN-28 layout. A backend that merely starts is not sufficient. If implementation is absent or incomplete, this gate should fail.
+
 ## Documents
 
 - [Architecture](docs/architecture.md)

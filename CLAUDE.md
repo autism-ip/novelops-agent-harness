@@ -1,16 +1,21 @@
 # NovelOps Agent Harness — AI-assisted web-novel production system
 
-Tech stack: FastAPI + Next.js + Feishu Bitable + OpenCLI + LLM APIs
+Tech stack: FastAPI + pytest + GitHub Actions + Next.js + Feishu Bitable + OpenCLI + LLM APIs
 
 <directory>
 docs/ - Design documents and planning (6 files)
   plans/ - Implementation plans and strategies
-app/ - [PLANNED] Backend FastAPI application
+.github/ - CI workflow definitions (backend behavior gates)
+backend/ - Local persistent FastAPI backend skeleton and behavior tests
 frontend/ - [PLANNED] Next.js Vercel frontend
 </directory>
 
 <config>
+.gitignore - Python cache, local env, pytest cache, and egg-info ignore rules
 README.md - Project overview, architecture summary, document index
+backend/pyproject.toml - Backend package metadata, dependencies, pytest configuration
+backend/.env.example - Backend environment variable template with placeholders only
+.github/workflows/backend-gates.yml - CI gate that runs backend behavior contract tests
 docs/architecture.md - System architecture, module layout, stability rules
 docs/agent-team.md - Agent roles, state model, per-book team design
 docs/feishu-schema.md - 16 Feishu Bitable tables schema

@@ -89,37 +89,34 @@ Responsibilities:
 ## Backend module layout
 
 ```text
-app/
-  main.py
-  api/routes/
-  harness/
-    orchestrator.py
-    worker_loop.py
-    step_executor.py
-    dependency_resolver.py
-    state_machine.py
-    approval_gate.py
-    retry_policy.py
-    lineage.py
-    task_claim.py
-  agents/
-    base.py
-    registry.py
-    runtime.py
-    roles/
-  tools/
-    opencli_runner.py
-    llm_client.py
-    image_client.py
-  feishu/
-    client.py
-    table_map.py
-    repositories/
-  schemas/
-  prompts/
-opencli-plugin/
-  douyin/hotspots.ts
+backend/
+  pyproject.toml
+  tests/
+    test_system_endpoints.py
+    test_api_key_guard.py
+    test_acceptance_contract.py
+  app/                  [PLANNED: must satisfy tests]
+  harness/              [PLANNED]
+  agents/               [PLANNED]
+  tools/                [PLANNED]
+  feishu/               [PLANNED]
+  schemas/              [PLANNED]
+  prompts/              [PLANNED]
+opencli-plugin/         [PLANNED]
+  douyin/hotspots.ts    [PLANNED]
 ```
+
+## CI gates
+
+```text
+.github/workflows/backend-gates.yml
+  ↓
+install backend with dev dependencies
+  ↓
+pytest behavior contract tests
+```
+
+The gate asserts ZEN-28 behavior: `/api/system/health` and `/api/system/status` return exact contracts, private `/api/*` routes reject missing or wrong `x-api-key`, valid keys pass middleware, config output is sanitized, and missing `BACKEND_API_KEY` fails clearly.
 
 ## Frontend module layout
 
