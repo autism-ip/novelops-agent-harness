@@ -18,14 +18,14 @@ def create_app(settings: Settings) -> FastAPI:
     )
 
     app.state.settings = settings
-    settings.app_version = APP_VERSION
+    settings.APP_VERSION = APP_VERSION
 
     # APIKeyMiddleware added first → innermost (runs last).
     # CORSMiddleware added last → outermost (runs first, handles preflight).
     app.add_middleware(APIKeyMiddleware)
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.cors_origins,
+        allow_origins=settings.CORS_ORIGINS,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

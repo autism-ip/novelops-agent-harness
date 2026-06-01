@@ -21,7 +21,7 @@ def test_app_factory_produces_documented_fastapi_metadata(isolated_settings):
 
     assert app.title == APP_TITLE == "NovelOps Agent Harness"
     assert app.version == APP_VERSION == "0.1.0"
-    assert app.state.settings.backend_api_key == "test-key"
+    assert app.state.settings.BACKEND_API_KEY == "test-key"
 
 
 def test_missing_backend_api_key_fails_with_clear_variable_name(monkeypatch):
@@ -41,7 +41,7 @@ def test_missing_backend_api_key_fails_with_clear_variable_name(monkeypatch):
     with pytest.raises(ValidationError) as error:
         Settings(_env_file=None)
 
-    assert "backend_api_key" in str(error.value)
+    assert "BACKEND_API_KEY" in str(error.value)
 
 
 def test_zen28_backend_layout_exists_as_executable_source_not_cache_artifacts():

@@ -9,7 +9,7 @@ router = APIRouter()
 async def health(request: Request):
     """Liveness probe — public, no auth required."""
     settings = request.app.state.settings
-    return {"status": "ok", "version": settings.app_version}
+    return {"status": "ok", "version": settings.APP_VERSION}
 
 
 @router.get("/status")
@@ -31,7 +31,7 @@ async def config(request: Request):
     """Protected config — requires valid API key."""
     settings = request.app.state.settings
     return {
-        "llm_provider": settings.llm_provider,
-        "opencli_enabled": settings.opencli_enabled,
-        "cors_origins": settings.cors_origins,
+        "llm_provider": settings.LLM_PROVIDER,
+        "opencli_enabled": settings.OPENCLI_ENABLED,
+        "cors_origins": settings.CORS_ORIGINS,
     }

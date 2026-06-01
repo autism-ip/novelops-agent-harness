@@ -50,4 +50,4 @@ async def client(app) -> AsyncIterator[AsyncClient]:
 
 @pytest.fixture
 def auth_headers(isolated_settings: Settings) -> dict[str, str]:
-    return {"x-api-key": isolated_settings.backend_api_key}
+    return {"x-api-key": isolated_settings.BACKEND_API_KEY}

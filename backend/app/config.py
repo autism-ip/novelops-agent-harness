@@ -16,26 +16,26 @@ class Settings(BaseSettings):
     )
 
     # --- Security ---
-    backend_api_key: str  # required, no default; env: BACKEND_API_KEY
+    BACKEND_API_KEY: str  # required, no default
 
     # --- Feishu Bitable ---
-    feishu_app_id: str = ""
-    feishu_app_secret: str = ""
+    FEISHU_APP_ID: str = ""
+    FEISHU_APP_SECRET: str = ""
 
     # --- LLM ---
-    llm_api_key: str = ""
-    llm_provider: str = "openai"
+    LLM_API_KEY: str = ""
+    LLM_PROVIDER: str = "openai"
 
     # --- OpenCLI ---
-    opencli_enabled: bool = False
+    OPENCLI_ENABLED: bool = False
 
     # --- CORS ---
-    cors_origins: list[str] = ["http://localhost:3000"]
+    CORS_ORIGINS: list[str] = ["http://localhost:3000"]
 
     # --- Derived (set by create_app) ---
-    app_version: str = "0.1.0"
+    APP_VERSION: str = "0.1.0"
 
-    @field_validator("backend_api_key")
+    @field_validator("BACKEND_API_KEY")
     @classmethod
     def reject_blank_key(cls, v: str) -> str:
         if not v.strip():

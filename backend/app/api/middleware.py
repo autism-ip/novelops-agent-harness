@@ -26,7 +26,7 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
 
         settings = request.app.state.settings
         key = request.headers.get("x-api-key", "")
-        if key != settings.backend_api_key:
+        if key != settings.BACKEND_API_KEY:
             return JSONResponse(
                 status_code=401,
                 content={"detail": "Invalid or missing API key"},
