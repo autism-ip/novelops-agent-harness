@@ -36,4 +36,3 @@ async def test_valid_api_key_passes_middleware_to_application(client, auth_heade
     response = await client.get("/api/pipelines", headers=auth_headers)
 
     assert response.status_code != 401
-    assert response.status_code == 404

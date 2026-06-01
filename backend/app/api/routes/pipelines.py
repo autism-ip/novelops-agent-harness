@@ -12,12 +12,9 @@
 
 from __future__ import annotations
 
-from functools import lru_cache
-
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
-from app.config import settings
 from app.feishu.client import FeishuClient
 from app.feishu.repositories.pipeline_runs import PipelineRunsRepo
 from app.feishu.repositories.step_runs import StepRunsRepo
@@ -56,39 +53,36 @@ class CreatePipelineBody(BaseModel):
 # ============================================================
 
 
-@lru_cache(maxsize=1)
-def _get_client() -> FeishuClient:
-    """Singleton Feishu client — reuses token cache across requests."""
+def _get_client(settings: Settings) -> FeishuClient:
+    """Build FeishuClient from settings."""
     return FeishuClient(settings.FEISHU_APP_ID, settings.FEISHU_APP_SECRET)
 
 
-@lru_cache(maxsize=1)
 def _get_config() -> TableMapConfig:
-    """Singleton table-map config — reads FEISHU_APP_TOKEN from env."""
+    """Build table-map config from env."""
     return TableMapConfig()
 
 
-def _build_pipeline_repo() -> PipelineRunsRepo:
+def _build_pipeline_repo(client: FeishuClient, config: TableMapConfig) -> PipelineRunsRepo:
     """Construct PipelineRunsRepo with shared client."""
-    client = _get_client()
-    config = _get_config()
     return PipelineRunsRepo(
         client, config.app_token, config.get_table_id("pipeline_runs")
     )
 
 
-def _build_step_repo() -> StepRunsRepo:
+def _build_step_repo(client: FeishuClient, config: TableMapConfig) -> StepRunsRepo:
     """Construct StepRunsRepo with shared client."""
-    client = _get_client()
-    config = _get_config()
     return StepRunsRepo(
         client, config.app_token, config.get_table_id("step_runs")
     )
 
 
-def get_engine() -> PipelineEngine:
+def get_engine(request: Request) -> PipelineEngine:
     """FastAPI dependency — returns a PipelineEngine with real repos."""
-    return PipelineEngine(_build_pipeline_repo(), _build_step_repo())
+    settings = request.app.state.settings
+    client = _get_client(settings)
+    config = _get_config()
+    return PipelineEngine(_build_pipeline_repo(client, config), _build_step_repo(client, config))
 
 
 # ============================================================
@@ -128,14 +122,17 @@ async def create_pipeline(
 @router.get("/{pipeline_run_id}")
 async def get_pipeline(
     pipeline_run_id: str,
-    engine: PipelineEngine = Depends(get_engine),
+    request: Request,
 ) -> dict:
     """Get a pipeline run with its step runs included.
 
     Returns 404 if pipeline_run_id does not exist.
     """
-    pipeline_repo = _build_pipeline_repo()
-    step_repo = _build_step_repo()
+    settings = request.app.state.settings
+    client = _get_client(settings)
+    config = _get_config()
+    pipeline_repo = _build_pipeline_repo(client, config)
+    step_repo = _build_step_repo(client, config)
 
     runs = pipeline_repo.list(
         filter_expr=f'CurrentValue.[pipeline_run_id] = "{pipeline_run_id}"'
@@ -151,8 +148,11 @@ async def get_pipeline(
 @router.get("/{pipeline_run_id}/steps")
 async def list_step_runs(
     pipeline_run_id: str,
-    engine: PipelineEngine = Depends(get_engine),
+    request: Request,
 ) -> list[dict]:
     """List all step runs belonging to a pipeline run."""
-    step_repo = _build_step_repo()
+    settings = request.app.state.settings
+    client = _get_client(settings)
+    config = _get_config()
+    step_repo = _build_step_repo(client, config)
     return step_repo.find_by_pipeline(pipeline_run_id)
