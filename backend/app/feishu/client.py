@@ -1,6 +1,6 @@
 """
 [INPUT]: 依赖 httpx 的同步 HTTP 客户端，依赖 time 的 monotonic clock
-[OUTPUT]: 对外提供 FeishuClient 类、FeishuAuthError 异常、FeishuAPIError 异常、FeishuNotFoundError 异常
+[OUTPUT]: 对外提供 FeishuClient 类、FeishuError 异常族（FeishuAuthError / FeishuNotFoundError / FeishuAPIError）
 [POS]: feishu 包的核心 HTTP 层，被 Bitable repository 消费，屏蔽飞书认证与重试细节
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
@@ -21,23 +21,28 @@ import httpx
 # ============================================================
 
 
-class FeishuAuthError(Exception):
+class FeishuError(Exception):
+    """飞书 API 基类异常。"""
+
+
+class FeishuAuthError(FeishuError):
     """飞书认证失败——token 获取或刷新均不可恢复。"""
 
 
-class FeishuAPIError(Exception):
-    """飞书 API 业务错误或 HTTP 4xx/5xx。"""
+class FeishuNotFoundError(FeishuError):
+    """飞书资源不存在（code=1254043）。"""
 
-    def __init__(self, message: str, code: int = 0) -> None:
+    def __init__(self, message: str, code: int = 1254043) -> None:
         super().__init__(message)
         self.code = code
 
 
-class FeishuNotFoundError(FeishuAPIError):
-    """飞书记录不存在——请求的记录 ID 未找到。"""
+class FeishuAPIError(FeishuError):
+    """飞书业务级错误——非认证、非 not-found 的其他错误码。"""
 
-    def __init__(self, message: str = "not found", code: int = 1254043) -> None:
-        super().__init__(message, code=code)
+    def __init__(self, message: str, code: int = 0) -> None:
+        super().__init__(message)
+        self.code = code
 
 
 # ============================================================
@@ -49,6 +54,9 @@ _AUTH_PATH = "/auth/v3/tenant_access_token/internal"
 
 # 提前 5 分钟视为过期，避免在请求途中 token 失效
 _TOKEN_EXPIRY_BUFFER_S = 300
+
+# 飞书 token 失效的业务码——遇到时清 token 并重试一次
+_TOKEN_INVALID_CODES = frozenset({99991663, 99991668})
 
 
 class FeishuClient:
@@ -173,6 +181,7 @@ class FeishuClient:
     ) -> dict:
         """Execute an authenticated request with single 401-retry."""
         retried = False
+        token_retried = False
 
         while True:
             token = self._get_valid_token()
@@ -220,13 +229,20 @@ class FeishuClient:
 
             # -- check Feishu business-level error --
             if isinstance(result, dict) and result.get("code", 0) != 0:
-                code = result["code"]
+                biz_code = result["code"]
                 msg = (
-                    f"Feishu error code={code}: "
+                    f"Feishu error code={biz_code}: "
                     f"{result.get('msg', result)}"
                 )
-                if code == 1254043:
-                    raise FeishuNotFoundError(msg, code=code)
-                raise FeishuAuthError(msg)
+                # token 失效 → 清缓存并重试一次
+                if biz_code in _TOKEN_INVALID_CODES and not token_retried:
+                    self._clear_token()
+                    token_retried = True
+                    continue
+                # not-found → 精确异常
+                if biz_code == 1254043:
+                    raise FeishuNotFoundError(msg, code=biz_code)
+                # 其他业务码 → 通用 API 异常
+                raise FeishuAPIError(msg, code=biz_code)
 
             return result

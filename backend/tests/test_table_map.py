@@ -76,13 +76,15 @@ class TestFieldMaps:
 
 
 class TestGetTableId:
-    """get_table_id resolves table IDs from env or falls back to name."""
+    """get_table_id resolves table IDs from env or raises ValueError."""
 
-    def test_fallback_to_name(self) -> None:
-        """Without env var, returns the logical name itself."""
+    def test_raises_on_missing_env(self) -> None:
+        """Without env var, raises ValueError with clear message."""
         cfg = TableMapConfig()
-        assert cfg.get_table_id("agents") == "agents"
-        assert cfg.get_table_id("books") == "books"
+        with pytest.raises(ValueError, match="Missing environment variable"):
+            cfg.get_table_id("agents")
+        with pytest.raises(ValueError, match="Missing environment variable"):
+            cfg.get_table_id("books")
 
     def test_env_var_override(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Env var FEISHU_TABLE_ID_<UPPER> takes priority."""

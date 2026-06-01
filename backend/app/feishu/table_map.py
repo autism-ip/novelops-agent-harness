@@ -261,11 +261,16 @@ class TableMapConfig:
     def get_table_id(self, name: str) -> str:
         """Return the Feishu Bitable table-ID for *name*.
 
-        Checks ``FEISHU_TABLE_ID_<NAME_UPPER>`` first; falls back to *name*
-        itself as a deploy-time placeholder.
+        Raises ``ValueError`` if the required environment variable
+        ``FEISHU_TABLE_ID_<NAME_UPPER>`` is not set.
         """
         env_key = f"FEISHU_TABLE_ID_{name.upper()}"
-        return os.environ.get(env_key, name)
+        value = os.environ.get(env_key)
+        if not value:
+            raise ValueError(
+                f"Missing environment variable {env_key} for table '{name}'"
+            )
+        return value
 
     # --- field-map access ------------------------------------------------------
 

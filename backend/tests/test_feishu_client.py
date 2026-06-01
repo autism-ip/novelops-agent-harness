@@ -258,7 +258,7 @@ class TestAuthErrors:
         mock_http.post.return_value = auth_resp
         mock_http.request.return_value = err_resp
 
-        with pytest.raises(FeishuAuthError, match="code=99999"):
+        with pytest.raises(FeishuAPIError, match="code=99999"):
             client.get("/bitable/v1/test")
 
 
