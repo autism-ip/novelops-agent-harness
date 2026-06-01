@@ -15,6 +15,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
+from app.config import Settings
 from app.feishu.client import FeishuClient
 from app.feishu.repositories.pipeline_runs import PipelineRunsRepo
 from app.feishu.repositories.step_runs import StepRunsRepo
@@ -108,13 +109,16 @@ async def create_pipeline(
         for s in body.steps
     ]
 
-    result = engine.create_pipeline(
-        pipeline_type=body.pipeline_type,
-        step_defs=step_defs,
-        source_hotspot_id=body.source_hotspot_id,
-        book_id=body.book_id,
-        operator=body.operator,
-    )
+    try:
+        result = engine.create_pipeline(
+            pipeline_type=body.pipeline_type,
+            step_defs=step_defs,
+            source_hotspot_id=body.source_hotspot_id,
+            book_id=body.book_id,
+            operator=body.operator,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     return {"pipeline_run_id": result["pipeline_run_id"], "status": result["status"]}
 

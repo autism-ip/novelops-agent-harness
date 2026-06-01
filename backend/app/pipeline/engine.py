@@ -31,9 +31,11 @@ class PipelineEngine:
         self,
         pipeline_repo: PipelineRunsRepo,
         step_repo: StepRunsRepo,
+        max_retries: int = 3,
     ) -> None:
         self._pipeline_repo = pipeline_repo
         self._step_repo = step_repo
+        self._max_retries = max_retries
 
     # ----------------------------------------------------------
     # pipeline creation
@@ -131,6 +133,8 @@ class PipelineEngine:
         lease has expired (another worker may have reclaimed the step).
         """
         step = self._step_repo.get(step_run_id)
+        pipeline_run_id = step.get("pipeline_run_id", "") if step else ""
+
         if step:
             lease_until = step.get("lease_until", "")
             if lease_until:
@@ -151,7 +155,6 @@ class PipelineEngine:
             update_data["output_refs"] = ",".join(output_refs)
 
         step = self._step_repo.update(step_run_id, update_data)
-        pipeline_run_id = step.get("pipeline_run_id", "")
 
         runnable = self.get_runnable_steps(pipeline_run_id)
         if runnable:
@@ -174,7 +177,7 @@ class PipelineEngine:
     def fail_step(self, step_run_id: str, error_message: str) -> dict:
         """Mark a step as failed.
 
-        When retries are exhausted (retry_count >= 3), cascades failure
+        When retries are exhausted (retry_count >= max_retries), cascades failure
         to the parent pipeline.
         """
         step = self._step_repo.get(step_run_id)
@@ -187,7 +190,7 @@ class PipelineEngine:
         })
 
         # Cascade: when retries exhausted, fail the pipeline
-        if retry_count >= 3:
+        if retry_count >= self._max_retries:
             pipeline_run_id = result.get("pipeline_run_id", "")
             if pipeline_run_id:
                 self._pipeline_repo.update(pipeline_run_id, {
@@ -214,6 +217,8 @@ def _parse_depends_on(depends_on: str) -> set[str]:
 def _validate_step_defs(step_defs: list[StepDef]) -> None:
     """Validate step definitions: depends_on references and cycle detection."""
     all_keys = {s.step_key for s in step_defs}
+    if len(all_keys) != len(step_defs):
+        raise ValueError("Duplicate step_key detected in step definitions")
 
     # Check depends_on references exist
     for step in step_defs:

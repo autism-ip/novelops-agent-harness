@@ -147,18 +147,20 @@ class TestExecuteStep:
     def test_fails_on_handler_exception(
         self, worker: WorkerLoop, engine: MagicMock
     ):
+        """When retries remain, re-queues instead of calling fail_step."""
         handler = MagicMock(side_effect=ValueError("bad input"))
         engine._step_repo.get.return_value = {"retry_count": 0}
-        engine.fail_step.return_value = {
-            "step_run_id": "SR-001",
-            "status": "failed",
-        }
+        engine._step_repo.get.side_effect = [
+            {"retry_count": 0},  # first get: check retry count
+            {"step_run_id": "SR-001", "status": "pending"},  # second get: return re-queued
+        ]
 
         result = worker.execute_step("SR-001", handler)
 
-        engine.fail_step.assert_called_once()
-        error_msg = engine.fail_step.call_args[0][1]
-        assert "ValueError" in error_msg
+        engine.fail_step.assert_not_called()
+        requeue_call = engine._step_repo.update.call_args_list[-1]
+        assert requeue_call[0][1]["status"] == "pending"
+        assert requeue_call[0][1]["retry_count"] == 1
 
     def test_requeues_when_retry_count_below_max(
         self, worker: WorkerLoop, engine: MagicMock

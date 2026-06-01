@@ -93,16 +93,19 @@ class WorkerLoop:
             retry_count = step.get("retry_count", 0) if step else 0
             error_msg = f"{type(exc).__name__}: {exc}\n{traceback.format_exc()}"
 
-            failed = self._engine.fail_step(step_run_id, error_msg)
-
             if retry_count < self._max_retries:
+                # re-queue: increment retry count, clear lease
                 self._engine._step_repo.update(step_run_id, {
                     "status": "pending",
                     "lease_owner": "",
                     "lease_until": "",
+                    "retry_count": retry_count + 1,
+                    "error_message": error_msg,
                 })
+                return self._engine._step_repo.get(step_run_id) or {}
 
-            return failed
+            # retries exhausted → permanent failure
+            return self._engine.fail_step(step_run_id, error_msg)
 
     # ----------------------------------------------------------
     # claim — set lease and transition to running
