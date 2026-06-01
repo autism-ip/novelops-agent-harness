@@ -1,5 +1,5 @@
 """
-[INPUT]: 依赖 app.feishu.client 的 FeishuClient、FeishuAuthError
+[INPUT]: 依赖 app.feishu.client 的 FeishuClient、FeishuAuthError、FeishuAPIError
 [OUTPUT]: 对外提供 FeishuClient 的行为级测试用例——token 生命周期、请求注入、401 重试、异常路径
 [POS]: tests 的飞书客户端门禁，验证认证与请求重试的外部行为契约
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
@@ -12,7 +12,7 @@ from unittest.mock import MagicMock, patch
 import httpx
 import pytest
 
-from app.feishu.client import FeishuAuthError, FeishuClient
+from app.feishu.client import FeishuAPIError, FeishuAuthError, FeishuClient
 
 
 # ============================================================
@@ -328,3 +328,79 @@ class TestHttpVerbs:
 
         call = mock_http.request.call_args
         assert call[0][0] == "DELETE"
+
+
+# ============================================================
+# HTTP error classification
+# ============================================================
+
+
+class TestHttpErrors:
+    """Non-401 HTTP errors and transport failures raise FeishuAPIError."""
+
+    @patch("app.feishu.client.httpx.Client")
+    def test_http_4xx_raises_api_error(self, mock_http_cls: MagicMock) -> None:
+        """403 (non-401) raises FeishuAPIError with status code, not FeishuAuthError."""
+        mock_http = MagicMock()
+        mock_http_cls.return_value = mock_http
+
+        client = FeishuClient(app_id="id", app_secret="sec")
+
+        auth_resp = _mock_post_response(
+            {"code": 0, "tenant_access_token": "t-403", "expire": 7200}
+        )
+        resp_403 = MagicMock(spec=httpx.Response)
+        resp_403.status_code = 403
+        resp_403.text = "Forbidden"
+
+        mock_http.post.return_value = auth_resp
+        mock_http.request.return_value = resp_403
+
+        with pytest.raises(FeishuAPIError, match="HTTP 403") as exc_info:
+            client.get("/bitable/v1/test")
+
+        assert exc_info.value.code == 403
+
+    @patch("app.feishu.client.httpx.Client")
+    def test_transport_error_raises_api_error(self, mock_http_cls: MagicMock) -> None:
+        """Network failure raises FeishuAPIError (code=0), not FeishuAuthError."""
+        mock_http = MagicMock()
+        mock_http_cls.return_value = mock_http
+
+        client = FeishuClient(app_id="id", app_secret="sec")
+
+        auth_resp = _mock_post_response(
+            {"code": 0, "tenant_access_token": "t-net", "expire": 7200}
+        )
+        mock_http.post.return_value = auth_resp
+        mock_http.request.side_effect = httpx.ConnectError("Connection refused")
+
+        with pytest.raises(FeishuAPIError, match="Transport error") as exc_info:
+            client.get("/bitable/v1/test")
+
+        assert exc_info.value.code == 0
+
+    @patch("app.feishu.client.httpx.Client")
+    def test_401_still_raises_auth_error(self, mock_http_cls: MagicMock) -> None:
+        """401 path still raises FeishuAuthError — existing behavior preserved."""
+        mock_http = MagicMock()
+        mock_http_cls.return_value = mock_http
+
+        client = FeishuClient(app_id="id", app_secret="sec")
+
+        auth_ok = _mock_post_response(
+            {"code": 0, "tenant_access_token": "t-auth", "expire": 7200}
+        )
+        auth_refresh = _mock_post_response(
+            {"code": 0, "tenant_access_token": "t-new", "expire": 7200}
+        )
+
+        resp_401 = MagicMock(spec=httpx.Response)
+        resp_401.status_code = 401
+        resp_401.text = "Unauthorized"
+
+        mock_http.post.side_effect = [auth_ok, auth_refresh]
+        mock_http.request.side_effect = [resp_401, resp_401]
+
+        with pytest.raises(FeishuAuthError, match="Auth failed after retry"):
+            client.get("/bitable/v1/test")

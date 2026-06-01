@@ -219,3 +219,83 @@ class TestFailStep:
 
         update_call = step_repo.update.call_args[0]
         assert update_call[1]["retry_count"] == 1
+
+
+# ============================================================
+# rollback
+# ============================================================
+
+
+class TestRollback:
+    def test_rollback_deletes_by_feishu_record_id(
+        self,
+        engine: PipelineEngine,
+        pipeline_repo: MagicMock,
+        step_repo: MagicMock,
+    ):
+        """When step creation fails mid-way, rollback deletes by record_id."""
+        step_defs = [
+            StepDef("s1", "a1"),
+            StepDef("s2", "a2", depends_on=("s1",)),
+        ]
+
+        # First create succeeds, returning a record_id from Feishu
+        step_repo.create.side_effect = [
+            {"step_run_id": "SR-001", "record_id": "rec_abc123"},
+            RuntimeError("Feishu write failed"),
+        ]
+
+        with pytest.raises(RuntimeError, match="Feishu write failed"):
+            engine.create_pipeline("test_type", step_defs)
+
+        # Rollback must delete by record_id, not by step_run_id
+        step_repo.delete.assert_called_once_with("rec_abc123")
+        pipeline_repo.delete.assert_called_once()
+
+    def test_rollback_falls_back_to_step_run_id_when_no_record_id(
+        self,
+        engine: PipelineEngine,
+        pipeline_repo: MagicMock,
+        step_repo: MagicMock,
+    ):
+        """If record_id is missing from result, fallback to step_run_id."""
+        step_defs = [
+            StepDef("s1", "a1"),
+            StepDef("s2", "a2", depends_on=("s1",)),
+        ]
+
+        step_repo.create.side_effect = [
+            {"step_run_id": "SR-001"},  # no record_id key
+            RuntimeError("boom"),
+        ]
+
+        with pytest.raises(RuntimeError):
+            engine.create_pipeline("test_type", step_defs)
+
+        step_repo.delete.assert_called_once_with("SR-001")
+
+
+# ============================================================
+# validation
+# ============================================================
+
+
+class TestValidation:
+    def test_duplicate_step_key_rejected_with_name(
+        self, engine: PipelineEngine
+    ):
+        step_defs = [
+            StepDef("extract", "agent-a"),
+            StepDef("extract", "agent-b"),  # duplicate
+        ]
+        with pytest.raises(ValueError, match="Duplicate step_key.*'extract'"):
+            engine.create_pipeline("test_type", step_defs)
+
+    def test_unknown_dependency_rejected(
+        self, engine: PipelineEngine
+    ):
+        step_defs = [
+            StepDef("s1", "a1", depends_on=("ghost",)),
+        ]
+        with pytest.raises(ValueError, match="unknown step 'ghost'"):
+            engine.create_pipeline("test_type", step_defs)

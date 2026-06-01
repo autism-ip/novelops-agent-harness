@@ -1,6 +1,6 @@
 """
 [INPUT]: 依赖 app.feishu.repositories.base 的 BaseRepository，依赖 app.feishu.client 的 FeishuClient
-[OUTPUT]: 对外提供 BaseRepository 的行为级测试用例——字段映射、CRUD 操作、分页逻辑
+[OUTPUT]: 对外提供 BaseRepository 的行为级测试用例——字段映射、CRUD 操作、分页逻辑、字段过滤、业务键查找
 [POS]: tests 的 repository 基类门禁，验证 Python↔Feishu 字段映射与五种标准数据访问方法的外部行为
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
@@ -12,6 +12,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from app.feishu.repositories.base import BaseRepository
+from app.feishu.client import FeishuAuthError, FeishuNotFoundError
 
 
 # ============================================================
@@ -159,10 +160,18 @@ class TestGet:
     def test_get_returns_none_on_error(
         self, repo: BaseRepository, mock_client: MagicMock
     ) -> None:
-        mock_client.get.side_effect = Exception("not found")
+        mock_client.get.side_effect = FeishuNotFoundError("not found", code=1254043)
 
         result = repo.get("rec-missing")
         assert result is None
+
+    def test_get_propagates_auth_error(
+        self, repo: BaseRepository, mock_client: MagicMock
+    ) -> None:
+        mock_client.get.side_effect = FeishuAuthError("token expired")
+
+        with pytest.raises(FeishuAuthError):
+            repo.get("rec-001")
 
 
 # ============================================================
@@ -278,3 +287,75 @@ class TestDelete:
         expected_path = f"{repo._base_path()}/rec-del"
         mock_client.delete.assert_called_once_with(expected_path)
         assert result is True
+
+
+# ============================================================
+# _field_filter
+# ============================================================
+
+
+class TestFieldFilter:
+    """_field_filter builds correct Bitable filter expressions."""
+
+    def test_maps_known_keys(self, repo: BaseRepository) -> None:
+        result = repo._field_filter(book_id="B001")
+        assert result == 'CurrentValue.[Book ID] = "B001"'
+
+    def test_int_values_unquoted(self) -> None:
+        """int values appear without quotes in the filter."""
+        field_map = {"chapter_no": "Chapter No"}
+        int_repo = BaseRepository(
+            client=MagicMock(),
+            app_token=_APP_TOKEN,
+            table_id=_TABLE_ID,
+            field_map=field_map,
+        )
+        result = int_repo._field_filter(chapter_no=5)
+        assert result == "CurrentValue.[Chapter No] = 5"
+
+    def test_multi_field_and(self, repo: BaseRepository) -> None:
+        result = repo._field_filter(book_id="B001", title="Test")
+        # order is deterministic: book_id then title
+        assert result == 'CurrentValue.[Book ID] = "B001" && CurrentValue.[Book Title] = "Test"'
+
+
+# ============================================================
+# find_by_business_key
+# ============================================================
+
+
+class TestFindByBusinessKey:
+    """find_by_business_key resolves business fields to a Feishu record."""
+
+    def test_returns_first_match(self, repo: BaseRepository, mock_client: MagicMock) -> None:
+        """Given a record in the table, find_by_business_key returns it."""
+        mock_client.get.return_value = {
+            "data": {
+                "items": [
+                    {"record_id": "rec-abc", "fields": {"Book ID": "B001", "Book Title": "Found"}},
+                ],
+                "has_more": False,
+            }
+        }
+
+        result = repo.find_by_business_key(book_id="B001")
+
+        assert result is not None
+        assert result["record_id"] == "rec-abc"
+        assert result["book_id"] == "B001"
+
+        # verify the filter was built correctly
+        call = mock_client.get.call_args
+        params = call.kwargs.get("params", call[1].get("params", {}))
+        assert params["filter"] == 'CurrentValue.[Book ID] = "B001"'
+        assert params["page_size"] == "1"
+
+    def test_returns_none_when_empty(self, repo: BaseRepository, mock_client: MagicMock) -> None:
+        """When no record matches, find_by_business_key returns None."""
+        mock_client.get.return_value = {
+            "data": {"items": [], "has_more": False}
+        }
+
+        result = repo.find_by_business_key(book_id="MISSING")
+
+        assert result is None

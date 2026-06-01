@@ -1,6 +1,6 @@
 """
 [INPUT]: 依赖 PipelineRunsRepo、StepRunsRepo 的 CRUD 能力，依赖 models.StepDef
-[OUTPUT]: 对外提供 PipelineEngine 类（含 validation、rollback、failure cascade）
+[OUTPUT]: 对外提供 PipelineEngine 类（含 validation、rollback by record_id、failure cascade）
 [POS]: pipeline 包的核心编排器，管理 PipelineRun/StepRun 生命周期、依赖解析与状态转换
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
@@ -83,7 +83,7 @@ class PipelineEngine:
                     "status": "pending",
                     "retry_count": 0,
                 })
-                created_step_ids.append(result.get("step_run_id", ""))
+                created_step_ids.append(result.get("record_id", result.get("step_run_id", "")))
         except Exception:
             # rollback: delete created steps, then pipeline
             for sid in created_step_ids:
@@ -218,7 +218,11 @@ def _validate_step_defs(step_defs: list[StepDef]) -> None:
     """Validate step definitions: depends_on references and cycle detection."""
     all_keys = {s.step_key for s in step_defs}
     if len(all_keys) != len(step_defs):
-        raise ValueError("Duplicate step_key detected in step definitions")
+        seen: set[str] = set()
+        for s in step_defs:
+            if s.step_key in seen:
+                raise ValueError(f"Duplicate step_key detected: '{s.step_key}'")
+            seen.add(s.step_key)
 
     # Check depends_on references exist
     for step in step_defs:

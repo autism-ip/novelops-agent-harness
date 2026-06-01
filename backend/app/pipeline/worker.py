@@ -86,6 +86,12 @@ class WorkerLoop:
 
         try:
             result = handler(step_run_id)
+
+            # Recheck lease before completing (defense-in-depth)
+            step = self._engine._step_repo.get(step_run_id)
+            if step and self.is_lease_expired(step):
+                raise RuntimeError(f"Lease expired for step {step_run_id} before complete")
+
             output_refs = result.get("output_refs") if result else None
             return self._engine.complete_step(step_run_id, output_refs)
         except Exception as exc:
@@ -112,16 +118,37 @@ class WorkerLoop:
     # ----------------------------------------------------------
 
     def claim_step(self, step_run_id: str) -> dict:
-        """Claim a step by setting lease_owner, lease_until, status='running'."""
+        """Claim a step with CAS: only if unowned or already ours."""
+        step = self._engine._step_repo.get(step_run_id)
+        if step is None:
+            raise ValueError(f"Step not found: {step_run_id}")
+
+        current_owner = step.get("lease_owner", "")
+        if current_owner and current_owner != self._worker_id:
+            if not self.is_lease_expired(step):
+                raise RuntimeError(f"Step {step_run_id} owned by {current_owner}")
+
         now = datetime.now(timezone.utc)
         lease_until = (now + timedelta(seconds=self._lease_duration)).isoformat()
 
-        return self._engine._step_repo.update(step_run_id, {
+        result = self._engine._step_repo.update(step_run_id, {
             "status": "running",
             "lease_owner": self._worker_id,
             "lease_until": lease_until,
             "started_at": now.isoformat(),
         })
+
+        # Transition pipeline to "running" on first claim
+        pipeline_run_id = step.get("pipeline_run_id", "")
+        if pipeline_run_id:
+            pipeline = self._engine._pipeline_repo.get(pipeline_run_id)
+            if pipeline and pipeline.get("status") == "pending":
+                self._engine._pipeline_repo.update(pipeline_run_id, {
+                    "status": "running",
+                    "updated_at": datetime.now(timezone.utc).isoformat(),
+                })
+
+        return result
 
     # ----------------------------------------------------------
     # lease check

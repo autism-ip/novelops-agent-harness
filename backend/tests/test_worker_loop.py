@@ -36,6 +36,10 @@ class TestClaimStep:
     def test_sets_lease_owner_and_until(
         self, worker: WorkerLoop, engine: MagicMock
     ):
+        engine._step_repo.get.return_value = {
+            "step_run_id": "SR-001",
+            "lease_owner": "",
+        }
         engine._step_repo.update.return_value = {
             "step_run_id": "SR-001",
             "status": "running",
@@ -85,6 +89,11 @@ class TestPollOnce:
         engine.get_runnable_steps.return_value = [
             {"step_run_id": "SR-001", "step_key": "s1"},
         ]
+        engine._step_repo.get.return_value = {
+            "step_run_id": "SR-001",
+            "lease_owner": "",
+            "pipeline_run_id": "PR-001",
+        }
         engine._step_repo.update.return_value = {
             "step_run_id": "SR-001",
             "status": "running",
@@ -111,8 +120,15 @@ class TestPollOnce:
         ]
         engine.get_runnable_steps.return_value = []
         engine._step_repo.find_by_pipeline.return_value = [
-            {"step_run_id": "SR-001", "status": "running", "lease_until": past},
+            {"step_run_id": "SR-001", "status": "running", "lease_until": past, "lease_owner": "worker-2"},
         ]
+        engine._step_repo.get.return_value = {
+            "step_run_id": "SR-001",
+            "status": "running",
+            "lease_until": past,
+            "lease_owner": "worker-2",
+            "pipeline_run_id": "PR-001",
+        }
         engine._step_repo.update.return_value = {
             "step_run_id": "SR-001",
             "status": "running",
@@ -132,10 +148,15 @@ class TestPollOnce:
 
 class TestExecuteStep:
     def test_completes_on_success(self, worker: WorkerLoop, engine: MagicMock):
+        future = (datetime.now(timezone.utc) + timedelta(seconds=300)).isoformat()
         handler = MagicMock(return_value={"output_refs": ["ref-1"]})
         engine.complete_step.return_value = {
             "step_run_id": "SR-001",
             "status": "success",
+        }
+        engine._step_repo.get.return_value = {
+            "step_run_id": "SR-001",
+            "lease_until": future,
         }
 
         result = worker.execute_step("SR-001", handler)
@@ -191,9 +212,123 @@ class TestExecuteStep:
     def test_passes_none_output_refs_when_handler_returns_none(
         self, worker: WorkerLoop, engine: MagicMock
     ):
+        future = (datetime.now(timezone.utc) + timedelta(seconds=300)).isoformat()
         handler = MagicMock(return_value=None)
         engine.complete_step.return_value = {"status": "success"}
+        engine._step_repo.get.return_value = {
+            "step_run_id": "SR-001",
+            "lease_until": future,
+        }
 
         worker.execute_step("SR-001", handler)
 
         engine.complete_step.assert_called_once_with("SR-001", None)
+
+
+# ============================================================
+# CAS claim
+# ============================================================
+
+
+class TestCasClaim:
+    def test_claims_when_unowned(self, worker: WorkerLoop, engine: MagicMock):
+        engine._step_repo.get.return_value = {
+            "step_run_id": "SR-001",
+            "lease_owner": "",
+        }
+        engine._step_repo.update.return_value = {
+            "step_run_id": "SR-001",
+            "status": "running",
+            "lease_owner": "worker-1",
+        }
+
+        result = worker.claim_step("SR-001")
+
+        assert result["lease_owner"] == "worker-1"
+        engine._step_repo.update.assert_called_once()
+
+    def test_skips_when_owned_by_other(self, worker: WorkerLoop, engine: MagicMock):
+        future = (datetime.now(timezone.utc) + timedelta(seconds=300)).isoformat()
+        engine._step_repo.get.return_value = {
+            "step_run_id": "SR-001",
+            "lease_owner": "worker-2",
+            "lease_until": future,
+        }
+
+        with pytest.raises(RuntimeError, match="owned by worker-2"):
+            worker.claim_step("SR-001")
+
+        engine._step_repo.update.assert_not_called()
+
+    def test_reclaims_when_lease_expired(self, worker: WorkerLoop, engine: MagicMock):
+        past = (datetime.now(timezone.utc) - timedelta(seconds=600)).isoformat()
+        engine._step_repo.get.return_value = {
+            "step_run_id": "SR-001",
+            "lease_owner": "worker-2",
+            "lease_until": past,
+        }
+        engine._step_repo.update.return_value = {
+            "step_run_id": "SR-001",
+            "status": "running",
+            "lease_owner": "worker-1",
+        }
+
+        result = worker.claim_step("SR-001")
+
+        assert result["lease_owner"] == "worker-1"
+        engine._step_repo.update.assert_called_once()
+
+
+# ============================================================
+# lease recheck
+# ============================================================
+
+
+class TestLeaseRecheck:
+    def test_raises_on_expired_lease_before_complete(
+        self, worker: WorkerLoop, engine: MagicMock
+    ):
+        handler = MagicMock(return_value={"output_refs": ["ref-1"]})
+        past = (datetime.now(timezone.utc) - timedelta(seconds=10)).isoformat()
+        engine._step_repo.get.side_effect = [
+            {"lease_until": past},          # lease recheck
+            {"retry_count": 0},             # retry count in except
+            {"step_run_id": "SR-001", "status": "pending"},  # return re-queued
+        ]
+
+        result = worker.execute_step("SR-001", handler)
+
+        engine.complete_step.assert_not_called()
+        requeue_call = engine._step_repo.update.call_args_list[-1]
+        assert requeue_call[0][1]["status"] == "pending"
+
+
+# ============================================================
+# pipeline status transition
+# ============================================================
+
+
+class TestPipelineStatusTransition:
+    def test_sets_pipeline_running_on_first_claim(
+        self, worker: WorkerLoop, engine: MagicMock
+    ):
+        engine._step_repo.get.return_value = {
+            "step_run_id": "SR-001",
+            "lease_owner": "",
+            "pipeline_run_id": "PR-001",
+        }
+        engine._pipeline_repo.get.return_value = {
+            "pipeline_run_id": "PR-001",
+            "status": "pending",
+        }
+        engine._step_repo.update.return_value = {
+            "step_run_id": "SR-001",
+            "status": "running",
+            "lease_owner": "worker-1",
+        }
+
+        worker.claim_step("SR-001")
+
+        pipeline_update = engine._pipeline_repo.update.call_args[0]
+        assert pipeline_update[0] == "PR-001"
+        assert pipeline_update[1]["status"] == "running"

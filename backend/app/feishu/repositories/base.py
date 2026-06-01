@@ -1,13 +1,13 @@
 """
 [INPUT]: 依赖 app.feishu.client.FeishuClient 的 HTTP 能力
-[OUTPUT]: 对外提供 BaseRepository——通用 Bitable CRUD + CAS 基类
+[OUTPUT]: 对外提供 BaseRepository——通用 Bitable CRUD + CAS + 字段过滤 + 业务键查找基类
 [POS]: repositories 包的抽象基类，被 16 个具体 repository 继承
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
 
 from __future__ import annotations
 
-from app.feishu.client import FeishuClient
+from app.feishu.client import FeishuClient, FeishuNotFoundError
 
 # ============================================================
 # base repository
@@ -49,6 +49,27 @@ class BaseRepository:
         mapped["record_id"] = record.get("record_id", "")
         return mapped
 
+    def _field_filter(self, **conditions: str | int) -> str:
+        """Build a Bitable filter expression from Python field names.
+
+        - Maps keys through ``self._field_map``.
+        - int values are unquoted; str values are double-quoted.
+        - Multiple conditions are joined with `` && ``.
+        """
+        clauses: list[str] = []
+        for key, value in conditions.items():
+            feishu_field = self._field_map.get(key, key)
+            if isinstance(value, int):
+                clauses.append(f'CurrentValue.[{feishu_field}] = {value}')
+            else:
+                clauses.append(f'CurrentValue.[{feishu_field}] = "{value}"')
+        return " && ".join(clauses)
+
+    def find_by_business_key(self, **conditions: str | int) -> dict | None:
+        """Look up a record by business fields, returning the first match or None."""
+        results = self.list(filter_expr=self._field_filter(**conditions), page_size=1)
+        return results[0] if results else None
+
     # ----------------------------------------------------------
     # CRUD
     # ----------------------------------------------------------
@@ -70,7 +91,7 @@ class BaseRepository:
         path = f"{self._base_path()}/{record_id}"
         try:
             resp = self._client.get(path)
-        except Exception:
+        except FeishuNotFoundError:
             return None
         return self._from_feishu(resp["data"]["record"])
 

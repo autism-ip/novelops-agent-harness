@@ -1,6 +1,6 @@
 """
 [INPUT]: 依赖 httpx 的同步 HTTP 客户端，依赖 time 的 monotonic clock
-[OUTPUT]: 对外提供 FeishuClient 类、FeishuAuthError 异常
+[OUTPUT]: 对外提供 FeishuClient 类、FeishuAuthError 异常、FeishuAPIError 异常、FeishuNotFoundError 异常
 [POS]: feishu 包的核心 HTTP 层，被 Bitable repository 消费，屏蔽飞书认证与重试细节
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
@@ -23,6 +23,21 @@ import httpx
 
 class FeishuAuthError(Exception):
     """飞书认证失败——token 获取或刷新均不可恢复。"""
+
+
+class FeishuAPIError(Exception):
+    """飞书 API 业务错误或 HTTP 4xx/5xx。"""
+
+    def __init__(self, message: str, code: int = 0) -> None:
+        super().__init__(message)
+        self.code = code
+
+
+class FeishuNotFoundError(FeishuAPIError):
+    """飞书记录不存在——请求的记录 ID 未找到。"""
+
+    def __init__(self, message: str = "not found", code: int = 1254043) -> None:
+        super().__init__(message, code=code)
 
 
 # ============================================================
@@ -173,8 +188,9 @@ class FeishuClient:
                     json=json,
                 )
             except httpx.HTTPError as exc:
-                raise FeishuAuthError(
-                    f"Request failed: {method} {path}: {exc}"
+                raise FeishuAPIError(
+                    f"Transport error on {method} {path}: {exc}",
+                    code=0,
                 ) from exc
 
             # -- 401: clear token and retry once --
@@ -189,10 +205,9 @@ class FeishuClient:
 
             # -- other non-2xx --
             if resp.status_code >= 400:
-                raise httpx.HTTPStatusError(
-                    f"Feishu API error {resp.status_code}: {resp.text}",
-                    request=resp.request,
-                    response=resp,
+                raise FeishuAPIError(
+                    f"HTTP {resp.status_code} on {method} {path}: {resp.text[:200]}",
+                    code=resp.status_code,
                 )
 
             # -- parse JSON body --

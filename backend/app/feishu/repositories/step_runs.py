@@ -31,12 +31,15 @@ class StepRunsRepo(BaseRepository):
     def find_by_pipeline(self, pipeline_run_id: str) -> list[dict]:
         """Return step runs belonging to a specific pipeline run."""
         return self.list(
-            filter_expr=f'CurrentValue.[pipeline_run_id] = "{pipeline_run_id}"'
+            filter_expr=self._field_filter(pipeline_run_id=pipeline_run_id)
         )
 
     def claim_step(self, step_run_id: str, owner: str) -> dict:
-        """Atomically claim a step by setting lease_owner and status."""
+        """Claim a step by resolving business key to record_id, then updating."""
+        record = self.find_by_business_key(step_run_id=step_run_id)
+        if record is None:
+            raise ValueError(f"Step run not found: {step_run_id}")
         return self.update(
-            step_run_id,
-            {"lease_owner": owner, "status": "claimed"},
+            record["record_id"],
+            {"lease_owner": owner, "status": "running"},
         )

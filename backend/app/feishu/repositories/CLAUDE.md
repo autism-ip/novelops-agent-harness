@@ -3,7 +3,7 @@
 
 成员清单
 __init__.py: 包入口，重导出全部 16 个具体 Repo 类与 create_repositories 工厂函数。
-base.py: 通用 Bitable CRUD 基类，提供 create/get/list/update/delete，自动字段映射与分页。
+base.py: 通用 Bitable CRUD 基类，提供 create/get/list/update/delete + _field_filter + find_by_business_key，自动字段映射与分页。
 factory.py: 组装工厂，一次性创建全部 16 个 repository 实例，返回 {table_name: repo} 字典。
 agents.py: AgentsRepo，find_by_role 查询。
 agent_states.py: AgentStatesRepo，find_by_agent/find_by_status 查询。
