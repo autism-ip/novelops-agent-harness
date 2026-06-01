@@ -5,6 +5,10 @@
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
 
+import pytest
+
+pytestmark = pytest.mark.asyncio
+
 SECRET_SENTINELS = (
     "test-key",
     "feishu-id-secret",

@@ -10,6 +10,7 @@ from __future__ import annotations
 from collections.abc import AsyncIterator
 
 import pytest
+import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
 
@@ -38,7 +39,7 @@ def app(isolated_settings: Settings):
     return create_app(isolated_settings)
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client(app) -> AsyncIterator[AsyncClient]:
     async with AsyncClient(
         transport=ASGITransport(app=app),
@@ -49,4 +50,4 @@ async def client(app) -> AsyncIterator[AsyncClient]:
 
 @pytest.fixture
 def auth_headers(isolated_settings: Settings) -> dict[str, str]:
-    return {"x-api-key": isolated_settings.backend_api_key}
+    return {"x-api-key": isolated_settings.BACKEND_API_KEY}
