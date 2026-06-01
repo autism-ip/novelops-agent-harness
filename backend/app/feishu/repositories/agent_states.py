@@ -30,8 +30,8 @@ class AgentStatesRepo(BaseRepository):
 
     def find_by_agent(self, agent_id: str) -> list[dict]:
         """Return states for a specific agent."""
-        return self.list(filter_expr=f'CurrentValue.[agent_id] = "{agent_id}"')
+        return self.list(filter_expr=self._field_filter(agent_id=agent_id))
 
     def find_by_status(self, status: str) -> list[dict]:
         """Return states matching *status*."""
-        return self.list(filter_expr=f'CurrentValue.[status] = "{status}"')
+        return self.list(filter_expr=self._field_filter(status=status))

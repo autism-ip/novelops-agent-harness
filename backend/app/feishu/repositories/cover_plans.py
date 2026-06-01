@@ -30,4 +30,4 @@ class CoverPlansRepo(BaseRepository):
 
     def find_by_title(self, title_id: str) -> list[dict]:
         """Return cover plans for a specific title."""
-        return self.list(filter_expr=f'CurrentValue.[title_id] = "{title_id}"')
+        return self.list(filter_expr=self._field_filter(title_id=title_id))

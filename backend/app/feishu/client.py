@@ -212,7 +212,7 @@ class FeishuClient:
                 retried = True
                 continue
 
-            # -- other non-2xx --
+            # -- other non-2xx → domain exception --
             if resp.status_code >= 400:
                 raise FeishuAPIError(
                     f"HTTP {resp.status_code} on {method} {path}: {resp.text[:200]}",

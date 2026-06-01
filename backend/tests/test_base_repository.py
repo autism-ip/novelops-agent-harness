@@ -11,6 +11,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from app.feishu.client import FeishuNotFoundError
 from app.feishu.repositories.base import BaseRepository
 from app.feishu.client import FeishuAuthError, FeishuNotFoundError
 

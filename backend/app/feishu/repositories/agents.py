@@ -30,4 +30,4 @@ class AgentsRepo(BaseRepository):
 
     def find_by_role(self, role: str) -> list[dict]:
         """Return agents matching *role*."""
-        return self.list(filter_expr=f'CurrentValue.[agent_role] = "{role}"')
+        return self.list(filter_expr=self._field_filter(agent_role=role))

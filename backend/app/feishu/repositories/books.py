@@ -30,4 +30,4 @@ class BooksRepo(BaseRepository):
 
     def find_by_status(self, status: str) -> list[dict]:
         """Return books matching *status*."""
-        return self.list(filter_expr=f'CurrentValue.[status] = "{status}"')
+        return self.list(filter_expr=self._field_filter(status=status))

@@ -30,10 +30,10 @@ class AgentRunsRepo(BaseRepository):
 
     def find_by_agent(self, agent_id: str) -> list[dict]:
         """Return runs for a specific agent."""
-        return self.list(filter_expr=f'CurrentValue.[agent_id] = "{agent_id}"')
+        return self.list(filter_expr=self._field_filter(agent_id=agent_id))
 
     def find_by_pipeline(self, pipeline_run_id: str) -> list[dict]:
         """Return runs belonging to a specific pipeline run."""
         return self.list(
-            filter_expr=f'CurrentValue.[pipeline_run_id] = "{pipeline_run_id}"'
+            filter_expr=self._field_filter(pipeline_run_id=pipeline_run_id)
         )

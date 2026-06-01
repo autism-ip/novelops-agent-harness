@@ -30,4 +30,4 @@ class HotspotAnalysesRepo(BaseRepository):
 
     def find_by_hotspot(self, hotspot_id: str) -> list[dict]:
         """Return analyses for a specific hotspot."""
-        return self.list(filter_expr=f'CurrentValue.[hotspot_id] = "{hotspot_id}"')
+        return self.list(filter_expr=self._field_filter(hotspot_id=hotspot_id))

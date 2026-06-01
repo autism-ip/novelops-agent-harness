@@ -31,8 +31,5 @@ class ChapterVersionsRepo(BaseRepository):
     def find_by_chapter(self, book_id: str, chapter_no: int) -> list[dict]:
         """Return versions for a specific chapter of a book."""
         return self.list(
-            filter_expr=(
-                f'CurrentValue.[book_id] = "{book_id}"'
-                f' && CurrentValue.[chapter_no] = {chapter_no}'
-            )
+            filter_expr=self._field_filter(book_id=book_id, chapter_no=chapter_no)
         )

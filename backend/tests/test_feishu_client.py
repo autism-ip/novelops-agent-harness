@@ -261,6 +261,27 @@ class TestAuthErrors:
         with pytest.raises(FeishuAPIError, match="code=99999"):
             client.get("/bitable/v1/test")
 
+    @patch("app.feishu.client.httpx.Client")
+    def test_http_4xx_raises_api_error(self, mock_http_cls: MagicMock) -> None:
+        """HTTP 4xx/5xx raises FeishuAPIError (not raw httpx.HTTPStatusError)."""
+        mock_http = MagicMock()
+        mock_http_cls.return_value = mock_http
+
+        client = FeishuClient(app_id="id", app_secret="sec")
+
+        auth_resp = _mock_post_response(
+            {"code": 0, "tenant_access_token": "t-http", "expire": 7200}
+        )
+        resp_403 = MagicMock(spec=httpx.Response)
+        resp_403.status_code = 403
+        resp_403.text = "Forbidden"
+
+        mock_http.post.return_value = auth_resp
+        mock_http.request.return_value = resp_403
+
+        with pytest.raises(FeishuAPIError, match="HTTP 403"):
+            client.get("/bitable/v1/test")
+
 
 # ============================================================
 # HTTP verbs
