@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -33,3 +34,10 @@ class Settings(BaseSettings):
 
     # --- Derived (set by create_app) ---
     app_version: str = "0.1.0"
+
+    @field_validator("backend_api_key")
+    @classmethod
+    def reject_blank_key(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("BACKEND_API_KEY must not be blank")
+        return v

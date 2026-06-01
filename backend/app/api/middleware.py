@@ -17,14 +17,14 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
     })
 
     async def dispatch(self, request: Request, call_next):
-        settings = request.app.state.settings
-
-        if not settings.backend_api_key:
+        # Only guard /api routes; let /docs, /openapi.json, etc. pass through.
+        if not request.url.path.startswith("/api"):
             return await call_next(request)
 
         if request.url.path in self.PUBLIC_PATHS:
             return await call_next(request)
 
+        settings = request.app.state.settings
         key = request.headers.get("x-api-key", "")
         if key != settings.backend_api_key:
             return JSONResponse(
