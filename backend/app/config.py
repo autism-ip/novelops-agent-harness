@@ -1,5 +1,7 @@
 """Application configuration via Pydantic Settings."""
 
+from __future__ import annotations
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -13,21 +15,21 @@ class Settings(BaseSettings):
     )
 
     # --- Security ---
-    BACKEND_API_KEY: str = ""
+    backend_api_key: str  # required, no default; env: BACKEND_API_KEY
 
     # --- Feishu Bitable ---
-    FEISHU_APP_ID: str = ""
-    FEISHU_APP_SECRET: str = ""
+    feishu_app_id: str = ""
+    feishu_app_secret: str = ""
 
     # --- LLM ---
-    LLM_API_KEY: str = ""
-    LLM_PROVIDER: str = "openai"
+    llm_api_key: str = ""
+    llm_provider: str = "openai"
 
     # --- OpenCLI ---
-    OPENCLI_ENABLED: bool = False
+    opencli_enabled: bool = False
 
     # --- CORS ---
-    CORS_ORIGINS: str = "*"
+    cors_origins: list[str] = ["http://localhost:3000"]
 
-
-settings = Settings()
+    # --- Derived (set by create_app) ---
+    app_version: str = "0.1.0"

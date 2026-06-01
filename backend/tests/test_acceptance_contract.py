@@ -41,7 +41,7 @@ def test_missing_backend_api_key_fails_with_clear_variable_name(monkeypatch):
     with pytest.raises(ValidationError) as error:
         Settings(_env_file=None)
 
-    assert "BACKEND_API_KEY" in str(error.value)
+    assert "backend_api_key" in str(error.value)
 
 
 def test_zen28_backend_layout_exists_as_executable_source_not_cache_artifacts():

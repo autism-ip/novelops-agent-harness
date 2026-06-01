@@ -5,6 +5,10 @@
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
 
+import pytest
+
+pytestmark = pytest.mark.asyncio
+
 
 async def test_health_and_status_are_public_probe_endpoints(client):
     health = await client.get("/api/system/health")

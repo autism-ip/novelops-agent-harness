@@ -10,6 +10,7 @@ from __future__ import annotations
 from collections.abc import AsyncIterator
 
 import pytest
+import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
 
@@ -38,7 +39,7 @@ def app(isolated_settings: Settings):
     return create_app(isolated_settings)
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client(app) -> AsyncIterator[AsyncClient]:
     async with AsyncClient(
         transport=ASGITransport(app=app),
