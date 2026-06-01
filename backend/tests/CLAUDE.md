@@ -11,6 +11,9 @@ test_api.py: 集成测试，验证系统端点与 API key 鉴权的 TestClient �
 test_feishu_client.py: FeishuClient 行为门禁，验证 token 生命周期、Bearer 注入、401 重试与异常路径（13 用例）。
 test_base_repository.py: BaseRepository 行为门禁，验证 Python↔Feishu 字段映射与 CRUD + 分页操作（15 用例）。
 test_table_map.py: table_map 完整性门禁，验证 16 表配置数量、映射对应关系、环境变量覆盖（16 用例）。
+test_pipeline_engine.py: PipelineEngine 行为门禁，验证 create/get_runnable/complete/fail 生命周期（11 用例）。
+test_worker_loop.py: WorkerLoop 行为门禁，验证 claim/lease/expired/poll/execute/retry 逻辑（12 用例）。
+test_pipeline_api.py: Pipeline API 端点门禁，验证 POST 创建、GET 查询、404 处理（5 用例）。
 
 架构决策
 测试以 BDD 验收行为为中心：状态值必须精确、密钥不得回显、鉴权必须先于路由缺失返回。门禁允许当前实现缺失时失败；它的职责是定义合格线，而不是替实现兜底。
