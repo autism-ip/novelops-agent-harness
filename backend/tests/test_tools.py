@@ -111,6 +111,16 @@ class TestOpenCLIRunner:
         assert runner._bin == "opencli"
         assert runner._timeout == 30
 
+    def test_binary_not_found_raises_opencli_error(self):
+        """Scenario: Binary not found raises OpenCLIError."""
+        runner = OpenCLIRunner(binary="nonexistent-cli", timeout=30)
+        with patch(
+            "app.tools.runner.subprocess.run",
+            side_effect=FileNotFoundError("No such file or directory"),
+        ):
+            with pytest.raises(OpenCLIError, match="not found or not executable"):
+                runner.run(["douyin", "hotspots"])
+
 
 # ===================================================================
 # DouyinHotspotAdapter tests
@@ -262,4 +272,22 @@ class TestDouyinFetch:
         adapter = DouyinHotspotAdapter(runner=runner, settings=settings)
 
         with pytest.raises(OpenCLIExitError, match="exited with code 1"):
+            adapter.fetch()
+
+    def test_non_list_json_raises_output_error(self):
+        """Scenario: Non-list JSON response raises OpenCLIOutputError."""
+        dict_data = {"error": "rate limited"}
+        runner = SimpleNamespace(
+            run=lambda cmd: OpenCLIResult(
+                stdout=json.dumps(dict_data),
+                stderr="",
+                returncode=0,
+                duration_ms=50,
+                data=dict_data,
+            )
+        )
+        settings = SimpleNamespace(OPENCLI_ENABLED=True)
+        adapter = DouyinHotspotAdapter(runner=runner, settings=settings)
+
+        with pytest.raises(OpenCLIOutputError, match="expected list"):
             adapter.fetch()

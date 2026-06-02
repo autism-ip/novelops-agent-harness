@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
-from app.tools.errors import OpenCLIError
+from app.tools.errors import OpenCLIError, OpenCLIOutputError
 from app.tools.runner import OpenCLIRunner
 from app.tools.schemas import DouyinHotspotRecord
 
@@ -44,9 +44,15 @@ class DouyinHotspotAdapter:
     normalizes raw JSON records into DouyinHotspotRecord instances.
     """
 
-    def __init__(self, runner: OpenCLIRunner, settings: object) -> None:
+    def __init__(
+        self,
+        runner: OpenCLIRunner,
+        settings: object,
+        command: list[str] | None = None,
+    ) -> None:
         self._runner = runner
         self._settings = settings
+        self._cmd = command or ["douyin", "hotspots", "--format", "json"]
 
     def fetch(self) -> DouyinAdapterResult:
         """Fetch and normalize Douyin hotspot data.
@@ -61,8 +67,12 @@ class DouyinHotspotAdapter:
         if not getattr(self._settings, "OPENCLI_ENABLED", True):
             raise OpenCLIError("OpenCLI is disabled")
 
-        result = self._runner.run(["douyin", "hotspots", "--format", "json"])
-        raw_records = result.data if isinstance(result.data, list) else []
+        result = self._runner.run(self._cmd)
+        if not isinstance(result.data, list):
+            raise OpenCLIOutputError(
+                f"OpenCLI returned {type(result.data).__name__}, expected list"
+            )
+        raw_records = result.data
 
         normalized: list[DouyinHotspotRecord] = []
         for raw in raw_records:

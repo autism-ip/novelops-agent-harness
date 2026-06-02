@@ -1,7 +1,7 @@
 """
 runner — OpenCLIRunner subprocess execution.
 
-[INPUT]: 依赖 app.tools.errors 的 OpenCLITimeoutError / OpenCLIExitError / OpenCLIOutputError
+[INPUT]: 依赖 app.tools.errors 的 OpenCLIError / OpenCLITimeoutError / OpenCLIExitError / OpenCLIOutputError
 [OUTPUT]: OpenCLIRunner class, OpenCLIResult frozen dataclass
 [POS]: tools 包的执行层，被 adapter 消费，隔离子进程调用
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
@@ -15,7 +15,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
-from app.tools.errors import OpenCLIExitError, OpenCLIOutputError, OpenCLITimeoutError
+from app.tools.errors import OpenCLIError, OpenCLIExitError, OpenCLIOutputError, OpenCLITimeoutError
 
 
 # ---------------------------------------------------------------------------
@@ -82,6 +82,11 @@ class OpenCLIRunner:
         except subprocess.TimeoutExpired as exc:
             raise OpenCLITimeoutError(
                 timeout=effective_timeout,
+                cause=exc,
+            ) from exc
+        except OSError as exc:
+            raise OpenCLIError(
+                f"OpenCLI binary not found or not executable: {self._bin}",
                 cause=exc,
             ) from exc
 
