@@ -9,6 +9,8 @@ tests/: 行为级 pytest 门禁，验证 ZEN-28 验收契约而非仅验证进�
 app/api/: FastAPI 路由层——中间件守卫（deps.py）、端点注册（routes/__init__.py）、健康探活（routes/health.py）、管线端点（routes/pipelines.py）。
 app/feishu/: 飞书 Bitable 集成层——HTTP 客户端（client.py）、16 表配置（table_map.py）、16 个具体 Repository + 工厂（repositories/）。
 app/pipeline/: 流水线引擎——数据模型（models.py）、编排器（engine.py）、lease-based worker 执行循环（worker.py）。
+app/tools/: 外部工具集成层——OpenCLIRunner 子进程执行（runner.py）、OpenCLIResult 结果封装（含 data 字段）、DouyinHotspotRecord 数据契约（schemas.py）、错误层级（errors.py）、DouyinAdapterResult 归一化结果。
+app/tools/adapters/: 工具适配器子包——抖音热点适配器（douyin_hotspots.py），DouyinHotspotAdapter 封装命令组装与字段归一化，支持多字段别名容错。
 
 架构决策
 `app.main:create_app(settings)` 是唯一入口；模块级 `app` 通过 `__getattr__` 延迟创建。`Settings` 字段全小写，pydantic-settings 自动映射大写环境变量。密钥只进入 Settings 与 app.state，禁止出现在响应体。`/api/system/health` 与 `/api/system/status` 公开可探活，`/api/system/config` 需鉴权，其余 `/api/*` 先过 `x-api-key`。

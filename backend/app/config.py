@@ -29,6 +29,8 @@ class Settings(BaseSettings):
 
     # --- OpenCLI ---
     OPENCLI_ENABLED: bool = False
+    opencli_bin: str = "opencli"
+    opencli_timeout: int = 30
 
     # --- CORS ---
     CORS_ORIGINS: list[str] = ["http://localhost:3000"]
