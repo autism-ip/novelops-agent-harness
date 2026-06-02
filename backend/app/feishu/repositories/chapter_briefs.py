@@ -30,4 +30,4 @@ class ChapterBriefsRepo(BaseRepository):
 
     def find_by_book(self, book_id: str) -> list[dict]:
         """Return chapter briefs for a specific book."""
-        return self.list(filter_expr=f'CurrentValue.[book_id] = "{book_id}"')
+        return self.list(filter_expr=self._field_filter(book_id=book_id))

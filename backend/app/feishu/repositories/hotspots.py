@@ -30,10 +30,10 @@ class HotspotsRepo(BaseRepository):
 
     def find_by_status(self, status: str) -> list[dict]:
         """Return hotspots matching *status*."""
-        return self.list(filter_expr=f'CurrentValue.[status] = "{status}"')
+        return self.list(filter_expr=self._field_filter(status=status))
 
     def find_by_dedupe_hash(self, dedupe_hash: str) -> list[dict]:
         """Return hotspots matching *dedupe_hash* (deduplication check)."""
         return self.list(
-            filter_expr=f'CurrentValue.[dedupe_hash] = "{dedupe_hash}"'
+            filter_expr=self._field_filter(dedupe_hash=dedupe_hash)
         )

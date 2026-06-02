@@ -30,10 +30,10 @@ class PipelineRunsRepo(BaseRepository):
 
     def find_by_status(self, status: str) -> list[dict]:
         """Return pipeline runs matching *status*."""
-        return self.list(filter_expr=f'CurrentValue.[status] = "{status}"')
+        return self.list(filter_expr=self._field_filter(status=status))
 
     def find_by_type(self, pipeline_type: str) -> list[dict]:
         """Return pipeline runs of a specific *pipeline_type*."""
         return self.list(
-            filter_expr=f'CurrentValue.[pipeline_type] = "{pipeline_type}"'
+            filter_expr=self._field_filter(pipeline_type=pipeline_type)
         )

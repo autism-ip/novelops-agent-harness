@@ -31,8 +31,5 @@ class ApprovalEventsRepo(BaseRepository):
     def find_by_target(self, target_type: str, target_id: str) -> list[dict]:
         """Return approval events for a specific target."""
         return self.list(
-            filter_expr=(
-                f'CurrentValue.[target_type] = "{target_type}"'
-                f' && CurrentValue.[target_id] = "{target_id}"'
-            )
+            filter_expr=self._field_filter(target_type=target_type, target_id=target_id)
         )

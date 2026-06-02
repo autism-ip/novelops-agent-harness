@@ -23,6 +23,6 @@ agent_team_snapshots.py: AgentTeamSnapshotsRepo，find_by_chapter 查询（复�
 approval_events.py: ApprovalEventsRepo，find_by_target 查询（复合条件 target_type + target_id）。
 
 架构决策
-每个 Repo 继承 BaseRepository，在 __init__ 中通过 FIELD_MAPS[table_key] 注入字段映射。领域查询方法使用 Feishu Bitable filter 语法（CurrentValue.[field] = "value"）。工厂模式统一创建，支持环境变量覆盖表 ID。
+每个 Repo 继承 BaseRepository，在 __init__ 中通过 FIELD_MAPS[table_key] 注入字段映射。领域查询方法通过 `self._field_filter()` 构建过滤表达式，自动将 Python 字段名映射为飞书字段名。工厂模式统一创建，支持环境变量覆盖表 ID。
 
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md

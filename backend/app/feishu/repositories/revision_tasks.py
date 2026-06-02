@@ -30,4 +30,4 @@ class RevisionTasksRepo(BaseRepository):
 
     def find_by_status(self, status: str) -> list[dict]:
         """Return revision tasks matching *status*."""
-        return self.list(filter_expr=f'CurrentValue.[status] = "{status}"')
+        return self.list(filter_expr=self._field_filter(status=status))

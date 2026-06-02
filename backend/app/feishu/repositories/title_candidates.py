@@ -30,4 +30,4 @@ class TitleCandidatesRepo(BaseRepository):
 
     def find_by_analysis(self, analysis_id: str) -> list[dict]:
         """Return title candidates for a specific analysis."""
-        return self.list(filter_expr=f'CurrentValue.[analysis_id] = "{analysis_id}"')
+        return self.list(filter_expr=self._field_filter(analysis_id=analysis_id))
