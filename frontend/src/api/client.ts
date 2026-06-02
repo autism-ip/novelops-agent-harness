@@ -1,7 +1,7 @@
 /**
- * [INPUT]: 依赖 next.config.ts 的 /api/:path* rewrite 代理
+ * [INPUT]: 依赖 app/api/[...path]/route.ts 的服务端代理（注入 x-api-key）
  * [OUTPUT]: 对外提供 ApiError 类、createApiClient 工厂函数、api 默认实例
- * [POS]: api 模块的 HTTP 通信层，被所有业务 hook 消费；浏览器端走 rewrite 代理，不携带 API key
+ * [POS]: api 模块的 HTTP 通信层，被所有业务 hook 消费；浏览器端走服务端代理，不携带 API key
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
