@@ -1,7 +1,7 @@
 /**
- * [INPUT]: 依赖环境变量 NEXT_PUBLIC_API_BASE_URL, NEXT_PUBLIC_API_KEY
+ * [INPUT]: 依赖 next.config.ts 的 /api/:path* rewrite 代理
  * [OUTPUT]: 对外提供 ApiError 类、createApiClient 工厂函数、api 默认实例
- * [POS]: api 模块的 HTTP 通信层，被所有业务 hook 消费
+ * [POS]: api 模块的 HTTP 通信层，被所有业务 hook 消费；浏览器端走 rewrite 代理，不携带 API key
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
@@ -75,10 +75,9 @@ export function createApiClient({ baseUrl, apiKey }: ApiClientOptions) {
 }
 
 // ----------------------------------------------------------------
-// Default singleton — consumed by hooks & server components
+// Default singleton — browser client uses rewrite proxy, no API key
 // ----------------------------------------------------------------
 
 export const api = createApiClient({
-  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000",
-  apiKey: process.env.NEXT_PUBLIC_API_KEY,
+  baseUrl: "",
 })
