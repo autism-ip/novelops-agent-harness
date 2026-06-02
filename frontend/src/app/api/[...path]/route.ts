@@ -1,11 +1,12 @@
 /**
- * [INPUT]: 依赖环境变量 BACKEND_API_URL, BACKEND_API_KEY（服务端专用，不暴露给浏览器）
+ * [INPUT]: 依赖环境变量 BACKEND_API_URL, BACKEND_API_KEY, SESSION_SECRET（服务端专用）
  * [OUTPUT]: Next.js catch-all API route handler，代理所有 /api/* 请求到后端
- * [POS]: app/api/[...path] 的服务端代理层，验证 session 后注入 x-api-key，被浏览器端 client.ts 消费
+ * [POS]: app/api/[...path] 的服务端代理层，验证签名 session 后注入 x-api-key
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
 import { type NextRequest, NextResponse } from "next/server";
+import { verifyToken } from "@/lib/session";
 
 const BACKEND_URL = process.env.BACKEND_API_URL || "http://localhost:8000";
 const BACKEND_KEY = process.env.BACKEND_API_KEY || "";
@@ -22,12 +23,15 @@ async function proxyRequest(
 
   const isPublic = PUBLIC_BACKEND_PATHS.has(targetPath);
 
-  // Protected routes require a valid session cookie
-  if (!isPublic && !request.cookies.get("session_token")) {
-    return NextResponse.json(
-      { detail: "Authentication required" },
-      { status: 401 }
-    );
+  // Protected routes require a valid signed session cookie
+  if (!isPublic) {
+    const token = request.cookies.get("session_token")?.value;
+    if (!token || !(await verifyToken(token))) {
+      return NextResponse.json(
+        { detail: "Authentication required" },
+        { status: 401 }
+      );
+    }
   }
 
   const targetUrl = new URL(`/api/${targetPath}`, BACKEND_URL);
