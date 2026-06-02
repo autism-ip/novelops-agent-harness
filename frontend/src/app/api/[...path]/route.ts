@@ -26,7 +26,22 @@ async function proxyRequest(
   // Protected routes require a valid signed session cookie
   if (!isPublic) {
     const token = request.cookies.get("session_token")?.value;
-    if (!token || !(await verifyToken(token))) {
+    if (!token) {
+      return NextResponse.json(
+        { detail: "Authentication required" },
+        { status: 401 }
+      );
+    }
+    let valid: string | null;
+    try {
+      valid = await verifyToken(token);
+    } catch {
+      return NextResponse.json(
+        { detail: "Server configuration error" },
+        { status: 503 }
+      );
+    }
+    if (!valid) {
       return NextResponse.json(
         { detail: "Authentication required" },
         { status: 401 }
