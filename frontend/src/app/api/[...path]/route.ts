@@ -1,7 +1,7 @@
 /**
  * [INPUT]: 依赖环境变量 BACKEND_API_URL, BACKEND_API_KEY（服务端专用，不暴露给浏览器）
  * [OUTPUT]: Next.js catch-all API route handler，代理所有 /api/* 请求到后端
- * [POS]: app/api/[...path] 的服务端代理层，注入 x-api-key，被浏览器端 client.ts 消费
+ * [POS]: app/api/[...path] 的服务端代理层，验证 session 后注入 x-api-key，被浏览器端 client.ts 消费
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
@@ -10,12 +10,26 @@ import { type NextRequest, NextResponse } from "next/server";
 const BACKEND_URL = process.env.BACKEND_API_URL || "http://localhost:8000";
 const BACKEND_KEY = process.env.BACKEND_API_KEY || "";
 
+// Paths that the backend exposes without x-api-key
+const PUBLIC_BACKEND_PATHS = new Set(["system/health", "system/status"]);
+
 async function proxyRequest(
   request: NextRequest,
   params: Promise<{ path: string[] }>
 ): Promise<NextResponse> {
   const { path } = await params;
   const targetPath = path.join("/");
+
+  const isPublic = PUBLIC_BACKEND_PATHS.has(targetPath);
+
+  // Protected routes require a valid session cookie
+  if (!isPublic && !request.cookies.get("session_token")) {
+    return NextResponse.json(
+      { detail: "Authentication required" },
+      { status: 401 }
+    );
+  }
+
   const targetUrl = new URL(`/api/${targetPath}`, BACKEND_URL);
   targetUrl.search = request.nextUrl.search;
 
@@ -24,7 +38,9 @@ async function proxyRequest(
     "Content-Type",
     request.headers.get("Content-Type") || "application/json"
   );
-  if (BACKEND_KEY) {
+
+  // Only inject backend key for protected routes
+  if (!isPublic && BACKEND_KEY) {
     headers.set("x-api-key", BACKEND_KEY);
   }
 
