@@ -30,3 +30,4 @@ class DouyinHotspotRecord:
     raw_json: dict = field(hash=False)  # original record, preserved for audit
     dedupe_hash: str = ""   # sha256(source:title:url)
     hotspot_id: str = ""    # uuid4
+    status: str = "new"     # new / normalized / analyzed / approved / discarded

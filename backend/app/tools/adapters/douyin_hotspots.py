@@ -48,11 +48,11 @@ class DouyinHotspotAdapter:
         self,
         runner: OpenCLIRunner,
         settings: object,
-        command: list[str] | None = None,
+        command: list[str],
     ) -> None:
         self._runner = runner
         self._settings = settings
-        self._cmd = command or ["douyin", "hotspots", "--format", "json"]
+        self._cmd = command
 
     def fetch(self) -> DouyinAdapterResult:
         """Fetch and normalize Douyin hotspot data.
@@ -76,6 +76,8 @@ class DouyinHotspotAdapter:
 
         normalized: list[DouyinHotspotRecord] = []
         for raw in raw_records:
+            if not isinstance(raw, dict):
+                continue
             record = self._normalize(raw)
             if record is not None:
                 normalized.append(record)

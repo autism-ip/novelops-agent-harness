@@ -130,11 +130,12 @@ class TestOpenCLIRunner:
 class TestDouyinNormalization:
     """BDD: Douyin hotspot record normalization."""
 
-    def _make_adapter(self, runner=None, enabled=True):
+    def _make_adapter(self, runner=None, enabled=True, command=None):
         settings = SimpleNamespace(OPENCLI_ENABLED=enabled)
         return DouyinHotspotAdapter(
             runner=runner or OpenCLIRunner(),
             settings=settings,
+            command=command or ["test", "hotspots"],
         )
 
     def test_disabled_raises_immediately(self):
@@ -216,6 +217,15 @@ class TestDouyinNormalization:
         assert r1.dedupe_hash == r2.dedupe_hash
         assert r1.hotspot_id != r2.hotspot_id  # different UUIDs
 
+    def test_record_default_status_is_new(self):
+        """Scenario: Normalized record has default status 'new'."""
+        adapter = self._make_adapter()
+        raw = {"title": "测试话题", "url": "https://example.com"}
+        record = adapter._normalize(raw)
+
+        assert record is not None
+        assert record.status == "new"
+
 
 class TestDouyinFetch:
     """BDD: Adapter fetch end-to-end."""
@@ -240,7 +250,9 @@ class TestDouyinFetch:
         ]
         runner = self._make_mock_runner(raw_records)
         settings = SimpleNamespace(OPENCLI_ENABLED=True)
-        adapter = DouyinHotspotAdapter(runner=runner, settings=settings)
+        adapter = DouyinHotspotAdapter(
+            runner=runner, settings=settings, command=["test", "hotspots"],
+        )
 
         result = adapter.fetch()
 
@@ -255,7 +267,9 @@ class TestDouyinFetch:
         """Scenario: Empty records list returns empty result."""
         runner = self._make_mock_runner([])
         settings = SimpleNamespace(OPENCLI_ENABLED=True)
-        adapter = DouyinHotspotAdapter(runner=runner, settings=settings)
+        adapter = DouyinHotspotAdapter(
+            runner=runner, settings=settings, command=["test", "hotspots"],
+        )
 
         result = adapter.fetch()
         assert len(result.records) == 0
@@ -269,7 +283,9 @@ class TestDouyinFetch:
 
         runner = SimpleNamespace(run=failing_run)
         settings = SimpleNamespace(OPENCLI_ENABLED=True)
-        adapter = DouyinHotspotAdapter(runner=runner, settings=settings)
+        adapter = DouyinHotspotAdapter(
+            runner=runner, settings=settings, command=["test", "hotspots"],
+        )
 
         with pytest.raises(OpenCLIExitError, match="exited with code 1"):
             adapter.fetch()
@@ -287,7 +303,28 @@ class TestDouyinFetch:
             )
         )
         settings = SimpleNamespace(OPENCLI_ENABLED=True)
-        adapter = DouyinHotspotAdapter(runner=runner, settings=settings)
+        adapter = DouyinHotspotAdapter(
+            runner=runner, settings=settings, command=["test", "hotspots"],
+        )
 
         with pytest.raises(OpenCLIOutputError, match="expected list"):
             adapter.fetch()
+
+    def test_non_dict_items_skipped(self):
+        """Scenario: Non-dict items in list are silently skipped."""
+        mixed_data = [
+            {"rank": 1, "title": "有效话题"},
+            None,
+            "invalid string",
+            42,
+            {"rank": 2, "title": "另一个有效话题"},
+        ]
+        runner = self._make_mock_runner(mixed_data)
+        settings = SimpleNamespace(OPENCLI_ENABLED=True)
+        adapter = DouyinHotspotAdapter(
+            runner=runner, settings=settings, command=["test", "hotspots"],
+        )
+
+        result = adapter.fetch()
+        assert result.raw_count == 5
+        assert len(result.records) == 2
