@@ -220,9 +220,13 @@ class FeishuClient:
 
             # -- check Feishu business-level error --
             if isinstance(result, dict) and result.get("code", 0) != 0:
-                raise FeishuAuthError(
-                    f"Feishu error code={result['code']}: "
+                code = result["code"]
+                msg = (
+                    f"Feishu error code={code}: "
                     f"{result.get('msg', result)}"
                 )
+                if code == 1254043:
+                    raise FeishuNotFoundError(msg, code=code)
+                raise FeishuAuthError(msg)
 
             return result

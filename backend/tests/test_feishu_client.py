@@ -12,7 +12,7 @@ from unittest.mock import MagicMock, patch
 import httpx
 import pytest
 
-from app.feishu.client import FeishuAPIError, FeishuAuthError, FeishuClient
+from app.feishu.client import FeishuAPIError, FeishuAuthError, FeishuClient, FeishuNotFoundError
 
 
 # ============================================================
@@ -404,3 +404,41 @@ class TestHttpErrors:
 
         with pytest.raises(FeishuAuthError, match="Auth failed after retry"):
             client.get("/bitable/v1/test")
+
+
+# ============================================================
+# business error classification
+# ============================================================
+
+
+class TestBusinessErrorClassification:
+    """Feishu business codes map to the correct exception type."""
+
+    @patch("app.feishu.client.httpx.Client")
+    def test_not_found_code_raises_not_found_error(
+        self, mock_http_cls: MagicMock
+    ) -> None:
+        """Business code 1254043 raises FeishuNotFoundError, not FeishuAuthError."""
+        mock_http = MagicMock()
+        mock_http_cls.return_value = mock_http
+
+        client = FeishuClient(app_id="id", app_secret="sec")
+
+        auth_resp = _mock_post_response(
+            {"code": 0, "tenant_access_token": "t-404", "expire": 7200}
+        )
+        not_found_resp = MagicMock(spec=httpx.Response)
+        not_found_resp.status_code = 200
+        not_found_resp.json.return_value = {
+            "code": 1254043,
+            "msg": "record not found",
+        }
+        not_found_resp.text = "record not found"
+
+        mock_http.post.return_value = auth_resp
+        mock_http.request.return_value = not_found_resp
+
+        with pytest.raises(FeishuNotFoundError, match="code=1254043") as exc_info:
+            client.get("/bitable/v1/apps/app/tables/tbl/records/rec-missing")
+
+        assert exc_info.value.code == 1254043

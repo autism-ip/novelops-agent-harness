@@ -69,11 +69,24 @@ class WorkerLoop:
         return None
 
     # ----------------------------------------------------------
+    # record_id resolution
+    # ----------------------------------------------------------
+
+    def _resolve_record_id(self, step_run_id: str) -> str:
+        """Resolve business key to Feishu record_id via find_by_business_key."""
+        record = self._engine._step_repo.find_by_business_key(
+            step_run_id=step_run_id,
+        )
+        if record is None:
+            raise ValueError(f"Step run not found: {step_run_id}")
+        return record["record_id"]
+
+    # ----------------------------------------------------------
     # execute — run handler with success/fail routing
     # ----------------------------------------------------------
 
     def execute_step(
-        self, step_run_id: str, handler: Callable[[str], dict | None]
+        self, record_id: str, handler: Callable[[str], dict | None]
     ) -> dict:
         """Run *handler(step_run_id)* and route to complete or fail.
 
@@ -82,33 +95,38 @@ class WorkerLoop:
                       otherwise leave as permanently failed.
         """
         now = datetime.now(timezone.utc).isoformat()
-        self._engine._step_repo.update(step_run_id, {"started_at": now})
+        self._engine._step_repo.update(record_id, {"started_at": now})
 
         try:
+            # Read step_run_id (business key) for handler + engine calls
+            step = self._engine._step_repo.get(record_id)
+            step_run_id = step.get("step_run_id", "") if step else ""
+
             result = handler(step_run_id)
 
             # Recheck lease before completing (defense-in-depth)
-            step = self._engine._step_repo.get(step_run_id)
+            step = self._engine._step_repo.get(record_id)
             if step and self.is_lease_expired(step):
                 raise RuntimeError(f"Lease expired for step {step_run_id} before complete")
 
             output_refs = result.get("output_refs") if result else None
             return self._engine.complete_step(step_run_id, output_refs)
         except Exception as exc:
-            step = self._engine._step_repo.get(step_run_id)
+            step = self._engine._step_repo.get(record_id)
             retry_count = step.get("retry_count", 0) if step else 0
+            step_run_id = step.get("step_run_id", "") if step else ""
             error_msg = f"{type(exc).__name__}: {exc}\n{traceback.format_exc()}"
 
             if retry_count < self._max_retries:
                 # re-queue: increment retry count, clear lease
-                self._engine._step_repo.update(step_run_id, {
+                self._engine._step_repo.update(record_id, {
                     "status": "pending",
                     "lease_owner": "",
                     "lease_until": "",
                     "retry_count": retry_count + 1,
                     "error_message": error_msg,
                 })
-                return self._engine._step_repo.get(step_run_id) or {}
+                return self._engine._step_repo.get(record_id) or {}
 
             # retries exhausted → permanent failure
             return self._engine.fail_step(step_run_id, error_msg)
@@ -117,12 +135,13 @@ class WorkerLoop:
     # claim — set lease and transition to running
     # ----------------------------------------------------------
 
-    def claim_step(self, step_run_id: str) -> dict:
+    def claim_step(self, record_id: str) -> dict:
         """Claim a step with CAS: only if unowned or already ours."""
-        step = self._engine._step_repo.get(step_run_id)
+        step = self._engine._step_repo.get(record_id)
         if step is None:
-            raise ValueError(f"Step not found: {step_run_id}")
+            raise ValueError(f"Step not found: {record_id}")
 
+        step_run_id = step.get("step_run_id", "")
         current_owner = step.get("lease_owner", "")
         if current_owner and current_owner != self._worker_id:
             if not self.is_lease_expired(step):
@@ -131,7 +150,7 @@ class WorkerLoop:
         now = datetime.now(timezone.utc)
         lease_until = (now + timedelta(seconds=self._lease_duration)).isoformat()
 
-        result = self._engine._step_repo.update(step_run_id, {
+        result = self._engine._step_repo.update(record_id, {
             "status": "running",
             "lease_owner": self._worker_id,
             "lease_until": lease_until,
@@ -176,11 +195,11 @@ class WorkerLoop:
         # path A: pending steps with satisfied dependencies
         runnable = self._engine.get_runnable_steps(pipeline_run_id)
         for step in runnable:
-            step_run_id = step.get("step_run_id", "")
-            if not step_run_id:
+            record_id = step.get("record_id", "")
+            if not record_id:
                 continue
             try:
-                return self.claim_step(step_run_id)
+                return self.claim_step(record_id)
             except Exception:
                 continue
 
@@ -191,11 +210,11 @@ class WorkerLoop:
                 continue
             if not self.is_lease_expired(step):
                 continue
-            step_run_id = step.get("step_run_id", "")
-            if not step_run_id:
+            record_id = step.get("record_id", "")
+            if not record_id:
                 continue
             try:
-                return self.claim_step(step_run_id)
+                return self.claim_step(record_id)
             except Exception:
                 continue
 

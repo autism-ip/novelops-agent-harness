@@ -137,6 +137,12 @@ class TestCompleteStep:
     def test_marks_step_as_success(
         self, engine: PipelineEngine, step_repo: MagicMock
     ):
+        step_repo.find_by_business_key.return_value = {"record_id": "rec-001"}
+        step_repo.get.return_value = {
+            "step_run_id": "SR-001",
+            "pipeline_run_id": "PR-001",
+            "lease_until": "",
+        }
         step_repo.update.return_value = {
             "step_run_id": "SR-001",
             "pipeline_run_id": "PR-001",
@@ -149,13 +155,19 @@ class TestCompleteStep:
         engine.complete_step("SR-001", output_refs=["ref-1"])
 
         update_call = step_repo.update.call_args[0]
-        assert update_call[0] == "SR-001"
+        assert update_call[0] == "rec-001"
         assert update_call[1]["status"] == "success"
         assert update_call[1]["output_refs"] == "ref-1"
 
     def test_advances_pipeline_when_runnable_steps_exist(
         self, engine: PipelineEngine, step_repo: MagicMock, pipeline_repo: MagicMock
     ):
+        step_repo.find_by_business_key.return_value = {"record_id": "rec-001"}
+        step_repo.get.return_value = {
+            "step_run_id": "SR-001",
+            "pipeline_run_id": "PR-001",
+            "lease_until": "",
+        }
         step_repo.update.return_value = {
             "step_run_id": "SR-001",
             "pipeline_run_id": "PR-001",
@@ -175,6 +187,12 @@ class TestCompleteStep:
     def test_completes_pipeline_when_all_steps_success(
         self, engine: PipelineEngine, step_repo: MagicMock, pipeline_repo: MagicMock
     ):
+        step_repo.find_by_business_key.return_value = {"record_id": "rec-002"}
+        step_repo.get.return_value = {
+            "step_run_id": "SR-002",
+            "pipeline_run_id": "PR-001",
+            "lease_until": "",
+        }
         step_repo.update.return_value = {
             "step_run_id": "SR-002",
             "pipeline_run_id": "PR-001",
@@ -200,12 +218,14 @@ class TestFailStep:
     def test_marks_step_as_failed_and_increments_retry(
         self, engine: PipelineEngine, step_repo: MagicMock
     ):
-        step_repo.get.return_value = {"retry_count": 1}
+        step_repo.find_by_business_key.return_value = {"record_id": "rec-001"}
+        step_repo.get.return_value = {"step_run_id": "SR-001", "retry_count": 1}
         step_repo.update.return_value = {"status": "failed", "retry_count": 2}
 
         engine.fail_step("SR-001", "ValueError: bad input")
 
         update_call = step_repo.update.call_args[0]
+        assert update_call[0] == "rec-001"
         assert update_call[1]["status"] == "failed"
         assert update_call[1]["retry_count"] == 2
         assert "ValueError" in update_call[1]["error_message"]
@@ -213,11 +233,13 @@ class TestFailStep:
     def test_defaults_retry_count_to_zero(
         self, engine: PipelineEngine, step_repo: MagicMock
     ):
+        step_repo.find_by_business_key.return_value = {"record_id": "rec-001"}
         step_repo.get.return_value = None
 
         engine.fail_step("SR-001", "error")
 
         update_call = step_repo.update.call_args[0]
+        assert update_call[0] == "rec-001"
         assert update_call[1]["retry_count"] == 1
 
 

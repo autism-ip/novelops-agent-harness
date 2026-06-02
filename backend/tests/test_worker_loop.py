@@ -46,10 +46,10 @@ class TestClaimStep:
             "lease_owner": "worker-1",
         }
 
-        result = worker.claim_step("SR-001")
+        result = worker.claim_step("rec-001")
 
         update_call = engine._step_repo.update.call_args[0]
-        assert update_call[0] == "SR-001"
+        assert update_call[0] == "rec-001"
         assert update_call[1]["status"] == "running"
         assert update_call[1]["lease_owner"] == "worker-1"
         assert "lease_until" in update_call[1]
@@ -87,7 +87,7 @@ class TestPollOnce:
             {"pipeline_run_id": "PR-001", "status": "running"},
         ]
         engine.get_runnable_steps.return_value = [
-            {"step_run_id": "SR-001", "step_key": "s1"},
+            {"step_run_id": "SR-001", "step_key": "s1", "record_id": "rec-001"},
         ]
         engine._step_repo.get.return_value = {
             "step_run_id": "SR-001",
@@ -120,7 +120,7 @@ class TestPollOnce:
         ]
         engine.get_runnable_steps.return_value = []
         engine._step_repo.find_by_pipeline.return_value = [
-            {"step_run_id": "SR-001", "status": "running", "lease_until": past, "lease_owner": "worker-2"},
+            {"step_run_id": "SR-001", "status": "running", "lease_until": past, "lease_owner": "worker-2", "record_id": "rec-001"},
         ]
         engine._step_repo.get.return_value = {
             "step_run_id": "SR-001",
@@ -159,7 +159,7 @@ class TestExecuteStep:
             "lease_until": future,
         }
 
-        result = worker.execute_step("SR-001", handler)
+        result = worker.execute_step("rec-001", handler)
 
         handler.assert_called_once_with("SR-001")
         engine.complete_step.assert_called_once_with("SR-001", ["ref-1"])
@@ -170,16 +170,17 @@ class TestExecuteStep:
     ):
         """When retries remain, re-queues instead of calling fail_step."""
         handler = MagicMock(side_effect=ValueError("bad input"))
-        engine._step_repo.get.return_value = {"retry_count": 0}
         engine._step_repo.get.side_effect = [
-            {"retry_count": 0},  # first get: check retry count
-            {"step_run_id": "SR-001", "status": "pending"},  # second get: return re-queued
+            {"step_run_id": "SR-001"},          # get step_run_id for handler
+            {"retry_count": 0},                  # retry count in except
+            {"step_run_id": "SR-001", "status": "pending"},  # return re-queued
         ]
 
-        result = worker.execute_step("SR-001", handler)
+        result = worker.execute_step("rec-001", handler)
 
         engine.fail_step.assert_not_called()
         requeue_call = engine._step_repo.update.call_args_list[-1]
+        assert requeue_call[0][0] == "rec-001"
         assert requeue_call[0][1]["status"] == "pending"
         assert requeue_call[0][1]["retry_count"] == 1
 
@@ -187,12 +188,16 @@ class TestExecuteStep:
         self, worker: WorkerLoop, engine: MagicMock
     ):
         handler = MagicMock(side_effect=RuntimeError("oops"))
-        engine._step_repo.get.return_value = {"retry_count": 1}
-        engine.fail_step.return_value = {"status": "failed"}
+        engine._step_repo.get.side_effect = [
+            {"step_run_id": "SR-001"},          # get step_run_id for handler
+            {"retry_count": 1},                  # retry count in except
+            {"step_run_id": "SR-001", "status": "pending"},  # return re-queued
+        ]
 
-        worker.execute_step("SR-001", handler)
+        worker.execute_step("rec-001", handler)
 
         requeue_call = engine._step_repo.update.call_args_list[-1]
+        assert requeue_call[0][0] == "rec-001"
         assert requeue_call[0][1]["status"] == "pending"
         assert requeue_call[0][1]["lease_owner"] == ""
 
@@ -200,10 +205,13 @@ class TestExecuteStep:
         self, worker: WorkerLoop, engine: MagicMock
     ):
         handler = MagicMock(side_effect=RuntimeError("oops"))
-        engine._step_repo.get.return_value = {"retry_count": 3}
+        engine._step_repo.get.side_effect = [
+            {"step_run_id": "SR-001"},          # get step_run_id for handler
+            {"retry_count": 3},                  # retry count in except
+        ]
         engine.fail_step.return_value = {"status": "failed"}
 
-        worker.execute_step("SR-001", handler)
+        worker.execute_step("rec-001", handler)
 
         update_calls = engine._step_repo.update.call_args_list
         statuses = [c[0][1].get("status") for c in update_calls]
@@ -220,7 +228,7 @@ class TestExecuteStep:
             "lease_until": future,
         }
 
-        worker.execute_step("SR-001", handler)
+        worker.execute_step("rec-001", handler)
 
         engine.complete_step.assert_called_once_with("SR-001", None)
 
@@ -242,7 +250,7 @@ class TestCasClaim:
             "lease_owner": "worker-1",
         }
 
-        result = worker.claim_step("SR-001")
+        result = worker.claim_step("rec-001")
 
         assert result["lease_owner"] == "worker-1"
         engine._step_repo.update.assert_called_once()
@@ -256,7 +264,7 @@ class TestCasClaim:
         }
 
         with pytest.raises(RuntimeError, match="owned by worker-2"):
-            worker.claim_step("SR-001")
+            worker.claim_step("rec-001")
 
         engine._step_repo.update.assert_not_called()
 
@@ -273,7 +281,7 @@ class TestCasClaim:
             "lease_owner": "worker-1",
         }
 
-        result = worker.claim_step("SR-001")
+        result = worker.claim_step("rec-001")
 
         assert result["lease_owner"] == "worker-1"
         engine._step_repo.update.assert_called_once()
@@ -291,15 +299,17 @@ class TestLeaseRecheck:
         handler = MagicMock(return_value={"output_refs": ["ref-1"]})
         past = (datetime.now(timezone.utc) - timedelta(seconds=10)).isoformat()
         engine._step_repo.get.side_effect = [
-            {"lease_until": past},          # lease recheck
-            {"retry_count": 0},             # retry count in except
+            {"step_run_id": "SR-001"},          # get step_run_id for handler
+            {"lease_until": past},               # lease recheck → expired
+            {"retry_count": 0},                  # retry count in except
             {"step_run_id": "SR-001", "status": "pending"},  # return re-queued
         ]
 
-        result = worker.execute_step("SR-001", handler)
+        result = worker.execute_step("rec-001", handler)
 
         engine.complete_step.assert_not_called()
         requeue_call = engine._step_repo.update.call_args_list[-1]
+        assert requeue_call[0][0] == "rec-001"
         assert requeue_call[0][1]["status"] == "pending"
 
 
@@ -327,7 +337,7 @@ class TestPipelineStatusTransition:
             "lease_owner": "worker-1",
         }
 
-        worker.claim_step("SR-001")
+        worker.claim_step("rec-001")
 
         pipeline_update = engine._pipeline_repo.update.call_args[0]
         assert pipeline_update[0] == "PR-001"

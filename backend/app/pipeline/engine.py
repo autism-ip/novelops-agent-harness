@@ -121,6 +121,17 @@ class PipelineEngine:
         return runnable
 
     # ----------------------------------------------------------
+    # record_id resolution
+    # ----------------------------------------------------------
+
+    def _resolve_step_record_id(self, step_run_id: str) -> str:
+        """Resolve business key to Feishu record_id via find_by_business_key."""
+        record = self._step_repo.find_by_business_key(step_run_id=step_run_id)
+        if record is None:
+            raise ValueError(f"Step run not found: {step_run_id}")
+        return record["record_id"]
+
+    # ----------------------------------------------------------
     # step transitions
     # ----------------------------------------------------------
 
@@ -132,7 +143,8 @@ class PipelineEngine:
         Rechecks lease validity before completing — rejects if the
         lease has expired (another worker may have reclaimed the step).
         """
-        step = self._step_repo.get(step_run_id)
+        record_id = self._resolve_step_record_id(step_run_id)
+        step = self._step_repo.get(record_id)
         pipeline_run_id = step.get("pipeline_run_id", "") if step else ""
 
         if step:
@@ -154,7 +166,7 @@ class PipelineEngine:
         if output_refs:
             update_data["output_refs"] = ",".join(output_refs)
 
-        step = self._step_repo.update(step_run_id, update_data)
+        step = self._step_repo.update(record_id, update_data)
 
         runnable = self.get_runnable_steps(pipeline_run_id)
         if runnable:
@@ -180,10 +192,11 @@ class PipelineEngine:
         When retries are exhausted (retry_count >= max_retries), cascades failure
         to the parent pipeline.
         """
-        step = self._step_repo.get(step_run_id)
+        record_id = self._resolve_step_record_id(step_run_id)
+        step = self._step_repo.get(record_id)
         retry_count = step.get("retry_count", 0) if step else 0
 
-        result = self._step_repo.update(step_run_id, {
+        result = self._step_repo.update(record_id, {
             "status": "failed",
             "error_message": error_message,
             "retry_count": retry_count + 1,
