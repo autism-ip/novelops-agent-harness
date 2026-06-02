@@ -59,7 +59,13 @@ async function proxyRequest(
   );
 
   // Only inject backend key for protected routes
-  if (!isPublic && BACKEND_KEY) {
+  if (!isPublic) {
+    if (!BACKEND_KEY) {
+      return NextResponse.json(
+        { detail: "Server configuration error" },
+        { status: 503 }
+      );
+    }
     headers.set("x-api-key", BACKEND_KEY);
   }
 

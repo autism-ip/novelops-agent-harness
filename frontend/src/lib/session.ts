@@ -15,6 +15,11 @@ function requireSecret(): string {
       "SESSION_SECRET environment variable is required (min 32 chars)"
     );
   }
+  if (SECRET.length < 32) {
+    throw new Error(
+      "SESSION_SECRET must be at least 32 characters"
+    );
+  }
   return SECRET;
 }
 
