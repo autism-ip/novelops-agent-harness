@@ -7,7 +7,7 @@ docs/ - Design documents and planning (6 files)
   plans/ - Implementation plans and strategies
 .github/ - CI workflow definitions (backend behavior gates)
 backend/ - Local persistent FastAPI backend skeleton and behavior tests
-frontend/ - [PLANNED] Next.js Vercel frontend
+frontend/ - Next.js 16 + shadcn/ui + Tailwind CSS 4 Vercel frontend
 </directory>
 
 <config>
