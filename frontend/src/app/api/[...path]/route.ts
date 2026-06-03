@@ -19,6 +19,17 @@ async function proxyRequest(
   params: Promise<{ path: string[] }>
 ): Promise<NextResponse> {
   const { path } = await params;
+
+  // Reject path traversal via dot segments
+  for (const segment of path) {
+    if (segment === "." || segment === "..") {
+      return NextResponse.json(
+        { detail: "Invalid path" },
+        { status: 400 }
+      );
+    }
+  }
+
   const targetPath = path.join("/");
 
   const isPublic = PUBLIC_BACKEND_PATHS.has(targetPath);

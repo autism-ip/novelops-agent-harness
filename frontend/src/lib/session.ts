@@ -1,7 +1,7 @@
 /**
  * [INPUT]: 依赖环境变量 SESSION_SECRET（必需，运行时校验）
- * [OUTPUT]: signToken / verifyToken — HMAC-SHA256 签名与验证
- * [POS]: api 模块的 session 签名层，被 route.ts 代理守卫消费
+ * [OUTPUT]: signToken / verifyToken / signSessionToken — HMAC-SHA256 签名与验证
+ * [POS]: api 模块的 session 签名层，被 route.ts 代理守卫及 login 端点消费
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
@@ -51,7 +51,20 @@ export async function signToken(payload: string): Promise<string> {
 }
 
 /**
+ * Sign a session token with server-side expiry.
+ * Payload format: "sub:unix_expiry" — verifyToken rejects expired tokens.
+ */
+export async function signSessionToken(
+  subject: string,
+  ttlSeconds: number
+): Promise<string> {
+  const exp = Math.floor(Date.now() / 1000) + ttlSeconds;
+  return signToken(`${subject}:${exp}`);
+}
+
+/**
  * Verify a signed token. Returns the payload if valid, null otherwise.
+ * Handles both plain payloads and "sub:exp" format with server-side expiry.
  */
 export async function verifyToken(token: string): Promise<string | null> {
   const dot = token.lastIndexOf(".");
@@ -86,5 +99,17 @@ export async function verifyToken(token: string): Promise<string | null> {
     return null;
   }
 
-  return valid ? payload : null;
+  if (!valid) return null;
+
+  // Check server-side expiry if payload is in "sub:exp" format
+  const colon = payload.lastIndexOf(":");
+  if (colon > 0) {
+    const expStr = payload.slice(colon + 1);
+    const exp = parseInt(expStr, 10);
+    if (!isNaN(exp) && Date.now() / 1000 >= exp) {
+      return null;
+    }
+  }
+
+  return payload;
 }
