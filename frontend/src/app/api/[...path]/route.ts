@@ -20,9 +20,9 @@ async function proxyRequest(
 ): Promise<NextResponse> {
   const { path } = await params;
 
-  // Reject path traversal via dot segments
+  // Reject path traversal via dot or slash in decoded segments
   for (const segment of path) {
-    if (segment === "." || segment === "..") {
+    if (segment === "." || segment === ".." || segment.includes("/")) {
       return NextResponse.json(
         { detail: "Invalid path" },
         { status: 400 }
