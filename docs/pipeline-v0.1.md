@@ -1,14 +1,18 @@
-# Pipeline v0.1
+# Pipeline v0.1 — Historical Design
+
+> **Status: superseded for new implementation work.** This document is retained as the historical v0.1 pipeline baseline. New work follows `docs/architecture.md` v0.2 and the current Linear/GitHub issues.
+>
+> Key v0.2 changes: deterministic Harness services replace system Agents; data collection/normalization are not LLM Agents; canonical `StoryState` replaces per-role Agent memory; `StoryContextSnapshot` replaces `AgentTeamSnapshot`; chapter generation uses `Writer → Verifier → Critic → Rewrite-if-needed → Verifier`; human approval is selective rather than mandatory at every stage.
 
 ## Pipeline name
 
 `douyin_to_novel_chapter`
 
-## Goal
+## Original v0.1 goal
 
 Turn a Douyin public hotspot into a reviewed web-novel chapter draft through an observable, approvable, revision-friendly Agent Team workflow.
 
-## Step list
+## Original step list
 
 ```text
 fetch_douyin_hotspots
@@ -35,165 +39,74 @@ human_review
 revise_or_lock_final
 ```
 
-## Step details
+## v0.2 mapping
 
-### 1. fetch_douyin_hotspots
+The original linear pipeline is decomposed into composable workflows:
 
-- Agent: `DouyinHotspotCrawlerAgent`
-- Tool: OpenCLI
-- Output: raw Douyin hotspot records
-- Table: `Hotspots`
+```text
+Research ingestion / hotspot workflow
+        ↓
+Opportunity intelligence / title / cover workflow
+        ↓
+Book bootstrap / canonical StoryState workflow
+        ↓
+Chapter planning workflow
+        ↓
+Chapter generation / critique / revision workflow
+```
 
-Boundary:
+### Research ingestion
 
-- Public data only.
-- No login bypass.
-- No comment scraping.
-- No automatic publishing.
+`fetch_douyin_hotspots` and `normalize_hotspots` become deterministic Harness/tool steps using the existing OpenCLI adapter and Feishu storage provider. No LLM call is required.
 
-### 2. normalize_hotspots
+### Opportunity intelligence
 
-- Agent: `HotspotNormalizeAgent`
-- Input: raw hotspot records
-- Output: normalized hotspot records with dedupe hash
-- Table: `Hotspots`
+The old hit-pattern/novelization/risk Agent chain is consolidated around a small semantic research surface plus deterministic schema/rule verification and selective human review.
 
-### 3. analyze_hit_pattern
+### Book bootstrap
 
-- Agent: `HitPatternAnalysisAgent`
-- Input: normalized hotspot
-- Output: hit-pattern analysis
-- Table: `HotspotAnalyses`
+`init_book_agent_team` is replaced by initialization of canonical, versioned `StoryState` namespaces.
 
-### 4. analyze_novelization
+### Story setup and planning
 
-- Agent: `NovelizationAnalysisAgent`
-- Input: hit-pattern analysis
-- Output: web-novel directions, reader promise, genre fit, writable angles
-- Table: `HotspotAnalyses`
+`generate_mini_bible` evolves into StoryBible/StoryState generation through `StoryArchitectAgent`. `ChapterPlannerAgent` produces versioned ChapterBrief Artifacts.
 
-### 5. risk_screen_analysis
+### Snapshot
 
-- Agent: `RiskScreenAgent`
-- Input: analysis output
-- Output: risk level, risk notes, pass/revise/reject recommendation
-- Table: `ReviewReports` or fields on `HotspotAnalyses`
+`create_agent_team_snapshot` is replaced by `StoryContextSnapshot`, which references explicit StoryState and Artifact versions used for a chapter.
 
-### 6. approval_analysis
+### Chapter generation
 
-- Agent: `ApprovalAgent`
-- Type: approval gate
-- Requires human action if risk is high or user wants manual selection.
-- Output: ApprovalEvent
+The original sequence:
 
-### 7. generate_titles
+```text
+generate_chapter_draft
+style_polish
+anti_ai_flavor_rewrite
+review_chapter
+```
 
-- Agent: `TitleAgent`
-- Input: approved analysis
-- Output: title candidates, hooks, selling points, scores
-- Table: `TitleCandidates`
+is replaced by:
 
-### 8. generate_cover_plans
+```text
+build_context
+  ↓
+write_chapter
+  ↓
+deterministic_verify
+  ↓
+semantic_critique
+  ↓
+rewrite_if_required
+  ↓
+verify
+  ↓
+selective_human_gate
+  ↓
+finalize
+```
 
-- Agent: `CoverAgent`
-- Input: approved analysis and title candidates
-- Output: cover plans, visual direction, cover prompt, negative prompt
-- Table: `CoverPlans`
-
-### 9. approval_title_cover
-
-- Agent: `ApprovalAgent`
-- Type: approval gate
-- Human selects final title and cover plan.
-
-### 10. create_book
-
-- Agent: `StorySetupAgent`
-- Input: approved analysis, title, and cover
-- Output: Book row
-- Table: `Books`
-
-### 11. init_book_agent_team
-
-- Agent: `OrchestratorAgent`
-- Input: Book
-- Output: book-scoped AgentStates
-- Table: `AgentStates`
-
-### 12. generate_mini_bible
-
-- Agent: `StorySetupAgent`
-- Input: Book, analysis, title, cover, initial AgentStates
-- Output: MiniBible
-- Table: `Books.mini_bible`
-
-### 13. approval_mini_bible
-
-- Agent: `ApprovalAgent`
-- Type: approval gate
-- Human confirms story setup before chapter generation.
-
-### 14. generate_chapter_briefs
-
-- Agent: `ChapterPlannerAgent`
-- Input: MiniBible and AgentStates
-- Output: ChapterBriefs
-- Table: `ChapterBriefs`
-
-### 15. approval_chapter_briefs
-
-- Agent: `ApprovalAgent`
-- Type: approval gate
-- Human confirms first chapter briefs.
-
-### 16. create_agent_team_snapshot
-
-- Agent: `OrchestratorAgent`
-- Input: current book-scoped AgentStates
-- Output: AgentTeamSnapshot
-- Table: `AgentTeamSnapshots`
-
-### 17. generate_chapter_draft
-
-- Agent: `ChapterWriterAgent`
-- Input: MiniBible, ChapterBrief, AgentTeamSnapshot
-- Output: ChapterVersion draft
-- Table: `ChapterVersions`
-
-### 18. style_polish
-
-- Agent: `StyleAgent`
-- Input: draft chapter
-- Output: new ChapterVersion or updated draft version
-- Table: `ChapterVersions`
-
-### 19. anti_ai_flavor_rewrite
-
-- Agent: `AntiAIFlavorAgent`
-- Input: polished chapter
-- Output: less formulaic ChapterVersion
-- Table: `ChapterVersions`
-
-### 20. review_chapter
-
-- Agent: `ReviewAgent`
-- Input: final draft candidate, MiniBible, ChapterBrief, AgentTeamSnapshot
-- Output: ReviewReport
-- Table: `ReviewReports`
-
-### 21. human_review
-
-- Agent: `ApprovalAgent`
-- Type: approval gate
-- Human chooses pass / revise / reject / lock final.
-
-### 22. revise_or_lock_final
-
-- Agent: `ApprovalAgent` or `RewriteAgent`
-- If revise: create `RevisionTask`.
-- If lock final: mark ChapterVersion status as `final`.
-
-## Status rules
+## Historical v0.1 status rules
 
 ### PipelineRun status
 
@@ -226,10 +139,14 @@ rejected
 revise
 ```
 
-## Reliability rules
+These values may be migrated as part of the v0.2 state-machine alignment. New lifecycle transitions should be centralized behind the Harness state-transition service.
 
-- Every step must have an idempotency key.
-- Every step must have input refs and output refs.
-- Every AgentRun must capture model, prompt version, input refs, output refs, and status.
-- Every human action creates an ApprovalEvent.
-- Any generated chapter rewrite creates a new ChapterVersion.
+## Historical reliability rules retained in v0.2
+
+- Important operations remain idempotent at the business level.
+- Steps keep explicit input/output references.
+- Generated artifacts and rewrites remain versioned; no silent overwrite.
+- Human actions remain auditable through ApprovalEvents.
+- Model-backed executions retain model/prompt/run provenance.
+
+For the current implementation baseline, see [Architecture v0.2](architecture.md) and the latest Linear/GitHub issues.
