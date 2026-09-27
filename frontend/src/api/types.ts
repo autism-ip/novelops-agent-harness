@@ -1,6 +1,6 @@
 /**
  * [INPUT]: 无外部依赖，纯类型定义
- * [OUTPUT]: 对外提供 HealthResponse, SystemStatus, PipelineRun, AgentState 类型
+ * [OUTPUT]: HealthResponse, SystemStatus, PipelineRun, AgentState, Hotspot 与 WorkflowRun 类型
  * [POS]: api 模块的类型契约层，被 client 调用方和页面组件消费
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */

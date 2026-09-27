@@ -177,6 +177,7 @@ export function HotspotsWorkbench() {
     return false;
   }, []);
   const listing = useResource<HotspotPage>(path, revision, 15000);
+  const visibleSelected = selected.filter(id => listing.data?.items.some(row => row.hotspot_id === id));
   const capabilities = useResource<HotspotCapabilities>(
     "/api/hotspots/capabilities",
     revision,
@@ -499,7 +500,7 @@ export function HotspotsWorkbench() {
       </section>
       <section className="space-y-3" aria-label="Hotspot results">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="text-sm">{selected.length} selected</span>
+          <span className="text-sm">{visibleSelected.length} selected</span>
           <Button
             variant="outline"
             disabled
@@ -533,13 +534,13 @@ export function HotspotsWorkbench() {
             <DataTable
               columns={columns}
               data={listing.data.items}
-              emptyMessage="No hotspots match these filters. Fetch public hotspots or add an idea manually."
+              emptyMessage={listing.data.total > 0 ? "No hotspots on this page. Return to the previous page." : "No hotspots match these filters. Fetch public hotspots or add an idea manually."}
             />
             <div className="flex flex-wrap items-center gap-3 text-sm">
               <span>
                 {listing.data.total} hotspots · showing{" "}
                 {listing.data.items.length ? offset + 1 : 0}–
-                {offset + listing.data.items.length}
+                {listing.data.items.length ? offset + listing.data.items.length : 0}
               </span>
               <Button
                 variant="outline"

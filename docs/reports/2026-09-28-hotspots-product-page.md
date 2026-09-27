@@ -44,7 +44,9 @@ Reproduction steps and fixture boundaries are in `docs/hotspot-product-page.md`.
 
 ## Review and readiness
 
-Initial reviewable implementation includes regression fixes discovered during development (mobile overflow and request-key retention after an uncertain attempt). Remote CI and all PR review sources are checked after publication; resulting review dispositions and current-head CI are recorded in the PR and appended here when needed. No human approval is assumed.
+Delivery is [PR #28](https://github.com/autism-ip/novelops-agent-harness/pull/28). Initial commit `b25012b8d85a66aeca9cbf8fcf00ea84835821d6` passed all six [CI jobs](https://github.com/autism-ip/novelops-agent-harness/actions/runs/36343087332). Later changes clarify empty pages after result shrinkage and count only selected records still visible. They were rechecked with the four frontend tests, lint and types; their own current-head CI is checked after push.
+
+Initial reviewable implementation includes regression fixes discovered during development (mobile overflow and request-key retention after an uncertain attempt). All PR review sources were empty at the first post-publication check; absence of comments is not reviewer approval. Remote CI and review sources are rechecked after the final push and recorded in the PR. No human approval is assumed.
 
 Engineering judgment: the implemented UI/control scope is suitable for code review after current-head gates pass. The whole stack is **not yet proven safe to merge/deploy**: PR #23's Base v3/application-auth compatibility and live capacity/latency gates remain pending, and selected analysis awaits #8. Linear must not be marked Done merely because these offline and browser checks pass.
 

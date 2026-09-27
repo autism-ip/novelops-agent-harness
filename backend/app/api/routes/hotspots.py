@@ -1,4 +1,4 @@
-"""Authenticated ingestion trigger and hotspot read contract for ZEN-33."""
+"""Authenticated hotspot reads, collection and durable manual controls."""
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
