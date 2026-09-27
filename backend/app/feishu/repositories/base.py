@@ -7,6 +7,8 @@
 
 from __future__ import annotations
 
+import json
+
 from app.feishu.client import FeishuClient, FeishuNotFoundError
 
 # ============================================================
@@ -62,12 +64,15 @@ class BaseRepository:
             if isinstance(value, int):
                 clauses.append(f'CurrentValue.[{feishu_field}] = {value}')
             else:
-                clauses.append(f'CurrentValue.[{feishu_field}] = "{value}"')
+                clauses.append(f'CurrentValue.[{feishu_field}] = {json.dumps(value, ensure_ascii=False)}')
         return " && ".join(clauses)
 
     def find_by_business_key(self, **conditions: str | int) -> dict | None:
-        """Look up a record by business fields, returning the first match or None."""
-        results = self.list(filter_expr=self._field_filter(**conditions), page_size=1)
+        """Return a unique business-key match, rejecting duplicate records."""
+        results = self.list(filter_expr=self._field_filter(**conditions), page_size=100)
+        if len(results) > 1:
+            from app.storage import DuplicateKey
+            raise DuplicateKey("Duplicate business key")
         return results[0] if results else None
 
     # ----------------------------------------------------------
@@ -119,7 +124,10 @@ class BaseRepository:
 
             if not data.get("has_more"):
                 break
-            page_token = data.get("page_token")
+            next_token = data.get("page_token")
+            if not next_token or next_token == page_token:
+                raise ValueError("Invalid Feishu pagination token")
+            page_token = next_token
 
         return results
 
@@ -139,21 +147,12 @@ class BaseRepository:
     def conditional_update(
         self, record_id: str, fields: dict, condition: dict
     ) -> dict:
-        """CAS update — applies *fields* only when *condition* matches.
+        """Legacy read/check/write helper, NOT an atomic server-side CAS.
 
-        Builds a Bitable filter from *condition* and includes it in the
-        PUT request.  Raises on mismatch so callers can detect races.
+        Callers must hold the application's single-writer lock. The record PUT
+        contract has no documented conditional filter parameter.
         """
-        path = f"{self._base_path()}/{record_id}"
-        body = {"fields": self._to_feishu(fields)}
-
-        # Build filter from condition dict: CurrentValue.[field] = "value"
-        if condition:
-            parts = [
-                f'CurrentValue.[{self._field_map.get(k, k)}] = "{v}"'
-                for k, v in condition.items()
-            ]
-            body["filter"] = " AND ".join(parts)
-
-        resp = self._client.put(path, body=body)
-        return self._from_feishu(resp["data"]["record"])
+        current = self.get(record_id)
+        if current is None or any(current.get(k) != v for k, v in condition.items()):
+            raise ValueError("Record condition does not match")
+        return self.update(record_id, fields)

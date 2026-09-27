@@ -223,8 +223,8 @@ class FeishuClient:
             try:
                 result = resp.json()
             except ValueError as exc:
-                raise FeishuAuthError(
-                    f"Invalid JSON from {path}: {resp.text[:200]}"
+                raise FeishuAPIError(
+                    f"Invalid JSON response on {method}", code=0
                 ) from exc
 
             # -- check Feishu business-level error --

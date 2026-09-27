@@ -349,7 +349,7 @@ class TestFindByBusinessKey:
         call = mock_client.get.call_args
         params = call.kwargs.get("params", call[1].get("params", {}))
         assert params["filter"] == 'CurrentValue.[Book ID] = "B001"'
-        assert params["page_size"] == "1"
+        assert params["page_size"] == "100"
 
     def test_returns_none_when_empty(self, repo: BaseRepository, mock_client: MagicMock) -> None:
         """When no record matches, find_by_business_key returns None."""

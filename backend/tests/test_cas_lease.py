@@ -55,6 +55,7 @@ class TestConditionalUpdate:
         from app.feishu.repositories.base import BaseRepository
 
         client = MagicMock()
+        client.get.return_value = {"data": {"record": {"record_id": "R1", "fields": {"status": "pending"}}}}
         client.put.return_value = {"data": {"record": {"record_id": "R1", "fields": {}}}}
         repo = BaseRepository(client, "app_tok", "tbl_id", {})
 
@@ -63,8 +64,9 @@ class TestConditionalUpdate:
             {"status": "running"},
             {"status": "pending"},
         )
-        # Must have called PUT with the condition in the request
+        # Single-writer read/check/write; no unsupported filter on PUT.
         client.put.assert_called_once()
+        assert "filter" not in client.put.call_args.kwargs["body"]
 
     def test_conditional_update_rejects_when_condition_mismatch(self):
         """CAS update must raise when condition filter doesn't match."""
