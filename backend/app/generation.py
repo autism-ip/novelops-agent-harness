@@ -75,7 +75,7 @@ class Completion:
     model: str
     input_tokens: int | None = None
     output_tokens: int | None = None
-    finish_reason: str = "stop"
+    finish_reason: str | None = "stop"
 
 
 class ModelFailure(RuntimeError):
@@ -132,7 +132,7 @@ class ChatProvider:
                 value = usage.get(name)
                 return value if type(value) is int and value >= 0 else None
             return Completion(content, data.get("model", route.model), count("prompt_tokens"), count("completion_tokens"),
-                              data["choices"][0].get("finish_reason", "stop"))
+                              data["choices"][0].get("finish_reason"))
         except (ValueError, KeyError, IndexError, TypeError, AttributeError):
             raise ModelFailure("MalformedResponse", retryable=True) from None
 
@@ -214,6 +214,8 @@ class ModelRouter:
                 completion = provider.complete(route, messages)
                 if completion.finish_reason == "length":
                     raise ModelFailure("TruncatedOutput", retryable=True)
+                if completion.finish_reason != "stop":
+                    raise ModelFailure("IncompleteOutput")
                 try:
                     output = output_schema.model_validate_json(completion.content)
                 except ValidationError:
@@ -244,6 +246,10 @@ class ModelRouter:
                 close()
 
 
+class ArtifactIntegrityError(ValueError):
+    """Persisted artifact no longer matches its identity or content hash."""
+
+
 class ArtifactStore:
     def __init__(self, kernel):
         self.kernel = kernel
@@ -253,7 +259,15 @@ class ArtifactStore:
             row = self.kernel.storage.get("artifacts", artifact_id)
             if row is None:
                 raise MissingRecord(artifact_id)
-            return json.loads(row["payload_json"])
+            try:
+                payload = Artifact.model_validate_json(row["payload_json"]).model_dump()
+                if (payload["artifact_id"] != artifact_id or
+                    stable_id("AR-", payload["logical_id"] + "/" + str(payload["version"])) != artifact_id or
+                    digest(payload["content"]) != payload["content_hash"]):
+                    raise ArtifactIntegrityError("Artifact integrity check failed")
+            except (ValueError, KeyError, TypeError):
+                raise ArtifactIntegrityError("Artifact integrity check failed") from None
+            return payload
 
     def save(self, *, logical_id: str, version: int, artifact_type: str, content: dict,
              context: CallContext, prompt: Prompt, route: str, provider: str, model: str,
@@ -310,6 +324,7 @@ class SemanticRuntime:
                     existing["chapter_id"] != context.chapter_id or
                     existing["workflow_version"] != context.workflow_version or
                     existing["source_refs"] != list(context.input_refs) or
+                    existing["route"] != route or
                     existing["route_hash"] != digest(route_config.model_dump()) or
                     existing["run_id"] != context.run_id or existing["step_id"] != context.step_id):
                     raise ValueError("Artifact version is immutable; use a new version")

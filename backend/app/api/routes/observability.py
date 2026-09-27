@@ -2,6 +2,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.api.routes.workflows import get_kernel
+from app.generation import ArtifactIntegrityError
 
 router = APIRouter()
 
@@ -32,4 +33,7 @@ def chapter_usage(chapter_id: str, kernel=Depends(get_kernel)):
 @router.get("/artifacts/{artifact_id}")
 def artifact(artifact_id: str, kernel=Depends(get_kernel)):
     enabled(kernel)
-    return kernel.artifacts.get(artifact_id)
+    try:
+        return kernel.artifacts.get(artifact_id)
+    except ArtifactIntegrityError:
+        raise HTTPException(409, "Artifact integrity check failed; reconciliation required") from None

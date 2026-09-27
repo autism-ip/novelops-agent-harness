@@ -34,7 +34,7 @@ def test_provider_contract_validates_schema_and_records_usage(provider, foundati
         assert request.headers["authorization"] == "Bearer secret"
         body = json.loads(request.content)
         assert body["response_format"] == {"type":"json_object"}
-        return httpx.Response(200, json={"model":"configured-model", "choices":[{"message":{"content":'{"summary":"ok"}'}}],
+        return httpx.Response(200, json={"model":"configured-model", "choices":[{"finish_reason":"stop", "message":{"content":'{"summary":"ok"}'}}],
                                          "usage":{"prompt_tokens":100,"completion_tokens":50}})
     http = httpx.Client(transport=httpx.MockTransport(respond))
     router = ModelRouter({"research": Route(provider=provider, model="configured-model", input_cost_per_million=1, output_cost_per_million=2)},
@@ -54,7 +54,7 @@ def test_schema_retry_keeps_failed_attempt_usage(foundation, provider_name):
     _, trace, _ = foundation
     responses = iter(['{"wrong":1}', '{"summary":"recovered"}'])
     http = httpx.Client(transport=httpx.MockTransport(lambda req:httpx.Response(200,json={
-        "choices":[{"message":{"content":next(responses)}}], "usage":{"prompt_tokens":10,"completion_tokens":5}})))
+        "choices":[{"finish_reason":"stop", "message":{"content":next(responses)}}], "usage":{"prompt_tokens":10,"completion_tokens":5}})))
     router = ModelRouter({"r":Route(provider=provider_name,model="m",max_retries=1)},
         {provider_name:ChatProvider(provider_name,"secret",client=http)}, trace, sleep=lambda _:None)
     assert router.generate("r",Prompt(version="1",template="JSON"),{},Output,context()).summary == "recovered"
@@ -121,7 +121,7 @@ def test_semantic_replay_avoids_model_call_and_rejects_changed_input(foundation)
     calls = []
     def respond(req):
         calls.append(req)
-        return httpx.Response(200,json={"model":"resolved-model-version", "choices":[{"message":{"content":'{"summary":"result"}'}}]})
+        return httpx.Response(200,json={"model":"resolved-model-version", "choices":[{"finish_reason":"stop", "message":{"content":'{"summary":"result"}'}}]})
     http = httpx.Client(transport=httpx.MockTransport(respond))
     router = ModelRouter({"r":Route(provider="openai",model="configured-alias")},
                          {"openai":ChatProvider("openai","secret",client=http)},trace)
@@ -157,6 +157,10 @@ def test_trace_and_usage_apis_are_protected_and_serve_persisted_records(foundati
         assert client.get(path).status_code == 401
         assert client.get(path,headers=headers).status_code == 200
     assert client.get('/api/artifacts/missing',headers=headers).status_code == 404
+    kernel.storage.update("artifacts", artifact["artifact_id"], {"payload_json": "invalid private data"})
+    response = client.get(f'/api/artifacts/{artifact["artifact_id"]}', headers=headers)
+    assert response.status_code == 409
+    assert "private data" not in response.text
     kernel.telemetry = None
     assert client.get('/api/chapters/book:1/usage',headers=headers).status_code == 503
     client.close()
@@ -165,7 +169,6 @@ def test_trace_and_usage_apis_are_protected_and_serve_persisted_records(foundati
 def test_generation_production_wiring_and_missing_route(foundation,monkeypatch,tmp_path):
     from app.runtime import build_runtime
     from app.config import Settings
-    from app.feishu.client import FeishuClient
     kernel, _, _ = foundation
     for name in ("pipeline_runs","step_runs","approval_events","artifacts","traces"):
         monkeypatch.setenv("FEISHU_TABLE_ID_" + name.upper(), name)
@@ -220,3 +223,77 @@ def test_truncated_output_is_not_accepted_and_retains_usage(foundation):
         router.generate("r",Prompt(version="1",template="JSON"),{},Output,context())
     assert trace.usage(run_id="run")["output_tokens"] == 100
     http.close()
+
+
+@pytest.mark.parametrize("reason", ["content_filter", "tool_calls", "unknown", None, "missing"])
+@pytest.mark.parametrize("provider", ["openai", "deepseek"])
+def test_non_success_finish_reason_never_creates_artifact(foundation, reason, provider):
+    from app.generation import SemanticRuntime
+    kernel, trace, artifacts = foundation
+    choice = {"message": {"content": '{"summary":"valid but unfinished"}'}}
+    if reason != "missing":
+        choice["finish_reason"] = reason
+    with httpx.Client(transport=httpx.MockTransport(lambda req: httpx.Response(200, json={
+        "choices": [choice], "usage": {"prompt_tokens": 3, "completion_tokens": 4}}))) as http:
+        router = ModelRouter({"r": Route(provider=provider, model="m")},
+            {provider: ChatProvider(provider, "secret", client=http)}, trace)
+        with pytest.raises(ModelFailure, match="IncompleteOutput"):
+            SemanticRuntime(router, artifacts).execute(route="r", prompt=Prompt(version="1", template="JSON"),
+                inputs={"summary": "source"}, input_schema=Output, output_schema=Output,
+                context=context(), logical_id="rejected", version=1, artifact_type="Test")
+    assert kernel.storage.list("artifacts") == []
+    assert trace.usage(run_id="run")["attempts"] == 1
+    assert trace.usage(run_id="run")["output_tokens"] == 4
+
+
+@pytest.mark.parametrize("change", ["route", "content", "identity"])
+def test_replay_rejects_provenance_change_and_corruption(foundation, change):
+    from app.generation import Completion, SemanticRuntime
+    kernel, trace, artifacts = foundation
+    class Provider:
+        calls = 0
+        def complete(self, route, messages):
+            self.calls += 1
+            return Completion('{"summary":"original"}', "m")
+    provider = Provider()
+    route = Route(provider="openai", model="m")
+    router = ModelRouter({"r": route, "other": route}, {"openai": provider}, trace)
+    runtime = SemanticRuntime(router, artifacts)
+    kwargs = dict(route="r", prompt=Prompt(version="1", template="JSON"), inputs={"summary": "source"},
+        input_schema=Output, output_schema=Output, context=context(), logical_id="replay", version=1, artifact_type="Test")
+    artifact = runtime.execute(**kwargs)
+    if change == "route":
+        kwargs["route"] = "other"
+    else:
+        corrupted = {**artifact, "content": {"summary": "tampered"}} if change == "content" else {**artifact, "logical_id": "other"}
+        kernel.storage.update("artifacts", artifact["artifact_id"], {"payload_json": json.dumps(corrupted)})
+        with pytest.raises(ValueError):
+            artifacts.get(artifact["artifact_id"])
+    with pytest.raises(ValueError):
+        runtime.execute(**kwargs)
+    assert provider.calls == 1
+
+
+@pytest.mark.parametrize("output", [["a", "b"], "text", [], False, 0])
+def test_tool_traces_preserve_non_mapping_outputs(foundation, output):
+    kernel, trace, _ = foundation
+    kernel.telemetry = trace
+    kernel.register("value", lambda step: output)
+    run = kernel.create("value", "test", [{"step_key": "a", "handler": "value"}])
+    kernel.tick()
+    result = kernel.get(run["pipeline_run_id"])
+    assert result["status"] == "completed"
+    assert json.loads(result["steps"][0]["output_json"]) == output
+    assert trace.list(run_id=run["pipeline_run_id"])[0]["status"] == "success"
+
+
+def test_invalid_tool_result_has_failed_trace(foundation):
+    kernel, trace, _ = foundation
+    kernel.telemetry = trace
+    kernel.register("invalid", lambda step: {"value": object()})
+    run = kernel.create("invalid", "test", [{"step_key": "a", "handler": "invalid"}])
+    kernel.tick()
+    assert kernel.get(run["pipeline_run_id"])["status"] == "blocked"
+    row = trace.list(run_id=run["pipeline_run_id"])[0]
+    assert row["status"] == "failed"
+    assert row["failure_class"] == "InvalidHandlerOutput"
