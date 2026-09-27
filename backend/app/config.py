@@ -43,6 +43,10 @@ class Settings(BaseSettings):
     HARNESS_JOURNAL_DIR: str = ".runtime/intents"
     HARNESS_POLL_INTERVAL: float = 1.0
     HARNESS_MAX_RETRIES: int = 3
+    GENERATION_ENABLED: bool = False
+    OPENAI_API_KEY: str = ""
+    DEEPSEEK_API_KEY: str = ""
+    MODEL_ROUTES_JSON: str = "{}"
 
     @field_validator("BACKEND_API_KEY")
     @classmethod

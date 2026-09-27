@@ -249,6 +249,11 @@ FIELD_MAPS["pipeline_runs"].update({"definition_json": "definition_json"})
 FIELD_MAPS["step_runs"].update({field: field for field in (
     "handler", "kind", "requires_approval", "input_json", "output_json", "output_version")})
 FIELD_MAPS["approval_events"].update({"target_version": "target_version"})
+TABLE_NAMES.update({"artifacts": "Artifacts", "traces": "Traces"})
+FIELD_MAPS["artifacts"] = {field: field for field in (
+    "artifact_id", "logical_id", "version", "artifact_type", "run_id", "chapter_id", "payload_json")}
+FIELD_MAPS["traces"] = {field: field for field in (
+    "trace_id", "run_id", "step_id", "chapter_id", "kind", "payload_json")}
 
 
 class TableMapConfig:
