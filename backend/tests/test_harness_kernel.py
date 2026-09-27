@@ -218,3 +218,83 @@ def test_scheduler_stops_on_completion_persistence_failure(runtime, monkeypatch)
         time.sleep(0.01)
     assert kernel.last_error == "FeishuAPIError"
     assert not kernel.running
+
+
+def test_runnable_order_does_not_depend_on_storage_order(runtime, monkeypatch):
+    kernel, storage, _, _ = runtime
+    calls = []
+    kernel.register("record", lambda step: calls.append(step["step_key"]))
+    kernel.create("order", "test", [
+        {"step_key": key, "handler": "record"} for key in ("a", "b", "c")])
+    original = storage.list
+    monkeypatch.setattr(storage, "list", lambda *a, **kw: list(reversed(original(*a, **kw))))
+    for _ in range(3):
+        kernel.tick()
+    assert calls == ["a", "b", "c"]
+
+
+@pytest.mark.parametrize("blocked", [False, True])
+def test_failed_parent_terminalizes_siblings_and_rejects_decision(runtime, blocked):
+    from app.storage import AmbiguousWrite
+    kernel, storage, _, journal = runtime
+    kernel.max_retries = 0
+    def fail(step):
+        raise AmbiguousWrite("unknown") if blocked else RuntimeError("failed")
+    kernel.register("fail", fail)
+    run = kernel.create("siblings", "test", [
+        {"step_key": "a", "handler": "noop", "requires_approval": True},
+        {"step_key": "b", "handler": "fail"},
+        {"step_key": "c", "handler": "noop", "depends_on": ["a"]}])
+    kernel.tick()
+    kernel.tick()
+    result = kernel.get(run["pipeline_run_id"])
+    assert result["status"] == ("blocked" if blocked else "failed")
+    assert [s["status"] for s in result["steps"]] == ["cancelled", result["status"], "cancelled"]
+    with pytest.raises(TransitionConflict):
+        kernel.decide(result["steps"][0]["step_run_id"], "approve", 1, "operator")
+    # A crash/old deployment may leave siblings nonterminal under a terminal parent.
+    storage.update("step_runs", result["steps"][2]["step_run_id"], {"status": "pending"})
+    restarted = HarnessKernel(storage, journal_dir=journal)
+    restarted.recover()
+    assert restarted.get(run["pipeline_run_id"])["steps"][2]["status"] == "cancelled"
+
+
+def test_invalid_result_blocks_without_repeating_external_effect(runtime):
+    kernel, storage, _, journal = runtime
+    calls = []
+    kernel.register("invalid", lambda step: calls.append(step) or {"bad": object()})
+    run = kernel.create("invalid", "test", [{"step_key": "a", "handler": "invalid"}])
+    kernel.tick()
+    restarted = HarnessKernel(storage, journal_dir=journal)
+    restarted.register("invalid", kernel.handlers["invalid"])
+    restarted.recover()
+    restarted.tick()
+    result = restarted.get(run["pipeline_run_id"])
+    assert result["status"] == "blocked"
+    assert result["steps"][0]["retry_count"] == 0
+    assert len(calls) == 1
+
+
+def test_missing_handler_blocks_without_consuming_execution_retry(runtime):
+    kernel, _, _, _ = runtime
+    kernel.register("removed", lambda step: {})
+    run = kernel.create("removed", "test", [{"step_key": "a", "handler": "removed"}])
+    del kernel.handlers["removed"]
+    kernel.tick()
+    result = kernel.get(run["pipeline_run_id"])
+    assert result["status"] == "blocked"
+    assert result["steps"][0]["retry_count"] == 0
+
+
+def test_status_reads_no_remote_tables_and_tracks_lifecycle(runtime):
+    kernel, _, transport, _ = runtime
+    run = kernel.create("status", "test", definition())
+    before = len(transport.calls)
+    for _ in range(5):
+        status = kernel.status()
+        assert status["active_pipeline_runs"] == 1
+        assert status["pending_steps"] == 2
+    assert len(transport.calls) == before
+    kernel.cancel(run["pipeline_run_id"])
+    assert kernel.status()["active_pipeline_runs"] == 0
+    assert kernel.status()["pending_steps"] == 0
