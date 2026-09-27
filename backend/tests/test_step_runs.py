@@ -92,7 +92,7 @@ class TestClaimStep:
         mock_client.put.return_value = update_response
 
         # --- act
-        result = repo.claim_step("sr-42", "worker-1")
+        repo.claim_step("sr-42", "worker-1")
 
         # --- assert: update PUT used record_id, not business key
         put_call = mock_client.put

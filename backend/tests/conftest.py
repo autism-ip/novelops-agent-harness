@@ -1,5 +1,5 @@
 """
-[INPUT]: 依赖 pytest、httpx ASGITransport 与待实现的 app.main.create_app。
+[INPUT]: 依赖 pytest、httpx ASGITransport、app.main.create_app 与仅用于类型检查的 Settings。
 [OUTPUT]: 对外提供 isolated_settings、app、client、auth_headers 测试夹具。
 [POS]: tests 的环境隔离层，阻断本机真实密钥污染行为门禁。
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
@@ -8,10 +8,14 @@
 from __future__ import annotations
 
 from collections.abc import AsyncIterator
+from typing import TYPE_CHECKING
 
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
+
+if TYPE_CHECKING:
+    from app.config import Settings
 
 
 @pytest.fixture

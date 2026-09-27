@@ -17,7 +17,7 @@ from app.storage import AmbiguousWrite, MissingRecord, StorageProvider
 
 
 def encode(value) -> str:
-    return json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    return json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
 
 
 def stable_id(prefix: str, value: str) -> str:
@@ -30,6 +30,10 @@ def now() -> str:
 
 class TransitionConflict(ValueError):
     pass
+
+
+class InvalidHandlerOutput(ValueError):
+    """Execution returned, but its output cannot be safely persisted."""
 
 
 class CreationJournal:
@@ -92,6 +96,23 @@ class HarnessKernel:
         self.last_error = None
         self.last_tick = None
         self.telemetry = None
+        self._metrics_lock = threading.Lock()
+        self._observed = {"pipeline_runs": {}, "step_runs": {}}
+        self._counts = {"active_pipeline_runs": 0, "pending_steps": 0, "failed_steps": 0}
+
+    def _observe(self, collection, row):
+        """Disposable status counters; rebuilt from Feishu on startup."""
+        if collection not in self._observed:
+            return
+        key = "pipeline_run_id" if collection == "pipeline_runs" else "step_run_id"
+        groups = ({"active_pipeline_runs": {"creating", "pending", "running", "awaiting_approval"}}
+                  if collection == "pipeline_runs" else
+                  {"pending_steps": {"pending"}, "failed_steps": {"failed", "blocked"}})
+        with self._metrics_lock:
+            old = self._observed[collection].get(row[key])
+            for metric, statuses in groups.items():
+                self._counts[metric] += int(row["status"] in statuses) - int(old in statuses)
+            self._observed[collection][row[key]] = row["status"]
 
     def register(self, name: str, handler: Callable):
         with self.writer:
@@ -100,8 +121,10 @@ class HarnessKernel:
             self.handlers[name] = handler
 
     def _ensure(self, collection, key, data):
-        return self.storage.ensure(collection, data,
+        row = self.storage.ensure(collection, data,
             allow_create=self.journal.begin(collection, data[key]))
+        self._observe(collection, row)
+        return row
 
     def _transition(self, collection, domain_id, status, **fields):
         row = self.storage.get(collection, domain_id)
@@ -110,7 +133,9 @@ class HarnessKernel:
         transitions = RUN_TRANSITIONS if collection == "pipeline_runs" else STEP_TRANSITIONS
         if status != row["status"] and status not in transitions.get(row["status"], set()):
             raise TransitionConflict(f"Invalid transition {row['status']} -> {status}")
-        return self.storage.update(collection, domain_id, {**fields, "status": status})
+        result = self.storage.update(collection, domain_id, {**fields, "status": status})
+        self._observe(collection, result)
+        return result
 
     def create(self, request_key: str, workflow_type: str, steps: list[dict],
                *, book_id: str = "", source_hotspot_id: str = "") -> dict:
@@ -170,11 +195,20 @@ class HarnessKernel:
     def runnable(self, steps):
         """The only runnable-step selection path used by scheduler/recovery."""
         successful = {s["step_key"] for s in steps if s["status"] == "success"}
-        return [s for s in steps if s["status"] == "pending" and
-                set(filter(None, s.get("depends_on", "").split(","))) <= successful]
+        return sorted([s for s in steps if s["status"] == "pending" and
+                set(filter(None, s.get("depends_on", "").split(","))) <= successful],
+                key=lambda s: (s["step_key"], s["step_run_id"]))
+
+    def _cancel_siblings(self, steps):
+        for step in steps:
+            if "cancelled" in STEP_TRANSITIONS.get(step["status"], set()):
+                self._transition("step_runs", step["step_run_id"], "cancelled")
 
     def _refresh_parent(self, run_id):
         run = self.get(run_id)
+        if run["status"] in {"failed", "cancelled", "blocked"}:
+            self._cancel_siblings(run["steps"])
+            return
         if run["status"] in {"completed", "failed", "cancelled", "blocked", "creating"}:
             return
         statuses = [s["status"] for s in run["steps"]]
@@ -191,11 +225,13 @@ class HarnessKernel:
         else:
             status = "running"
         self._transition("pipeline_runs", run_id, status, updated_at=now())
+        if status in {"failed", "blocked"}:
+            self._cancel_siblings(run["steps"])
 
     def tick(self):
         with self.writer:
             self.last_tick = now()
-            for run in self.storage.list("pipeline_runs"):
+            for run in sorted(self.storage.list("pipeline_runs"), key=lambda r: r["pipeline_run_id"]):
                 if run["status"] not in {"pending", "running", "awaiting_approval"}:
                     continue
                 run_id = run["pipeline_run_id"]
@@ -206,6 +242,10 @@ class HarnessKernel:
                     continue
                 step = runnable[0]
                 sid = step["step_run_id"]
+                if step["handler"] not in self.handlers:
+                    self._transition("step_runs", sid, "blocked", error_message="Unavailable handler: reconciliation required")
+                    self._refresh_parent(run_id)
+                    return
                 self._transition("pipeline_runs", run_id, "running", updated_at=now())
                 self._transition("step_runs", sid, "running", started_at=now())
                 trace_id = None
@@ -217,7 +257,16 @@ class HarnessKernel:
                         "attempt": step.get("retry_count", 0), "correlation_id": sid})
                 failure_class = None
                 try:
-                    result = self.handlers[step["handler"]]({**step, "input": json.loads(step["input_json"])}) or {}
+                    result = self.handlers[step["handler"]]({**step, "input": json.loads(step["input_json"])})
+                    if result is None:
+                        result = {}
+                    try:
+                        output_json = encode(result)
+                    except (TypeError, ValueError, OverflowError, RecursionError) as exc:
+                        raise InvalidHandlerOutput() from exc
+                except InvalidHandlerOutput:
+                    failure_class = "InvalidHandlerOutput"
+                    self._transition("step_runs", sid, "blocked", error_message="InvalidHandlerOutput: reconciliation required")
                 except AmbiguousWrite:
                     failure_class = "AmbiguousWrite"
                     self._transition("step_runs", sid, "blocked", error_message="AmbiguousWrite: reconciliation required")
@@ -231,12 +280,12 @@ class HarnessKernel:
                     # successful external effect because its status update timed out.
                     self._transition("step_runs", sid,
                         "awaiting_approval" if step.get("requires_approval") else "success",
-                        output_json=encode(result), output_version=step.get("output_version", 0) + 1,
+                        output_json=output_json, output_version=step.get("output_version", 0) + 1,
                         finished_at=now(), error_message="")
                 if trace_id:
                     self.telemetry.finish(trace_id, status="failed" if failure_class else "success",
                         failure_class=failure_class, latency_ms=round((time.monotonic()-started)*1000,3),
-                        output_refs=[] if failure_class else result.get("output_refs", []))
+                        output_refs=result.get("output_refs", []) if not failure_class and isinstance(result, dict) else [])
                 self._refresh_parent(run_id)
                 return
 
@@ -256,6 +305,9 @@ class HarnessKernel:
             target = "success" if action == "approve" else "failed"
             if previous and step["status"] == target:
                 return step
+            parent = self.storage.get("pipeline_runs", step["pipeline_run_id"])
+            if parent is None or parent["status"] in {"completed", "failed", "blocked", "cancelled"}:
+                raise TransitionConflict("Workflow is terminal")
             if step["status"] != "awaiting_approval":
                 raise TransitionConflict("Step is not awaiting approval")
             self._ensure("approval_events", "approval_id", {"approval_id": approval_id,
@@ -278,13 +330,23 @@ class HarnessKernel:
 
     def recover(self):
         with self.writer:
+            with self._metrics_lock:
+                self._observed = {"pipeline_runs": {}, "step_runs": {}}
+                self._counts = {"active_pipeline_runs": 0, "pending_steps": 0, "failed_steps": 0}
+            for collection in self._observed:
+                for row in self.storage.list(collection):
+                    self._observe(collection, row)
             for run in self.storage.list("pipeline_runs"):
                 run_id = run["pipeline_run_id"]
+                if run["status"] in {"failed", "blocked", "cancelled"}:
+                    self._refresh_parent(run_id)
+                    continue
                 if run["status"] == "creating":
                     try:
                         self._finish_creation(run)
                     except Exception as exc:
                         self._transition("pipeline_runs", run_id, "blocked", error_message=type(exc).__name__)
+                        self._refresh_parent(run_id)
                     continue
                 if run["status"] not in {"pending", "running", "awaiting_approval"}:
                     continue
@@ -347,11 +409,7 @@ class HarnessKernel:
             self._process_lock = None
 
     def status(self):
-        with self.writer:
-            runs = self.storage.list("pipeline_runs")
-            steps = self.storage.list("step_runs")
+        with self._metrics_lock:
             return {"worker_status": "running" if self.running else "stopped",
-                "feishu_status": "connected", "last_error": self.last_error, "last_tick": self.last_tick,
-                "active_pipeline_runs": sum(r["status"] in {"pending", "running", "creating", "awaiting_approval"} for r in runs),
-                "pending_steps": sum(s["status"] == "pending" for s in steps),
-                "failed_steps": sum(s["status"] in {"failed", "blocked"} for s in steps)}
+                "feishu_status": "unreachable" if self.last_error else "connected",
+                "last_error": self.last_error, "last_tick": self.last_tick, **self._counts}

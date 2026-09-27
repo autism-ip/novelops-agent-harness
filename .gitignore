@@ -6,3 +6,11 @@ __pycache__/
 .runtime/
 .coverage*
 backend/build/
+.venv/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+test-results/
+dist/
+build/
