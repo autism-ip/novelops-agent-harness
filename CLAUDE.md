@@ -5,7 +5,7 @@ Tech stack: FastAPI + pytest + GitHub Actions + Next.js + Feishu Bitable + OpenC
 <directory>
 docs/ - Design documents and planning (6 files)
   plans/ - Implementation plans and strategies
-.github/ - CI workflow definitions (backend behavior gates)
+.github/ - CI workflow definitions (workflow/Python/frontend lint, tests, packaging, build, aggregate gate)
 backend/ - Local persistent FastAPI backend skeleton and behavior tests
 frontend/ - Next.js 16 + shadcn/ui + Tailwind CSS 4 Vercel frontend
 </directory>
@@ -15,7 +15,8 @@ frontend/ - Next.js 16 + shadcn/ui + Tailwind CSS 4 Vercel frontend
 README.md - Project overview, architecture summary, document index
 backend/pyproject.toml - Backend package metadata, dependencies, pytest configuration
 backend/.env.example - Backend environment variable template with placeholders only
-.github/workflows/backend-gates.yml - CI gate that runs backend behavior contract tests
+.github/workflows/backend-gates.yml - Full CI with stable `CI quality gate` aggregate check
+docs/ci-cd.md - Local verification, coverage/reporting, merge protection, and deployment integration
 docs/architecture.md - System architecture, module layout, stability rules
 docs/agent-team.md - Agent roles, state model, per-book team design
 docs/feishu-schema.md - 16 Feishu Bitable tables schema

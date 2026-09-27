@@ -205,7 +205,7 @@ def test_approval_recovers_crash_after_event_persisted(runtime):
 def test_scheduler_stops_on_completion_persistence_failure(runtime, monkeypatch):
     from app.feishu.client import FeishuAPIError
     kernel, storage, _, _ = runtime
-    run = kernel.create("persist-failure", "test", definition())
+    kernel.create("persist-failure", "test", definition())
     original = storage.update
     def fail(collection, domain_id, fields):
         if fields.get("status") == "success":
