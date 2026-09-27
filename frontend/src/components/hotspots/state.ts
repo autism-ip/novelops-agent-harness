@@ -13,6 +13,10 @@ export function canClearRejected(status: number, retry: boolean): boolean {
   return !retry && [401, 404, 409, 422].includes(status);
 }
 
+export function clampOffset(offset: number, total: number): number {
+  return Math.min(offset, Math.floor(Math.max(0, total - 1) / 20) * 20);
+}
+
 export function listPath(filters: Filters, offset: number) {
   const params = new URLSearchParams({ offset: String(offset), limit: "20" });
   if (filters.source) params.set("source", filters.source);

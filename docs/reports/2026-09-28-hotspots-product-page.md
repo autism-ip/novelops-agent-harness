@@ -21,10 +21,10 @@ Main files: backend `hotspot_controls.py`, hotspot routes/service registration a
 
 | Check | Observed result |
 |---|---|
-| Full backend offline suite | 274 passed;9 existing live integration tests deselected; existing Starlette/httpx deprecation warning |
+| Full backend offline suite | 276 passed;9 existing live integration tests deselected; existing Starlette/httpx deprecation warning |
 | Coverage | app91.87%; controls94.34%; hotspot routes97.56%; prior87.81558726673984% minimum unchanged |
-| New backend acceptance | 7 tests: auth/validation, replay/conflict, stale discard, disabled collection, committed/unknown timeout and restart |
-| Frontend contract tests | 4 passed: dates, pending identity, rejection-after-uncertainty, safe links |
+| New backend acceptance | 9 tests: auth/validation, replay/conflict, stale discard, disabled collection, committed/unknown timeout, restart, namespace and field-encoding collisions |
+| Frontend contract tests | 5 passed: dates, pending identity, rejection-after-uncertainty, safe links and automatic pagination clamp |
 | Static/build | Ruff, zero-warning ESLint, route types/TypeScript, Next.js production build, backend sdist/wheel passed |
 | Dependency audit | Existing8 findings (including1 critical) reduced to0 in `npm audit` after locked compatible upgrades |
 | Browser credentials | Fixture backend key/session secret absent from `.next/static`; real login uses HTTP-only session cookie and server proxy |
@@ -47,6 +47,18 @@ Reproduction steps and fixture boundaries are in `docs/hotspot-product-page.md`.
 Delivery is [PR #28](https://github.com/autism-ip/novelops-agent-harness/pull/28). Initial commit `b25012b8d85a66aeca9cbf8fcf00ea84835821d6` passed all six [CI jobs](https://github.com/autism-ip/novelops-agent-harness/actions/runs/36343087332). Later changes clarify empty pages after result shrinkage and count only selected records still visible. They were rechecked with the four frontend tests, lint and types; their own current-head CI is checked after push.
 
 Initial reviewable implementation includes regression fixes discovered during development (mobile overflow and request-key retention after an uncertain attempt). All PR review sources were empty at the first post-publication check; absence of comments is not reviewer approval. Remote CI and review sources are rechecked after the final push and recorded in the PR. No human approval is assumed.
+
+### Automated review follow-up
+
+The later review on `b25012b8d8` raised three valid P2 findings, all addressed in this PR:
+
+| Finding | Resolution and evidence |
+|---|---|
+| Fetch keys could alias manual/discard keys | Manual/discard use independent `hotspot-manual:` / `hotspot-discard:` namespaces, preserving existing fetch identities. A regression first reproduced409 with `manual:shared`; fetch/manual/discard now remain distinct and complete. |
+| Colon-delimited identity encoding was ambiguous | Hash canonical JSON of source/title/URL. The two valid title/URL pairs in the review first reproduced a blocked second record; both now persist with different hashes. |
+| A shrinking result set left an out-of-range page | On each live list response, clamp offset to the last populated page and refetch. Contract tests cover21→20 rows,40→21 rows, empty sets and unchanged valid offsets. The prior empty-page wording fix alone was insufficient. |
+
+After these changes, the full backend suite276, frontend contracts5, Ruff, ESLint, types and production build passed. Review threads are resolved only after the fixes are pushed; latest CI links and final thread state belong to the PR. Browser journeys above were executed before this review follow-up; the follow-up is covered by the new regression contracts and full suites rather than a claimed second complete browser run.
 
 Engineering judgment: the implemented UI/control scope is suitable for code review after current-head gates pass. The whole stack is **not yet proven safe to merge/deploy**: PR #23's Base v3/application-auth compatibility and live capacity/latency gates remain pending, and selected analysis awaits #8. Linear must not be marked Done merely because these offline and browser checks pass.
 

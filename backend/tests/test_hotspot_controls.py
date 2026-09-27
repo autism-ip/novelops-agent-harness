@@ -135,3 +135,28 @@ def test_manual_restart_and_discard_replay_keep_single_row(ingestion, monkeypatc
         discard = controls.enqueue_discard(rows[0]['hotspot_id'], key, 'normalized')
         assert complete(restarted, discard['pipeline_run_id'])['status'] == 'completed'
     assert storage.list('hotspots')[0]['status'] == 'discarded'
+
+
+def test_manual_and_discard_request_keys_cannot_collide_with_fetch(ingestion):
+    kernel, service, storage, _, _, _ = ingestion
+    fetch = service.enqueue('manual:shared')
+    manual = service.controls.enqueue_add('shared', {'title': 'manual key'})
+    assert fetch['pipeline_run_id'] != manual['pipeline_run_id']
+    assert complete(kernel, manual['pipeline_run_id'])['status'] == 'completed'
+    row = storage.list('hotspots', source='manual')[0]
+    fetch2 = service.enqueue('discard:shared')
+    discard = service.controls.enqueue_discard(row['hotspot_id'], 'shared', 'normalized')
+    assert fetch2['pipeline_run_id'] != discard['pipeline_run_id']
+    assert complete(kernel, discard['pipeline_run_id'])['status'] == 'completed'
+
+
+def test_manual_fields_with_colons_keep_distinct_identities(ingestion):
+    kernel, service, storage, _, _, _ = ingestion
+    pairs = [('a', 'http://x/path:http://y'), ('a:http://x/path', 'http://y')]
+    for index, (title, url) in enumerate(pairs):
+        run = service.controls.enqueue_add(str(index), {'title': title, 'url': url})
+        assert complete(kernel, run['pipeline_run_id'])['status'] == 'completed'
+    rows = storage.list('hotspots')
+    assert len(rows) == 2
+    assert len({row['dedupe_hash'] for row in rows}) == 2
+    assert {(row['title'], row['url']) for row in rows} == set(pairs)

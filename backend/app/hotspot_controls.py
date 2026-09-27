@@ -1,9 +1,9 @@
 """Manual hotspot commands run through the kernel's single writer and journal."""
-import hashlib
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.harness import encode, stable_id
+from app.generation import digest
 from app.hotspots import HotspotRecord
 from app.storage import AmbiguousWrite, MissingRecord
 
@@ -34,19 +34,19 @@ class HotspotControls:
 
     def enqueue_add(self, request_key, fields):
         spec = ManualInput.model_validate(fields)
-        return self.kernel.create("hotspots:manual:" + request_key, "hotspot_manual_v1", [
+        return self.kernel.create("hotspot-manual:" + request_key, "hotspot_manual_v1", [
             {"step_key": "save", "handler": "hotspots.manual_add", "input": spec.model_dump()}])
 
     def enqueue_discard(self, hotspot_id, request_key, expected_status):
         self.service.get(hotspot_id)
-        return self.kernel.create("hotspots:discard:" + request_key, "hotspot_discard_v1", [
+        return self.kernel.create("hotspot-discard:" + request_key, "hotspot_discard_v1", [
             {"step_key": "discard", "handler": "hotspots.discard",
              "input": {"hotspot_id": hotspot_id, "expected_status": expected_status}}],
             source_hotspot_id=hotspot_id)
 
     def add(self, step):
         spec = ManualInput.model_validate(step["input"])
-        key = hashlib.sha256(f"manual:{spec.title}:{spec.url}".encode()).hexdigest()
+        key = digest({"source": "manual", "title": spec.title, "url": spec.url})
         with self.kernel.writer:
             existing = self.kernel.storage.list("hotspots", dedupe_hash=key)
             if len(existing) > 1:

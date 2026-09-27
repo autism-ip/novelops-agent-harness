@@ -18,7 +18,7 @@ The `/hotspots` page uses the existing signed-session `/api/*` proxy. It provide
 | `POST /api/hotspots/manual` | request_key, title, optional url/category; HTTP201 WorkflowRun |
 | `POST /api/hotspots/{id}/discard` | request_key, expected_status; HTTP201 WorkflowRun; missing record404 |
 
-All require existing authentication. Unknown body fields, blank title/request key, invalid URLs and excess field lengths are rejected. Same request key with changed input returns409. Command identity is namespaced per operation.
+All require existing authentication. Unknown body fields, blank title/request key, invalid URLs and excess field lengths are rejected. Same request key with changed input returns409. Manual/discard command namespaces are independent of fetch. Manual content identity hashes canonical structured source/title/URL fields, so colons within values cannot cause collisions. When a refreshed filtered total leaves the current page out of range, the UI returns to the last populated page automatically.
 
 The UI saves a pending request body/key in tab-scoped session storage **before** posting. A timeout/5xx leaves it available after reload; Retry same request resends the exact command. A rejected retry does not disprove a previous committed attempt and does not discard the saved key. While an outcome is unknown, new mutations are disabled. No secret or backend API key is stored there. If browser storage is unavailable, mutation fails before posting. Closing the tab loses that pending descriptor; review backend activity before starting a replacement request. Backend records and workflows remain in Feishu.
 

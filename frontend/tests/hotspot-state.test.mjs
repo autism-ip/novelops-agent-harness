@@ -5,7 +5,16 @@ import {
   parsePending,
   safeSourceUrl,
   canClearRejected,
+  clampOffset,
 } from "../src/components/hotspots/state.ts";
+
+test("discarding the last result on a page returns to the last populated page", () => {
+  assert.equal(clampOffset(20, 21), 20);
+  assert.equal(clampOffset(20, 20), 0);
+  assert.equal(clampOffset(40, 21), 20);
+  assert.equal(clampOffset(20, 0), 0);
+  assert.equal(clampOffset(0, 35), 0);
+});
 
 test("an authentication rejection after an uncertain submission never drops its key", () => {
   for (const status of [401, 404, 409, 422]) {

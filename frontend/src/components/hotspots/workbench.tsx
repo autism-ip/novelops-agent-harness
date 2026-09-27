@@ -24,6 +24,7 @@ import {
   parsePending,
   safeSourceUrl,
   canClearRejected,
+  clampOffset,
   TERMINAL,
   WORKFLOW_LABELS,
   type Filters,
@@ -176,7 +177,11 @@ export function HotspotsWorkbench() {
     }
     return false;
   }, []);
-  const listing = useResource<HotspotPage>(path, revision, 15000);
+  const onListing = useCallback((page: HotspotPage) => {
+    setOffset(current => clampOffset(current, page.total));
+    return true;
+  }, []);
+  const listing = useResource<HotspotPage>(path, revision, 15000, onListing);
   const visibleSelected = selected.filter(id => listing.data?.items.some(row => row.hotspot_id === id));
   const capabilities = useResource<HotspotCapabilities>(
     "/api/hotspots/capabilities",
