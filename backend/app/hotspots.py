@@ -68,6 +68,8 @@ class HotspotService:
         if collection_enabled:
             kernel.register("hotspots.fetch", self.fetch)
         kernel.register("hotspots.persist", self.persist)
+        from app.hotspot_controls import HotspotControls
+        self.controls = HotspotControls(self)
 
     def enqueue(self, request_key: str, limit: int = 50):
         if not self.collection_enabled:

@@ -1,0 +1,642 @@
+"use client";
+
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type FormEvent,
+} from "react";
+import { api, ApiError } from "@/api/client";
+import type {
+  Hotspot,
+  HotspotPage,
+  HotspotCapabilities,
+  WorkflowRun,
+} from "@/api/types";
+import { DataTable, type Column } from "@/components/data-table";
+import { StatusBadge } from "@/components/status-badge";
+import { Button } from "@/components/ui/button";
+import { errorMessage, useResource } from "./use-resource";
+import {
+  listPath,
+  parsePending,
+  safeSourceUrl,
+  canClearRejected,
+  TERMINAL,
+  WORKFLOW_LABELS,
+  type Filters,
+  type Pending,
+} from "./state";
+
+const STORAGE_KEY = "novelops.hotspots.pending";
+const EVENT = "novelops-hotspot-request";
+const field = "block w-full rounded-md border bg-background p-2 text-sm mt-1";
+function subscribe(callback: () => void) {
+  window.addEventListener(EVENT, callback);
+  return () => window.removeEventListener(EVENT, callback);
+}
+function snapshot() {
+  try {
+    return sessionStorage.getItem(STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+function savePending(command: Pending | null) {
+  if (command) sessionStorage.setItem(STORAGE_KEY, JSON.stringify(command));
+  else sessionStorage.removeItem(STORAGE_KEY);
+  window.dispatchEvent(new Event(EVENT));
+}
+
+function Detail({
+  id,
+  revision,
+  close,
+  discard,
+  disabled,
+}: {
+  id: string;
+  revision: number;
+  close: () => void;
+  discard: (row: Hotspot) => void;
+  disabled: boolean;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const result = useResource<Hotspot>(
+    `/api/hotspots/${encodeURIComponent(id)}`,
+    revision,
+  );
+  useEffect(() => {
+    dialog.current?.showModal();
+  }, []);
+  const row = result.data;
+  const sourceUrl = row && safeSourceUrl(row.url);
+  return (
+    <dialog
+      ref={dialog}
+      onClose={close}
+      onCancel={close}
+      aria-labelledby="hotspot-detail-title"
+      className="fixed inset-y-0 left-auto right-0 m-0 h-dvh max-h-none w-full max-w-xl overflow-y-auto border-l bg-background p-6 text-foreground backdrop:bg-black/40"
+    >
+      <div className="flex justify-between gap-4">
+        <h2 id="hotspot-detail-title" className="text-xl font-semibold">
+          Hotspot details
+        </h2>
+        <Button variant="outline" onClick={() => dialog.current?.close()}>
+          Close
+        </Button>
+      </div>
+      {result.loading && <p role="status">Loading details…</p>}
+      {result.error != null && <p role="alert">{errorMessage(result.error)}</p>}
+      {row && (
+        <div className="mt-6 space-y-5">
+          <h3 className="text-lg font-medium break-words">{row.title}</h3>
+          <StatusBadge status={row.status} />
+          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm break-all">
+            {Object.entries({
+              ID: row.hotspot_id,
+              Source: row.source,
+              Rank: row.rank,
+              Heat: row.heat_value,
+              Category: row.category || "—",
+              Captured: new Date(row.captured_at).toLocaleString(),
+              "Dedupe key": row.dedupe_hash,
+            }).map(([key, value]) => (
+              <div key={key} className="contents">
+                <dt className="text-muted-foreground">{key}</dt>
+                <dd>{String(value)}</dd>
+              </div>
+            ))}
+          </dl>
+          {sourceUrl && (
+            <a
+              className="text-sm underline"
+              href={sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open source
+            </a>
+          )}
+          <Button
+            variant="destructive"
+            disabled={disabled || row.status === "discarded"}
+            onClick={() => discard(row)}
+          >
+            Discard hotspot
+          </Button>
+          <details>
+            <summary className="cursor-pointer font-medium">
+              Raw source payload
+            </summary>
+            <pre className="mt-3 whitespace-pre-wrap break-all rounded border p-3 text-xs">
+              {JSON.stringify(row.raw_json, null, 2)}
+            </pre>
+          </details>
+        </div>
+      )}
+    </dialog>
+  );
+}
+
+export function HotspotsWorkbench() {
+  const [revision, setRevision] = useState(0);
+  const [filters, setFilters] = useState<Filters>({
+    source: "",
+    status: "",
+    from: "",
+    to: "",
+  });
+  const [offset, setOffset] = useState(0);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [detailId, setDetailId] = useState<string | null>(null);
+  const [activeRun, setActiveRun] = useState<string | null>(null);
+  const [manual, setManual] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const busy = useRef(false);
+  const pendingRaw = useSyncExternalStore(subscribe, snapshot, () => null);
+  const pending = parsePending(pendingRaw);
+  let path: string | null = null;
+  let filterError: string | null = null;
+  try {
+    path = listPath(filters, offset);
+  } catch (cause) {
+    filterError = errorMessage(cause);
+  }
+  const completedRun = useRef<string | null>(null);
+  const onRun = useCallback((run: WorkflowRun) => {
+    if (!TERMINAL.has(run.status)) return true;
+    if (completedRun.current !== run.pipeline_run_id) {
+      completedRun.current = run.pipeline_run_id;
+      setRevision(value => value + 1);
+    }
+    return false;
+  }, []);
+  const listing = useResource<HotspotPage>(path, revision, 15000);
+  const capabilities = useResource<HotspotCapabilities>(
+    "/api/hotspots/capabilities",
+    revision,
+  );
+  const runs = useResource<WorkflowRun[]>("/api/workflows", revision, 15000);
+  const current = useResource<WorkflowRun>(
+    activeRun ? `/api/workflows/${encodeURIComponent(activeRun)}` : null,
+    revision,
+    2000,
+    onRun,
+  );
+  const recent =
+    runs.data
+      ?.filter((run) => run.pipeline_type.startsWith("hotspot_"))
+      .sort((a, b) => b.created_at.localeCompare(a.created_at)) ?? [];
+  const working =
+    recent.some((run) => !TERMINAL.has(run.status)) ||
+    !!(activeRun && (!current.data || !TERMINAL.has(current.data.status)));
+  const disabled = submitting || !!pendingRaw || working;
+  const authNeeded = [
+    listing.error,
+    capabilities.error,
+    runs.error,
+    current.error,
+  ].some((e) => e instanceof ApiError && e.status === 401);
+  function refresh() {
+    setRevision((value) => value + 1);
+  }
+
+  async function submit(command: Pending, retry = false) {
+    if (busy.current || (!retry && snapshot())) return false;
+    busy.current = true;
+    setSubmitting(true);
+    setError(null);
+    try {
+      savePending(command); // Persist before the POST, retaining the same key after timeout/reload.
+      const run = await api.post<WorkflowRun>(command.path, command.body);
+      setActiveRun(run.pipeline_run_id);
+      savePending(null);
+      if (command.path === "/api/hotspots/manual") setManual(false);
+      refresh();
+      return true;
+    } catch (cause) {
+      // A rejected retry cannot disprove an earlier committed attempt.
+      if (
+        cause instanceof ApiError &&
+        canClearRejected(cause.status, retry)
+      )
+        savePending(null);
+      setError(errorMessage(cause));
+      return false;
+    } finally {
+      busy.current = false;
+      setSubmitting(false);
+    }
+  }
+  function discard(row: Hotspot) {
+    void submit({
+      path: `/api/hotspots/${encodeURIComponent(row.hotspot_id)}/discard`,
+      body: { request_key: crypto.randomUUID(), expected_status: row.status },
+    });
+  }
+  async function add(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const values = new FormData(form);
+    if (
+      await submit({
+        path: "/api/hotspots/manual",
+        body: {
+          request_key: crypto.randomUUID(),
+          title: String(values.get("title")),
+          url: String(values.get("url")),
+          category: String(values.get("category")),
+        },
+      })
+    ) {
+      form.reset();
+      setManual(false);
+    }
+  }
+  async function login(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    if (busy.current) return;
+    busy.current = true;
+    setSubmitting(true);
+    setError(null);
+    try {
+      await api.post("/api/auth/login", {
+        password: new FormData(form).get("password"),
+      });
+      form.reset();
+      refresh();
+    } catch (cause) {
+      setError(errorMessage(cause));
+    } finally {
+      busy.current = false;
+      setSubmitting(false);
+    }
+  }
+  function filter(key: keyof Filters, value: string) {
+    setFilters({ ...filters, [key]: value });
+    setOffset(0);
+    setSelected([]);
+  }
+  const columns: Column<Hotspot>[] = [
+    {
+      key: "hotspot_id",
+      label: "Select",
+      render: (_, row) => (
+        <input
+          type="checkbox"
+          aria-label={`Select ${row.title}`}
+          checked={selected.includes(row.hotspot_id)}
+          onChange={(event) =>
+            setSelected((ids) =>
+              event.target.checked
+                ? [...ids, row.hotspot_id]
+                : ids.filter((id) => id !== row.hotspot_id),
+            )
+          }
+        />
+      ),
+    },
+    {
+      key: "title",
+      label: "Hotspot",
+      render: (_, row) => (
+        <button
+          className="max-w-lg whitespace-normal text-left font-medium underline-offset-4 hover:underline"
+          onClick={() => setDetailId(row.hotspot_id)}
+        >
+          {row.title}
+        </button>
+      ),
+    },
+    { key: "source", label: "Source" },
+    { key: "heat_value", label: "Heat" },
+    {
+      key: "status",
+      label: "Status",
+      render: (value) => <StatusBadge status={String(value)} />,
+    },
+    {
+      key: "captured_at",
+      label: "Captured",
+      render: (value) => new Date(String(value)).toLocaleString(),
+    },
+  ];
+  return (
+    <div className="min-w-0 flex-1 space-y-6 p-6 pt-16 md:pt-6">
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Hotspots</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Collect, inspect and select ideas for your next story.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            disabled={disabled || !capabilities.data?.fetch}
+            onClick={() =>
+              void submit({
+                path: "/api/hotspots/fetch",
+                body: { request_key: crypto.randomUUID(), limit: 50 },
+              })
+            }
+          >
+            Fetch public hotspots
+          </Button>
+          <Button
+            variant="outline"
+            disabled={disabled || !capabilities.data?.manual_add}
+            onClick={() => setManual(!manual)}
+          >
+            Add manually
+          </Button>
+          <Button variant="outline" onClick={refresh}>
+            Refresh
+          </Button>
+        </div>
+      </header>
+      {error && (
+        <p
+          role="alert"
+          className="rounded border border-destructive p-3 text-sm"
+        >
+          {error}
+        </p>
+      )}
+      {authNeeded && (
+        <form
+          onSubmit={login}
+          className="max-w-md space-y-3 rounded-lg border p-4"
+        >
+          <h2 className="font-semibold">Sign in to NovelOps</h2>
+          <label className="block text-sm">
+            Workspace password
+            <input
+              className={field}
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+            />
+          </label>
+          <Button disabled={submitting}>Sign in</Button>
+        </form>
+      )}
+      {pending && (
+        <div
+          role="status"
+          className="space-y-2 rounded-lg border border-amber-500 p-4"
+        >
+          <p>
+            Request outcome is unconfirmed. Retry checks the same request
+            without creating a second workflow.
+          </p>
+          <Button
+            disabled={submitting || authNeeded}
+            onClick={() => void submit(pending, true)}
+          >
+            Retry same request
+          </Button>
+        </div>
+      )}
+      {pendingRaw && !pending && (
+        <div role="alert">
+          Saved request is unreadable. Review recent workflows before clearing
+          it.{" "}
+          <Button variant="outline" onClick={() => savePending(null)}>
+            I have checked recent workflows
+          </Button>
+        </div>
+      )}
+      {manual && (
+        <form onSubmit={add} className="space-y-3 rounded-lg border p-4">
+          <h2 className="font-semibold">New manual hotspot</h2>
+          <div className="grid gap-3 md:grid-cols-3">
+            <label className="text-sm">
+              Title
+              <input className={field} name="title" required maxLength={1000} />
+            </label>
+            <label className="text-sm">
+              Source URL
+              <input
+                className={field}
+                name="url"
+                type="url"
+                maxLength={2048}
+                placeholder="https://… (optional)"
+              />
+            </label>
+            <label className="text-sm">
+              Category
+              <input className={field} name="category" maxLength={200} />
+            </label>
+          </div>
+          <Button disabled={disabled}>Save hotspot</Button>
+          <Button
+            type="button"
+            variant="ghost"
+            disabled={submitting}
+            onClick={() => setManual(false)}
+          >
+            Cancel
+          </Button>
+        </form>
+      )}
+      <section
+        aria-label="Hotspot filters"
+        className="grid gap-3 rounded-lg border p-4 sm:grid-cols-2 lg:grid-cols-4"
+      >
+        <label className="text-sm">
+          Source
+          <select
+            className={field}
+            value={filters.source}
+            onChange={(e) => filter("source", e.target.value)}
+          >
+            <option value="">All sources</option>
+            <option value="douyin">Douyin</option>
+            <option value="manual">Manual</option>
+          </select>
+        </label>
+        <label className="text-sm">
+          Status
+          <select
+            className={field}
+            value={filters.status}
+            onChange={(e) => filter("status", e.target.value)}
+          >
+            <option value="">All statuses</option>
+            {["new", "normalized", "analyzed", "approved", "discarded"].map(
+              (status) => (
+                <option key={status}>{status}</option>
+              ),
+            )}
+          </select>
+        </label>
+        <label className="text-sm">
+          Captured from
+          <input
+            className={field}
+            type="date"
+            value={filters.from}
+            onChange={(e) => filter("from", e.target.value)}
+          />
+        </label>
+        <label className="text-sm">
+          Captured through
+          <input
+            className={field}
+            type="date"
+            value={filters.to}
+            onChange={(e) => filter("to", e.target.value)}
+          />
+        </label>
+      </section>
+      <section className="space-y-3" aria-label="Hotspot results">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-sm">{selected.length} selected</span>
+          <Button
+            variant="outline"
+            disabled
+            aria-describedby="analysis-availability"
+          >
+            Analyze selected
+          </Button>
+          <span
+            id="analysis-availability"
+            className="text-sm text-muted-foreground"
+          >
+            Analysis is not available yet.
+          </span>
+        </div>
+        {capabilities.data && !capabilities.data.fetch && (
+          <p className="text-sm text-muted-foreground">
+            Public collection is unavailable. You can still inspect or add
+            hotspots.
+          </p>
+        )}
+        {(filterError ||
+          listing.error != null ||
+          capabilities.error != null) && (
+          <p role="alert">
+            {filterError ?? errorMessage(listing.error ?? capabilities.error)}
+          </p>
+        )}
+        {listing.loading && <p role="status">Loading hotspots…</p>}
+        {!filterError && listing.data && (
+          <>
+            <DataTable
+              columns={columns}
+              data={listing.data.items}
+              emptyMessage="No hotspots match these filters. Fetch public hotspots or add an idea manually."
+            />
+            <div className="flex flex-wrap items-center gap-3 text-sm">
+              <span>
+                {listing.data.total} hotspots · showing{" "}
+                {listing.data.items.length ? offset + 1 : 0}–
+                {offset + listing.data.items.length}
+              </span>
+              <Button
+                variant="outline"
+                disabled={offset === 0}
+                onClick={() => {
+                  setOffset(Math.max(0, offset - 20));
+                  setSelected([]);
+                }}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                disabled={offset + 20 >= listing.data.total}
+                onClick={() => {
+                  setOffset(offset + 20);
+                  setSelected([]);
+                }}
+              >
+                Next
+              </Button>
+            </div>
+          </>
+        )}
+      </section>
+      <section
+        className="space-y-3 rounded-lg border p-4"
+        aria-label="Recent workflows"
+      >
+        <h2 className="font-semibold">Recent activity</h2>
+        {runs.error != null && <p role="alert">{errorMessage(runs.error)}</p>}
+        {runs.loading && <p role="status">Loading activity…</p>}
+        {!runs.loading && !runs.error && !recent.length && (
+          <p className="text-sm text-muted-foreground">
+            No hotspot workflows yet.
+          </p>
+        )}
+        <ul className="space-y-2">
+          {recent.slice(0, 5).map((run) => (
+            <li key={run.pipeline_run_id}>
+              <button
+                className="flex w-full flex-wrap items-center justify-between gap-2 rounded border p-3 text-left text-sm"
+                onClick={() => setActiveRun(run.pipeline_run_id)}
+              >
+                <span>
+                  {WORKFLOW_LABELS[run.pipeline_type] ?? "Hotspot workflow"}
+                  <span className="ml-2 text-muted-foreground">
+                    {new Date(run.created_at).toLocaleString()}
+                  </span>
+                </span>
+                <StatusBadge status={run.status} />
+              </button>
+            </li>
+          ))}
+        </ul>
+        {activeRun && (
+          <div
+            className="space-y-2 border-t pt-3"
+            aria-label="Selected workflow"
+          >
+            <p className="break-all text-xs">Run: {activeRun}</p>
+            {current.loading && <p role="status">Loading workflow…</p>}
+            {current.error != null && (
+              <p role="alert">{errorMessage(current.error)}</p>
+            )}
+            {current.data && (
+              <>
+                <StatusBadge status={current.data.status} />
+                <ol className="space-y-2">
+                  {current.data.steps?.map((step) => (
+                    <li key={step.step_run_id} className="text-sm">
+                      <span>{step.step_key}</span>{" "}
+                      <StatusBadge status={step.status} />
+                      {step.error_message && (
+                        <p className="mt-1 text-destructive">
+                          {step.error_message} — Refresh the hotspot and review
+                          the request before retrying.
+                        </p>
+                      )}
+                    </li>
+                  ))}
+                </ol>
+              </>
+            )}
+          </div>
+        )}
+      </section>
+      {detailId && (
+        <Detail
+          key={detailId}
+          id={detailId}
+          revision={revision}
+          close={() => setDetailId(null)}
+          discard={discard}
+          disabled={disabled || !capabilities.data?.discard}
+        />
+      )}
+    </div>
+  );
+}

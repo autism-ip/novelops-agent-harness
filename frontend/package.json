@@ -2,7 +2,9 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
+    "test": "node --test tests/*.test.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -16,7 +18,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.469.0",
-    "next": "16.2.7",
+    "next": "16.3.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "tailwind-merge": "^3.0.2"
@@ -27,7 +29,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.7",
+    "eslint-config-next": "16.3.6",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
