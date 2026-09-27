@@ -19,6 +19,7 @@ import { DataTable, type Column } from "@/components/data-table";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import { errorMessage, useResource } from "./use-resource";
+import { ResearchHistory, ResearchResult } from "./research-results";
 import {
   listPath,
   parsePending,
@@ -27,6 +28,7 @@ import {
   clampOffset,
   TERMINAL,
   WORKFLOW_LABELS,
+  workflowBusy,
   type Filters,
   type Pending,
 } from "./state";
@@ -57,12 +59,14 @@ function Detail({
   close,
   discard,
   disabled,
+  analyze,
 }: {
   id: string;
   revision: number;
   close: () => void;
   discard: (row: Hotspot) => void;
   disabled: boolean;
+  analyze: boolean;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const result = useResource<Hotspot>(
@@ -137,6 +141,7 @@ function Detail({
               {JSON.stringify(row.raw_json, null, 2)}
             </pre>
           </details>
+          {analyze && <ResearchHistory hotspotId={id} revision={revision} />}
         </div>
       )}
     </dialog>
@@ -170,12 +175,13 @@ export function HotspotsWorkbench() {
   }
   const completedRun = useRef<string | null>(null);
   const onRun = useCallback((run: WorkflowRun) => {
-    if (!TERMINAL.has(run.status)) return true;
-    if (completedRun.current !== run.pipeline_run_id) {
-      completedRun.current = run.pipeline_run_id;
+    if (!TERMINAL.has(run.status) && run.status !== "awaiting_approval") return true;
+    const marker = `${run.pipeline_run_id}:${run.status}`;
+    if (completedRun.current !== marker) {
+      completedRun.current = marker;
       setRevision(value => value + 1);
     }
-    return false;
+    return !TERMINAL.has(run.status);
   }, []);
   const onListing = useCallback((page: HotspotPage) => {
     setOffset(current => clampOffset(current, page.total));
@@ -199,8 +205,8 @@ export function HotspotsWorkbench() {
       ?.filter((run) => run.pipeline_type.startsWith("hotspot_"))
       .sort((a, b) => b.created_at.localeCompare(a.created_at)) ?? [];
   const working =
-    recent.some((run) => !TERMINAL.has(run.status)) ||
-    !!(activeRun && (!current.data || !TERMINAL.has(current.data.status)));
+    recent.some(workflowBusy) ||
+    !!(activeRun && (!current.data || workflowBusy(current.data)));
   const disabled = submitting || !!pendingRaw || working || runs.loading || !!runs.error;
   const authNeeded = [
     listing.error,
@@ -219,8 +225,15 @@ export function HotspotsWorkbench() {
     setError(null);
     try {
       savePending(command); // Persist before the POST, retaining the same key after timeout/reload.
-      const run = await api.post<WorkflowRun>(command.path, command.body);
-      setActiveRun(run.pipeline_run_id);
+      if (command.path === "/api/analyses") {
+        const batch = await api.post<{ runs: WorkflowRun[]; errors: { hotspot_id: string; detail: string }[] }>(command.path, command.body);
+        setActiveRun(batch.runs[0]?.pipeline_run_id ?? null);
+        setSelected([]);
+        if (batch.errors.length) setError(batch.errors.map(e => `${e.hotspot_id}: ${e.detail}`).join("; "));
+      } else {
+        const run = await api.post<WorkflowRun>(command.path, command.body);
+        setActiveRun(run.pipeline_run_id);
+      }
       savePending(null);
       if (command.path === "/api/hotspots/manual") setManual(false);
       refresh();
@@ -229,7 +242,7 @@ export function HotspotsWorkbench() {
       // A rejected retry cannot disprove an earlier committed attempt.
       if (
         cause instanceof ApiError &&
-        canClearRejected(cause.status, retry)
+        canClearRejected(cause.status, retry) && command.path !== "/api/analyses"
       )
         savePending(null);
       setError(errorMessage(cause));
@@ -244,6 +257,26 @@ export function HotspotsWorkbench() {
       path: `/api/hotspots/${encodeURIComponent(row.hotspot_id)}/discard`,
       body: { request_key: crypto.randomUUID(), expected_status: row.status },
     });
+  }
+  async function analyzeSelected() {
+    if (busy.current || disabled || !visibleSelected.length) return;
+    busy.current = true;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const items = await Promise.all(visibleSelected.map(async hotspot_id => {
+        const context = await api.get<{ next_version: number; source_hash: string; can_analyze: boolean }>(`/api/hotspots/${encodeURIComponent(hotspot_id)}/research-context`);
+        if (!context.can_analyze) throw new Error("A selected hotspot was discarded. Refresh the list.");
+        return { hotspot_id, version: context.next_version, source_hash: context.source_hash };
+      }));
+      busy.current = false;
+      await submit({ path: "/api/analyses", body: { request_key: crypto.randomUUID(), items } });
+    } catch (cause) {
+      setError(errorMessage(cause));
+    } finally {
+      busy.current = false;
+      setSubmitting(false);
+    }
   }
   async function add(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -298,6 +331,7 @@ export function HotspotsWorkbench() {
           type="checkbox"
           aria-label={`Select ${row.title}`}
           checked={selected.includes(row.hotspot_id)}
+          disabled={row.status === "discarded" || submitting}
           onChange={(event) =>
             setSelected((ids) =>
               event.target.checked
@@ -508,7 +542,8 @@ export function HotspotsWorkbench() {
           <span className="text-sm">{visibleSelected.length} selected</span>
           <Button
             variant="outline"
-            disabled
+            disabled={disabled || !visibleSelected.length || !capabilities.data?.analyze}
+            onClick={() => void analyzeSelected()}
             aria-describedby="analysis-availability"
           >
             Analyze selected
@@ -517,7 +552,7 @@ export function HotspotsWorkbench() {
             id="analysis-availability"
             className="text-sm text-muted-foreground"
           >
-            Analysis is not available yet.
+            {capabilities.data?.analyze ? "Analyze selected ideas into story opportunities." : "Analysis is not configured for this workspace."}
           </span>
         </div>
         {capabilities.data && !capabilities.data.fetch && (
@@ -629,6 +664,7 @@ export function HotspotsWorkbench() {
                     </li>
                   ))}
                 </ol>
+                {current.data.pipeline_type === "hotspot_research_v1" && <ResearchResult runId={current.data.pipeline_run_id} revision={revision} />}
               </>
             )}
           </div>
@@ -642,6 +678,7 @@ export function HotspotsWorkbench() {
           close={() => setDetailId(null)}
           discard={discard}
           disabled={disabled || !capabilities.data?.discard}
+          analyze={!!capabilities.data?.analyze}
         />
       )}
     </div>
