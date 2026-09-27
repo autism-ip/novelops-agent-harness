@@ -46,7 +46,7 @@ class TestClaimStep:
             "lease_owner": "worker-1",
         }
 
-        result = worker.claim_step("rec-001")
+        worker.claim_step("rec-001")
 
         update_call = engine._step_repo.update.call_args[0]
         assert update_call[0] == "rec-001"
@@ -176,7 +176,7 @@ class TestExecuteStep:
             {"step_run_id": "SR-001", "status": "pending"},  # return re-queued
         ]
 
-        result = worker.execute_step("rec-001", handler)
+        worker.execute_step("rec-001", handler)
 
         engine.fail_step.assert_not_called()
         requeue_call = engine._step_repo.update.call_args_list[-1]
@@ -305,7 +305,7 @@ class TestLeaseRecheck:
             {"step_run_id": "SR-001", "status": "pending"},  # return re-queued
         ]
 
-        result = worker.execute_step("rec-001", handler)
+        worker.execute_step("rec-001", handler)
 
         engine.complete_step.assert_not_called()
         requeue_call = engine._step_repo.update.call_args_list[-1]

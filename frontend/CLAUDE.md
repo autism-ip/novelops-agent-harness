@@ -6,6 +6,9 @@
 ## 技术栈
 Next.js 16 + React 19 + Tailwind CSS 4 + shadcn/ui + TypeScript
 
+## 验证门禁
+Node 24（`.nvmrc`）。`npm ci` 安装锁定依赖；`npm run check` 依次执行零警告 ESLint、`next typegen && tsc --noEmit` 和生产构建。`npm run lint:fix` 用于自动修复 lint。CI/CD 接入说明见 `../docs/ci-cd.md`。
+
 ## 目录结构
 ```
 src/

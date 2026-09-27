@@ -59,7 +59,7 @@ class TestConditionalUpdate:
         client.put.return_value = {"data": {"record": {"record_id": "R1", "fields": {}}}}
         repo = BaseRepository(client, "app_tok", "tbl_id", {})
 
-        result = repo.conditional_update(
+        repo.conditional_update(
             "R1",
             {"status": "running"},
             {"status": "pending"},
