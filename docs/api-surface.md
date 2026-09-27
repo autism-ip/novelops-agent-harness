@@ -164,3 +164,10 @@ All workflow endpoints require `x-api-key`. Errors: 404 missing, 409 stale or
 conflicting transition, 422 invalid definition, 503 storage/reconciliation or
 disabled runtime. See [runtime setup and recovery](harness-v02.md). The older
 API inventory below is a roadmap unless its routes exist in code.
+# Implemented hotspot API (v0.2, ZEN-33)
+
+Authenticated `POST /api/hotspots/fetch`, `GET /api/hotspots`, and
+`GET /api/hotspots/{hotspot_id}` are implemented by the deterministic ingestion
+service. See [hotspot-ingestion.md](hotspot-ingestion.md) for request/response
+contracts, capture-time filtering, retry/reconciliation and configuration.
+Manual controls and semantic analysis remain separate issues.

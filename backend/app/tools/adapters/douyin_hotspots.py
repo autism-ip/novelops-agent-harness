@@ -99,10 +99,12 @@ class DouyinHotspotAdapter:
         silently dropped from the result set.
         """
         title = raw.get("title") or raw.get("word") or raw.get("name")
-        if not title:
+        if not isinstance(title, str) or not title.strip():
             return None
 
         url = raw.get("url") or raw.get("link") or ""
+        if not isinstance(url, str):
+            return None
         rank = self._to_int(
             raw.get("rank") or raw.get("position") or raw.get("index") or 0
         )

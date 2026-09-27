@@ -20,6 +20,7 @@ test_worker_loop.py: WorkerLoop 行为门禁，验证 claim/lease/expired/poll/e
 test_step_runs.py: StepRunsRepo 行为门禁，验证 claim_step 业务键→record_id 解析与 find_by_pipeline 字段过滤（4 用例）。
 test_pipeline_api.py: Pipeline API 端点门禁，验证 POST 创建、GET 查询、404 处理（5 用例）。
 test_feishu_integration.py: 飞书集成门禁（需真实凭证，CI 跳过）。
+test_hotspot_ingestion.py: ZEN-33 子进程→adapter→调度器→Feishu transport→API 验收，覆盖批次重放、去重、超时与关闭采集后读取；不等于真实平台验收。
 
 架构决策
 测试以 BDD 验收行为为中心：状态值必须精确、密钥不得回显、鉴权必须先于路由缺失返回。门禁允许当前实现缺失时失败；它的职责是定义合格线，而不是替实现兜底。CI 显式排除 integration，保留全部离线断言，要求 app 语句覆盖率至少当前基线 87.82%，上传 coverage XML 与 JUnit 报告；Ruff 同时检查测试代码。不得为过门禁降低覆盖率下限、删除或弱化断言、增加应用代码排除项。
