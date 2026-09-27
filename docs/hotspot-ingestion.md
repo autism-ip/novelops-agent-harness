@@ -17,11 +17,26 @@ HOTSPOTS_ENABLED=true
 OPENCLI_ENABLED=true
 OPENCLI_BIN=opencli
 OPENCLI_TIMEOUT=30
-OPENCLI_DOUYIN_COMMAND=[]
+OPENCLI_DOUYIN_COMMAND=["novelops","douyin-hotspots","--limit","50","-f","json"]
 GENERATION_ENABLED=false
 ```
 
-Replace `OPENCLI_DOUYIN_COMMAND` with a JSON array of arguments **verified against the installed OpenCLI public-feed adapter**. Empty arguments fail startup when collection is enabled. No executable command is guessed here: this development host has no OpenCLI binary or OpenCLI MCP, so a real public-source command has not been verified. The backend passes argv directly without a shell; API callers cannot supply command arguments or select a source URL. Only public hotspot extraction is in scope: no login bypass, comments, publishing or credential scraping.
+Install the repository's PUBLIC adapter using Node 24 (the CI version), from the repository root:
+
+```sh
+npm ci --ignore-scripts --prefix tools/opencli
+tools/opencli/node_modules/.bin/opencli list -f json
+mkdir -p "$HOME/.opencli/clis/novelops"
+cp tools/opencli/douyin-hotspots.js "$HOME/.opencli/clis/novelops/douyin-hotspots.js"
+tools/opencli/node_modules/.bin/opencli validate novelops
+tools/opencli/node_modules/.bin/opencli novelops douyin-hotspots --limit 50 -f json
+```
+
+Inspect an existing adapter before replacing it. Set `OPENCLI_BIN` to the absolute path of that local `tools/opencli/node_modules/.bin/opencli` executable, or an installed OpenCLI 1.8.8 binary. The registry initialization creates OpenCLI's own user configuration directory; the adapter must be installed for the same OS user as the backend. No browser extension or login is needed. OpenCLI is pinned in the lockfile, with offline contract tests in CI.
+
+The built-in Douyin creator-center adapter requires browser credentials. This separate adapter uses the unauthenticated [public word billboard](https://www.iesdouyin.com/web/api/v2/hotsearch/billboard/word/) through OpenCLI's documented PUBLIC extension interface. It checks upstream status/schema, uses a fixed host, disallows redirects and times out after 10 seconds. `url` identifies the feed, not an invented video URL; raw source fields and `active_time` remain in the payload. The endpoint currently returns at most 50 rows and has no verified stable API guarantee. Schema drift fails visibly. Empty results use OpenCLI exit 66, which the Python adapter maps to a zero-count success; other exits remain failures.
+
+The command above returned 50 real rows on 2026-09-28. Empty configured argv still fails startup when collection is enabled. The backend passes argv directly without a shell; API callers cannot supply command arguments or select a source URL. Only public hotspot extraction is in scope: no login bypass, comments, publishing or credential scraping.
 
 `OPENCLI_ENABLED=true` also enables Hotspot reads. To retain reads while disabling collection, use `HOTSPOTS_ENABLED=true` and `OPENCLI_ENABLED=false`. The Traces table is only required when collection or generation is enabled. A persisted fetch referencing a changed command/binary is blocked for reconciliation. Do not change the configured command while a workflow is running.
 
@@ -61,4 +76,4 @@ Tool timeout, exit and schema errors are sanitized in StepRuns/traces and use bo
 
 `tests/test_hotspot_ingestion.py` covers 35-row real subprocess → adapter → FastAPI lifespan scheduler → stateful Feishu HTTP transport → read API; pagination/filtering; restart/snapshot replay; committed and unknown timeouts; storage/schema/tool failure; legacy IDs/status; older captures; command changes; and zero model calls.
 
-This is controlled local evidence, not a live Douyin or Feishu deployment. Base v3 migration/application credentials and payload/rate/conflict limits remain #21 acceptance gates. Snapshot text size and sequential write latency need real-platform measurement before enabling production ingestion. The current provider paginates filtered rows before local date filtering/response pagination; large-history query performance remains a measured follow-up, not an indexed-query guarantee.
+Additionally, the installed OpenCLI adapter fetched 50 real public rows into the Harness and a stateful mocked Feishu HTTP transport: 50 accepted/created, zero rejected, replay reconciled 50 with no duplicates or model calls. The CLI took 922 ms and the saved snapshot was 36,561 UTF-8 bytes for that observation. This verifies the live source, not a live Feishu deployment. Base v3 migration/application credentials and payload/rate/conflict limits remain #21 acceptance gates. Snapshot text size and sequential write latency need real-platform measurement before enabling production ingestion. The current provider paginates filtered rows before local date filtering/response pagination; large-history query performance remains a measured follow-up, not an indexed-query guarantee.

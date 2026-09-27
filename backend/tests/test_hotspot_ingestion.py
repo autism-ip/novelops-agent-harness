@@ -114,7 +114,8 @@ def test_snapshot_recovery_does_not_refetch_or_duplicate_partial_batch(ingestion
     monkeypatch.setattr(storage, "update", original)
     restarted = HarnessKernel(storage, journal_dir=root/"journal", max_retries=2)
     restarted.telemetry = TraceRecorder(restarted)
-    adapter = SimpleNamespace(fetch=lambda: pytest.fail("must reuse saved snapshot"))
+    adapter = SimpleNamespace(_cmd=service.adapter._cmd, _runner=service.adapter._runner,
+                              fetch=lambda: pytest.fail("must reuse saved snapshot"))
     HotspotService(restarted, adapter)
     restarted.recover()
     assert complete(restarted, run_id)["status"] == "completed"
@@ -268,6 +269,48 @@ def test_command_configuration_changes_block_old_unexecuted_work(ingestion):
     run_id = service.enqueue("command")["pipeline_run_id"]
     service.command_hash = "changed"
     assert complete(kernel, run_id)["status"] == "blocked"
+
+
+def test_command_configuration_changes_block_saved_fetch_before_any_write(ingestion):
+    kernel, service, storage, _, _, root = ingestion
+    run_id = service.enqueue("changed-after-fetch")["pipeline_run_id"]
+    kernel.tick()
+    restarted = HarnessKernel(storage, journal_dir=root/"journal")
+    changed = SimpleNamespace(_cmd=["new-command"], fetch=lambda: pytest.fail("must not fetch"))
+    HotspotService(restarted, changed)
+    restarted.recover()
+    assert complete(restarted, run_id)["status"] == "blocked"
+    assert storage.list("hotspots") == []
+
+
+def test_hotspot_only_runtime_reports_artifact_unavailable(ingestion):
+    kernel, _, _, _, _, _ = ingestion
+    with TestClient(create_app(Settings(BACKEND_API_KEY="test"), kernel=kernel)) as api:
+        result = api.get('/api/artifacts/missing', headers={"x-api-key": "test"})
+        assert result.status_code == 503
+
+
+@pytest.mark.parametrize("raw", ["[]", "null", '"text"', "1", "true"])
+def test_non_object_stored_raw_payload_fails_reads(ingestion, raw):
+    kernel, service, storage, _, _, _ = ingestion
+    complete(kernel, service.enqueue("bad-raw")["pipeline_run_id"])
+    row = storage.list("hotspots")[0]
+    storage.update("hotspots", row["hotspot_id"], {"raw_json": raw})
+    with TestClient(create_app(Settings(BACKEND_API_KEY="test"), kernel=kernel)) as api:
+        headers = {"x-api-key": "test"}
+        assert api.get('/api/hotspots', headers=headers).status_code == 503
+        assert api.get('/api/hotspots/' + row["hotspot_id"], headers=headers).status_code == 503
+
+
+def test_opencli_empty_result_exit_is_a_successful_empty_feed(ingestion):
+    kernel, service, storage, _, _, _ = ingestion
+    service.adapter._cmd = ["-c", "import sys; sys.exit(66)"]
+    run = complete(kernel, service.enqueue("empty-exit")["pipeline_run_id"])
+    assert run["status"] == "completed"
+    result = json.loads(run["steps"][0]["output_json"])
+    assert result["counts"]["fetched"] == 0
+    assert result["duration_ms"] >= 0
+    assert storage.list("hotspots") == []
 
 
 def test_hotspot_reads_survive_disabling_collection(ingestion):

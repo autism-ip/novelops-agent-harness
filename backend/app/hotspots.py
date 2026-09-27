@@ -102,7 +102,7 @@ class HotspotService:
         counts = {"fetched": result.raw_count, "accepted": len(valid),
             "rejected": result.raw_count-len(valid), "duplicate_in_batch": len(valid)-len(unique),
             "selected": len(selected), "omitted": len(unique)-len(selected)}
-        snapshot = {"records": selected, "counts": counts}
+        snapshot = {"records": selected, "counts": counts, "command_hash": self.command_hash}
         return {**snapshot, "batch_hash": digest(snapshot), "duration_ms": result.duration_ms,
                 "source": "douyin", "command_hash": self.command_hash}
 
@@ -114,7 +114,9 @@ class HotspotService:
                 raise AmbiguousWrite("Persist requires a successful fetch snapshot")
             try:
                 snapshot = json.loads(fetched["output_json"])
-                if digest({k: snapshot[k] for k in ("records", "counts")}) != snapshot["batch_hash"]:
+                if snapshot["command_hash"] != self.command_hash:
+                    raise ValueError("Ingestion command changed")
+                if digest({k: snapshot[k] for k in ("records", "counts", "command_hash")}) != snapshot["batch_hash"]:
                     raise ValueError("Snapshot hash mismatch")
                 records = [HotspotRecord.model_validate(r) for r in snapshot["records"]]
             except (ValueError, TypeError, KeyError):
@@ -155,7 +157,10 @@ class HotspotService:
     @staticmethod
     def public(row):
         try:
-            return {**row, "raw_json": json.loads(row.get("raw_json") or "{}")}
+            payload = json.loads(row.get("raw_json") or "{}")
+            if not isinstance(payload, dict):
+                raise ValueError("Stored payload must be an object")
+            return {**row, "raw_json": payload}
         except (ValueError, TypeError):
             raise AmbiguousWrite("Invalid stored hotspot payload") from None
 
