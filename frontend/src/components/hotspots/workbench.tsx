@@ -196,7 +196,7 @@ export function HotspotsWorkbench() {
   const working =
     recent.some((run) => !TERMINAL.has(run.status)) ||
     !!(activeRun && (!current.data || !TERMINAL.has(current.data.status)));
-  const disabled = submitting || !!pendingRaw || working;
+  const disabled = submitting || !!pendingRaw || working || runs.loading || !!runs.error;
   const authNeeded = [
     listing.error,
     capabilities.error,
@@ -602,6 +602,7 @@ export function HotspotsWorkbench() {
             aria-label="Selected workflow"
           >
             <p className="break-all text-xs">Run: {activeRun}</p>
+            <Button variant="ghost" onClick={() => setActiveRun(null)}>Hide workflow details</Button>
             {current.loading && <p role="status">Loading workflow…</p>}
             {current.error != null && (
               <p role="alert">{errorMessage(current.error)}</p>
