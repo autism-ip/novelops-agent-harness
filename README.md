@@ -78,8 +78,25 @@ No Kubernetes, Kafka, Redis, Celery, Temporal, microservices, service mesh, dist
 ```bash
 cd backend
 python -m pip install -e ".[dev]"
-BACKEND_API_KEY=local-test-key python -m pytest tests -q
+python -m ruff check app tests
+BACKEND_API_KEY=local-test-key python -m pytest tests -q -m "not integration" --cov=app
+python -m build
 ```
+
+Frontend (Node 24):
+
+```bash
+cd frontend
+nvm use
+npm ci
+npm run check
+```
+
+CI requires workflow lint, Python lint, backend behavior tests with at least 87.82%
+coverage, an installable backend package, frontend lint/type checks, and a production
+build. Use **CI quality gate** as the required status check. See
+[CI and deployment gates](docs/ci-cd.md) for reports, local commands, merge protection,
+and deployment integration.
 
 ## Documents
 
@@ -89,6 +106,7 @@ BACKEND_API_KEY=local-test-key python -m pytest tests -q
 - [Pipeline v0.1 history](docs/pipeline-v0.1.md)
 - [API surface](docs/api-surface.md)
 - [Linear mapping](docs/linear-mapping.md)
+- [CI and deployment gates](docs/ci-cd.md)
 
 ## Project tracking
 

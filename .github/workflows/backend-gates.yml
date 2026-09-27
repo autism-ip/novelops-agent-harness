@@ -1,4 +1,4 @@
-name: Backend Behavior Gates
+name: CI
 
 on:
   pull_request:
@@ -6,29 +6,179 @@ on:
     branches:
       - main
       - "feature/**"
+      - "fix/**"
+      - "codex/**"
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  backend-behavior:
-    name: ZEN-28 behavior contract
+  workflow-lint:
+    name: Workflow lint
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install and run actionlint
+        env:
+          ACTIONLINT_VERSION: "1.7.12"
+          ACTIONLINT_SHA256: "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"
+        run: |
+          archive="$RUNNER_TEMP/actionlint.tar.gz"
+          curl --fail --silent --show-error --location --retry 3 \
+            "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz" \
+            --output "$archive"
+          echo "$ACTIONLINT_SHA256  $archive" | sha256sum --check --strict
+          tar -xzf "$archive" -C "$RUNNER_TEMP" actionlint
+          "$RUNNER_TEMP/actionlint" -color
 
+  backend-lint:
+    name: Backend lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
     defaults:
       run:
         working-directory: backend
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+      - name: Install lint tool from project configuration
+        run: |
+          version=$(python -c 'import tomllib; p = tomllib.load(open("pyproject.toml", "rb")); print(next(d for d in p["project"]["optional-dependencies"]["dev"] if d.startswith("ruff==")))')
+          python -m pip install "$version"
+      - name: Ruff
+        run: python -m ruff check app tests --output-format github
 
-      - name: Install backend with test dependencies
+  backend-behavior:
+    # Preserve the existing check name for repositories already requiring it.
+    name: ZEN-28 behavior contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+      - name: Install backend and verification tools
         run: python -m pip install -e ".[dev]"
-
-      - name: Run behavior gates
+      - name: Check dependency consistency
+        run: python -m pip check
+      - name: Run offline behavior gates with coverage
         env:
           BACKEND_API_KEY: ci-contract-key
-        run: python -m pytest tests -q --tb=short
+        run: >-
+          python -m pytest tests -q --tb=short -m "not integration"
+          --cov=app --cov-report=term-missing --cov-report=xml:coverage.xml
+          --junitxml=test-results/pytest.xml
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-reports-${{ github.sha }}
+          path: |
+            backend/coverage.xml
+            backend/test-results/pytest.xml
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Build source distribution and wheel
+        run: python -m build
+      - name: Install and smoke-test the wheel outside the source tree
+        run: |
+          python -m pip install --force-reinstall --no-deps dist/*.whl
+          cd "$RUNNER_TEMP"
+          python -I - <<'PY'
+          from fastapi.testclient import TestClient
+          from app.config import Settings
+          from app.main import create_app
+
+          app = create_app(Settings(_env_file=None, BACKEND_API_KEY="wheel-smoke-key"))
+          with TestClient(app) as client:
+              response = client.get("/api/system/health")
+              assert response.status_code == 200, response.text
+              assert response.json()["status"] == "ok"
+              assert client.get("/api/system/config").status_code == 401
+              assert client.get(
+                  "/api/system/config", headers={"x-api-key": "wheel-smoke-key"}
+              ).status_code == 200
+          PY
+      - name: Upload backend distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-dist-${{ github.sha }}
+          path: backend/dist/*
+          if-no-files-found: error
+          retention-days: 14
+
+  frontend:
+    name: Frontend lint, types and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci
+      - name: ESLint (zero warnings)
+        run: npm run lint
+      - name: Generate route types and check TypeScript
+        run: npm run typecheck
+      - name: Production build
+        run: npm run build
+
+  quality-gate:
+    name: CI quality gate
+    needs: [workflow-lint, backend-lint, backend-behavior, frontend]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Require every gate to succeed
+        env:
+          WORKFLOW_RESULT: ${{ needs.workflow-lint.result }}
+          LINT_RESULT: ${{ needs.backend-lint.result }}
+          BACKEND_RESULT: ${{ needs.backend-behavior.result }}
+          FRONTEND_RESULT: ${{ needs.frontend.result }}
+        run: |
+          {
+            echo "## CI quality gate"
+            echo "- Workflow lint: $WORKFLOW_RESULT"
+            echo "- Backend lint: $LINT_RESULT"
+            echo "- Backend tests/package: $BACKEND_RESULT"
+            echo "- Frontend lint/types/build: $FRONTEND_RESULT"
+          } >> "$GITHUB_STEP_SUMMARY"
+          test "$WORKFLOW_RESULT" = success
+          test "$LINT_RESULT" = success
+          test "$BACKEND_RESULT" = success
+          test "$FRONTEND_RESULT" = success

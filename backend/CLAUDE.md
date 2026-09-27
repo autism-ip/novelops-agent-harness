@@ -2,7 +2,8 @@
 > L2 | 父级: ../CLAUDE.md
 
 成员清单
-pyproject.toml: Python 项目元数据与依赖门禁，定义 FastAPI/pytest/httpx 运行边界。
+README.md: 后端包说明与本地验证命令，包含当前覆盖率基线和运行限制。
+pyproject.toml: Python 项目元数据与依赖门禁；固定 Ruff/coverage/build 工具，配置 lint、87.82% 当前覆盖率基线下限和 app 包发现。
 .env.example: 本地环境变量样例，只放占位符，不承载真实密钥。
 app/: FastAPI 应用实现 — 工厂函数、配置、中间件、路由。
 tests/: 行为级 pytest 门禁，验证 ZEN-28 验收契约而非仅验证进程可启动。
