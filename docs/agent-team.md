@@ -1,98 +1,145 @@
-# Agent Team Design
+# Agent Runtime Design v0.2
 
-NovelOps treats the Harness itself as an Agent Team.
+> v0.2 no longer treats the Harness itself as an Agent Team. Deterministic control-plane responsibilities belong to Harness services; Agents are reserved for semantic reasoning and generation.
 
-Each function is represented by an Agent with:
+## Core rule
 
-- A role.
-- An input schema.
-- An output schema.
-- A prompt version.
-- A tool permission set.
-- State and memory persisted in Feishu.
-- AgentRun records for every execution.
+If the same input must produce the same control behavior, use normal code rather than an LLM Agent.
 
-## System agents
+Harness services own:
 
-| Agent | Responsibility |
-|---|---|
-| `OrchestratorAgent` | Decide which step is runnable and assign work. |
-| `TaskManagerAgent` | Create, split, retry, pause, and resume tasks. |
-| `SchemaGuardAgent` | Validate Agent outputs before persistence. |
-| `LoggerAgent` | Record AgentRun, StepRun, errors, and timing. |
-| `ApprovalAgent` | Handle approval gates, rejections, revision requests, and final locks. |
-| `StateSyncAgent` | Keep Feishu state consistent after each step. |
+- workflow orchestration
+- runnable-step selection
+- lifecycle/state transitions
+- schema validation
+- deterministic verification
+- approvals
+- retries/recovery
+- reconciliation
+- tracing/logging/cost accounting
+- storage synchronization
 
-## Data and analysis agents
+## Initial semantic Agent roles
 
 | Agent | Responsibility |
 |---|---|
-| `DouyinHotspotCrawlerAgent` | Call OpenCLI to extract Douyin public hotspots. |
-| `HotspotNormalizeAgent` | Normalize, deduplicate, and score raw hotspot records. |
-| `HitPatternAnalysisAgent` | Extract hit-pattern structures and reader-emotion hooks. |
-| `NovelizationAnalysisAgent` | Convert hotspots into web-novel directions. |
-| `RiskScreenAgent` | Screen for sensitive, defamatory, low-quality, or infringement risk. |
+| `ResearchAgent` | Convert selected research/hotspot inputs into structured opportunity intelligence. |
+| `StoryArchitectAgent` | Create/evolve StoryBible and propose structured StoryState changes. |
+| `ChapterPlannerAgent` | Generate versioned ChapterBrief artifacts from current StoryState. |
+| `WriterAgent` | Generate chapter drafts from StoryContextSnapshot and ChapterBrief. |
+| `CriticAgent` | Evaluate semantic quality: pacing, voice/style, dialogue, reader promise, interpretive continuity, repetition, AI-like patterns. |
+| `RewriteAgent` | Apply constrained revisions only when critique/policy requires them. |
 
-## Creation agents
+Other model-backed workflow steps such as title or cover planning do not need to become long-lived Agent identities unless evals demonstrate a clear benefit.
 
-| Agent | Responsibility |
-|---|---|
-| `TitleAgent` | Generate novel title candidates, hooks, selling points, and scores. |
-| `CoverAgent` | Generate cover direction, elements, style, cover prompt, and negative prompt. |
-| `StorySetupAgent` | Generate MiniBible and initial story setup. |
-| `EditorAgent` | Control commercial direction, target reader, reader promise, and style constraints. |
-| `WorldviewAgent` | Maintain world rules, factions, resources, and consistency boundaries. |
-| `MacroEnvironmentAgent` | Track macro environment, public sentiment, and protagonist impact scope. |
-| `PowerSystemAgent` | Maintain gold-finger rules, limits, costs, upgrades, and forbidden uses. |
-| `CharacterAgent` | Maintain protagonist, supporting cast, antagonists, relationships, and behavioral boundaries. |
-| `ForeshadowingAgent` | Track foreshadowing items, payoff plans, and unresolved hooks. |
-| `ChapterPlannerAgent` | Generate ChapterBriefs with hook, goal, conflict, payoff, and ending hook. |
-| `ChapterWriterAgent` | Generate chapter drafts from MiniBible, Agent state, and ChapterBrief. |
-| `StyleAgent` | Apply platform-oriented style and pacing polish. |
-| `AntiAIFlavorAgent` | Reduce formulaic or AI-like phrasing and add concrete scene details. |
-| `ReviewAgent` | Review generated artifacts and return pass/revise/reject reports. |
-| `RewriteAgent` | Execute revision tasks using must_keep, must_change, and do_not_change constraints. |
+## Canonical StoryState
 
-## Agent state model
+Story truth is not owned by independent Agent memories.
 
-Every Agent state is stored in `AgentStates`.
+```text
+StoryState
+├─ StoryBible
+├─ World
+├─ Characters
+├─ PowerSystem
+├─ Timeline
+├─ Plot
+├─ Foreshadowing
+└─ StyleContract
+```
 
-Core fields:
+Agents read canonical StoryState and emit structured outputs or proposed patches. Harness validation and consistency rules decide whether changes may be committed.
 
-- `agent_state_id`
-- `agent_id`
-- `book_id`
-- `status`
-- `current_state`
-- `memory_summary`
-- `locked_rules`
-- `open_questions`
-- `last_input_ref`
-- `last_output_ref`
-- `last_seen_chapter`
-- `risk_flags`
-- `updated_at`
+## Structured state changes
 
-## Per-book Agent Team
+Prefer structured patch operations over opaque memory summaries, for example:
 
-Every book has a logical Agent Team. In v0.1, all teams use the shared `AgentStates` table with `book_id` filtering.
+```json
+{
+  "operations": [
+    {
+      "type": "update_character",
+      "character_id": "char_001",
+      "field": "relationship.char_003",
+      "value": "hostile"
+    }
+  ]
+}
+```
 
-This avoids creating one physical table per book while still allowing the UI to display a dedicated Agent Team panel for each book.
+The Harness validates schema, references, hard rules, and version preconditions before committing a new StoryState version.
 
-## Agent Team snapshot
+## Artifact-first communication
 
-Before chapter generation, the backend creates an `AgentTeamSnapshot`.
+Agents should primarily consume and produce versioned Artifacts rather than exchanging unconstrained messages.
 
-The snapshot freezes:
+Typical artifacts:
 
-- Editor state.
-- Worldview state.
-- Macro environment state.
-- Power system state.
-- Character state.
-- Foreshadowing state.
-- Style constraints.
+- OpportunityAnalysis
+- StoryBible
+- ChapterBrief
+- StoryContextSnapshot
+- ChapterVersion
+- CriticReport
+- RevisionInstruction
 
-Each `ChapterVersion` links to the snapshot used to generate it.
+Each important artifact should include provenance such as source refs, content hash, run/creator refs, model/prompt version where applicable, and timestamps.
 
-This enables tracing why a chapter was written a certain way and prevents silent drift in long-form generation.
+## StoryContextSnapshot
+
+Before chapter generation, Context Builder freezes the exact StoryState/Artifact versions used for that chapter.
+
+A snapshot typically references:
+
+- StoryBible version
+- World/Character/Plot/Foreshadowing state versions
+- StyleContract version
+- ChapterBrief version
+- relevant historical/retrieved context
+
+Every generated ChapterVersion links to its StoryContextSnapshot.
+
+This replaces the v0.1 `AgentTeamSnapshot` model.
+
+## Chapter generation loop
+
+```text
+Context Builder
+    ↓
+WriterAgent
+    ↓
+Deterministic Verifier
+    ↓
+CriticAgent
+    ↓
+revision required?
+ ┌──┴──┐
+ yes   no
+  ↓     │
+RewriteAgent
+  ↓     │
+Verifier ◄┘
+  ↓
+Selective Human Gate
+  ↓
+Final
+```
+
+The old unconditional `Writer → StyleAgent → AntiAIFlavorAgent → ReviewAgent` chain is deprecated.
+
+## Agent configuration
+
+Agent definitions should be configuration-driven where practical and describe:
+
+- logical model route/capability
+- input Artifact/context requirements
+- tool permissions
+- output schema
+- prompt version
+- budget/retry constraints
+
+Provider-specific model names should not leak into domain/workflow logic.
+
+## Growth rule
+
+Do not add an Agent because a domain noun exists. Add a distinct Agent role only when evals show that separating the role improves quality, reliability, or cost enough to justify the added coordination surface.
