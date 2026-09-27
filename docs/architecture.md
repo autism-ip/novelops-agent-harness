@@ -1,138 +1,290 @@
-# Architecture
+# Architecture v0.2
 
 ## System positioning
 
-NovelOps is a front/back separated Agent Team Harness for AI-assisted web-novel production.
+NovelOps is a Feishu-first, local-first modular Harness for AI-assisted web-novel production. It is optimized for a single operator and high cost-efficiency first, while preserving clean extension points for long-term automation and future multi-user deployment.
 
-The MVP converts Douyin public hotspots into structured web-novel assets:
+The system deliberately separates deterministic execution from non-deterministic intelligence.
 
-1. Hotspot extraction.
-2. Hotspot normalization.
-3. Hit-pattern and novelization analysis.
-4. Title and cover-plan generation.
-5. Book creation and Agent Team initialization.
-6. MiniBible creation.
-7. Chapter brief creation.
-8. Chapter draft generation.
-9. AI review.
-10. Human approval, revision, or final lock.
+- **Harness services** own workflow execution, state transitions, retries, reconciliation, validation, approvals, tracing, and cost controls.
+- **Agents** are reserved for semantic reasoning and generation.
 
 ## High-level architecture
 
 ```text
-Vercel Frontend
-  ↓ HTTP API
-Local Persistent Backend / Harness
+Next.js / Vercel
+  ↓ HTTP / SSE
+FastAPI modular monolith
   ↓
-Feishu Bitable as the only database
+Harness Kernel
+  ├─ Workflow Engine
+  ├─ State Machine
+  ├─ Single Scheduler / Single Writer
+  ├─ Context Builder
+  ├─ Agent Runtime
+  ├─ Validator / Verifier
+  ├─ Retry / Recovery / Reconciliation
+  ├─ Approval
+  └─ Trace / Usage / Cost
   ↓
-External tools: OpenCLI, LLM APIs, optional image APIs
+Provider layer
+  ├─ ModelProvider: DeepSeek / OpenAI / future
+  ├─ ToolProvider: OpenCLI / web / APIs / image tools
+  └─ StorageProvider: Feishu Base / Docs / Drive
 ```
 
-## Frontend
+## Product layer
 
-- Next.js on Vercel.
-- Control and observability only.
-- Does not call LLMs, OpenCLI, or Feishu secrets directly.
+### Frontend
+
+- Next.js deployed on Vercel.
 - Talks only to backend APIs.
+- Book/workflow-centric UX rather than Agent-centric UX.
+- Primary surfaces: Dashboard, Ideas/Hotspots, Books, Writing, Review, Publish, System/Trace.
+- Model/Agent implementation details live in developer/system views, not primary writing flows.
 
-Responsibilities:
-
-- Dashboard.
-- Pipeline control.
-- Agent Team status panel.
-- Hotspot pool.
-- Analysis approval.
-- Title and cover approval.
-- Book workspace.
-- Chapter review desk.
-
-## Backend
+### Backend
 
 - Local persistent FastAPI service.
-- Runs API server and worker loop.
-- Owns Agent Team Harness, pipeline orchestration, OpenCLI execution, LLM calls, Feishu repository layer, approval logic, review logic, and revision logic.
+- Modular monolith for v0.2.
+- One authoritative scheduler and one machine writer.
+- Owns orchestration, provider calls, validation, reconciliation, approvals, StoryState commits, and trace/cost accounting.
 
-Responsibilities:
+## Harness Kernel
 
-- API surface for frontend.
-- Worker loop.
-- StepRun claiming and retry.
-- Agent execution.
-- Schema validation.
-- Feishu read/write.
-- OpenCLI invocation.
-- LLM invocation.
-- Review and revision flow.
+### Workflow Engine
 
-## Database
+Executes small composable subworkflows rather than a single long pipeline.
 
-- Feishu Bitable only for v0.1.
-- Stores tasks, states, agent memory, artifacts, approvals, versions, review reports, and snapshots.
+Core workflow families:
 
-## Tooling
+1. Research ingestion / hotspot.
+2. Opportunity intelligence / title / cover.
+3. Book bootstrap.
+4. Chapter planning.
+5. Chapter generation / review / revision.
+6. Publishing later.
 
-- OpenCLI for Douyin public hotspot extraction.
-- LLM APIs for Agent reasoning and generation.
-- Optional image API for cover assets. v0.1 can start with cover prompts only.
+### State Machine
 
-## Stability rules
+WorkflowRun and StepRun state changes go through explicit transition code. New business code must not directly mutate lifecycle states.
 
-- Every step must be idempotent.
-- Every Agent output must pass schema validation.
-- Key gates require human approval.
-- Failed steps are retryable.
-- Chapter drafts are versioned; no overwrite.
-- OpenCLI only extracts public Douyin hotspot data.
-- Frontend never stores API secrets.
-
-## Backend module layout
+Typical StepRun states:
 
 ```text
-backend/
-  pyproject.toml
-  tests/
-    test_system_endpoints.py
-    test_api_key_guard.py
-    test_acceptance_contract.py
-  app/                  [PLANNED: must satisfy tests]
-  harness/              [PLANNED]
-  agents/               [PLANNED]
-  tools/                [PLANNED]
-  feishu/               [PLANNED]
-  schemas/              [PLANNED]
-  prompts/              [PLANNED]
-opencli-plugin/         [PLANNED]
-  douyin/hotspots.ts    [PLANNED]
+pending → ready → running
+                  ├─ success
+                  ├─ retry_wait
+                  ├─ waiting_human
+                  ├─ failed
+                  └─ cancelled
 ```
 
-## CI gates
+### Single Scheduler / Single Writer
+
+v0.2 targets one user and one authoritative backend process.
+
+- One scheduler decides what is runnable.
+- One machine writer serializes Feishu runtime mutations.
+- Distributed worker election/lease contention is not a v0.2 requirement.
+- Existing v0.1 lease primitives may remain temporarily for compatibility but should not shape new design.
+
+### Idempotency and reconciliation
+
+Feishu Base is not treated as an exactly-once transactional queue.
+
+- Every create path has a stable business key where practical.
+- Ambiguous create outcomes are reconciled by business key before another create attempt.
+- Blind retry of uncertain POST creates is avoided.
+- Domain IDs and Feishu `record_id` are strictly separated.
+
+## Storage architecture
+
+### Feishu-first
+
+Feishu Base remains the primary structured SSOT for v0.2 because the current workload is low-concurrency, single-operator, and benefits strongly from human visibility/editability.
+
+Use Feishu ecosystem capabilities intentionally:
+
+- **Base:** structured business/runtime state.
+- **Docs:** long-form human-readable content where useful.
+- **Drive:** assets/reference files.
+- **Workflow:** notifications, human workflow, and HTTP callbacks where appropriate.
+- **lark-cli / official MCP:** development, schema inspection, migration, operations, and agent-assisted administration.
+
+Production backend integration should target official SDK/OpenAPI/Base v3 behind a `StorageProvider`/repository boundary.
+
+Do not add SQLite/PostgreSQL as a second primary store until production-like tests demonstrate a concrete need such as multi-user concurrency, SQL-heavy querying, transactional requirements, or Feishu API limits.
+
+## Domain model
+
+### Canonical StoryState
+
+Story truth belongs to a single versioned canonical state, not to independent long-lived Agent memories.
+
+Core namespaces:
 
 ```text
-.github/workflows/backend-gates.yml
+StoryState
+├─ StoryBible
+├─ World
+├─ Characters
+├─ PowerSystem
+├─ Timeline
+├─ Plot
+├─ Foreshadowing
+└─ StyleContract
+```
+
+Agents read StoryState and propose structured changes. Harness validation/consistency checks decide what may be committed.
+
+### Artifact
+
+Important generated/reviewed outputs are first-class versioned Artifacts.
+
+Examples:
+
+- HotspotAnalysis
+- OpportunityAnalysis
+- TitleCandidate
+- CoverPlan
+- StoryBible
+- ChapterBrief
+- StoryContextSnapshot
+- ChapterVersion
+- CriticReport
+- RevisionInstruction
+
+Artifact metadata should capture at least type, version, source refs, content hash, creator/run refs, and timestamps.
+
+### StoryContextSnapshot
+
+Before chapter generation, Context Builder freezes explicit StoryState/Artifact versions needed for the chapter. ChapterVersion references the snapshot used to generate it.
+
+This replaces the old AgentTeamSnapshot concept and provides reproducibility without copying independent Agent memories.
+
+## Agent Runtime
+
+Only non-deterministic semantic work is represented as an Agent.
+
+Initial core roles are approximately:
+
+- `ResearchAgent`
+- `StoryArchitectAgent`
+- `ChapterPlannerAgent`
+- `WriterAgent`
+- `CriticAgent`
+- `RewriteAgent`
+
+The following are Harness services, not Agents:
+
+- orchestration
+- task management
+- schema validation
+- deterministic verification
+- logging/tracing
+- approvals
+- state synchronization/reconciliation
+
+Agent count should grow only when evals show a measurable quality/cost benefit.
+
+## Chapter loop
+
+```text
+Build Context
+    ↓
+Chapter Planner
+    ↓
+Writer
+    ↓
+Deterministic Verifier
+    ↓
+Critic
+    ↓
+revision required?
+ ┌──┴──┐
+ yes   no
+  ↓     │
+Rewrite │
+  ↓     │
+Verify ◄┘
   ↓
-install backend with dev dependencies
+Selective Human Gate
   ↓
-pytest behavior contract tests
+Final
 ```
 
-The gate asserts ZEN-28 behavior: `/api/system/health` and `/api/system/status` return exact contracts, private `/api/*` routes reject missing or wrong `x-api-key`, valid keys pass middleware, config output is sanitized, and missing `BACKEND_API_KEY` fails clearly.
+Avoid unconditional chains of full-text rewriting such as `Writer → StyleAgent → AntiAIFlavorAgent → ReviewAgent`.
 
-## Frontend module layout
+## Verification
 
-```text
-app/
-  dashboard/
-  pipelines/
-  agents/
-  hotspots/
-  analyses/
-  title-cover/
-  books/[bookId]/
-  review/
-  settings/
-src/
-  api/
-  components/
-  types/
-```
+### Deterministic verification
+
+Use code for checks code can reliably perform, including schema validity, IDs/references, lifecycle constraints, chapter metadata, explicit forbidden rules, hard timeline/power-system constraints where modeled, and version integrity.
+
+### Semantic critique
+
+Use LLMs for pacing, emotional payoff, voice/style, dialogue quality, reader promise, continuity requiring interpretation, repetition, and AI-like phrasing.
+
+## Model architecture
+
+Use `ModelRouter` plus provider adapters.
+
+Business/workflow code requests a logical route/capability rather than hard-coding a provider model. DeepSeek can serve as the default cost-efficient route, while OpenAI and future providers remain available for premium/eval/fallback roles.
+
+Every model call should record provider/model, prompt version/hash, input/output refs, token usage, latency, retries, estimated cost, and failure class.
+
+## Human-in-the-loop
+
+Human attention is treated as scarce.
+
+Default automation should stop only at high-value decisions or anomalies, such as:
+
+- opportunity/book selection
+- initial StoryBible approval
+- major story-direction changes
+- severe review/consistency problems
+- final publication
+
+Routine normalization, context building, verification, retries, and low-risk processing should not require manual confirmation.
+
+## Reliability rules
+
+- Stable business idempotency keys for create operations where practical.
+- No silent overwrite of chapter/artifact history.
+- Schema validation before persistence of model outputs.
+- Explicit transition functions for run lifecycle state.
+- Reconciliation after ambiguous persistence outcomes.
+- Structured failure classes and bounded retry policies.
+- Trace model/tool usage and cost.
+- Frontend never receives Feishu/LLM/OpenCLI secrets.
+
+## Non-goals for v0.2
+
+- Kubernetes.
+- Kafka.
+- Redis/Celery.
+- Temporal.
+- Microservices/service mesh.
+- Distributed scheduler/worker pool.
+- Agent-to-Agent message bus.
+- 20+ autonomous Agent topology.
+- Full Event Sourcing.
+- Second primary database without demonstrated need.
+
+## Evolution path
+
+### Personal MVP / long-term personal use
+
+FastAPI modular monolith + Single Writer + Feishu-first + provider-based models/tools.
+
+### Multi-user growth
+
+When justified by measured workload:
+
+- Feishu runtime state can move behind the same provider contract to PostgreSQL.
+- Single Writer can evolve into a worker pool.
+- large artifacts can move to object storage.
+- durable workflow infrastructure can be evaluated only when execution complexity warrants it.
+
+The domain/workflow model should remain stable across those infrastructure changes.
