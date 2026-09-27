@@ -46,7 +46,7 @@ class TestCreatePipeline:
             StepDef("analyze", "agent-b", depends_on=("extract",)),
         ]
 
-        result = engine.create_pipeline("douyin_to_novel", step_defs)
+        engine.create_pipeline("douyin_to_novel", step_defs)
 
         pipeline_repo.create.assert_called_once()
         created = pipeline_repo.create.call_args[0][0]
