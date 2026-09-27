@@ -1,34 +1,45 @@
-# Linear Mapping
+# Linear Mapping — v0.2
 
-Linear project: [NovelOps Agent Team Harness v0.1](https://linear.app/zenhungyep/project/novelops-agent-team-harness-v01-7a6c4cb8b870)
+Linear project: **NovelOps Agent Harness v0.2**
 
-Architecture document: [Architecture and technical plan](https://linear.app/zenhungyep/document/architecture-and-technical-plan-34f4ffbdab82)
+Architecture document: **NovelOps Agent Harness v0.2 — Architecture and Technical Plan**
 
 ## Milestones
 
-1. M1 — Foundation and Feishu schema
-2. M2 — Douyin hotspot pipeline
-3. M3 — Analysis, title, and cover agents
-4. M4 — Book Agent Team and chapter workflow
+1. M1 — Foundation (v0.1 legacy)
+2. M2 — Research ingestion and hotspot workflow
+3. M2.5 — Harness v0.2 architecture alignment
+4. M3 — Opportunity intelligence and approval flow
+5. M4 — Canonical Story State and chapter loop
 
 ## Issues
 
-| Linear | Title | Milestone |
-|---|---|---|
-| [ZEN-28](https://linear.app/zenhungyep/issue/ZEN-28/initialize-backend-fastapi-harness-skeleton) | Initialize backend FastAPI harness skeleton | M1 |
-| [ZEN-29](https://linear.app/zenhungyep/issue/ZEN-29/implement-feishu-bitable-repository-layer-and-core-schema-mapping) | Implement Feishu Bitable repository layer and core schema mapping | M1 |
-| [ZEN-30](https://linear.app/zenhungyep/issue/ZEN-30/build-pipelinerun-steprun-and-worker-loop-primitives) | Build PipelineRun, StepRun, and worker loop primitives | M1 |
-| [ZEN-31](https://linear.app/zenhungyep/issue/ZEN-31/create-vercel-frontend-shell-and-backend-api-client) | Create Vercel frontend shell and backend API client | M1 |
-| [ZEN-32](https://linear.app/zenhungyep/issue/ZEN-32/implement-opencli-douyin-hotspot-adapter-integration) | Implement OpenCLI Douyin hotspot adapter integration | M2 |
-| [ZEN-33](https://linear.app/zenhungyep/issue/ZEN-33/create-douyinhotspotcrawleragent-and-hotspotnormalizeagent) | Create DouyinHotspotCrawlerAgent and HotspotNormalizeAgent | M2 |
-| [ZEN-34](https://linear.app/zenhungyep/issue/ZEN-34/build-hotspots-frontend-page-and-manual-hotspot-controls) | Build Hotspots frontend page and manual hotspot controls | M2 |
-| [ZEN-35](https://linear.app/zenhungyep/issue/ZEN-35/implement-hit-pattern-novelization-and-risk-screen-agents) | Implement hit-pattern, novelization, and risk-screen agents | M3 |
-| [ZEN-36](https://linear.app/zenhungyep/issue/ZEN-36/implement-title-and-cover-plan-generation-agents) | Implement title and cover-plan generation agents | M3 |
-| [ZEN-37](https://linear.app/zenhungyep/issue/ZEN-37/build-analysis-title-cover-approval-ui) | Build analysis, title, cover approval UI | M3 |
-| [ZEN-38](https://linear.app/zenhungyep/issue/ZEN-38/implement-book-creation-and-per-book-agent-team-initialization) | Implement book creation and per-book Agent Team initialization | M4 |
-| [ZEN-39](https://linear.app/zenhungyep/issue/ZEN-39/implement-minibible-and-chapter-brief-generation-workflow) | Implement MiniBible and chapter brief generation workflow | M4 |
-| [ZEN-40](https://linear.app/zenhungyep/issue/ZEN-40/implement-chapter-draft-style-anti-ai-flavor-and-review-agents) | Implement chapter draft, style, anti-AI-flavor, and review agents | M4 |
-| [ZEN-41](https://linear.app/zenhungyep/issue/ZEN-41/build-review-desk-ui-with-revision-and-final-lock-actions) | Build review desk UI with revision and final-lock actions | M4 |
+| Linear | GitHub | Title | Milestone |
+|---|---:|---|---|
+| ZEN-28 | #1 | Initialize backend FastAPI harness skeleton | M1 |
+| ZEN-29 | #2 | Implement Feishu Bitable repository layer and core schema mapping | M1 |
+| ZEN-30 | #3 | Build PipelineRun, StepRun, and worker loop primitives | M1 |
+| ZEN-31 | #4 | Create Vercel frontend shell and backend API client | M1 |
+| ZEN-32 | #5 | Implement OpenCLI Douyin hotspot adapter integration | M2 |
+| ZEN-33 | #6 | Implement hotspot ingestion and normalization workflow | M2 |
+| ZEN-34 | #7 | Build Hotspots product page and manual controls | M2 |
+| ZEN-104 | #20 | Refactor execution core to deterministic Harness Kernel and Single Writer | M2.5 |
+| ZEN-105 | #21 | Validate Feishu Base v3 and refactor Feishu provider boundary | M2.5 |
+| ZEN-106 | #22 | Add Artifact, ModelRouter, tracing, cost, and eval foundations | M2.5 |
+| ZEN-35 | #8 | Implement research, novelization, and risk analysis workflow | M3 |
+| ZEN-36 | #9 | Implement title and cover planning workflow | M3 |
+| ZEN-37 | #10 | Build opportunity, title, and cover approval UI | M3 |
+| ZEN-38 | #11 | Implement book bootstrap and canonical StoryState initialization | M4 |
+| ZEN-39 | #12 | Implement StoryBible and chapter planning workflow | M4 |
+| ZEN-40 | #13 | Implement chapter generation, critique, rewrite, and verification loop | M4 |
+| ZEN-41 | #14 | Build chapter review desk with selective approval and final-lock actions | M4 |
+
+## Architecture transition notes
+
+- ZEN-28 through ZEN-32 are retained as historical implementation work.
+- ZEN-104 through ZEN-106 form the v0.2 architecture-alignment gate before expanding the semantic Agent surface.
+- Future work should follow the deterministic Harness + Feishu-first + canonical StoryState design in `docs/architecture.md`.
+- GitHub Issues mirror Linear implementation scope; Linear remains the product/project planning source.
 
 ## Repository
 
