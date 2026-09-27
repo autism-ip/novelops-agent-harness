@@ -3,7 +3,8 @@
 ## Decision and evidence (2026-09-27)
 
 Retain official `bitable/v1` OpenAPI behind `StorageProvider`. Do not claim
-Base product v3 implies an available `/base/v3` record API. The official
+Base product v3 alone implies endpoint compatibility. The installed CLI subsequently
+confirmed and successfully called `/base/v3` endpoints; see live evidence below. The official
 [create](https://open.feishu.cn/document/server-docs/docs/bitable-v1/app-table-record/create),
 [update](https://open.feishu.cn/document/server-docs/docs/bitable-v1/app-table-record/update)
 and [list](https://open.feishu.cn/document/server-docs/docs/bitable-v1/app-table-record/list)
@@ -12,18 +13,49 @@ readable through the documentation fetcher. No undocumented endpoint was selecte
 
 | Capability | Implementation / evidence | Live measurement |
 | --- | --- | --- |
-| CRUD | Official v1 GET/POST/PUT/DELETE; stateful HTTP contract tests | Pending credentials |
+| CRUD | Official v1 GET/POST/PUT/DELETE; stateful HTTP contract tests | v3 create/read/update verified through CLI; backend v1/delete not live tested |
 | Domain identity | Provider resolves business keys, rejects duplicates/missing mutations | Mock verified |
-| Pagination | Existing pagination; rejects missing/repeated continuation token | Mock verified |
+| Pagination | v1 token pagination guarded; v3 CLI uses offset | v3 pages 10 + 25 = 35, final has_more=false |
 | Ambiguous create | Read by stable key; no second POST; unresolved outcome stops | Mock verified |
-| PATCH / Base v3 | Unverified; not enabled | Pending official contract and tenant probe |
-| Batch behavior | Not used for runtime writes | Pending isolated workload probe |
-| Record history | Not used for artifact versioning | Pending capability probe |
+| PATCH / Base v3 | v3 batch partial update is POST, not PATCH | 7 partial updates preserved other fields; literal HTTP PATCH remains unverified |
+| Batch behavior | Not used for runtime writes | 35 creates / 7 updates succeeded |
+| Record history | Not used for artifact versioning | Create + update events visible after propagation delay |
 | Limits / conflicts / throughput | No distributed CAS claim; serialized application writes | Pending isolated workload probe |
 
-Environment inspection found no FEISHU_APP_ID, FEISHU_APP_SECRET or
-FEISHU_APP_TOKEN. There are **no measured production performance or Base v3
-results** in this PR. The live gate must remain open; mocks do not certify it.
+Environment inspection found no backend FEISHU_APP_ID, FEISHU_APP_SECRET or
+FEISHU_APP_TOKEN. However, `lark-cli 1.0.96` has a working user login outside the
+sandbox. No Feishu MCP is exposed. After explicit user authorization, an isolated
+[test Base](https://fcnaul7kb1kf.feishu.cn/base/T8I6buCMoaiLB6srVBrc9i2jnph)
+was created and retained. These CLI measurements do not certify the backend's
+bot-authenticated v1 production configuration.
+
+## Live v3 evidence
+
+All records are synthetic, in `RuntimeProbe` (`tbljg9eBkvui8zuP`). Field schema:
+domain_id/kind/payload text, version number. Seven representative payload kinds:
+WorkflowRun, StepRun, Artifact, StoryState, ChapterVersion, Review, Approval.
+
+| Probe | Observed result |
+| --- | --- |
+| Batch create 35 | Success, 35 distinct returned record IDs; 3.242 s including CLI overhead |
+| Batch update 7 | Success, version 1 → 2; 3.226 s including CLI overhead |
+| Projection + pagination | First 10 records (has_more=true, next_offset=10); then 25 (has_more=false) |
+| JSON text payload | 16,449-character payload round-tripped; this is a tested size, not a platform ceiling |
+| History | First immediate query returned []; later query returned create rev=1 and update rev=2, with before=1/after=2 |
+| Identity | Stable domain_id values `probe-00`…`probe-34` differ from returned rec IDs |
+| Partial update | Submitted only version; original payload/domain_id/kind remained present |
+
+CLI dry-run confirms POST `/open-apis/base/v3/bases/{base}/tables/{table}/records/batch_create`
+and POST `.../records/batch_update`. CLI help states a 200-record batch maximum;
+we measured only 35, without stress testing or intentionally flooding the tenant.
+History visibility is eventually consistent: an immediate empty response does
+not prove absence. The same caution motivates fail-closed create reconciliation.
+
+**Still open:** actual HTTP PATCH, delete, bot-authenticated v3 access, upper
+payload limits, throttling/concurrent-write conflicts, and runtime v1↔v3 schema
+compatibility. Unknown outcomes/rate errors are simulated in code, not induced
+on the live service. Keep this PR in draft until the remaining feasibility gates
+are resolved or explicitly deferred. Do not introduce PostgreSQL on this evidence.
 
 ## Contract
 
