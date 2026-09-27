@@ -13,9 +13,9 @@ async def health(request: Request):
 
 
 @router.get("/status")
-async def status():
+def status(request: Request):
     """Readiness probe — component placeholders, public."""
-    return {
+    result = {
         "backend_status": "running",
         "worker_status": "not_started",
         "feishu_status": "not_configured",
@@ -24,6 +24,13 @@ async def status():
         "pending_steps": 0,
         "failed_steps": 0,
     }
+    kernel = getattr(request.app.state, "kernel", None)
+    if kernel is not None:
+        try:
+            result.update(kernel.status())
+        except Exception:
+            result.update(worker_status="running" if kernel.running else "stopped", feishu_status="unreachable")
+    return result
 
 
 @router.get("/config")
