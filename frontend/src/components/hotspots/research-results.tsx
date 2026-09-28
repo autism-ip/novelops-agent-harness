@@ -55,7 +55,8 @@ export function ResearchResult({ runId, revision }: { runId: string; revision: n
   </div>;
 }
 
-export function ResearchHistory({ hotspotId, revision, submit, disabled }: { hotspotId: string; revision: number;
+export function ResearchHistory({ hotspotId, revision, submit, disabled, creative }: { hotspotId: string; revision: number;
+  creative: boolean;
   submit: (command: Pending) => Promise<boolean>; disabled: boolean }) {
   const result = useResource<OpportunityAnalysis[]>(`/api/hotspots/${encodeURIComponent(hotspotId)}/analyses`, revision, 5000);
   return <section aria-label="Analysis history" className="space-y-3">
@@ -65,7 +66,7 @@ export function ResearchHistory({ hotspotId, revision, submit, disabled }: { hot
     {result.data?.length === 0 && <p>No analysis yet. Select this hotspot and choose Analyze selected.</p>}
     {result.data?.map(analysis => <div key={analysis.run.pipeline_run_id} className="space-y-3">
       <AnalysisCard analysis={analysis} />
-      {analysis.current && analysis.approval_status === "approved" &&
+      {creative && analysis.current && analysis.approval_status === "approved" &&
         <CreativeResults kind="titles" sourceRunId={analysis.run.pipeline_run_id} revision={revision} submit={submit} disabled={disabled} />}
     </div>)}
   </section>;

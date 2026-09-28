@@ -36,7 +36,8 @@ class DiscardBody(BaseModel):
 @router.get("/capabilities")
 def capabilities(hotspots=Depends(service)):
     return {"fetch": hotspots.collection_enabled, "manual_add": True, "discard": True,
-            "analyze": getattr(hotspots.kernel, "research", None) is not None}
+            "analyze": getattr(hotspots.kernel, "research", None) is not None,
+            "creative": getattr(hotspots.kernel, "creative", None) is not None}
 
 
 @router.post("/manual", status_code=201)

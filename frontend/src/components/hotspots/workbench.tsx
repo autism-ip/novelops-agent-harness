@@ -60,6 +60,7 @@ function Detail({
   discard,
   disabled,
   analyze,
+  creative,
   submit,
 }: {
   id: string;
@@ -68,6 +69,7 @@ function Detail({
   discard: (row: Hotspot) => void;
   disabled: boolean;
   analyze: boolean;
+  creative: boolean;
   submit: (command: Pending) => Promise<boolean>;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -143,7 +145,7 @@ function Detail({
               {JSON.stringify(row.raw_json, null, 2)}
             </pre>
           </details>
-          {analyze && <ResearchHistory hotspotId={id} revision={revision} submit={submit} disabled={disabled} />}
+          {analyze && <ResearchHistory hotspotId={id} revision={revision} submit={submit} disabled={disabled} creative={creative} />}
         </div>
       )}
     </dialog>
@@ -686,6 +688,7 @@ export function HotspotsWorkbench() {
           discard={discard}
           disabled={disabled || !capabilities.data?.discard}
           analyze={!!capabilities.data?.analyze}
+          creative={!!capabilities.data?.creative}
           submit={submit}
         />
       )}

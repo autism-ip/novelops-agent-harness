@@ -175,7 +175,11 @@ class CreativeService:
             key = self.identity(kind, request["source_run_id"], request["version"])
             old = self.kernel.storage.get("pipeline_runs", stable_id("PR-", key))
             if old:
-                definition = json.loads(old["definition_json"])
+                try:
+                    definition = json.loads(old["definition_json"])
+                    self.manifest(old)
+                except (AmbiguousWrite, KeyError, TypeError, ValueError):
+                    raise TransitionConflict("Creative version ID is occupied by another workflow") from None
                 if definition["steps"][0]["input"]["request"] != request:
                     raise TransitionConflict("Creative version already reserved with different inputs")
                 return self.kernel.create(key, self.workflow(kind), definition["steps"], source_hotspot_id=old["source_hotspot_id"])
@@ -190,7 +194,7 @@ class CreativeService:
             if request["revision_of"]:
                 prior = self.read(request["revision_of"])
                 if (prior["kind"] != kind or prior["request"]["source_run_id"] != request["source_run_id"] or
-                    not prior["decision"] or prior["decision"]["action"] != "revise" or
+                    not prior["current"] or not prior["decision"] or prior["decision"]["action"] != "revise" or
                     not request["feedback"].strip()):
                     raise TransitionConflict("Revision requires a matching revision-requested version and feedback")
                 prior_ids = [item["artifact_id"] for item in prior["candidates"]]
