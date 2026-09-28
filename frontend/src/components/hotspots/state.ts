@@ -59,8 +59,10 @@ export function parsePending(value: string | null): Pending | null {
         typeof parsed.body.step_id !== "string" || !parsed.body.step_id ||
         typeof parsed.body.artifact_id !== "string" ||
         !["approve", "reject", "revise"].includes(parsed.body.action) ||
+        typeof parsed.body.operator !== "string" || !parsed.body.operator.trim() ||
         !Number.isSafeInteger(parsed.body.expected_version) || parsed.body.expected_version < 1 ||
         (parsed.body.action === "approve" && !parsed.body.artifact_id) ||
+        (parsed.body.action !== "approve" && parsed.body.artifact_id) ||
         (parsed.body.action === "revise" && (typeof parsed.body.reason !== "string" || !parsed.body.reason.trim())))) return null;
     if (/^\/api\/creative\/(titles|covers)$/.test(parsed.path) && (!parsed.body || typeof parsed.body !== "object" ||
         typeof parsed.body.source_run_id !== "string" || !parsed.body.source_run_id ||

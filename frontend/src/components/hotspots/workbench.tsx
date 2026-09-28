@@ -105,22 +105,7 @@ function Detail({
         <div className="mt-6 space-y-5">
           <h3 className="text-lg font-medium break-words">{row.title}</h3>
           <StatusBadge status={row.status} />
-          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm break-all">
-            {Object.entries({
-              ID: row.hotspot_id,
-              Source: row.source,
-              Rank: row.rank,
-              Heat: row.heat_value,
-              Category: row.category || "—",
-              Captured: new Date(row.captured_at).toLocaleString(),
-              "Dedupe key": row.dedupe_hash,
-            }).map(([key, value]) => (
-              <div key={key} className="contents">
-                <dt className="text-muted-foreground">{key}</dt>
-                <dd>{String(value)}</dd>
-              </div>
-            ))}
-          </dl>
+          {analyze && <ResearchHistory hotspotId={id} revision={revision} submit={submit} disabled={disabled} creative={creative} />}
           {sourceUrl && (
             <a
               className="text-sm underline"
@@ -131,22 +116,31 @@ function Detail({
               Open source
             </a>
           )}
-          <Button
-            variant="destructive"
-            disabled={disabled || row.status === "discarded"}
-            onClick={() => discard(row)}
-          >
-            Discard hotspot
-          </Button>
           <details>
-            <summary className="cursor-pointer font-medium">
-              Raw source payload
-            </summary>
+            <summary className="cursor-pointer font-medium">Source details</summary>
+            <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm break-all">
+              {Object.entries({
+                ID: row.hotspot_id,
+                Source: row.source,
+                Rank: row.rank,
+                Heat: row.heat_value,
+                Category: row.category || "—",
+                Captured: new Date(row.captured_at).toLocaleString(),
+                "Dedupe key": row.dedupe_hash,
+              }).map(([key, value]) => (
+                <div key={key} className="contents">
+                  <dt className="text-muted-foreground">{key}</dt>
+                  <dd>{String(value)}</dd>
+                </div>
+              ))}
+            </dl>
             <pre className="mt-3 whitespace-pre-wrap break-all rounded border p-3 text-xs">
               {JSON.stringify(row.raw_json, null, 2)}
             </pre>
           </details>
-          {analyze && <ResearchHistory hotspotId={id} revision={revision} submit={submit} disabled={disabled} creative={creative} />}
+          <Button variant="destructive" disabled={disabled || row.status === "discarded"} onClick={() => discard(row)}>
+            Discard hotspot
+          </Button>
         </div>
       )}
     </dialog>

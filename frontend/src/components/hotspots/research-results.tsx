@@ -6,6 +6,7 @@ import type { OpportunityAnalysis } from "@/api/types";
 import { Button } from "@/components/ui/button";
 import { errorMessage, useResource } from "./use-resource";
 import { CreativeResults } from "./creative-results";
+import { useEditorIdentity } from "./editor-identity";
 import type { Pending } from "./state";
 
 const labels: Record<string, string> = {
@@ -64,17 +65,18 @@ function AnalysisActions({ analysis, submit, disabled }: { analysis: Opportunity
   submit: (command: Pending) => Promise<boolean>; disabled: boolean }) {
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const { operator, update: setOperator } = useEditorIdentity();
   const gate = analysis.run.steps?.find(step => step.status === "awaiting_approval" &&
     ["risk_gate", "selection"].includes(step.step_key));
   const revision = analysis.decisions.find(decision => decision.action === "revise");
   async function decide(action: "approve" | "reject" | "revise") {
-    if (!gate || !analysis.opportunity) return;
+    if (!gate || !analysis.opportunity || !operator.trim()) return;
     if (action === "revise" && !reason.trim()) { setError("Add revision feedback before requesting changes."); return; }
     setError(null);
     await submit({ path: `/api/analyses/${encodeURIComponent(analysis.run.pipeline_run_id)}/decision`,
       body: { request_key: crypto.randomUUID(), step_id: gate.step_run_id,
         artifact_id: analysis.opportunity.artifact_id, expected_version: gate.output_version,
-        action, operator: "workspace-editor", reason: reason.trim() } });
+        action, operator: operator.trim(), reason: reason.trim() } });
   }
   async function regenerate() {
     setError(null);
@@ -93,13 +95,16 @@ function AnalysisActions({ analysis, submit, disabled }: { analysis: Opportunity
   return <section aria-label="Opportunity decision" className="space-y-3 rounded border p-3 text-sm">
     {gate && <>
       <p className="font-medium">{gate.step_key === "risk_gate" ? "Review risk before selecting this opportunity" : "Choose this opportunity for title planning"}</p>
+      <label className="block">Editor name
+        <input className="mt-1 block w-full rounded border p-2" value={operator} onChange={event => setOperator(event.target.value)} maxLength={100} required />
+      </label>
       <label className="block">Decision note or revision request
         <textarea className="mt-1 block w-full rounded border p-2" value={reason} onChange={event => setReason(event.target.value)} maxLength={4000} rows={2} />
       </label>
       <div className="flex flex-wrap gap-2">
-        <Button disabled={disabled} onClick={() => void decide("approve")}>Approve {gate.step_key === "risk_gate" ? "risk" : "opportunity"}</Button>
-        <Button variant="outline" disabled={disabled} onClick={() => void decide("revise")}>Request revision</Button>
-        <Button variant="destructive" disabled={disabled} onClick={() => void decide("reject")}>Reject</Button>
+        <Button disabled={disabled || !operator.trim()} onClick={() => void decide("approve")}>Approve {gate.step_key === "risk_gate" ? "risk" : "opportunity"}</Button>
+        <Button variant="outline" disabled={disabled || !operator.trim()} onClick={() => void decide("revise")}>Request revision</Button>
+        <Button variant="destructive" disabled={disabled || !operator.trim()} onClick={() => void decide("reject")}>Reject</Button>
       </div>
       <p className="text-muted-foreground">Decision applies to artifact {analysis.opportunity?.artifact_id} · output version {gate.output_version}.</p>
     </>}

@@ -6,6 +6,7 @@ import type { CreativeRun } from "@/api/types";
 import { Button } from "@/components/ui/button";
 import { errorMessage, useResource } from "./use-resource";
 import type { Pending } from "./state";
+import { useEditorIdentity } from "./editor-identity";
 
 export function CreativeResults({ kind, sourceRunId, revision, submit, disabled }: {
   kind: "titles" | "covers";
@@ -16,6 +17,7 @@ export function CreativeResults({ kind, sourceRunId, revision, submit, disabled 
 }) {
   const [error, setError] = useState<string | null>(null);
   const [reason, setReason] = useState("");
+  const { operator, update: setOperator } = useEditorIdentity();
   const result = useResource<CreativeRun[]>(`/api/creative/${kind}/${encodeURIComponent(sourceRunId)}/runs`, revision, 5000);
   const latest = result.data?.[0];
   async function generate() {
@@ -30,12 +32,12 @@ export function CreativeResults({ kind, sourceRunId, revision, submit, disabled 
   }
   async function decide(state: CreativeRun, action: "approve" | "reject" | "revise", artifactId = "") {
     const step = state.run.steps?.find(s => s.step_key === "select");
-    if (!step) return;
+    if (!step || !operator.trim()) return;
     if (action === "revise" && !reason.trim()) { setError("Add revision feedback before requesting changes."); return; }
     setError(null);
     await submit({ path: `/api/creative/runs/${encodeURIComponent(state.run.pipeline_run_id)}/decision`,
       body: { request_key: crypto.randomUUID(), step_id: step.step_run_id, artifact_id: artifactId,
-        action, expected_version: step.output_version, operator: "workspace-editor", reason: reason.trim() } });
+        action, expected_version: step.output_version, operator: operator.trim(), reason: reason.trim() } });
   }
   return <section className="space-y-3 border-t pt-4" aria-label={kind === "titles" ? "Title candidates" : "Cover directions"}>
     <h4 className="font-semibold">{kind === "titles" ? "Title candidates" : "Cover directions"}</h4>
@@ -51,12 +53,15 @@ export function CreativeResults({ kind, sourceRunId, revision, submit, disabled 
       {state.decision?.action === "revise" && <p>Revision requested: {state.decision.reason}</p>}
       {state.decision?.action === "reject" && <p>Rejected{state.decision.reason ? `: ${state.decision.reason}` : "."}</p>}
       {state.current && state.run.status === "awaiting_approval" && <div className="space-y-2">
+        <label className="block text-sm">Editor name
+          <input className="mt-1 block w-full rounded border p-2" value={operator} onChange={event => setOperator(event.target.value)} maxLength={100} required />
+        </label>
         <label className="block text-sm">Decision note or revision request
           <textarea className="mt-1 block w-full rounded border p-2" value={reason} onChange={event => setReason(event.target.value)} maxLength={4000} rows={2} />
         </label>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" disabled={disabled} onClick={() => void decide(state, "revise")}>Request revision</Button>
-          <Button variant="destructive" disabled={disabled} onClick={() => void decide(state, "reject")}>Reject {kind === "titles" ? "titles" : "cover directions"}</Button>
+          <Button variant="outline" disabled={disabled || !operator.trim()} onClick={() => void decide(state, "revise")}>Request revision</Button>
+          <Button variant="destructive" disabled={disabled || !operator.trim()} onClick={() => void decide(state, "reject")}>Reject {kind === "titles" ? "titles" : "cover directions"}</Button>
         </div>
       </div>}
       <ol className="space-y-3">
@@ -73,7 +78,7 @@ export function CreativeResults({ kind, sourceRunId, revision, submit, disabled 
           <p className="break-all text-xs text-muted-foreground">Artifact v{item.version}: {item.artifact_id} · Route {item.route} · Model {item.model} · Prompt {item.prompt_version}</p>
           {state.decision?.choice_id === item.artifact_id ? <p>Selected</p> :
             state.current && state.run.status === "awaiting_approval" &&
-            <Button variant="outline" disabled={disabled} onClick={() => void decide(state, "approve", item.artifact_id)}>
+            <Button variant="outline" disabled={disabled || !operator.trim()} onClick={() => void decide(state, "approve", item.artifact_id)}>
               Select {kind === "titles" ? "title" : "cover"} {index + 1}
             </Button>}
         </li>)}
