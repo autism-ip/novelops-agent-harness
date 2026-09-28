@@ -18,6 +18,7 @@ import type {
 import { DataTable, type Column } from "@/components/data-table";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { errorMessage, useResource } from "./use-resource";
 import { ResearchHistory, ResearchResult } from "./research-results";
 import {
@@ -37,7 +38,7 @@ import {
 
 const STORAGE_KEY = "novelops.hotspots.pending";
 const EVENT = "novelops-hotspot-request";
-const field = "block w-full rounded-md border bg-background p-2 text-sm mt-1";
+const field = "mt-1.5 block w-full rounded-xl border bg-white px-3 py-2 text-sm";
 function subscribe(callback: () => void) {
   window.addEventListener(EVENT, callback);
   return () => window.removeEventListener(EVENT, callback);
@@ -82,7 +83,8 @@ function Detail({
     revision,
   );
   useEffect(() => {
-    dialog.current?.showModal();
+    if (window.matchMedia("(min-width: 1024px)").matches) dialog.current?.show();
+    else dialog.current?.showModal();
   }, []);
   const row = result.data;
   const sourceUrl = row && safeSourceUrl(row.url);
@@ -92,7 +94,7 @@ function Detail({
       onClose={close}
       onCancel={close}
       aria-labelledby="hotspot-detail-title"
-      className="fixed inset-y-0 left-auto right-0 m-0 h-dvh max-h-none w-full max-w-xl overflow-y-auto border-l bg-background p-6 text-foreground backdrop:bg-black/40"
+      className="fixed inset-y-0 left-auto right-0 m-0 h-dvh max-h-none w-full max-w-none overflow-y-auto overscroll-contain border-0 bg-background p-5 text-foreground shadow-2xl backdrop:bg-[#101f3a]/45 sm:p-7 lg:inset-y-4 lg:right-4 lg:h-auto lg:max-h-[calc(100dvh-2rem)] lg:w-[min(40vw,35rem)] lg:rounded-[1.5rem] lg:border lg:bg-white"
     >
       <div className="flex justify-between gap-4">
         <h2 id="hotspot-detail-title" className="text-xl font-semibold">
@@ -137,7 +139,7 @@ function Detail({
                 </div>
               ))}
             </dl>
-            <pre className="mt-3 whitespace-pre-wrap break-all rounded border p-3 text-xs">
+            <pre className="surface-soft mt-3 whitespace-pre-wrap break-all p-3 text-xs">
               {JSON.stringify(row.raw_json, null, 2)}
             </pre>
           </details>
@@ -375,11 +377,11 @@ export function HotspotsWorkbench() {
     },
   ];
   return (
-    <div className="min-w-0 flex-1 space-y-6 p-6 pt-16 md:pt-6">
+    <div className={cn("page-shell app-reveal min-w-0 space-y-6 transition-[padding] duration-300", detailId && "review-open")}>
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Hotspots</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h1 className="page-title">Hotspots</h1>
+          <p className="page-intro mt-2 text-sm sm:text-base">
             Collect, inspect and select ideas for your next story.
           </p>
         </div>
@@ -410,7 +412,7 @@ export function HotspotsWorkbench() {
       {error && (
         <p
           role="alert"
-          className="rounded border border-destructive p-3 text-sm"
+          className="rounded-2xl border border-destructive/30 bg-red-50 p-4 text-sm text-destructive"
         >
           {error}
         </p>
@@ -418,7 +420,7 @@ export function HotspotsWorkbench() {
       {authNeeded && (
         <form
           onSubmit={login}
-          className="max-w-md space-y-3 rounded-lg border p-4"
+          className="surface max-w-md space-y-3 p-5"
         >
           <h2 className="font-semibold">Sign in to NovelOps</h2>
           <label className="block text-sm">
@@ -437,7 +439,7 @@ export function HotspotsWorkbench() {
       {pending && (
         <div
           role="status"
-          className="space-y-2 rounded-lg border border-amber-500 p-4"
+          className="surface space-y-2 border-amber-300 bg-amber-50 p-5"
         >
           <p>
             Request outcome is unconfirmed. Retry checks the same request
@@ -452,7 +454,7 @@ export function HotspotsWorkbench() {
         </div>
       )}
       {pendingRaw && !pending && (
-        <div role="alert">
+        <div role="alert" className="surface space-y-3 border-amber-300 bg-amber-50 p-5">
           Saved request is unreadable. Review recent workflows before clearing
           it.{" "}
           <Button variant="outline" onClick={() => savePending(null)}>
@@ -461,7 +463,7 @@ export function HotspotsWorkbench() {
         </div>
       )}
       {manual && (
-        <form onSubmit={add} className="space-y-3 rounded-lg border p-4">
+        <form onSubmit={add} className="surface space-y-4 p-5">
           <h2 className="font-semibold">New manual hotspot</h2>
           <div className="grid gap-3 md:grid-cols-3">
             <label className="text-sm">
@@ -496,7 +498,7 @@ export function HotspotsWorkbench() {
       )}
       <section
         aria-label="Hotspot filters"
-        className="grid gap-3 rounded-lg border p-4 sm:grid-cols-2 lg:grid-cols-4"
+        className="surface grid gap-4 p-5 sm:grid-cols-2 xl:grid-cols-4"
       >
         <label className="text-sm">
           Source
@@ -544,7 +546,7 @@ export function HotspotsWorkbench() {
           />
         </label>
       </section>
-      <section className="space-y-3" aria-label="Hotspot results">
+      <section className="space-y-4" aria-label="Hotspot results">
         <div className="flex flex-wrap items-center gap-3">
           <span className="text-sm">{visibleSelected.length} selected</span>
           <Button
@@ -578,11 +580,25 @@ export function HotspotsWorkbench() {
         {listing.loading && <p role="status">Loading hotspots…</p>}
         {!filterError && listing.data && (
           <>
-            <DataTable
-              columns={columns}
-              data={listing.data.items}
-              emptyMessage={listing.data.total > 0 ? "No hotspots on this page. Return to the previous page." : "No hotspots match these filters. Fetch public hotspots or add an idea manually."}
-            />
+            {listing.data.items.length === 0 && <p className="surface p-6 text-sm text-muted-foreground">
+              {listing.data.total > 0 ? "No hotspots on this page. Return to the previous page." : "No hotspots match these filters. Fetch public hotspots or add an idea manually."}
+            </p>}
+            {listing.data.items.length > 0 && <>
+              <div className="grid gap-3 md:hidden">
+                {listing.data.items.map(row => <article key={row.hotspot_id} className="surface scroll-mb-28 p-4">
+                  <div className="flex items-start gap-3">
+                    <input type="checkbox" className="mt-1 shrink-0" aria-label={`Select ${row.title}`}
+                      checked={selected.includes(row.hotspot_id)} disabled={row.status === "discarded" || submitting}
+                      onChange={event => setSelected(ids => event.target.checked ? [...ids, row.hotspot_id] : ids.filter(id => id !== row.hotspot_id))} />
+                    <button className="min-h-11 min-w-0 flex-1 text-left font-semibold" onClick={() => setDetailId(row.hotspot_id)}>{row.title}</button>
+                  </div>
+                  <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                    <StatusBadge status={row.status} /><span>{row.source}</span><span>·</span><span>{new Date(row.captured_at).toLocaleDateString()}</span>
+                  </div>
+                </article>)}
+              </div>
+              <div className="hidden md:block"><DataTable columns={columns} data={listing.data.items} /></div>
+            </>}
             <div className="flex flex-wrap items-center gap-3 text-sm">
               <span>
                 {listing.data.total} hotspots · showing{" "}
@@ -614,7 +630,7 @@ export function HotspotsWorkbench() {
         )}
       </section>
       <section
-        className="space-y-3 rounded-lg border p-4"
+        className="surface space-y-4 p-5 sm:p-6"
         aria-label="Recent workflows"
       >
         <h2 className="font-semibold">Recent activity</h2>
@@ -629,7 +645,7 @@ export function HotspotsWorkbench() {
           {recent.slice(0, 5).map((run) => (
             <li key={run.pipeline_run_id}>
               <button
-                className="flex w-full flex-wrap items-center justify-between gap-2 rounded border p-3 text-left text-sm"
+                className="surface-soft interactive-surface flex w-full flex-wrap items-center justify-between gap-2 p-4 text-left text-sm"
                 onClick={() => setActiveRun(run.pipeline_run_id)}
               >
                 <span>

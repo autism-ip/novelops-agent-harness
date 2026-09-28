@@ -19,21 +19,25 @@ const labels: Record<string, string> = {
 
 export function AnalysisCard({ analysis }: { analysis: OpportunityAnalysis }) {
   const content = analysis.opportunity?.content;
-  return <article className="space-y-3 rounded-lg border p-4 text-sm break-words">
-    <h3 className="font-semibold">{analysis.source.title} · Version {analysis.request.version}</h3>
-    <p>{labels[analysis.approval_status] ?? analysis.approval_status}</p>
+  return <article className="surface-soft space-y-3 p-4 text-sm break-words">
+    <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
+      <h3 className="font-semibold">{analysis.source.title} · Version {analysis.request.version}</h3>
+      <span className="text-muted-foreground">{labels[analysis.approval_status] ?? analysis.approval_status}</span>
+    </div>
     {!analysis.current && <p className="text-amber-700">Historical analysis: the source changed, was discarded, or has a newer version. It cannot be approved for use.</p>}
-    {content && <>
-      <p>{content.summary}</p>
-      <dl className="space-y-3">
+    {content?.summary && <p>{content.summary}</p>}
+    {analysis.risk && <p className="text-muted-foreground">Risk: {analysis.risk.content.level}</p>}
+    {analysis.opportunity && <p className="text-muted-foreground break-all">Artifact {analysis.opportunity.artifact_id}</p>}
+    {(content || analysis.risk || analysis.opportunity) && <details className="border-t border-border/70 pt-3">
+      <summary className="cursor-pointer font-medium">Review full analysis and provenance</summary>
+      <div className="mt-3 space-y-4">
+      {content && <dl className="space-y-3">
         {Object.entries({ "Core emotions": content.core_emotions, "Hit patterns": content.hit_patterns,
           "Genre fit": content.genre_fit, "Reader promise": [content.reader_promise],
           "Story directions": content.novelization_directions }).map(([label, values]) =>
           <div key={label}><dt className="font-medium">{label}</dt><dd><ul className="list-inside list-disc">{values.map((v, i) => <li key={i}>{v}</li>)}</ul></dd></div>)}
-      </dl>
-    </>}
-    {analysis.risk && <div className="space-y-2 border-t pt-3">
-      <p className="font-medium">Risk: {analysis.risk.content.level}</p>
+      </dl>}
+    {analysis.risk && <div className="space-y-2">
       {analysis.risk.content.requires_review && <p>{analysis.decisions.some(decision => decision.action === "approve" &&
         analysis.run.steps?.some(step => step.step_key === "risk_gate" && step.step_run_id === decision.target_id)) ?
         "Human risk review approved." : "Human risk review is required before this opportunity can continue."}</p>}
@@ -45,9 +49,10 @@ export function AnalysisCard({ analysis }: { analysis: OpportunityAnalysis }) {
           <ul className="list-inside list-disc">{[...assessment.reasons, ...assessment.uncertainties].map((v, i) => <li key={i}>{v}</li>)}</ul>
         </div>)}
     </div>}
-    {analysis.opportunity && <details><summary className="cursor-pointer">Analysis provenance</summary>
-      <p className="break-all">Artifact: {analysis.opportunity.artifact_id}</p>
+    {analysis.opportunity && <div className="space-y-1">
       <p>Route: {analysis.opportunity.route} · Model: {analysis.opportunity.model} · Prompt: {analysis.opportunity.prompt_version}</p>
+    </div>}
+      </div>
     </details>}
   </article>;
 }
@@ -94,14 +99,14 @@ function AnalysisActions({ analysis, submit, disabled }: { analysis: Opportunity
   }
   if (!analysis.current) return null;
   if (!gate && !revision) return null;
-  return <section aria-label="Opportunity decision" className="space-y-3 rounded border p-3 text-sm">
+  return <section aria-label="Opportunity decision" className="surface-soft space-y-3 p-4 text-sm">
     {gate && <>
       <p className="font-medium">{gate.step_key === "risk_gate" ? "Review risk before selecting this opportunity" : "Choose this opportunity for title planning"}</p>
       <label className="block">Editor name
-        <input className="mt-1 block w-full rounded border p-2" value={operator} onChange={event => setOperator(event.target.value)} maxLength={100} required />
+        <input className="mt-1.5 block w-full px-3 py-2" value={operator} onChange={event => setOperator(event.target.value)} maxLength={100} required />
       </label>
       <label className="block">Decision note or revision request
-        <textarea className="mt-1 block w-full rounded border p-2" value={reason} onChange={event => setReason(event.target.value)} maxLength={4000} rows={2} />
+        <textarea className="mt-1.5 block w-full px-3 py-2" value={reason} onChange={event => setReason(event.target.value)} maxLength={4000} rows={2} />
       </label>
       <div className="flex flex-wrap gap-2">
         <Button disabled={disabled || !operator.trim()} onClick={() => void decide("approve")}>Approve {gate.step_key === "risk_gate" ? "risk" : "opportunity"}</Button>
