@@ -49,6 +49,7 @@ class Settings(BaseSettings):
     RESEARCH_ENABLED: bool = False
     RESEARCH_SELECTION_REQUIRED: bool = True
     CREATIVE_ENABLED: bool = False
+    BOOKS_ENABLED: bool = False
     OPENAI_API_KEY: str = ""
     DEEPSEEK_API_KEY: str = ""
     MODEL_ROUTES_JSON: str = "{}"

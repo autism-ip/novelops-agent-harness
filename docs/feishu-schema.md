@@ -276,3 +276,13 @@ Hit-pattern and novelization analysis.
 | `operator` | Human operator. |
 | `comment` | Human comment. |
 | `created_at` | Created time. |
+
+## v0.2 additive Book / StoryState migration (ZEN-38)
+
+Provision `StoryStates` as a new Feishu Base table and set `FEISHU_TABLE_ID_STORY_STATES`. Its business key is `story_state_id`; the primary field must remain writable text. Required fields are `story_state_id`, `book_id`, `version` (number), `artifact_id`, `content_hash`, `source_refs_json`, and `created_at`. Store JSON references as text, matching the existing Artifact projection conventions.
+
+Add writable fields to the existing `Books` table: `bootstrap_hash`, `source_refs_json`, `story_state_id`, `story_state_version` (number), and `story_state_hash`. Existing Book fields remain. The runtime sets `BOOKS_ENABLED=true` only after these fields and the new table exist. `CREATIVE_ENABLED`, `RESEARCH_ENABLED`, generation, and the Harness must also be configured.
+
+The `Book` record is created with `status=initializing`, then an immutable StoryState Artifact and one `StoryStates` version row are persisted. The final `ready` update points to their hash. A retry with the same approved source refs and stable business IDs reconciles an interrupted initialization. Never auto-create a second record after an ambiguous Feishu POST; inspect the journal and Base by business ID if a create remains uncertain.
+
+Legacy `mini_bible`, `AgentStates`, and `AgentTeamSnapshots` remain readable but are not written by book bootstrap and are not sources of canonical book truth. Do not drop their fields or tables as part of this additive migration. Future chapter work reads the canonical state through `StoryContextProvider` and may replace legacy snapshots with versioned `StoryContextSnapshot` artifacts in its own migration.

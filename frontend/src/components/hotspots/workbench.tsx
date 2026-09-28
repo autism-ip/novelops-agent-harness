@@ -63,6 +63,7 @@ function Detail({
   disabled,
   analyze,
   creative,
+  books,
   submit,
 }: {
   id: string;
@@ -72,6 +73,7 @@ function Detail({
   disabled: boolean;
   analyze: boolean;
   creative: boolean;
+  books: boolean;
   submit: (command: Pending) => Promise<SubmitResult>;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -106,7 +108,7 @@ function Detail({
         <div className="mt-6 space-y-5">
           <h3 className="text-lg font-medium break-words">{row.title}</h3>
           <StatusBadge status={row.status} />
-          {analyze && <ResearchHistory hotspotId={id} revision={revision} submit={submit} disabled={disabled} creative={creative} />}
+          {analyze && <ResearchHistory hotspotId={id} revision={revision} submit={submit} disabled={disabled} creative={creative} books={books} />}
           {sourceUrl && (
             <a
               className="text-sm underline"
@@ -685,6 +687,7 @@ export function HotspotsWorkbench() {
           disabled={disabled || !capabilities.data?.discard}
           analyze={!!capabilities.data?.analyze}
           creative={!!capabilities.data?.creative}
+          books={!!capabilities.data?.books}
           submit={submit}
         />
       )}

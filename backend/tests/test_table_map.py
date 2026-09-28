@@ -17,11 +17,11 @@ from app.feishu.table_map import FIELD_MAPS, TABLE_NAMES, TableMapConfig
 # ============================================================
 
 
-EXPECTED_TABLE_COUNT = 18
+EXPECTED_TABLE_COUNT = 19
 
 
 class TestTableNames:
-    """TABLE_NAMES defines exactly 16 logical tables."""
+    """TABLE_NAMES defines the legacy and canonical logical tables."""
 
     def test_count(self) -> None:
         assert len(TABLE_NAMES) == EXPECTED_TABLE_COUNT
@@ -30,7 +30,7 @@ class TestTableNames:
         expected = {
             "agents", "agent_states", "agent_runs", "pipeline_runs",
             "step_runs", "hotspots", "hotspot_analyses", "title_candidates",
-            "cover_plans", "books", "chapter_briefs", "chapter_versions",
+            "cover_plans", "books", "story_states", "chapter_briefs", "chapter_versions",
             "review_reports", "revision_tasks", "agent_team_snapshots",
             "approval_events", "artifacts", "traces",
         }
@@ -38,7 +38,7 @@ class TestTableNames:
 
 
 class TestFieldMaps:
-    """FIELD_MAPS defines exactly 16 table mappings."""
+    """FIELD_MAPS defines a mapping for every logical table."""
 
     def test_count(self) -> None:
         assert len(FIELD_MAPS) == EXPECTED_TABLE_COUNT
@@ -68,6 +68,12 @@ class TestFieldMaps:
         assert "book_title" in fields
         assert "genre" in fields
         assert "status" in fields
+        assert "bootstrap_hash" in fields
+        assert "story_state_id" in fields
+
+    def test_story_state_fields(self) -> None:
+        assert {"story_state_id", "book_id", "version", "artifact_id", "content_hash",
+                "source_refs_json", "created_at"} <= set(FIELD_MAPS["story_states"])
 
 
 # ============================================================
