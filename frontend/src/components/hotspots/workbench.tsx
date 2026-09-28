@@ -22,6 +22,7 @@ import { errorMessage, useResource } from "./use-resource";
 import { ResearchHistory, ResearchResult } from "./research-results";
 import {
   listPath,
+  isDecisionPath,
   parsePending,
   safeSourceUrl,
   canClearRejected,
@@ -234,11 +235,11 @@ export function HotspotsWorkbench() {
         setActiveRun(batch.runs[0]?.pipeline_run_id ?? null);
         setSelected([]);
         if (batch.errors.length) setError(batch.errors.map(e => `${e.hotspot_id}: ${e.detail}`).join("; "));
-      } else if (command.path.startsWith("/api/creative/")) {
+      } else if (command.path.startsWith("/api/creative/") || isDecisionPath(command.path)) {
         const payload: Record<string, unknown> = { ...command.body };
         delete payload.request_key;
         const response = await api.post<WorkflowRun>(command.path, payload);
-        if (!command.path.endsWith("/decision")) setActiveRun(response.pipeline_run_id);
+        if (!isDecisionPath(command.path)) setActiveRun(response.pipeline_run_id);
       } else {
         const run = await api.post<WorkflowRun>(command.path, command.body);
         setActiveRun(run.pipeline_run_id);

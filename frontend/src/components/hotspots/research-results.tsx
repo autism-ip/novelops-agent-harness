@@ -1,6 +1,9 @@
 "use client";
 
+import { useState } from "react";
+import { api } from "@/api/client";
 import type { OpportunityAnalysis } from "@/api/types";
+import { Button } from "@/components/ui/button";
 import { errorMessage, useResource } from "./use-resource";
 import { CreativeResults } from "./creative-results";
 import type { Pending } from "./state";
@@ -30,7 +33,9 @@ export function AnalysisCard({ analysis }: { analysis: OpportunityAnalysis }) {
     </>}
     {analysis.risk && <div className="space-y-2 border-t pt-3">
       <p className="font-medium">Risk: {analysis.risk.content.level}</p>
-      {analysis.risk.content.requires_review && <p>Human review is required before this opportunity can continue.</p>}
+      {analysis.risk.content.requires_review && <p>{analysis.decisions.some(decision => decision.action === "approve" &&
+        analysis.run.steps?.some(step => step.step_key === "risk_gate" && step.step_run_id === decision.target_id)) ?
+        "Human risk review approved." : "Human risk review is required before this opportunity can continue."}</p>}
       {analysis.risk.content.rule_flags.length > 0 && <p>Rule flags: {analysis.risk.content.rule_flags.join(", ")}</p>}
       {analysis.risk.content.assessments.map((assessment, index) =>
         <div key={index} className="space-y-1">
@@ -41,7 +46,7 @@ export function AnalysisCard({ analysis }: { analysis: OpportunityAnalysis }) {
     </div>}
     {analysis.opportunity && <details><summary className="cursor-pointer">Analysis provenance</summary>
       <p className="break-all">Artifact: {analysis.opportunity.artifact_id}</p>
-      <p>Model: {analysis.opportunity.model} · Prompt: {analysis.opportunity.prompt_version}</p>
+      <p>Route: {analysis.opportunity.route} · Model: {analysis.opportunity.model} · Prompt: {analysis.opportunity.prompt_version}</p>
     </details>}
   </article>;
 }
@@ -55,6 +60,57 @@ export function ResearchResult({ runId, revision }: { runId: string; revision: n
   </div>;
 }
 
+function AnalysisActions({ analysis, submit, disabled }: { analysis: OpportunityAnalysis;
+  submit: (command: Pending) => Promise<boolean>; disabled: boolean }) {
+  const [reason, setReason] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const gate = analysis.run.steps?.find(step => step.status === "awaiting_approval" &&
+    ["risk_gate", "selection"].includes(step.step_key));
+  const revision = analysis.decisions.find(decision => decision.action === "revise");
+  async function decide(action: "approve" | "reject" | "revise") {
+    if (!gate || !analysis.opportunity) return;
+    if (action === "revise" && !reason.trim()) { setError("Add revision feedback before requesting changes."); return; }
+    setError(null);
+    await submit({ path: `/api/analyses/${encodeURIComponent(analysis.run.pipeline_run_id)}/decision`,
+      body: { request_key: crypto.randomUUID(), step_id: gate.step_run_id,
+        artifact_id: analysis.opportunity.artifact_id, expected_version: gate.output_version,
+        action, operator: "workspace-editor", reason: reason.trim() } });
+  }
+  async function regenerate() {
+    setError(null);
+    try {
+      const context = await api.get<{ next_version: number; source_hash: string; can_analyze: boolean }>(
+        `/api/hotspots/${encodeURIComponent(analysis.request.hotspot_id)}/research-context`);
+      if (!context.can_analyze) throw new Error("This source is no longer available for analysis.");
+      await submit({ path: "/api/analyses", body: { request_key: crypto.randomUUID(), items: [{
+        hotspot_id: analysis.request.hotspot_id, source_hash: context.source_hash,
+        version: context.next_version, revision_of: analysis.run.pipeline_run_id,
+        feedback: reason.trim() || revision?.reason || "" }] } });
+    } catch (cause) { setError(errorMessage(cause)); }
+  }
+  if (!analysis.current) return null;
+  if (!gate && !revision) return null;
+  return <section aria-label="Opportunity decision" className="space-y-3 rounded border p-3 text-sm">
+    {gate && <>
+      <p className="font-medium">{gate.step_key === "risk_gate" ? "Review risk before selecting this opportunity" : "Choose this opportunity for title planning"}</p>
+      <label className="block">Decision note or revision request
+        <textarea className="mt-1 block w-full rounded border p-2" value={reason} onChange={event => setReason(event.target.value)} maxLength={4000} rows={2} />
+      </label>
+      <div className="flex flex-wrap gap-2">
+        <Button disabled={disabled} onClick={() => void decide("approve")}>Approve {gate.step_key === "risk_gate" ? "risk" : "opportunity"}</Button>
+        <Button variant="outline" disabled={disabled} onClick={() => void decide("revise")}>Request revision</Button>
+        <Button variant="destructive" disabled={disabled} onClick={() => void decide("reject")}>Reject</Button>
+      </div>
+      <p className="text-muted-foreground">Decision applies to artifact {analysis.opportunity?.artifact_id} · output version {gate.output_version}.</p>
+    </>}
+    {!gate && revision && <>
+      <p>Revision requested: {revision.reason}</p>
+      <Button variant="outline" disabled={disabled} onClick={() => void regenerate()}>Regenerate analysis from feedback</Button>
+    </>}
+    {error && <p role="alert">{error}</p>}
+  </section>;
+}
+
 export function ResearchHistory({ hotspotId, revision, submit, disabled, creative }: { hotspotId: string; revision: number;
   creative: boolean;
   submit: (command: Pending) => Promise<boolean>; disabled: boolean }) {
@@ -66,6 +122,7 @@ export function ResearchHistory({ hotspotId, revision, submit, disabled, creativ
     {result.data?.length === 0 && <p>No analysis yet. Select this hotspot and choose Analyze selected.</p>}
     {result.data?.map(analysis => <div key={analysis.run.pipeline_run_id} className="space-y-3">
       <AnalysisCard analysis={analysis} />
+      <AnalysisActions analysis={analysis} submit={submit} disabled={disabled} />
       {creative && analysis.current && analysis.approval_status === "approved" &&
         <CreativeResults kind="titles" sourceRunId={analysis.run.pipeline_run_id} revision={revision} submit={submit} disabled={disabled} />}
     </div>)}
