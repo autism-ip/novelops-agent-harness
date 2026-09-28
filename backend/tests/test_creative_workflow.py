@@ -112,6 +112,7 @@ def test_title_and_cover_require_exact_selection_and_project_versions(creative):
     assert kernel.creative.selected("titles", title_run["pipeline_run_id"])["artifact_id"] == selected["artifact_id"]
     assert len(kernel.storage.list("approval_events")) == 2  # Source opportunity + title.
     assert sum(row["approval_status"] == "approved" for row in kernel.storage.list("title_candidates")) == 1
+    assert sum(row["approval_status"] == "rejected" for row in kernel.storage.list("title_candidates")) == 9
     cover_run = enqueue(kernel, "covers", title_run["pipeline_run_id"])
     settle(kernel)
     covers_state = kernel.creative.read(cover_run["pipeline_run_id"])
@@ -121,6 +122,8 @@ def test_title_and_cover_require_exact_selection_and_project_versions(creative):
     selected_cover = choose(kernel, cover_run["pipeline_run_id"], 2)
     assert kernel.creative.selected("covers", cover_run["pipeline_run_id"])["artifact_id"] == selected_cover["artifact_id"]
     assert kernel.storage.list("cover_plans")[2]["approval_status"] == "approved"
+    analysis = kernel.research.get(source_run)["opportunity"]
+    assert analysis["artifact_id"] in covers_state["batch"]["source_refs"]
     assert provider.calls == ["research", "titles", "covers"]
 
 
@@ -238,6 +241,20 @@ def test_generic_decision_cannot_choose_without_explicit_candidate(creative):
     assert len(kernel.storage.list("approval_events")) == 1
 
 
+def test_non_approval_decisions_reject_candidate_ids(creative):
+    kernel, _, source_run = creative
+    title = enqueue(kernel, "titles", source_run)
+    settle(kernel)
+    state = kernel.creative.read(title["pipeline_run_id"])
+    gate = next(s for s in state["run"]["steps"] if s["step_key"] == "select")
+    for action in ("reject", "revise"):
+        with pytest.raises(TransitionConflict, match="exact candidate"):
+            kernel.creative.decide(title["pipeline_run_id"], step_id=gate["step_run_id"],
+                artifact_id=state["candidates"][0]["artifact_id"], expected_version=1,
+                action=action, operator="editor", reason="Change this" if action == "revise" else "")
+    assert len(kernel.storage.list("approval_events")) == 1
+
+
 def test_creative_version_namespace_cannot_be_preempted(creative):
     kernel, _, source_run = creative
     context = kernel.creative.context("titles", source_run)
@@ -250,6 +267,17 @@ def test_creative_version_namespace_cannot_be_preempted(creative):
     with pytest.raises(TransitionConflict, match="occupied"):
         kernel.creative.enqueue("titles", {"source_run_id": source_run,
             "source_artifact_id": context["source_artifact_id"], "version": 1})
+    client.close()
+
+
+def test_future_domain_workflow_types_stay_reserved(creative):
+    kernel, _, _ = creative
+    client = TestClient(create_app(Settings(BACKEND_API_KEY="test"), kernel=kernel))
+    for index, workflow in enumerate(("hotspot_research_v2", "title_candidates_v2", "cover_plans_custom")):
+        response = client.post("/api/workflows", headers={"x-api-key": "test"}, json={
+            "request_key": f"custom-{index}", "workflow_type": workflow,
+            "steps": [{"step_key": "a", "handler": "noop"}]})
+        assert response.status_code == 422
     client.close()
 
 

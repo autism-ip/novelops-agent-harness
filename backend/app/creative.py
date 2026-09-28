@@ -262,8 +262,12 @@ class CreativeService:
             inputs = {"opportunity": analysis["opportunity"]["content"], "title": source["content"],
                       "feedback": req["feedback"], "previous_candidates": prior}
             prompt, schema, input_schema = COVER_PROMPT, CoverSet, CoverInput
+        refs = [source["artifact_id"]]
+        if kind == "covers":
+            refs.append(analysis["opportunity"]["artifact_id"])
+        refs.extend(manifest["prior_ids"])
         context = CallContext(run_id=step["pipeline_run_id"], step_id=step["step_run_id"],
-                              input_refs=(source["artifact_id"], *manifest["prior_ids"]), workflow_version=self.workflow(kind))
+                              input_refs=tuple(refs), workflow_version=self.workflow(kind))
         try:
             artifact = self.kernel.semantic.execute(route=kind, prompt=prompt, inputs=inputs,
                 input_schema=input_schema, output_schema=schema, context=context,
@@ -334,7 +338,8 @@ class CreativeService:
         with self.kernel.writer:
             state = self.read(run_id)
             step = next((s for s in state["run"]["steps"] if s["step_key"] == "select" and s["step_run_id"] == step_id), None)
-            if not step or (action == "approve" and artifact_id not in {a["artifact_id"] for a in state["candidates"]}):
+            if (not step or (action == "approve" and artifact_id not in {a["artifact_id"] for a in state["candidates"]}) or
+                (action in {"reject", "revise"} and artifact_id)):
                 raise TransitionConflict("Decision must name the exact candidate and selection step")
             return self.kernel.decide(step_id, action, expected_version, operator, reason=reason,
                 choice_id=artifact_id if action == "approve" else "")
@@ -368,7 +373,7 @@ class CreativeService:
                 "artifact_id": item["artifact_id"], "version": req["version"],
                 "pipeline_run_id": run["pipeline_run_id"], "source_artifact_id": req["source_artifact_id"],
                 "approval_status": "approved" if chosen == item["artifact_id"] and run["status"] == "completed" else
-                    "not_selected" if run["status"] == "completed" else "rejected" if run["status"] == "failed" else "pending"}
+                    "rejected" if run["status"] in {"completed", "failed"} else "pending"}
             if kind == "titles":
                 fields.update({k: content[k] for k in ("title", "hook", "selling_point", "click_score", "genre_fit_score", "risk_notes")})
                 fields["analysis_id"] = analysis_id
