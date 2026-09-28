@@ -2,6 +2,8 @@
 
 import type { OpportunityAnalysis } from "@/api/types";
 import { errorMessage, useResource } from "./use-resource";
+import { CreativeResults } from "./creative-results";
+import type { Pending } from "./state";
 
 const labels: Record<string, string> = {
   awaiting_risk_review: "Needs human risk review",
@@ -48,13 +50,18 @@ export function ResearchResult({ runId, revision }: { runId: string; revision: n
   </div>;
 }
 
-export function ResearchHistory({ hotspotId, revision }: { hotspotId: string; revision: number }) {
+export function ResearchHistory({ hotspotId, revision, submit, disabled }: { hotspotId: string; revision: number;
+  submit: (command: Pending) => Promise<boolean>; disabled: boolean }) {
   const result = useResource<OpportunityAnalysis[]>(`/api/hotspots/${encodeURIComponent(hotspotId)}/analyses`, revision, 5000);
   return <section aria-label="Analysis history" className="space-y-3">
     <h3 className="font-semibold">Analysis history</h3>
     {result.loading && <p role="status">Loading analyses…</p>}
     {result.error != null && <p role="alert">{errorMessage(result.error)}</p>}
     {result.data?.length === 0 && <p>No analysis yet. Select this hotspot and choose Analyze selected.</p>}
-    {result.data?.map(analysis => <AnalysisCard key={analysis.run.pipeline_run_id} analysis={analysis} />)}
+    {result.data?.map(analysis => <div key={analysis.run.pipeline_run_id} className="space-y-3">
+      <AnalysisCard analysis={analysis} />
+      {analysis.current && analysis.approval_status === "approved" &&
+        <CreativeResults kind="titles" sourceRunId={analysis.run.pipeline_run_id} revision={revision} submit={submit} disabled={disabled} />}
+    </div>)}
   </section>;
 }

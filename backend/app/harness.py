@@ -334,7 +334,7 @@ class HarnessKernel:
                 self._refresh_parent(run_id)
                 return
 
-    def decide(self, step_id, action, expected_version, operator, *, reason=""):
+    def decide(self, step_id, action, expected_version, operator, *, reason="", choice_id=""):
         with self.writer:
             if action not in {"approve", "reject", "revise"}:
                 raise ValueError("Unsupported decision")
@@ -348,7 +348,8 @@ class HarnessKernel:
                 raise TransitionConflict("Stale output version")
             approval_id = stable_id("AP-", step_id + "/" + str(expected_version))
             previous = self.storage.get("approval_events", approval_id)
-            if previous and (previous["action"] != action or previous.get("reason", "") != reason):
+            if previous and (previous["action"] != action or previous.get("reason", "") != reason or
+                             previous.get("choice_id", "") != choice_id):
                 raise TransitionConflict("This version already has a different decision")
             target = "success" if action == "approve" else "failed"
             if previous and step["status"] == target:
@@ -363,10 +364,14 @@ class HarnessKernel:
             # even if the domain has changed since it was accepted.
             guard = self.approval_guards.get(step["handler"])
             if guard and not previous:
-                guard(step, action)
+                if choice_id:
+                    guard(step, action, choice_id)
+                else:
+                    guard(step, action)
             self._ensure("approval_events", "approval_id", {"approval_id": approval_id,
                 "target_type": "step_run", "target_id": step_id, "target_version": expected_version,
-                "action": action, "operator": operator, "reason": reason, "created_at": now()})
+                "action": action, "operator": operator, "reason": reason, "choice_id": choice_id,
+                "created_at": now()})
             result = self._transition("step_runs", step_id, target)
             self._refresh_parent(step["pipeline_run_id"])
             return result
@@ -419,7 +424,7 @@ class HarnessKernel:
                         decision = self.storage.get("approval_events", aid)
                         if decision:
                             self.decide(sid, decision["action"], step["output_version"], decision["operator"],
-                                        reason=decision.get("reason", ""))
+                                        reason=decision.get("reason", ""), choice_id=decision.get("choice_id", ""))
                 self._refresh_parent(run_id)
 
     @property

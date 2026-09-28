@@ -60,6 +60,7 @@ function Detail({
   discard,
   disabled,
   analyze,
+  submit,
 }: {
   id: string;
   revision: number;
@@ -67,6 +68,7 @@ function Detail({
   discard: (row: Hotspot) => void;
   disabled: boolean;
   analyze: boolean;
+  submit: (command: Pending) => Promise<boolean>;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const result = useResource<Hotspot>(
@@ -141,7 +143,7 @@ function Detail({
               {JSON.stringify(row.raw_json, null, 2)}
             </pre>
           </details>
-          {analyze && <ResearchHistory hotspotId={id} revision={revision} />}
+          {analyze && <ResearchHistory hotspotId={id} revision={revision} submit={submit} disabled={disabled} />}
         </div>
       )}
     </dialog>
@@ -202,7 +204,7 @@ export function HotspotsWorkbench() {
   );
   const recent =
     runs.data
-      ?.filter((run) => run.pipeline_type.startsWith("hotspot_"))
+      ?.filter((run) => run.pipeline_type.startsWith("hotspot_") || ["title_candidates_v1", "cover_plans_v1"].includes(run.pipeline_type))
       .sort((a, b) => b.created_at.localeCompare(a.created_at)) ?? [];
   const working =
     recent.some(workflowBusy) ||
@@ -230,6 +232,11 @@ export function HotspotsWorkbench() {
         setActiveRun(batch.runs[0]?.pipeline_run_id ?? null);
         setSelected([]);
         if (batch.errors.length) setError(batch.errors.map(e => `${e.hotspot_id}: ${e.detail}`).join("; "));
+      } else if (command.path.startsWith("/api/creative/")) {
+        const payload: Record<string, unknown> = { ...command.body };
+        delete payload.request_key;
+        const response = await api.post<WorkflowRun>(command.path, payload);
+        if (!command.path.endsWith("/decision")) setActiveRun(response.pipeline_run_id);
       } else {
         const run = await api.post<WorkflowRun>(command.path, command.body);
         setActiveRun(run.pipeline_run_id);
@@ -679,6 +686,7 @@ export function HotspotsWorkbench() {
           discard={discard}
           disabled={disabled || !capabilities.data?.discard}
           analyze={!!capabilities.data?.analyze}
+          submit={submit}
         />
       )}
     </div>
