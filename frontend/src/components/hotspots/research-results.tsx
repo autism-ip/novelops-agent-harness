@@ -31,8 +31,13 @@ export function AnalysisCard({ analysis }: { analysis: OpportunityAnalysis }) {
     {analysis.risk && <div className="space-y-2 border-t pt-3">
       <p className="font-medium">Risk: {analysis.risk.content.level}</p>
       {analysis.risk.content.requires_review && <p>Human review is required before this opportunity can continue.</p>}
-      <ul className="list-inside list-disc">{[...analysis.risk.content.rule_flags,
-        ...analysis.risk.content.assessments.flatMap(a => [...a.reasons, ...a.uncertainties])].map((v, i) => <li key={i}>{v}</li>)}</ul>
+      {analysis.risk.content.rule_flags.length > 0 && <p>Rule flags: {analysis.risk.content.rule_flags.join(", ")}</p>}
+      {analysis.risk.content.assessments.map((assessment, index) =>
+        <div key={index} className="space-y-1">
+          <p>{index === 0 ? "Research risk assessment" : "Additional risk review"} · Confidence {Math.round(assessment.confidence * 100)}%</p>
+          {assessment.flags.length > 0 && <p>Semantic flags: {assessment.flags.join(", ")}</p>}
+          <ul className="list-inside list-disc">{[...assessment.reasons, ...assessment.uncertainties].map((v, i) => <li key={i}>{v}</li>)}</ul>
+        </div>)}
     </div>}
     {analysis.opportunity && <details><summary className="cursor-pointer">Analysis provenance</summary>
       <p className="break-all">Artifact: {analysis.opportunity.artifact_id}</p>

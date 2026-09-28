@@ -139,5 +139,5 @@ export type OpportunityAnalysis = {
     };
   } | null;
   risk: { content: { level: string; requires_review: boolean; rule_flags: string[];
-    assessments: { reasons: string[]; uncertainties: string[] }[] } } | null;
+    assessments: { reasons: string[]; uncertainties: string[]; flags: string[]; confidence: number }[] } } | null;
 };
