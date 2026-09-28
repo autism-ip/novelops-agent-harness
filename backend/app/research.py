@@ -370,6 +370,9 @@ class ResearchService:
             self.kernel.storage.update("hotspot_analyses", aid, fields)
         if analysis["current"]:
             hotspot = self.kernel.storage.get("hotspots", request["hotspot_id"])
-            status = "approved" if analysis["approval_status"] == "approved" else "analyzed" if opportunity else "normalized"
+            # A model-generated proposal alone is not a validated analysis.
+            # Keep the source normalized until deterministic risk validation
+            # has produced its own immutable artifact.
+            status = "approved" if analysis["approval_status"] == "approved" else "analyzed" if risk else "normalized"
             if hotspot["status"] != status:
                 self.kernel.storage.update("hotspots", request["hotspot_id"], {"status": status})

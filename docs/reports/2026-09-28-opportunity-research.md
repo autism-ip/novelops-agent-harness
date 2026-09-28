@@ -4,6 +4,7 @@
 
 - Linear：[ZEN-35](https://linear.app/zenhungyep/issue/ZEN-35/implement-research-novelization-and-risk-analysis-workflow)
 - GitHub：[Issue #8](https://github.com/autism-ip/novelops-agent-harness/issues/8)
+- 交付：[PR #29](https://github.com/autism-ip/novelops-agent-harness/pull/29)
 - 分支：`codex/zen-35-opportunity-research`；基线为 ZEN-34 的 PR #28，`c5a1f5597a1a8d635432b27ce2d3da82f540bdb7`。
 - 沿用单 issue / 单 PR；依赖顺序为 #23 → #24 → #25 → #27 → #28 → 本 PR。
 
@@ -23,6 +24,7 @@
 - 审批绑定机会产物 ID、内容哈希、风险产物、步骤 ID 与输出版本，防止重试风险审批误通过选题审批。
 - 通用工作流创建端点拒绝 research 保留处理器；通用审批端点也执行同一版本校验。
 - 被丢弃、源内容变化或已有新版的机会不能通过 approved 契约进入下游。历史结果保留并标示已过期。
+- 研究模型先产出机会 Artifact，风险规则完成并落下风险 Artifact 后才把热点标记为 `analyzed`；风险处理失败时保留 `normalized`。
 - 动态风险门不能取消静态配置要求；退修反馈进入独立 ApprovalEvent，旧版本不可修改。
 
 ## 验证证据
@@ -31,7 +33,7 @@
 
 | 检查 | 结果 |
 | --- | --- |
-| 后端完整离线 pytest | 302 passed；9 integration deselected |
+| 后端完整离线 pytest | 303 passed；9 integration deselected |
 | app 语句覆盖率 | 92.40%；既有门禁 87.81558726673984% 未修改 |
 | research.py 覆盖率 | 95.26% |
 | 前端行为契约 | 7 passed |

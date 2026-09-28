@@ -117,6 +117,17 @@ def test_schema_retry_and_permanent_failure_do_not_multiply_paid_calls(research)
     assert kernel.research.get(failed["pipeline_run_id"])["opportunity"] is None
 
 
+def test_hotspot_remains_normalized_until_risk_artifact_is_validated(research):
+    kernel, _, _ = research
+    run = enqueue(kernel)
+    kernel.tick()  # ResearchAgent produced a proposal, risk has not run yet.
+    assert kernel.research.get(run["pipeline_run_id"])["opportunity"] is not None
+    assert kernel.research.get(run["pipeline_run_id"])["risk"] is None
+    assert kernel.storage.get("hotspots", "HS-test")["status"] == "normalized"
+    kernel.tick()
+    assert kernel.storage.get("hotspots", "HS-test")["status"] == "analyzed"
+
+
 def test_versions_replay_and_stale_approval_protection(research):
     kernel, provider, _ = research
     context = kernel.research.context("HS-test")
