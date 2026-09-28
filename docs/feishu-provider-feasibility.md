@@ -13,7 +13,7 @@ readable through the documentation fetcher. No undocumented endpoint was selecte
 
 | Capability | Implementation / evidence | Live measurement |
 | --- | --- | --- |
-| CRUD | Official v1 GET/POST/PUT/DELETE; stateful HTTP contract tests | v3 create/read/update verified through CLI; backend v1/delete not live tested |
+| CRUD | Official v1 GET/POST/PUT/DELETE; stateful HTTP contract tests | v3 create/read/update/delete verified through user CLI; backend v1/delete not live tested |
 | Domain identity | Provider resolves business keys, rejects duplicates/missing mutations | Mock verified |
 | Pagination | v1 token pagination guarded; v3 CLI uses offset | v3 pages 10 + 25 = 35, final has_more=false |
 | Ambiguous create | Read by stable key; no second POST; unresolved outcome stops | Mock verified |
@@ -21,9 +21,10 @@ readable through the documentation fetcher. No undocumented endpoint was selecte
 | Batch behavior | Not used for runtime writes | 35 creates / 7 updates succeeded |
 | Record history | Not used for artifact versioning | Create + update events visible after propagation delay |
 | Limits / conflicts / throughput | No distributed CAS claim; serialized application writes | Pending isolated workload probe |
+| Bot identity | Backend uses app/bot credentials | Bot read blocked by missing `base:record:read` scope; user identity succeeds |
 
 Environment inspection found no backend FEISHU_APP_ID, FEISHU_APP_SECRET or
-FEISHU_APP_TOKEN. However, `lark-cli 1.0.96` has a working user login outside the
+FEISHU_APP_TOKEN. However, `lark-cli 1.0.96` has working bot and user identities outside the
 sandbox. No Feishu MCP is exposed. After explicit user authorization, an isolated
 [test Base](https://fcnaul7kb1kf.feishu.cn/base/T8I6buCMoaiLB6srVBrc9i2jnph)
 was created and retained. These CLI measurements do not certify the backend's
@@ -44,6 +45,8 @@ WorkflowRun, StepRun, Artifact, StoryState, ChapterVersion, Review, Approval.
 | History | First immediate query returned []; later query returned create rev=1 and update rev=2, with before=1/after=2 |
 | Identity | Stable domain_id values `probe-00`…`probe-34` differ from returned rec IDs |
 | Partial update | Submitted only version; original payload/domain_id/kind remained present |
+| User-identity create/delete (2026-09-29) | Created synthetic `RuntimeProbe` record `reczz28H19Qjc3bi`, deleted it with `--yes`, and confirmed a subsequent read returned Record not found |
+| Bot-identity read (2026-09-29) | Denied with Feishu code `99991672`, missing app scope `base:record:read`; no bot write was attempted |
 
 CLI dry-run confirms POST `/open-apis/base/v3/bases/{base}/tables/{table}/records/batch_create`
 and POST `.../records/batch_update`. CLI help states a 200-record batch maximum;
@@ -51,11 +54,16 @@ we measured only 35, without stress testing or intentionally flooding the tenant
 History visibility is eventually consistent: an immediate empty response does
 not prove absence. The same caution motivates fail-closed create reconciliation.
 
-**Still open:** actual HTTP PATCH, delete, bot-authenticated v3 access, upper
+**Still open:** actual HTTP PATCH, backend-runtime v1 delete, bot-authenticated v3 access after the missing scope is granted, upper
 payload limits, throttling/concurrent-write conflicts, and runtime v1↔v3 schema
 compatibility. Unknown outcomes/rate errors are simulated in code, not induced
 on the live service. Keep this PR in draft until the remaining feasibility gates
 are resolved or explicitly deferred. Do not introduce PostgreSQL on this evidence.
+
+The delete probe applies only to a disposable synthetic record under the user's
+CLI identity. The bot-scope denial is an observed application permission gap, not
+evidence that Base v3 lacks a record-read endpoint. The Feishu app must receive
+`base:record:read` before a bot-authenticated runtime probe can continue.
 
 ## Contract
 
