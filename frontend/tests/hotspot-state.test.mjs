@@ -52,10 +52,13 @@ test("human decisions retain exact gates, versions and revision feedback", () =>
     const body = { request_key: "fixed", step_id: "SR-gate", artifact_id: "AR-choice",
       expected_version: 2, action: "approve", operator: "editor", reason: "" };
     assert.deepEqual(parsePending(JSON.stringify({ path, body })), { path, body });
-    const revised = { ...body, action: "revise", artifact_id: "", reason: "Improve the hook" };
+    const research = path.startsWith("/api/analyses/");
+    const revised = { ...body, action: "revise", artifact_id: research ? body.artifact_id : "", reason: "Improve the hook" };
+    const rejected = { ...body, action: "reject", artifact_id: research ? body.artifact_id : "" };
     assert.deepEqual(parsePending(JSON.stringify({ path, body: revised })), { path, body: revised });
+    assert.deepEqual(parsePending(JSON.stringify({ path, body: rejected })), { path, body: rejected });
     for (const invalid of [{ ...body, expected_version: 0 }, { ...body, artifact_id: "" },
-      { ...body, operator: " " }, { ...revised, artifact_id: "AR-stale" },
+      { ...body, operator: " " }, { ...revised, artifact_id: research ? "" : "AR-stale" },
       { ...revised, reason: " " }, { ...body, action: "override" }]) {
       assert.equal(parsePending(JSON.stringify({ path, body: invalid })), null);
     }

@@ -8,6 +8,7 @@ export type Pending = {
   path: string;
   body: Record<string, unknown> & { request_key: string };
 };
+export type SubmitResult = { ok: true } | { ok: false; error: string };
 
 export function isDecisionPath(path: string): boolean {
   return /^\/api\/(?:analyses|creative\/runs)\/[\w-]+\/decision$/.test(path);
@@ -62,7 +63,8 @@ export function parsePending(value: string | null): Pending | null {
         typeof parsed.body.operator !== "string" || !parsed.body.operator.trim() ||
         !Number.isSafeInteger(parsed.body.expected_version) || parsed.body.expected_version < 1 ||
         (parsed.body.action === "approve" && !parsed.body.artifact_id) ||
-        (parsed.body.action !== "approve" && parsed.body.artifact_id) ||
+        (parsed.path.startsWith("/api/analyses/") && !parsed.body.artifact_id) ||
+        (parsed.path.startsWith("/api/creative/runs/") && parsed.body.action !== "approve" && parsed.body.artifact_id) ||
         (parsed.body.action === "revise" && (typeof parsed.body.reason !== "string" || !parsed.body.reason.trim())))) return null;
     if (/^\/api\/creative\/(titles|covers)$/.test(parsed.path) && (!parsed.body || typeof parsed.body !== "object" ||
         typeof parsed.body.source_run_id !== "string" || !parsed.body.source_run_id ||

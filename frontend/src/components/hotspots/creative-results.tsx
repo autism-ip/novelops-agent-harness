@@ -5,14 +5,14 @@ import { api } from "@/api/client";
 import type { CreativeRun } from "@/api/types";
 import { Button } from "@/components/ui/button";
 import { errorMessage, useResource } from "./use-resource";
-import type { Pending } from "./state";
+import type { Pending, SubmitResult } from "./state";
 import { useEditorIdentity } from "./editor-identity";
 
 export function CreativeResults({ kind, sourceRunId, revision, submit, disabled }: {
   kind: "titles" | "covers";
   sourceRunId: string;
   revision: number;
-  submit: (command: Pending) => Promise<boolean>;
+  submit: (command: Pending) => Promise<SubmitResult>;
   disabled: boolean;
 }) {
   const [error, setError] = useState<string | null>(null);
@@ -22,12 +22,14 @@ export function CreativeResults({ kind, sourceRunId, revision, submit, disabled 
   const latest = result.data?.[0];
   async function generate() {
     setError(null);
+    if (!result.data) { setError("Candidate history is still loading. Wait for it before generating a new version."); return; }
     try {
       const context = await api.get<{ source_artifact_id: string; next_version: number }>(`/api/creative/${kind}/${encodeURIComponent(sourceRunId)}/context`);
       const revision = latest?.decision?.action === "revise" && latest.current ? latest : null;
-      await submit({ path: `/api/creative/${kind}`, body: { request_key: crypto.randomUUID(), source_run_id: sourceRunId,
+      const outcome = await submit({ path: `/api/creative/${kind}`, body: { request_key: crypto.randomUUID(), source_run_id: sourceRunId,
         source_artifact_id: context.source_artifact_id, version: context.next_version,
         ...(revision ? { revision_of: revision.run.pipeline_run_id, feedback: reason.trim() || revision.decision?.reason || "" } : {}) } });
+      if (!outcome.ok) setError(outcome.error);
     } catch (cause) { setError(errorMessage(cause)); }
   }
   async function decide(state: CreativeRun, action: "approve" | "reject" | "revise", artifactId = "") {
@@ -35,13 +37,14 @@ export function CreativeResults({ kind, sourceRunId, revision, submit, disabled 
     if (!step || !operator.trim()) return;
     if (action === "revise" && !reason.trim()) { setError("Add revision feedback before requesting changes."); return; }
     setError(null);
-    await submit({ path: `/api/creative/runs/${encodeURIComponent(state.run.pipeline_run_id)}/decision`,
+    const outcome = await submit({ path: `/api/creative/runs/${encodeURIComponent(state.run.pipeline_run_id)}/decision`,
       body: { request_key: crypto.randomUUID(), step_id: step.step_run_id, artifact_id: artifactId,
         action, expected_version: step.output_version, operator: operator.trim(), reason: reason.trim() } });
+    if (!outcome.ok) setError(outcome.error);
   }
   return <section className="space-y-3 border-t pt-4" aria-label={kind === "titles" ? "Title candidates" : "Cover directions"}>
     <h4 className="font-semibold">{kind === "titles" ? "Title candidates" : "Cover directions"}</h4>
-    <Button variant="outline" disabled={disabled} onClick={() => void generate()}>
+    <Button variant="outline" disabled={disabled || result.loading || !!result.error || !result.data} onClick={() => void generate()}>
       {latest?.decision?.action === "revise" ? `Regenerate ${kind} from feedback` : latest ? `Generate next ${kind === "titles" ? "title" : "cover"} version` : `Generate ${kind === "titles" ? "titles" : "cover directions"}`}
     </Button>
     {error && <p role="alert">{error}</p>}

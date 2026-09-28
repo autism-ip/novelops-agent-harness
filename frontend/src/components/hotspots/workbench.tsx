@@ -32,6 +32,7 @@ import {
   workflowBusy,
   type Filters,
   type Pending,
+  type SubmitResult,
 } from "./state";
 
 const STORAGE_KEY = "novelops.hotspots.pending";
@@ -71,7 +72,7 @@ function Detail({
   disabled: boolean;
   analyze: boolean;
   creative: boolean;
-  submit: (command: Pending) => Promise<boolean>;
+  submit: (command: Pending) => Promise<SubmitResult>;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const result = useResource<Hotspot>(
@@ -217,8 +218,8 @@ export function HotspotsWorkbench() {
     setRevision((value) => value + 1);
   }
 
-  async function submit(command: Pending, retry = false) {
-    if (busy.current || (!retry && snapshot())) return false;
+  async function submit(command: Pending, retry = false): Promise<SubmitResult> {
+    if (busy.current || (!retry && snapshot())) return { ok: false, error: "Another request is pending. Retry the saved request first." };
     busy.current = true;
     setSubmitting(true);
     setError(null);
@@ -241,7 +242,7 @@ export function HotspotsWorkbench() {
       savePending(null);
       if (command.path === "/api/hotspots/manual") setManual(false);
       refresh();
-      return true;
+      return { ok: true };
     } catch (cause) {
       // A rejected retry cannot disprove an earlier committed attempt.
       if (
@@ -249,8 +250,9 @@ export function HotspotsWorkbench() {
         canClearRejected(cause.status, retry) && command.path !== "/api/analyses"
       )
         savePending(null);
-      setError(errorMessage(cause));
-      return false;
+      const message = errorMessage(cause);
+      setError(message);
+      return { ok: false, error: message };
     } finally {
       busy.current = false;
       setSubmitting(false);
@@ -286,8 +288,7 @@ export function HotspotsWorkbench() {
     event.preventDefault();
     const form = event.currentTarget;
     const values = new FormData(form);
-    if (
-      await submit({
+    const outcome = await submit({
         path: "/api/hotspots/manual",
         body: {
           request_key: crypto.randomUUID(),
@@ -295,8 +296,8 @@ export function HotspotsWorkbench() {
           url: String(values.get("url")),
           category: String(values.get("category")),
         },
-      })
-    ) {
+      });
+    if (outcome.ok) {
       form.reset();
       setManual(false);
     }

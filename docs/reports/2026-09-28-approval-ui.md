@@ -10,11 +10,13 @@ The hotspot detail panel now exposes exact risk and opportunity decisions, inclu
 
 Decision submissions record the editor name and persist the request before POST. The retry control reuses the exact body after an unknown outcome. Valid stale/conflicting decisions are rejected by the backend with a visible message. The selected title unlocks covers; the selected cover is available to the ZEN-38 book bootstrap contract.
 
+Review follow-up: research decisions retain their required opportunity artifact ID for exact retry; creative revision and rejection retain an empty candidate ID. Candidate generation waits for version history before using its revision feedback. Submission failures also appear inside the active research or creative decision panel.
+
 ## Verification
 
 | Check | Result |
 | --- | --- |
-| Frontend pure-state tests | 9 passed, including exact gate/version/revision replay validation |
+| Frontend pure-state tests | 9 passed, including research and creative approve/revise/reject replay validation |
 | Frontend lint, types, build | ESLint zero warnings, TypeScript and Next production build passed |
 | Synthetic browser path | Production Next + real FastAPI/Kernel + synthetic model/Feishu HTTP: human risk approval → opportunity revision → second opportunity approval → title revision → second title selection → cover rejection → second cover selection |
 | Editor attribution smoke | Approve disabled until editor name supplied; risk approval event stored `operator = Acceptance Editor` |
