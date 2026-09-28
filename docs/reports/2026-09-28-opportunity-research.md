@@ -25,6 +25,7 @@
 - 通用工作流创建端点拒绝 research 保留处理器；通用审批端点也执行同一版本校验。
 - 被丢弃、源内容变化或已有新版的机会不能通过 approved 契约进入下游。历史结果保留并标示已过期。
 - 研究模型先产出机会 Artifact，风险规则完成并落下风险 Artifact 后才把热点标记为 `analyzed`；风险处理失败时保留 `normalized`。
+- 审阅修复：采集时间/分类刷新不再让审批指纹失效；旧版退修引用和通用工作流占用研究 ID 命名空间均明确拒绝；风险页面显示语义标记与置信度。
 - 动态风险门不能取消静态配置要求；退修反馈进入独立 ApprovalEvent，旧版本不可修改。
 
 ## 验证证据
@@ -33,9 +34,9 @@
 
 | 检查 | 结果 |
 | --- | --- |
-| 后端完整离线 pytest | 303 passed；9 integration deselected |
-| app 语句覆盖率 | 92.40%；既有门禁 87.81558726673984% 未修改 |
-| research.py 覆盖率 | 95.26% |
+| 后端完整离线 pytest | 306 passed；9 integration deselected |
+| app 语句覆盖率 | 92.54%；既有门禁 87.81558726673984% 未修改 |
+| research.py 覆盖率 | 96.43% |
 | 前端行为契约 | 7 passed |
 | Ruff、ESLint（零警告）、TypeScript、Next 生产构建 | 通过 |
 | 浏览器多选分析与历史读取 | 两个热点生成独立版本，低风险停在配置的选题审核；结果字段可见，其他操作可继续 |
@@ -54,6 +55,15 @@
 - 飞书的分析投影与审批不是跨表原子事务，依赖持久化意图、幂等身份、重启恢复与最终消费校验。已有 adapter 的规模性能仍待验证。
 - 全量编辑决策 UI 属于 ZEN-37；此处已交付其后端契约。ZEN-36 必须消费 approved 版本，不能只读表中状态。
 - 当前外部 Review 与当前提交 CI 状态将在 PR 创建后核验，并以 PR 最新记录为准。
+
+## PR #29 审阅反馈（2026-09-28）
+
+| 反馈 | 处理 | 回归证据 |
+| --- | --- | --- |
+| P1：重复采集更新时间戳导致审批失效 | 指纹只包含稳定热点 ID、来源、标题和 URL；原始采集元数据仍冻结在工作流定义中 | `test_recapture_metadata_does_not_invalidate_approved_content` |
+| P2：可从过期退修版本继续生成 | `revision_of` 必须指向当前最新、源仍有效的退修版本 | `test_revision_cannot_use_superseded_parent` |
+| P2：通用工作流可占用 research ID | 通用端点拒绝保留键；已被旧数据占用时返回受控冲突 | `test_generic_workflow_cannot_preempt_research_version_namespace` |
+| P2：界面遗漏语义标记和置信度 | 风险卡显示每次评估的 flags、confidence、原因及不确定性 | 前端 lint、类型和生产构建；浏览器合成夹具此前仅覆盖高风险文案，新增字段未重复浏览器截图验收 |
 
 ## 可复用技能与后续
 

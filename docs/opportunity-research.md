@@ -80,6 +80,12 @@ Reject/revise ends the current workflow and persists feedback. Source changes,
 discarded hotspots and superseded versions cannot be newly approved or consumed.
 Historical read responses remain available and explicitly mark `current=false`.
 
+Approval fingerprints include the stable hotspot ID, source, title and URL. Routine
+recapture timestamps and feed category updates do not invalidate an existing
+opportunity; the exact original metadata remains frozen in its workflow input.
+Changed title/URL or discard status still blocks approval/consumption. A revision
+request must reference the currently latest version and source.
+
 Workflow definitions freeze source, policy, prompt hashes and route hashes. A
 configuration change blocks pending execution rather than silently changing the
 meaning of its version. Use a deliberate new version after reconciliation.

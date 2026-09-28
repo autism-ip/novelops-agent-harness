@@ -308,6 +308,57 @@ def test_configuration_change_blocks_pending_research_without_model_call(researc
     assert provider.calls == []
 
 
+def test_recapture_metadata_does_not_invalidate_approved_content(research):
+    kernel, _, _ = research
+    original = kernel.research.context("HS-test")
+    run = enqueue(kernel)
+    settle(kernel)
+    kernel.storage.update("hotspots", "HS-test", {"captured_at": "2026-09-29T00:00:00+00:00", "category": "updated feed category"})
+    assert kernel.research.context("HS-test")["source_hash"] == original["source_hash"]
+    result = kernel.research.get(run["pipeline_run_id"])
+    assert result["current"]
+    gate = next(s for s in result["run"]["steps"] if s["step_key"] == "selection")
+    kernel.research.decide(run["pipeline_run_id"], action="approve", expected_version=1, operator="editor",
+        artifact_id=result["opportunity"]["artifact_id"], step_id=gate["step_run_id"])
+    settle(kernel)
+    assert kernel.research.approved(run["pipeline_run_id"])["artifact_id"] == result["opportunity"]["artifact_id"]
+
+
+def test_revision_cannot_use_superseded_parent(research):
+    kernel, _, _ = research
+    first = enqueue(kernel)
+    settle(kernel)
+    state = kernel.research.get(first["pipeline_run_id"])
+    gate = next(s for s in state["run"]["steps"] if s["step_key"] == "selection")
+    kernel.research.decide(first["pipeline_run_id"], action="revise", expected_version=1, operator="editor",
+        reason="Change the setting", artifact_id=state["opportunity"]["artifact_id"], step_id=gate["step_run_id"])
+    second = enqueue(kernel, revision_of=first["pipeline_run_id"], feedback="Change the setting")
+    settle(kernel)
+    assert kernel.research.get(first["pipeline_run_id"])["current"] is False
+    context = kernel.research.context("HS-test")
+    with pytest.raises(TransitionConflict):
+        kernel.research.enqueue({"hotspot_id": "HS-test", "version": context["next_version"],
+            "source_hash": context["source_hash"], "revision_of": first["pipeline_run_id"],
+            "feedback": "Reuse stale revision"})
+    assert kernel.research.get(second["pipeline_run_id"])["current"]
+
+
+def test_generic_workflow_cannot_preempt_research_version_namespace(research):
+    kernel, _, _ = research
+    context = kernel.research.context("HS-test")
+    request = {"hotspot_id": "HS-test", "version": 1, "source_hash": context["source_hash"],
+               "revision_of": "", "feedback": ""}
+    key = kernel.research.identity(request)
+    client = TestClient(create_app(Settings(BACKEND_API_KEY="test"), kernel=kernel))
+    response = client.post("/api/workflows", headers={"x-api-key": "test"}, json={
+        "request_key": key, "workflow_type": "foreign", "steps": [{"step_key": "a", "handler": "noop"}]})
+    assert response.status_code == 422
+    kernel.create(key, "foreign", [{"step_key": "a", "handler": "noop"}])
+    with pytest.raises(TransitionConflict, match="occupied"):
+        kernel.research.enqueue(request)
+    client.close()
+
+
 def test_research_production_wiring_requires_dependencies_and_both_routes(monkeypatch, tmp_path):
     from app.runtime import build_runtime
     with pytest.raises(ValueError, match="requires"):

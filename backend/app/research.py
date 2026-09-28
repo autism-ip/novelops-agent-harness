@@ -90,6 +90,11 @@ def needs_review(risk):
     return risk["level"] != "low" or risk["confidence"] < .8 or bool(risk["flags"] or risk["uncertainties"])
 
 
+def source_identity(source):
+    """Approval identity excludes capture metadata refreshed by routine recrawls."""
+    return {field: source[field] for field in ("hotspot_id", "source", "title", "url")}
+
+
 def rule_flags(source, opportunity):
     flags = []
     if not source["url"]:
@@ -139,7 +144,7 @@ class ResearchService:
             row, source = self.source(hotspot_id)
             runs = self.runs(hotspot_id)
             version = json.loads(runs[-1]["definition_json"])["steps"][0]["input"]["request"]["version"] if runs else 0
-            return {"hotspot_id": hotspot_id, "source_hash": digest(source), "next_version": version + 1,
+            return {"hotspot_id": hotspot_id, "source_hash": digest(source_identity(source)), "next_version": version + 1,
                     "can_analyze": row["status"] != "discarded"}
 
     @staticmethod
@@ -160,7 +165,11 @@ class ResearchService:
             key = self.identity(request)
             existing = self.kernel.storage.get("pipeline_runs", stable_id("PR-", key))
             if existing:
-                definition = json.loads(existing["definition_json"])
+                try:
+                    definition = json.loads(existing["definition_json"])
+                    self.manifest(existing)
+                except (AmbiguousWrite, KeyError, TypeError, ValueError):
+                    raise TransitionConflict("Research version ID is occupied by another workflow") from None
                 if definition["steps"][0]["input"]["request"] != request:
                     raise TransitionConflict("Analysis version already reserved with different inputs")
                 # Replay the frozen definition even if source/configuration changed.
@@ -171,7 +180,7 @@ class ResearchService:
             prior = None
             if request["revision_of"]:
                 previous = self.get(request["revision_of"])
-                if (previous["approval_status"] != "revision_requested" or
+                if (previous["approval_status"] != "revision_requested" or not previous["current"] or
                     previous["request"]["hotspot_id"] != request["hotspot_id"] or not request["feedback"].strip()):
                     raise TransitionConflict("Revision requires a revision-requested opportunity and feedback")
                 prior = previous["opportunity"]["artifact_id"]
@@ -190,7 +199,7 @@ class ResearchService:
                         "book_id": "", "source_hotspot_id": request["hotspot_id"]}
             if (run["pipeline_type"] != WORKFLOW or definition != expected or
                 run["pipeline_run_id"] != stable_id("PR-", self.identity(request)) or
-                digest(manifest["source"]) != request["source_hash"]):
+                digest(source_identity(manifest["source"])) != request["source_hash"]):
                 raise ValueError("Definition mismatch")
             return manifest
         except (ValueError, KeyError, TypeError, IndexError):
@@ -199,7 +208,7 @@ class ResearchService:
     def live(self, run, manifest):
         row, source = self.source(manifest["request"]["hotspot_id"])
         latest = self.runs(row["hotspot_id"])
-        if row["status"] == "discarded" or digest(source) != manifest["request"]["source_hash"] or latest[-1]["pipeline_run_id"] != run["pipeline_run_id"]:
+        if row["status"] == "discarded" or digest(source_identity(source)) != manifest["request"]["source_hash"] or latest[-1]["pipeline_run_id"] != run["pipeline_run_id"]:
             raise TransitionConflict("Analysis superseded, source changed or hotspot discarded")
 
     def prepare(self, step):
