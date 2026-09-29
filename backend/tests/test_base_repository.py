@@ -89,6 +89,21 @@ class TestFromFeishu:
         result = repo._from_feishu(record)
         assert result == {"record_id": "rec-003"}
 
+    def test_number_cells_from_v1_reads_keep_domain_types(self, mock_client: MagicMock) -> None:
+        repo = BaseRepository(mock_client, "app", "table", {"output_version": "Output Version",
+            "retry_count": "Retry Count", "writability_score": "Score"})
+        result = repo._from_feishu({"record_id": "rec-004", "fields": {
+            "Output Version": "1", "Retry Count": "0", "Score": "82.5"}})
+        assert result["output_version"] == 1 and type(result["output_version"]) is int
+        assert result["retry_count"] == 0 and type(result["retry_count"]) is int
+        assert result["writability_score"] == 82.5
+
+    @pytest.mark.parametrize("bad", ["0.5", "NaN", "not-a-number"])
+    def test_invalid_integer_cell_fails_closed(self, repo: BaseRepository, bad: str) -> None:
+        from app.feishu.client import FeishuAPIError
+        with pytest.raises(FeishuAPIError, match="numeric|integer"):
+            repo._from_feishu({"record_id": "rec-005", "fields": {"output_version": bad}})
+
 
 # ============================================================
 # base_path

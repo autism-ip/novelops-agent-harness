@@ -258,6 +258,15 @@ FIELD_MAPS["artifacts"] = {field: field for field in (
 FIELD_MAPS["traces"] = {field: field for field in (
     "trace_id", "run_id", "step_id", "chapter_id", "kind", "payload_json")}
 
+# Bitable v1 GET/list returns Number cells as strings, including integer counters.
+# Keep their domain types stable when a row is read back after creation.
+INTEGER_FIELD_NAMES = frozenset({
+    "last_seen_chapter", "retry_count", "output_version", "rank", "heat_value",
+    "version", "click_score", "genre_fit_score", "story_state_version",
+    "chapter_no", "version_no", "target_version",
+})
+FLOAT_FIELD_NAMES = frozenset({"writability_score"})
+
 
 class TableMapConfig:
     """Runtime config: app token + table-ID resolution.
