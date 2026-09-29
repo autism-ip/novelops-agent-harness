@@ -56,7 +56,7 @@ class TestConditionalUpdate:
 
         client = MagicMock()
         client.get.return_value = {"data": {"record": {"record_id": "R1", "fields": {"status": "pending"}}}}
-        client.put.return_value = {"data": {"record": {"record_id": "R1", "fields": {}}}}
+        client.put.return_value = {"data": {"record": {"record_id": "R1", "fields": {"status": "running"}}}}
         repo = BaseRepository(client, "app_tok", "tbl_id", {})
 
         repo.conditional_update(
