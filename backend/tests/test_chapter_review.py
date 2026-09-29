@@ -134,3 +134,20 @@ def test_low_score_anomaly_gate_and_revision_action(chapter):
     assert kernel.chapter_loop.read(run_id)["run"]["status"] == "failed"
     assert kernel.chapter_loop.request_revision(book_id, 1, **command)["task"] == result["task"]
     assert kernel.chapter_loop.read(result["run"]["pipeline_run_id"])["request"]["source_version_id"] == command["version_id"]
+
+
+def test_rewrite_history_exposes_the_draft_that_critic_actually_scored(chapter):
+    kernel, provider, book_id = chapter
+    run_id, request, snapshot = start(kernel, book_id)
+    provider.outputs.extend([draft(snapshot, request["brief_artifact_id"]), critique("revise"),
+                             draft(snapshot, request["brief_artifact_id"], prose="A revised scene. " * 20)])
+    settle(kernel, 5)
+    history = kernel.chapter_loop.review_state(book_id, 1)["versions"]
+    rewritten, first_draft = history
+    assert rewritten["record"]["status"] == "review"
+    assert first_draft["record"]["status"] == "candidate"
+    assert first_draft["report"]["source_refs"][2] == first_draft["artifact"]["artifact_id"]
+    assert rewritten["report"]["artifact_id"] == first_draft["report"]["artifact_id"]
+    assert rewritten["verification"]["artifact_id"] != first_draft["verification"]["artifact_id"]
+    assert rewritten["artifact"]["artifact_id"] != first_draft["report"]["source_refs"][2]
+    assert kernel.chapter_loop.read(run_id)["selected"]["artifact_id"] == rewritten["artifact"]["artifact_id"]

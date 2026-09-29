@@ -66,6 +66,10 @@ export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged }: {
   const shown = displayed?.artifact ?? (displayed === current ? latest?.selected : null);
   const critique = displayed?.report ?? null;
   const verification = displayed?.verification ?? null;
+  const critiquedVersion = data?.versions.find(entry =>
+    entry.artifact?.artifact_id === critique?.source_refs[2]);
+  const reportIsForEarlierDraft = !!shown && !!critiquedVersion &&
+    critiquedVersion.artifact?.artifact_id !== shown.artifact_id;
   const chosenIsCurrent = !!current && displayed?.record.version_id === current.record.version_id;
   const gate = data?.review_gate;
   const gatePending = gate?.status === "awaiting_approval";
@@ -161,6 +165,9 @@ export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged }: {
       <div className="surface-soft min-w-0 space-y-4 p-4 sm:p-5">
         <h4 className="font-semibold">Critique and decision</h4>
         {critique ? <>
+          {reportIsForEarlierDraft && <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+            This Critic report scored v{critiquedVersion.record.version_no} before the rewrite. The selected version passed deterministic checks but has not been scored again; read its prose before deciding.
+          </p>}
           <p className="text-sm leading-6">{text(critique.content.summary)}</p>
           <p className="text-xs font-medium capitalize text-muted-foreground">Model decision: {text(critique.content.decision)}</p>
           <details className="border-t pt-3 text-sm"><summary className="min-h-11 cursor-pointer font-medium">Quality dimensions</summary>

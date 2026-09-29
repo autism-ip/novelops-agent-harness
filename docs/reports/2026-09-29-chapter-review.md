@@ -8,9 +8,9 @@
 
 ## Implementation and decisions
 
-- `backend/app/chapter_loop.py` freezes first-N and low Critic score review policy in each run, exposes an exact review state, and validates run, version, Artifact and gate version before editorial commands. Routine passes complete automatically. Gated passes await an editor. Generic workflow step decisions cannot bypass chapter-specific version checks.
+- `backend/app/chapter_loop.py` records first-N and low Critic score review policy in each run and stops the run if the active configuration drifts; it exposes an exact review state and validates run, version, Artifact and gate version before editorial commands. Routine passes complete automatically. Gated passes await an editor. Generic workflow step decisions cannot bypass chapter-specific version checks.
 - Approve/reject persist an idempotent ApprovalEvent and update the selected ChapterVersion; a constrained revision persists a deterministic RevisionTask with source version, source Artifact, frozen request and explicit `must_keep`, `must_change`, `do_not_change`, then enqueues a rewrite. Replays reuse exact commands; conflicting or stale commands fail. Final lock accepts a reviewed or approved current version and blocks later changes while old versions remain.
-- The review endpoint returns the current StoryState, StoryBible, Brief and snapshot plus every version's own Critic report and deterministic verification Artifact. The UI changes prose, report, verification and source references together when an older version is selected; current run planning and usage are labeled separately. Historical versions are read-only. A local session storage recovery card retains uncertain commands for exact replay.
+- The review endpoint returns the current StoryState, StoryBible, Brief and snapshot plus each version's linked Critic evidence and deterministic verification Artifact. The UI changes prose, report, verification and source references together when an older version is selected; current run planning and usage are labeled separately. Historical versions are read-only. A local session storage recovery card retains uncertain commands for exact replay.
 - RevisionTasks gain additive Feishu fields documented in `docs/feishu-schema.md`. `docs/chapter-review.md` records the contract and deployment limits.
 
 ## Defect found during verification
@@ -29,6 +29,8 @@ The first review desk rendering changed prose when a historical version was sele
 | Browser, synthetic HTTP fixture | Full hotspot → opportunity approval → title/cover → Book → approved Bible → Brief → Chapter path; first chapter held for editor, constrained revision created v2, old v1 was read-only, v2 approved/final-locked, and generation disabled after lock. Second chapter passed automatically, then reject v1 → regenerate v2 retained the rejected v1. |
 | Responsive browser | Desktop 1428×900 and mobile 390×844 had no horizontal overflow; mobile action buttons remained reachable and at least 44 px high. |
 
+After the Critic provenance follow-up, the full backend suite ran again: **354 passed, 9 credentialed tests deselected, 91.50% coverage** above the unchanged gate. The ZEN-41 targeted suite passed 5 tests, including a rewrite history check that the report's source reference points to v1 while v2 has its own verifier. Frontend lint, types, production build and all 14 tests passed after the UI provenance note. The earlier browser screenshots cover the pass path; they do not demonstrate this new rewrite note.
+
 Desktop evidence: [review and final lock](assets/zen41-review-desktop.png). Mobile evidence: [reachable review controls](assets/zen41-review-mobile-actions.png). These are synthetic data from the local fixture, not real Feishu or model output.
 
 ## Verified facts, judgment and open limits
@@ -44,3 +46,7 @@ Desktop evidence: [review and final lock](assets/zen41-review-desktop.png). Mobi
 ## Reusable skill assessment
 
 The `issue-pr-delivery` workflow remains suitable: exact issue/PR mapping, immediate dependency base, commit-specific CI and a durable acceptance report prevented a passing descendant from being mistaken for an accepted production feature. No skill text change was required for this issue.
+
+## Follow-up: truthful Critic provenance after a rewrite
+
+The original Critic scores evaluate the first verified draft, not the rewritten prose. Upstream PR #36 now links the report to that first version even when a rewrite follows. This desk labels a rewritten version's carried report as the earlier draft's evaluation and calls out that the selected rewrite still needs editorial judgment; deterministic checks verify hard rules only. The downstream branch merges that upstream fix so the historical initial version can show its actual report. The ZEN-40 targeted and full backend suites passed after the fix (13 and 349 tests respectively, 91.64% coverage); this desk's checks and exact-head CI are recorded in the PR after pushing.
