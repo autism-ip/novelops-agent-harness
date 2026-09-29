@@ -102,6 +102,9 @@ def test_revision_task_binds_source_constraints_and_new_version(chapter):
     assert created["task"]["status"] == "queued"
     assert created["run"]["pipeline_run_id"] == created["task"]["run_id"]
     assert kernel.chapter_loop.request_revision(book_id, 1, **command)["run"] == created["run"]
+    for changed in ({"run_id": "PR-other"}, {"artifact_id": "AR-other"}, {"version_no": 99}):
+        with pytest.raises(TransitionConflict, match="Revision replay does not match"):
+            kernel.chapter_loop.request_revision(book_id, 1, **{**command, **changed})
     with pytest.raises(TransitionConflict):
         kernel.chapter_loop.request_revision(book_id, 1, **{**command, "constraints": {
             **command["constraints"], "must_change": ["Change the scene order"]}})

@@ -658,11 +658,18 @@ class ChapterLoopService:
             task_id = stable_id("RT-", "chapter-revision/" + version_id)
             previous = self.kernel.storage.get("revision_tasks", task_id)
             if previous:
-                if (previous.get("from_version_id") != version_id or previous.get("created_by") != operator or
+                source = self.kernel.storage.get("chapter_versions", version_id)
+                if (not source or source.get("book_id") != book_id or source.get("chapter_no") != chapter_no or
+                    source.get("run_id") != run_id or source.get("version_no") != version_no or
+                    source.get("artifact_id") != artifact_id or
+                    previous.get("from_version_id") != version_id or
+                    previous.get("source_artifact_id") != artifact_id or
+                    previous.get("book_id") != book_id or previous.get("chapter_no") != chapter_no or
+                    previous.get("created_by") != operator or
                     previous.get("must_keep") != encode(limits.must_keep) or
                     previous.get("must_change") != encode(limits.must_change) or
                     previous.get("do_not_change") != encode(limits.do_not_change)):
-                    raise TransitionConflict("ChapterVersion already has a different revision task")
+                    raise TransitionConflict("Revision replay does not match its source ChapterVersion")
                 request = json.loads(previous["request_json"])
                 run = self.enqueue(request)
                 if previous["status"] != "queued":
