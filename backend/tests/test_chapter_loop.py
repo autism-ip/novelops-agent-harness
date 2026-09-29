@@ -93,6 +93,9 @@ def test_actionable_critique_rewrites_once_and_preserves_versions(chapter):
     assert view["selected"]["version"] == 2
     assert [row["version_no"] for row in view["versions"]] == [1, 2]
     assert [row["status"] for row in view["versions"]] == ["candidate", "review"]
+    assert view["versions"][0]["review_report_id"] == view["critique"]["artifact_id"]
+    assert view["critique"]["source_refs"][2] == view["versions"][0]["artifact_id"]
+    assert view["critique"]["source_refs"][2] != view["selected"]["artifact_id"]
     assert view["critique"]["content"]["constraints"]["must_change"]
     assert view["usage"]["attempts"] == 3
     assert provider.calls[-3:] == ["writer", "critic", "rewrite"]
@@ -107,6 +110,7 @@ def test_reject_and_hard_failure_never_reach_review(chapter):
     assert rejected["run"]["status"] == "failed"
     assert rejected["selected"] is None
     assert len(rejected["versions"]) == 1 and rejected["versions"][0]["status"] == "candidate"
+    assert rejected["versions"][0]["review_report_id"] == rejected["critique"]["artifact_id"]
     assert provider.calls[-2:] == ["writer", "critic"]
     run_id, request, snapshot = start(kernel, book_id)
     provider.outputs.append(draft(snapshot, request["brief_artifact_id"], chapter_no=2))

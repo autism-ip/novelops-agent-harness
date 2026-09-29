@@ -414,6 +414,15 @@ class ChapterLoopService:
                 artifact_type="CriticReport")
         except ModelFailure as exc:
             raise PermanentStepFailure() from exc
+        version_id = stable_id("CV-", self._logical(req, "versions") + "/" + str(version["version"]))
+        row = self.kernel.storage.get("chapter_versions", version_id)
+        if not row or row.get("artifact_id") != version["artifact_id"]:
+            raise AmbiguousWrite("Critic source ChapterVersion projection changed")
+        if not row.get("review_report_id"):
+            self.kernel.storage.update("chapter_versions", version_id,
+                                       {"review_report_id": report["artifact_id"]})
+        elif row["review_report_id"] != report["artifact_id"]:
+            raise AmbiguousWrite("Critic report projection changed")
         return {"output_refs": [report["artifact_id"]]}
 
     def _check_budget(self, run_id: str) -> None:
