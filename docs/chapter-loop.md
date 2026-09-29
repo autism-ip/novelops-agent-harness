@@ -1,0 +1,25 @@
+# ZEN-40 — Chapter generation, critique, rewrite and verification
+
+Enable `CHAPTER_LOOP_ENABLED=true` only after ZEN-39 story planning is enabled, the ChapterVersions table has the additive fields in [feishu-schema.md](feishu-schema.md), and `writer`, `critic`, `rewrite` routes exist in `MODEL_ROUTES_JSON`. Every route uses the shared `ModelRouter`, which records route and prompt version, token usage, cost estimate when route prices are configured, latency and retries. The loop does not use the old unconditional StyleAgent / AntiAIFlavorAgent chain.
+
+## Exact sources and commands
+
+An approved StoryBible and latest completed policy-eligible ChapterBrief are required. `GET /api/books/{book_id}/chapters/{chapter_no}/generation/context` returns the exact StoryState and Brief artifact IDs/versions, next generation run version, and first unallocated ChapterVersion number. The UI posts that body to `/generations`; the server compares every source and version before creating a deterministic Harness run. A repeated identical POST returns the same run. A different body cannot occupy that run identity. A final-locked chapter cannot start another generation.
+
+At enqueue, Context Builder freezes a chapter-specific StoryContextSnapshot. Its content and source refs include the exact StoryState, StoryBible, ChapterBrief, and planning snapshot. A revision additionally includes its source ChapterVersion Artifact. Later StoryState or Brief changes stop an unfinished run. Previous artifacts stay immutable.
+
+## Five-step loop
+
+1. `WriterAgent` produces a schema-validated ChapterDraft. A human revision request routes this first step through `RewriteAgent` with the prior ChapterVersion and explicit `must_keep`, `must_change`, `do_not_change` constraints.
+2. The deterministic verifier checks chapter number, exact snapshot and Brief IDs, prose length, title length, and literal hard bans expressed as `literal:<term>` in the StyleContract. Only a passing draft becomes an immutable ChapterVersion Artifact and ChapterVersions projection. Other prose rules still need semantic review; the verifier does not pretend to prove them.
+3. `CriticAgent` emits seven scored dimensions with concrete evidence, a pass/revise/reject decision, summary and constraints. A pass requires all quality scores at least 3/5 and no `must_change`. A revise needs a concrete `must_change`. Invalid output is retried under the route policy and cannot promote a candidate.
+4. A pass skips rewriting. A reject fails the run while preserving the CriticReport and verified candidate for diagnosis. A revise makes at most one constrained model rewrite; the rewritten draft must pass the same deterministic verifier before it becomes a new ChapterVersion. `CHAPTER_MAX_REWRITES=0` fails a required rewrite without calling the model. Optional `CHAPTER_MAX_ESTIMATED_COST` checks usage before a rewrite and before review; missing usage or route prices fail closed when this cap is configured.
+5. Final verification recomputes deterministic checks, compares the immutable verifier Artifact and Critic decision, and marks only the selected ChapterVersion `review`. Run completion does not silently final-lock the chapter.
+
+Run and version reads are available at `/api/chapter-generations/{run_id}`, `/api/books/{book_id}/chapters/{chapter_no}/generations`, and `/versions`. The latter includes legacy rows as readable entries without claiming an Artifact-backed snapshot. A human final lock posts the exact `version_id`, ChapterVersion Artifact ID, number and operator to `/final-lock`. The command is idempotent for the same target and operator, rejects stale or conflicting targets, and leaves all earlier versions intact. ZEN-41 adds the full editorial review desk and selective human controls on these backend commands.
+
+## Recovery and deployment limits
+
+Every generated Artifact has a deterministic logical ID/version and exact source refs. A failed model call or hard verification cannot promote an invalid ChapterVersion to review. An ambiguous Feishu create/update is handled by the Harness intent journal and storage reconciliation boundary; it does not trigger a blind duplicate POST. New ChapterVersion numbers advance from persisted versions, so a pass without rewriting yields v1 then v2 on regeneration; a rewrite appends another number.
+
+The offline and browser fixtures use synthetic HTTP storage and model output. Production Feishu permissions, newly added ChapterVersions fields, real model quality, Bitable text size/rate limits, and deployment cost rates require live acceptance. The `content` projection duplicates the ChapterVersion prose for legacy readers; the Artifact remains the immutable source of truth.

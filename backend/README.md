@@ -28,3 +28,10 @@ When `STORY_PLANNING_ENABLED=true`, configure `BOOKS_ENABLED=true` and the
 `story_architect` and `chapter_planner` entries in `MODEL_ROUTES_JSON`. See
 [`docs/story-planning.md`](../docs/story-planning.md) for the StoryBible approval,
 canonical StoryState patch, snapshot, and ChapterBrief contracts.
+
+When `CHAPTER_LOOP_ENABLED=true`, also configure `STORY_PLANNING_ENABLED=true`,
+the ChapterVersions table with the additive fields in `docs/feishu-schema.md`,
+and `writer`, `critic`, and `rewrite` model routes. `CHAPTER_MAX_REWRITES` is 0 or
+1. Optional `CHAPTER_MAX_ESTIMATED_COST` fails the run closed if token usage or
+route prices are unavailable. See [`docs/chapter-loop.md`](../docs/chapter-loop.md)
+for exact-source generation, deterministic checks, critique, revision and final-lock semantics.

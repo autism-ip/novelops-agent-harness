@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useResource, errorMessage } from "@/components/hotspots/use-resource";
 import { StoryPlanning } from "./story-planning";
+import { ChapterGeneration } from "./chapter-generation";
 
 type Book = {
   book_id: string;
@@ -66,6 +67,7 @@ export function BookDetail({ bookId }: { bookId: string }) {
       </header>
       {!view.state && <p className="surface p-5 text-sm text-muted-foreground">{view.legacy ? "This book predates canonical StoryState. Its legacy record is readable; it has not been migrated." : "Book initialization has not reached a ready canonical state. Retry the original creation request from the selected cover."}</p>}
       {view.state && <><StoryPlanning bookId={bookId} approvedBible={Boolean(view.state.content.StoryBible?.bible_artifact_id)} />
+      <ChapterGeneration bookId={bookId} />
       <div className="grid gap-4 md:grid-cols-2">{Object.entries(view.state.content).map(([namespace, fields]) =>
         <section key={namespace} className="surface min-w-0 p-5 sm:p-6">
           <h2 className="text-lg font-semibold">{namespace.replace(/([a-z])([A-Z])/g, "$1 $2")}</h2>
