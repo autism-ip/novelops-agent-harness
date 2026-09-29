@@ -14,6 +14,8 @@ The Book page keeps chapter generation and editorial review in one chapter-speci
 
 `POST .../review/revision` requires the same exact target plus nonempty `must_change`, optional `must_keep` and `do_not_change`. It writes a deterministic RevisionTask linked to the selected source version and its Artifact, stores the frozen generation request, then enqueues a new run. Repeating the same command resumes/returns that task and run; a changed source run, Artifact, version number, editor or constraints conflicts. The new ChapterVersion is appended, never overwritten. A failed or interrupted enqueue leaves the task `open` for safe replay; an accepted enqueue marks it `queued`.
 
+RevisionTask `status` records enqueue progress and remains `queued` after acceptance. The review response adds each task's current `run_status` from its linked WorkflowRun, or `null` before the run exists. The desk labels the source version and live run state so a finished rewrite is not presented as still queued.
+
 `POST .../final-lock` remains the exact, idempotent finalization command. It requires the latest completed run and current selected version, accepts `review` or `approved`, and leaves older ChapterVersions readable. Final lock blocks later mutation. The UI retains unknown-outcome commands in session storage and offers replay with the identical target/body.
 
 ## Deployment limits

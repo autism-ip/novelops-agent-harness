@@ -112,6 +112,8 @@ def test_revision_task_binds_source_constraints_and_new_version(chapter):
     assert created["task"]["source_artifact_id"] == command["artifact_id"]
     assert created["task"]["status"] == "queued"
     assert created["run"]["pipeline_run_id"] == created["task"]["run_id"]
+    queued_task = kernel.chapter_loop.review_state(book_id, 1)["revision_tasks"][0]
+    assert queued_task["run_status"] == created["run"]["status"]
     assert kernel.chapter_loop.request_revision(book_id, 1, **command)["run"] == created["run"]
     for changed in ({"run_id": "PR-other"}, {"artifact_id": "AR-other"}, {"version_no": 99}):
         with pytest.raises(TransitionConflict, match="Revision replay does not match"):
@@ -125,6 +127,9 @@ def test_revision_task_binds_source_constraints_and_new_version(chapter):
     settle(kernel, 5)
     latest = kernel.chapter_loop.read(run_id)
     assert latest["run"]["status"] == "completed"
+    completed_task = kernel.chapter_loop.review_state(book_id, 1)["revision_tasks"][0]
+    assert completed_task["status"] == "queued"
+    assert completed_task["run_status"] == "completed"
     assert latest["selected"]["version"] == 2
     assert latest["selected"]["content"]["source_version_id"] == command["version_id"]
     assert [item["record"]["version_no"] for item in kernel.chapter_loop.versions(book_id, 1)] == [2, 1]

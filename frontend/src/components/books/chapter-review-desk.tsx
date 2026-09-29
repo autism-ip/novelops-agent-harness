@@ -18,7 +18,8 @@ type ChapterRun = { run: { pipeline_run_id: string; status: string };
     estimated_cost: number | null; latency_ms: number | null; retries: number } };
 type ReviewState = { latest: ChapterRun | null; story_state?: Record<string, Record<string, unknown>>;
   story_bible?: Artifact; brief?: Artifact; snapshot?: Artifact; verification?: Artifact | null;
-  versions: Version[]; revision_tasks: { revision_task_id: string; from_version_id: string; status: string }[];
+  versions: Version[]; revision_tasks: { revision_task_id: string; from_version_id: string;
+    status: string; run_status: string | null }[];
   review_gate?: { step_id: string; status: string; output_version: number };
   traces?: { kind: string; route?: string; model?: string; prompt_version?: string;
     input_tokens?: number; output_tokens?: number; estimated_cost?: number; latency_ms?: number; retry_count?: number }[] };
@@ -236,7 +237,10 @@ export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged }: {
             <li key={index}>{item.route} · {item.model} · {item.prompt_version} · {item.latency_ms ?? "?"} ms</li>)}</ul>
         </details>
         {!!data.revision_tasks.length && <p className="text-xs text-muted-foreground">
-          Revision tasks: {data.revision_tasks.map(task => task.status).join(" · ")}</p>}
+          Revision tasks: {data.revision_tasks.map(task => {
+            const source = data.versions.find(entry => entry.record.version_id === task.from_version_id);
+            return `v${source?.record.version_no ?? "?"} → ${task.run_status ? `run ${task.run_status}` : task.status}`;
+          }).join(" · ")}</p>}
       </div>
     </div>}
     {pending && <div className="surface-soft space-y-2 p-4 text-sm" role="status">

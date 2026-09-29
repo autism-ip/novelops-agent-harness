@@ -582,7 +582,11 @@ class ChapterLoopService:
         with self.kernel.writer:
             runs = self.list_runs(book_id, chapter_no)
             versions = self.versions(book_id, chapter_no)
-            tasks = self.kernel.storage.list("revision_tasks", target_id=f"{book_id}/{chapter_no}")
+            tasks = []
+            for task in self.kernel.storage.list("revision_tasks", target_id=f"{book_id}/{chapter_no}"):
+                run = (self.kernel.storage.get("pipeline_runs", task["run_id"])
+                       if task.get("run_id") else None)
+                tasks.append({**task, "run_status": run["status"] if run else None})
             if not runs:
                 return {"latest": None, "versions": versions, "revision_tasks": tasks}
             latest = runs[0]
