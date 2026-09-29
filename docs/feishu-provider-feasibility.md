@@ -17,7 +17,7 @@ readable through the documentation fetcher. No undocumented endpoint was selecte
 | Domain identity | Provider resolves business keys, rejects duplicates/missing mutations | Mock verified |
 | Pagination | v1 token pagination guarded; v3 CLI uses offset | v3 pages 10 + 25 = 35, final has_more=false |
 | Ambiguous create | Read by stable key; no second POST; unresolved outcome stops | Mock and stateful HTTP verified, including a committed POST with a malformed 2xx reply |
-| PATCH / Base v3 | v3 batch partial update is POST, not PATCH | 7 partial updates preserved other fields; literal HTTP PATCH remains unverified |
+| PATCH / Base v3 | v3 single-record update is PATCH; batch partial update is POST | User CLI PATCH changed only `version`; `domain_id`, `kind`, and `payload` survived. Seven batch partial updates also preserved other fields. Backend app identity remains untested. |
 | Batch behavior | Not used for runtime writes | 35 creates / 7 updates succeeded |
 | Record history | Not used for artifact versioning | Create + update events visible after propagation delay |
 | Limits / conflicts / throughput | No distributed CAS claim; serialized application writes | Two concurrent same-record updates both returned success; an older logical version was the final value. A 50,000-character synthetic Chinese chapter payload round-tripped; absolute size and rate ceilings remain unmeasured. |
@@ -46,18 +46,22 @@ WorkflowRun, StepRun, Artifact, StoryState, ChapterVersion, Review, Approval.
 | Identity | Stable domain_id values `probe-00`…`probe-34` differ from returned rec IDs |
 | Partial update | Submitted only version; original payload/domain_id/kind remained present |
 | User-identity create/delete (2026-09-29) | Created synthetic `RuntimeProbe` record `reczz28H19Qjc3bi`, deleted it with `--yes`, and confirmed a subsequent read returned Record not found |
+| User-identity single-record PATCH (2026-09-29) | The registered `+record-upsert --record-id` dry-run showed `PATCH /open-apis/base/v3/bases/{base}/tables/{table}/records/{record}`. On synthetic record `reczz28HLxhpa78F`, a request containing only `{"version":2}` returned `updated=true`. A projected read returned the original `domain_id=probe-partial-20260929-a18f`, `kind=PatchProbe`, `payload=baseline`, and `version=2` at Base rev 10. The row was deleted; a later get listed it in `record_not_found` at rev 11. This verifies partial-update behavior under the CLI user identity, not the backend app. |
 | Bot-identity read (2026-09-29) | Denied with Feishu code `99991672`, missing app scope `base:record:read`; no bot write was attempted |
 | Same-record concurrent writes (2026-09-29) | A synthetic WorkflowRun row began at logical version 1. Two user-identity `batch_update` commands set versions 2 and 3 concurrently; both returned success. The final read showed version 2 at Base `rev=7`, and history later showed version 3 → 2 at rev 7. Each call took roughly 1.5–1.7 s including CLI overhead. This is one bounded race, not a rate-limit benchmark. |
 | Direct `bitable/v1` list (2026-09-29) | The exact read path used by `BaseRepository` was dry-run and then called with `page_size=1` against the approved Base. User identity returned authorization code `99991679`; bot identity returned `99991672`. Both errors listed missing `bitable:app:readonly`, `bitable:app`, `base:record:retrieve`. Neither reached record data, so this does not establish v1 schema compatibility or incompatibility. |
 | Chapter-sized text (2026-09-29) | A synthetic ChapterVersion record with 50,000 Chinese prose characters in a JSON text field was created through Base v3 under user identity. The stored payload had 50,032 characters and read back byte-for-byte equal to the submitted payload (SHA-256 `36c1b3ab18ee238f6fe3729fa25f90851e655d2fbd440737ae8a4f0491e7f00c`). This covers the code's current 50,000-character prose cap in this test table; it is not a measured platform ceiling or a production schema test. |
 
-CLI dry-run confirms POST `/open-apis/base/v3/bases/{base}/tables/{table}/records/batch_create`
-and POST `.../records/batch_update`. CLI help states a 200-record batch maximum;
+CLI dry-run confirms POST `/open-apis/base/v3/bases/{base}/tables/{table}/records/batch_create`,
+POST `.../records/batch_update`, and single-record PATCH as shown above. The
+official [v1 update-record documentation](https://open.feishu.cn/document/server-docs/docs/bitable-v1/app-table-record/update.md)
+specifies PUT with incremental field semantics; that is the separate endpoint
+used by the production adapter. CLI help states a 200-record batch maximum;
 we measured only 35, without stress testing or intentionally flooding the tenant.
 History visibility is eventually consistent: an immediate empty response does
 not prove absence. The same caution motivates fail-closed create reconciliation.
 
-**Still open:** actual HTTP PATCH, backend-runtime v1 CRUD after the listed access scopes are granted, bot-authenticated v3 access after `base:record:read` is granted, absolute
+**Still open:** backend-runtime v1 CRUD after the listed access scopes are granted, bot-authenticated v3 CRUD/PATCH after `base:record:read` and the necessary write scopes are granted, absolute
 payload limits beyond the tested chapter size, throttling behavior, and runtime v1↔v3 schema
 compatibility. Unknown outcomes/rate errors are simulated in code, not induced
 on the live service. Keep this PR in draft until the remaining feasibility gates
@@ -194,9 +198,10 @@ Record the timestamp, backend app identity (ID only), tenant/Base capability,
 five per-table outcomes and latency, and any leftover probe IDs in this report.
 Never point the suite at production tables. The gated suite measures domain
 CRUD/replay on representative runtime tables.
-PATCH, history, payload ceilings, batches, throttling and cross-client conflicts
-require confirmed official endpoints and a bounded follow-up probe; those are
-not silently marked passed by the CRUD suite.
+The suite does not cover the separately observed user-identity PATCH, history,
+batch and chapter-size probes. Absolute payload ceilings, throttling and
+cross-client conflicts need bounded follow-up measurements; none are silently
+marked passed by the CRUD suite.
 
 ## Additive rollout and rollback
 
