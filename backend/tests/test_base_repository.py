@@ -252,11 +252,13 @@ class TestUpdate:
     """update PUTs mapped fields and returns mapped record."""
 
     def test_update_success(self, repo: BaseRepository, mock_client: MagicMock) -> None:
+        mock_client.get.return_value = {"data": {"record": {"record_id": "rec-010",
+            "fields": {"Book ID": "B010", "Book Title": "Original"}}}}
         mock_client.put.return_value = {
             "data": {
                 "record": {
                     "record_id": "rec-010",
-                    "fields": {"Book ID": "B010", "Book Title": "Updated"},
+                    "fields": {"Book Title": "Updated"},
                 }
             }
         }
@@ -268,6 +270,7 @@ class TestUpdate:
             expected_path, body={"fields": {"Book Title": "Updated"}}
         )
         assert result["title"] == "Updated"
+        assert result["book_id"] == "B010"
         assert result["record_id"] == "rec-010"
 
 
