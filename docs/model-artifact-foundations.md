@@ -97,10 +97,26 @@ The report tests harness regressions; it is not evidence that one real model is
 better. Expand domain schemas with their owning issues, retain fixture versions,
 and require measured quality/cost improvement before adding Agent roles/passes.
 
+An explicitly opt-in live probe uses the same six fixtures through `ModelRouter`:
+
+```sh
+DEEPSEEK_API_KEY=... python -m app.evals \
+  --live-provider deepseek --live-model deepseek-flash \
+  --output live-eval.json
+```
+
+Set the key through the environment or a local secret loader; never put it in a
+committed command or report. `--live-prompt` can compare another prompt variant
+with the same fixture hash. The report stores output hashes, findings, route and
+prompt hashes, token use and latency; it does not store generated prose or a
+provider invoice. Model behavior can vary between runs, so compare measured
+results rather than assuming a single pass is stable. See the
+[ZEN-106 live evidence](reports/2026-09-30-model-foundations.md).
+
 ## Verification limits
 
 HTTP MockTransport tests cover both providers, retries, bad schema, missing
 configuration, timeouts, rate limits, usage, sanitization and immutable replay.
 Provider/Artifact/trace APIs run against the real Feishu client/repository stack
-with distinct simulated record IDs. No paid model calls or live backend
-deployment are claimed.
+with distinct simulated record IDs. The opt-in DeepSeek fixture probe made paid
+calls; full backend deployment and a live model-to-Feishu workflow remain untested.
