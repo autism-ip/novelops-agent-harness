@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 
-from app.feishu.client import FeishuClient, FeishuNotFoundError
+from app.feishu.client import FeishuAPIError, FeishuClient, FeishuNotFoundError
 
 # ============================================================
 # base repository
@@ -89,7 +89,17 @@ class BaseRepository:
         """Create a record and return the mapped result."""
         body = {"fields": self._to_feishu(data)}
         resp = self._client.post(self._base_path(), body=body)
-        return self._from_feishu(resp["data"]["record"])
+        payload = resp.get("data") if isinstance(resp, dict) else None
+        record = payload.get("record") if isinstance(payload, dict) else None
+        if (
+            not isinstance(record, dict)
+            or not isinstance(record.get("record_id"), str)
+            or not record["record_id"]
+            or not isinstance(record.get("fields"), dict)
+        ):
+            # The POST may have committed even if its success envelope is broken.
+            raise FeishuAPIError("Malformed create response", code=0)
+        return self._from_feishu(record)
 
     def get(self, record_id: str) -> dict | None:
         """Fetch a single record by ID, or None if not found."""
