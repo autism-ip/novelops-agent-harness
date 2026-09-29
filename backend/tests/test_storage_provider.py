@@ -6,6 +6,7 @@ import pytest
 from app.feishu.client import FeishuAPIError
 from app.feishu.repositories.base import BaseRepository
 from app.storage import AmbiguousWrite, DuplicateKey, FeishuStorageProvider, MissingRecord
+from tests.feishu_transport import make_storage
 
 
 @pytest.fixture
@@ -47,6 +48,19 @@ def test_ambiguous_update_fails_closed_when_patch_not_observed(setup):
     with pytest.raises(AmbiguousWrite, match="Update reconciliation required"):
         provider.update("runs", "PR-1", {"status": "done"})
     client.put.assert_called_once()
+
+
+def test_number_cells_survive_v1_read_and_partial_update():
+    storage, _, client = make_storage()
+    try:
+        storage.ensure("step_runs", {"step_run_id": "SR-1", "retry_count": 0,
+            "output_version": 0, "status": "pending"})
+        step = storage.get("step_runs", "SR-1")
+        assert step["retry_count"] == 0 and step["output_version"] == 0
+        updated = storage.update("step_runs", "SR-1", {"output_version": step["output_version"] + 1})
+        assert updated["step_run_id"] == "SR-1" and updated["output_version"] == 1
+    finally:
+        client._http.close()
 
 
 def test_missing_duplicate_and_identity_change_fail_explicitly(setup):
