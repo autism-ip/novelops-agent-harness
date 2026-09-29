@@ -20,7 +20,7 @@ readable through the documentation fetcher. No undocumented endpoint was selecte
 | PATCH / Base v3 | v3 batch partial update is POST, not PATCH | 7 partial updates preserved other fields; literal HTTP PATCH remains unverified |
 | Batch behavior | Not used for runtime writes | 35 creates / 7 updates succeeded |
 | Record history | Not used for artifact versioning | Create + update events visible after propagation delay |
-| Limits / conflicts / throughput | No distributed CAS claim; serialized application writes | Two concurrent same-record updates both returned success; an older logical version was the final value. Rate and payload ceilings remain unmeasured. |
+| Limits / conflicts / throughput | No distributed CAS claim; serialized application writes | Two concurrent same-record updates both returned success; an older logical version was the final value. A 50,000-character synthetic Chinese chapter payload round-tripped; absolute size and rate ceilings remain unmeasured. |
 | Bot identity | Backend uses app/bot credentials | v3 bot read blocked by missing `base:record:read`; direct v1 list also denied for both CLI identities because the response listed `bitable:app:readonly`, `bitable:app`, `base:record:retrieve` scopes |
 
 Environment inspection found no backend FEISHU_APP_ID, FEISHU_APP_SECRET or
@@ -49,6 +49,7 @@ WorkflowRun, StepRun, Artifact, StoryState, ChapterVersion, Review, Approval.
 | Bot-identity read (2026-09-29) | Denied with Feishu code `99991672`, missing app scope `base:record:read`; no bot write was attempted |
 | Same-record concurrent writes (2026-09-29) | A synthetic WorkflowRun row began at logical version 1. Two user-identity `batch_update` commands set versions 2 and 3 concurrently; both returned success. The final read showed version 2 at Base `rev=7`, and history later showed version 3 → 2 at rev 7. Each call took roughly 1.5–1.7 s including CLI overhead. This is one bounded race, not a rate-limit benchmark. |
 | Direct `bitable/v1` list (2026-09-29) | The exact read path used by `BaseRepository` was dry-run and then called with `page_size=1` against the approved Base. User identity returned authorization code `99991679`; bot identity returned `99991672`. Both errors listed missing `bitable:app:readonly`, `bitable:app`, `base:record:retrieve`. Neither reached record data, so this does not establish v1 schema compatibility or incompatibility. |
+| Chapter-sized text (2026-09-29) | A synthetic ChapterVersion record with 50,000 Chinese prose characters in a JSON text field was created through Base v3 under user identity. The stored payload had 50,032 characters and read back byte-for-byte equal to the submitted payload (SHA-256 `36c1b3ab18ee238f6fe3729fa25f90851e655d2fbd440737ae8a4f0491e7f00c`). This covers the code's current 50,000-character prose cap in this test table; it is not a measured platform ceiling or a production schema test. |
 
 CLI dry-run confirms POST `/open-apis/base/v3/bases/{base}/tables/{table}/records/batch_create`
 and POST `.../records/batch_update`. CLI help states a 200-record batch maximum;
@@ -56,8 +57,8 @@ we measured only 35, without stress testing or intentionally flooding the tenant
 History visibility is eventually consistent: an immediate empty response does
 not prove absence. The same caution motivates fail-closed create reconciliation.
 
-**Still open:** actual HTTP PATCH, backend-runtime v1 CRUD after the listed access scopes are granted, bot-authenticated v3 access after `base:record:read` is granted, upper
-payload limits, throttling behavior, and runtime v1↔v3 schema
+**Still open:** actual HTTP PATCH, backend-runtime v1 CRUD after the listed access scopes are granted, bot-authenticated v3 access after `base:record:read` is granted, absolute
+payload limits beyond the tested chapter size, throttling behavior, and runtime v1↔v3 schema
 compatibility. Unknown outcomes/rate errors are simulated in code, not induced
 on the live service. Keep this PR in draft until the remaining feasibility gates
 are resolved or explicitly deferred. Do not introduce PostgreSQL on this evidence.
