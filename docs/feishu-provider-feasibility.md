@@ -21,7 +21,7 @@ readable through the documentation fetcher. No undocumented endpoint was selecte
 | Batch behavior | Not used for runtime writes | 35 creates / 7 updates succeeded |
 | Record history | Not used for artifact versioning | Create + update events visible after propagation delay |
 | Limits / conflicts / throughput | No distributed CAS claim; serialized application writes | Two concurrent same-record updates both returned success; an older logical version was the final value. Rate and payload ceilings remain unmeasured. |
-| Bot identity | Backend uses app/bot credentials | Bot read blocked by missing `base:record:read` scope; user identity succeeds |
+| Bot identity | Backend uses app/bot credentials | v3 bot read blocked by missing `base:record:read`; direct v1 list also denied for both CLI identities because the response listed `bitable:app:readonly`, `bitable:app`, `base:record:retrieve` scopes |
 
 Environment inspection found no backend FEISHU_APP_ID, FEISHU_APP_SECRET or
 FEISHU_APP_TOKEN. However, `lark-cli 1.0.96` has working bot and user identities outside the
@@ -48,6 +48,7 @@ WorkflowRun, StepRun, Artifact, StoryState, ChapterVersion, Review, Approval.
 | User-identity create/delete (2026-09-29) | Created synthetic `RuntimeProbe` record `reczz28H19Qjc3bi`, deleted it with `--yes`, and confirmed a subsequent read returned Record not found |
 | Bot-identity read (2026-09-29) | Denied with Feishu code `99991672`, missing app scope `base:record:read`; no bot write was attempted |
 | Same-record concurrent writes (2026-09-29) | A synthetic WorkflowRun row began at logical version 1. Two user-identity `batch_update` commands set versions 2 and 3 concurrently; both returned success. The final read showed version 2 at Base `rev=7`, and history later showed version 3 → 2 at rev 7. Each call took roughly 1.5–1.7 s including CLI overhead. This is one bounded race, not a rate-limit benchmark. |
+| Direct `bitable/v1` list (2026-09-29) | The exact read path used by `BaseRepository` was dry-run and then called with `page_size=1` against the approved Base. User identity returned authorization code `99991679`; bot identity returned `99991672`. Both errors listed missing `bitable:app:readonly`, `bitable:app`, `base:record:retrieve`. Neither reached record data, so this does not establish v1 schema compatibility or incompatibility. |
 
 CLI dry-run confirms POST `/open-apis/base/v3/bases/{base}/tables/{table}/records/batch_create`
 and POST `.../records/batch_update`. CLI help states a 200-record batch maximum;
@@ -55,7 +56,7 @@ we measured only 35, without stress testing or intentionally flooding the tenant
 History visibility is eventually consistent: an immediate empty response does
 not prove absence. The same caution motivates fail-closed create reconciliation.
 
-**Still open:** actual HTTP PATCH, backend-runtime v1 delete, bot-authenticated v3 access after the missing scope is granted, upper
+**Still open:** actual HTTP PATCH, backend-runtime v1 CRUD after the listed access scopes are granted, bot-authenticated v3 access after `base:record:read` is granted, upper
 payload limits, throttling behavior, and runtime v1↔v3 schema
 compatibility. Unknown outcomes/rate errors are simulated in code, not induced
 on the live service. Keep this PR in draft until the remaining feasibility gates
@@ -75,6 +76,16 @@ CLI identity. The bot-scope denial is an observed application permission gap, no
 evidence that Base v3 lacks a record-read endpoint. The Feishu app must receive
 `base:record:read` before a bot-authenticated runtime probe can continue.
 A repeat bot probe on 2026-09-29 returned the same code and missing scope.
+
+The `bitable/v1` probe used the production adapter's
+`GET /bitable/v1/apps/{app_token}/tables/{table_id}/records` path, but the CLI's own
+OAuth application identities, not backend runtime credentials. The user result
+means its OAuth grant lacks a listed access scope; the bot result means the CLI
+app has not applied for a listed access scope. The backend's configured app
+identity remains unknown because its credentials are absent. Granting the CLI
+scopes could unblock a compatibility probe, but would still not certify the
+backend app. Until these permissions are available, the stateful HTTP contract
+tests remain the only evidence for the runtime v1 mapping.
 
 ## Contract
 
