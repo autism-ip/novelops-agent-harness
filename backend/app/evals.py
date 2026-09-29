@@ -169,6 +169,9 @@ def main():
     parser.add_argument("--live-provider",choices=("openai","deepseek"))
     parser.add_argument("--live-model")
     parser.add_argument("--live-prompt",default="Return JSON grounded in supplied canonical facts.")
+    parser.add_argument("--live-timeout",type=float,default=10)
+    parser.add_argument("--live-max-output-tokens",type=int,default=512)
+    parser.add_argument("--live-deepseek-thinking",choices=("disabled","enabled"),default="disabled")
     args = parser.parse_args()
     fixtures = json.loads(args.fixtures.read_text())
     if args.live_provider:
@@ -178,7 +181,8 @@ def main():
         if not key:
             parser.error(args.live_provider.upper()+"_API_KEY is required for a live evaluation")
         route = Route(provider=args.live_provider,model=args.live_model,max_retries=0,
-                      timeout=10,max_output_tokens=512)
+                      timeout=args.live_timeout,max_output_tokens=args.live_max_output_tokens,
+                      deepseek_thinking=args.live_deepseek_thinking)
         result = evaluate_live(fixtures,route,ChatProvider(args.live_provider,key),
                                Prompt(version="live-eval-v1",template=args.live_prompt))
     else:
