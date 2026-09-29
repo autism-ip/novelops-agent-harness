@@ -89,7 +89,10 @@ class FeishuStorageProvider:
             if not allow_create or key in self._uncertain:
                 raise AmbiguousWrite(f"Reconciliation required for {collection}/{domain_id}")
             try:
-                return self._public(self._repos[collection].create(data))
+                created = self._public(self._repos[collection].create(data))
+                if created.get(self._keys[collection]) != domain_id:
+                    raise FeishuAPIError("Create response business key mismatch", code=0)
+                return created
             except FeishuAPIError as exc:
                 # Transport, malformed responses and HTTP 5xx have unknown outcomes.
                 if exc.code != 0 and not 500 <= exc.code <= 599:
