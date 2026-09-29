@@ -110,10 +110,77 @@ covered. Deploy one backend process, not multiple uvicorn workers.
 
 ## Live feasibility protocol
 
-Use a dedicated test Base and explicit `FEISHU_FEASIBILITY_LIVE=1`; run
-`pytest tests/test_storage_live.py -m integration -v`. Never point this at a
-production table. Record tenant capabilities and timestamps alongside results.
-The gated suite measures domain CRUD/replay on representative runtime tables.
+Run this only against a dedicated, disposable test Base. The retained
+`RuntimeProbe` table above does **not** have the five runtime table schemas
+required by this suite. The CLI's bot and user identities also differ from the
+backend app: configure and verify the **backend app ID** used by `FeishuClient`,
+not just `lark-cli` OAuth access.
+
+1. In the Feishu developer console, grant the backend app the Bitable record
+   read, create, update, and delete permissions needed by its official
+   `bitable/v1` endpoints. Publish/apply the permission change and give that app
+   access to the dedicated Base. The observed v1 list denial named
+   `bitable:app:readonly`, `bitable:app`, and `base:record:retrieve` as possible
+   read scopes; use the console/API response to confirm the actual grant.
+2. Create five separate tables in that Base, with a text business-key field
+   named exactly as shown below. Store their real `tbl...` IDs in the matching
+   variables. This suite writes only those business-key fields, but the
+   adapter's field names and response shape still need live confirmation.
+
+   | Table | Required text field | Environment variable |
+   | --- | --- | --- |
+   | PipelineRuns | `pipeline_run_id` | `FEISHU_TABLE_ID_PIPELINE_RUNS` |
+   | StepRuns | `step_run_id` | `FEISHU_TABLE_ID_STEP_RUNS` |
+   | ChapterVersions | `version_id` | `FEISHU_TABLE_ID_CHAPTER_VERSIONS` |
+   | ReviewReports | `review_id` | `FEISHU_TABLE_ID_REVIEW_REPORTS` |
+   | ApprovalEvents | `approval_id` | `FEISHU_TABLE_ID_APPROVAL_EVENTS` |
+
+3. Supply `FEISHU_APP_ID` and `FEISHU_APP_SECRET` for that backend app,
+   `FEISHU_APP_TOKEN` for the dedicated Base, and the five table IDs through
+   the local process environment or a secret manager. Do not commit or paste
+   secrets into a PR. `.env.example` is a template; this pytest module reads
+   `os.environ` directly and does not load `.env` by itself.
+4. From `backend/`, run the **read-only** preflight below with the same
+   exported environment. It checks all five mappings and v1 list access using
+   the backend's tenant token. It deliberately prints no credentials or row
+   data. Stop if any table fails; a successful CLI v3 call is not a substitute.
+
+   ```sh
+   python - <<'PY'
+   import os
+   from app.feishu.client import FeishuClient
+   from app.feishu.table_map import TableMapConfig
+
+   names = (
+       "pipeline_runs", "step_runs", "chapter_versions",
+       "review_reports", "approval_events",
+   )
+   client = FeishuClient(os.environ["FEISHU_APP_ID"], os.environ["FEISHU_APP_SECRET"])
+   config = TableMapConfig(os.environ["FEISHU_APP_TOKEN"])
+   try:
+       for name in names:
+           table_id = config.get_table_id(name)
+           client.get(
+               f"/bitable/v1/apps/{config.app_token}/tables/{table_id}/records",
+               params={"page_size": "1"},
+           )
+           print(f"{name}: v1 list OK")
+   finally:
+       client._http.close()
+   PY
+   ```
+
+5. Only after the preflight succeeds, opt into the write/delete probe:
+   `FEISHU_FEASIBILITY_LIVE=1 pytest tests/test_storage_live.py -m integration -v`.
+   It creates a unique `probe-...` business ID in each table, checks replay,
+   get and update, then deletes the row on normal completion. If a create
+   times out or a test fails before cleanup, inspect those IDs in the test
+   Base before retrying; an uncertain POST may have left a record.
+
+Record the timestamp, backend app identity (ID only), tenant/Base capability,
+five per-table outcomes and latency, and any leftover probe IDs in this report.
+Never point the suite at production tables. The gated suite measures domain
+CRUD/replay on representative runtime tables.
 PATCH, history, payload ceilings, batches, throttling and cross-client conflicts
 require confirmed official endpoints and a bounded follow-up probe; those are
 not silently marked passed by the CRUD suite.
