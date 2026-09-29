@@ -2,7 +2,7 @@
 
 - Linear: [ZEN-40](https://linear.app/zenhungyep/issue/ZEN-40/implement-chapter-generation-critique-rewrite-and-verification-loop)
 - GitHub: [Issue #13](https://github.com/autism-ip/novelops-agent-harness/issues/13)
-- Delivery: draft PR on `codex/zen-40-chapter-loop`, based on ZEN-39 [PR #35](https://github.com/autism-ip/novelops-agent-harness/pull/35). Merge in stack order. The PR link and exact-head CI result are added after publishing.
+- Delivery: draft [PR #36](https://github.com/autism-ip/novelops-agent-harness/pull/36) on `codex/zen-40-chapter-loop`, based on ZEN-39 [PR #35](https://github.com/autism-ip/novelops-agent-harness/pull/35). Merge in stack order.
 
 ## Delivered behavior
 
@@ -28,7 +28,7 @@ During browser acceptance, the running fixture still had an older version alloca
 
 Screenshots: [desktop chapter and critique](assets/zen-40-chapter-desktop.png), [phone chapter panel](assets/zen-40-chapter-mobile.png).
 
-Review status and exact-head CI are pending PR publication. No review disposition is claimed here yet.
+Review status and exact-head CI are checked after the final report commit. No review disposition is claimed here yet.
 
 ## Findings, limits and next dependency
 
