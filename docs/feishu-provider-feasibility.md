@@ -13,15 +13,15 @@ readable through the documentation fetcher. No undocumented endpoint was selecte
 
 | Capability | Implementation / evidence | Live measurement |
 | --- | --- | --- |
-| CRUD | Official v1 GET/POST/PUT/DELETE; stateful HTTP contract tests | v3 create/read/update/delete verified through user CLI; backend v1/delete not live tested |
+| CRUD | Official v1 GET/POST/PUT/DELETE; stateful HTTP contract tests | Backend app: five representative v1 tables passed create/replay/read/update/delete twice; each was empty after cleanup. User CLI also verified v3 CRUD. |
 | Domain identity | Provider resolves business keys, rejects duplicates/missing mutations | Mock verified |
 | Pagination | v1 token pagination guarded; v3 CLI uses offset | v3 pages 10 + 25 = 35, final has_more=false |
 | Ambiguous create | Read by stable key; no second POST; unresolved outcome stops | Mock and stateful HTTP verified, including a committed POST with a malformed 2xx reply |
-| PATCH / Base v3 | v3 single-record update is PATCH; batch partial update is POST | User CLI PATCH changed only `version`; `domain_id`, `kind`, and `payload` survived. Seven batch partial updates also preserved other fields. Backend app identity remains untested. |
+| PATCH / Base v3 | v3 single-record update is PATCH; batch partial update is POST | User CLI and backend app each verified a version-only PATCH preserved `domain_id`, `kind`, and `payload`. Seven user-identity batch partial updates also preserved other fields. |
 | Batch behavior | Not used for runtime writes | 35 creates / 7 updates succeeded |
 | Record history | Not used for artifact versioning | Create + update events visible after propagation delay |
 | Limits / conflicts / throughput | No distributed CAS claim; serialized application writes | Two concurrent same-record updates both returned success; an older logical version was the final value. A 50,000-character synthetic Chinese chapter payload round-tripped; absolute size and rate ceilings remain unmeasured. |
-| Bot identity | Backend uses app/bot credentials | v3 bot read blocked by missing `base:record:read`; direct v1 list also denied for both CLI identities because the response listed `bitable:app:readonly`, `bitable:app`, `base:record:retrieve` scopes |
+| App identity | Backend uses its own app credentials | Backend app v1 CRUD and v3 create/read/PATCH/delete passed after app scopes and test-Base edit access were granted. The separate CLI bot identity still lacks its own scopes. |
 
 The initial environment inspection found no backend FEISHU_APP_ID,
 FEISHU_APP_SECRET or FEISHU_APP_TOKEN. On 2026-09-29 the operator configured
@@ -32,8 +32,10 @@ not automatically loaded by the opt-in integration test. `lark-cli 1.0.96` has
 separate bot and user identities outside the sandbox. No Feishu MCP is exposed.
 After explicit user authorization, an isolated
 [test Base](https://fcnaul7kb1kf.feishu.cn/base/T8I6buCMoaiLB6srVBrc9i2jnph)
-was created and retained. These CLI measurements do not certify the backend's
-bot-authenticated v1 production configuration.
+was created and retained. Backend-app measurements below use the app ID and
+secret consumed by `FeishuClient`, separately from the CLI identities. They
+certify this dedicated test Base and these test tables, not production ACL or
+the full 16-table runtime schema.
 
 ## Live v3 evidence
 
@@ -55,7 +57,10 @@ WorkflowRun, StepRun, Artifact, StoryState, ChapterVersion, Review, Approval.
 | Bot-identity read (2026-09-29) | Denied with Feishu code `99991672`, missing app scope `base:record:read`; no bot write was attempted |
 | Same-record concurrent writes (2026-09-29) | A synthetic WorkflowRun row began at logical version 1. Two user-identity `batch_update` commands set versions 2 and 3 concurrently; both returned success. The final read showed version 2 at Base `rev=7`, and history later showed version 3 → 2 at rev 7. Each call took roughly 1.5–1.7 s including CLI overhead. This is one bounded race, not a rate-limit benchmark. |
 | Direct `bitable/v1` list (2026-09-29) | The exact read path used by `BaseRepository` was dry-run and then called with `page_size=1` against the approved Base. User identity returned authorization code `99991679`; bot identity returned `99991672`. Both errors listed missing `bitable:app:readonly`, `bitable:app`, `base:record:retrieve`. Neither reached record data, so this does not establish v1 schema compatibility or incompatibility. |
-| Backend-app `bitable/v1` list (2026-09-29) | With the newly configured backend app ID and secret, tenant-token acquisition succeeded. A read-only list against the approved `PipelineRuns` table returned HTTP 400 with Feishu code `99991672`, naming `bitable:app:readonly`, `bitable:app`, or `base:record:retrieve` as missing application scopes. The remaining four tables and live CRUD were not attempted after this preflight failure. This is the actual backend app identity, unlike the earlier CLI probe. |
+| Backend-app permission recovery (2026-09-29) | Tenant-token acquisition succeeded. First v1 list returned code `99991672` until the app read scope was enabled. Five v1 lists then passed, but v1 and v3 creates returned HTTP 403 / `91403`. The Base had no advanced permissions; Drive collaborator inspection found the backend app absent. Adding that app as an `edit` collaborator to this test Base resolved the denial. The CLI bot is a different application. |
+| Backend-app v1 CRUD/replay (2026-09-29) | `tests/test_storage_live.py -m integration` passed 5/5 on two runs. Each test created a unique business key, replayed `ensure`, read, updated and deleted it through the production `FeishuClient`/`BaseRepository`/`FeishuStorageProvider`. The second run took 88.41 s total; `crud_seconds` by table: PipelineRuns 12.69, StepRuns 11.30, ChapterVersions 12.83, ReviewReports 16.37, ApprovalEvents 11.34. Independent v1 lists found 0 rows in all five tables after each run. JUnit emitted five `record_property`/xunit2 compatibility warnings; the XML still contained the measured properties. |
+| Backend-app v3 PATCH (2026-09-29) | A synthetic `RuntimeProbe` row was created under the backend app identity. A PATCH containing only `version: 2` changed only `version`; `domain_id`, `kind`, and `payload` read back unchanged. App-authenticated delete succeeded, and a user-identity search found 0 remaining `probe-app-patch-` rows. v3 write payloads are top-level field maps and create returns `record_id_list`, unlike the v1 adapter envelope. |
+| Bounded read burst (2026-09-29) | Twelve v1 list requests across the five test tables with at most four concurrent calls all succeeded. Wall time 3.37 s, median request 1.04 s, maximum 1.29 s; no rate error occurred. This is a small single-user probe, not a platform rate-limit threshold. |
 | Chapter-sized text (2026-09-29) | A synthetic ChapterVersion record with 50,000 Chinese prose characters in a JSON text field was created through Base v3 under user identity. The stored payload had 50,032 characters and read back byte-for-byte equal to the submitted payload (SHA-256 `36c1b3ab18ee238f6fe3729fa25f90851e655d2fbd440737ae8a4f0491e7f00c`). This covers the code's current 50,000-character prose cap in this test table; it is not a measured platform ceiling or a production schema test. |
 
 CLI dry-run confirms POST `/open-apis/base/v3/bases/{base}/tables/{table}/records/batch_create`,
@@ -67,11 +72,15 @@ we measured only 35, without stress testing or intentionally flooding the tenant
 History visibility is eventually consistent: an immediate empty response does
 not prove absence. The same caution motivates fail-closed create reconciliation.
 
-**Still open:** backend-runtime v1 CRUD after the listed access scopes are granted, bot-authenticated v3 CRUD/PATCH after `base:record:read` and the necessary write scopes are granted, absolute
-payload limits beyond the tested chapter size, throttling behavior, and runtime v1↔v3 schema
-compatibility. Unknown outcomes/rate errors are simulated in code, not induced
-on the live service. Keep this PR in draft until the remaining feasibility gates
-are resolved or explicitly deferred. Do not introduce PostgreSQL on this evidence.
+**Still open:** complete production table schemas and production ACL were not
+tested; the live five-table suite writes only each table's business key. The
+absolute payload ceiling, rate-limit threshold, and cross-process conflict
+behavior remain unmeasured. A bounded four-way read burst and earlier
+two-writer conflict probe document the practical single-user envelope, but
+do not establish those ceilings. Ambiguous outcomes and rate errors were
+simulated in stateful HTTP tests, not induced on the live service. Keep the
+additive rollout gated on production schema/ACL checks; do not introduce
+PostgreSQL on this evidence.
 
 The concurrent probe demonstrates that the numeric `version` field is not a
 server-side compare-and-swap precondition. Both writes were accepted despite
@@ -82,21 +91,16 @@ row uses domain key `probe-conflict-20260929` in the approved synthetic Base.
 Keep application writes serialized and reject stale domain transitions before
 the provider update; do not infer conflict safety from either successful response.
 
-The delete probe applies only to a disposable synthetic record under the user's
-CLI identity. The bot-scope denial is an observed application permission gap, not
-evidence that Base v3 lacks a record-read endpoint. The Feishu app must receive
-`base:record:read` before a bot-authenticated runtime probe can continue.
-A repeat bot probe on 2026-09-29 returned the same code and missing scope.
+The initial delete probe used the user's CLI identity. Later backend-app v1 and
+v3 deletes succeeded on disposable synthetic records. The CLI bot-scope denial
+belongs to its separate application and does not contradict backend-app access.
 
-The `bitable/v1` probe used the production adapter's
-`GET /bitable/v1/apps/{app_token}/tables/{table_id}/records` path, but the CLI's own
-OAuth application identities, not backend runtime credentials. The user result
-means its OAuth grant lacks a listed access scope; the bot result means the CLI
-app has not applied for a listed access scope. The backend's configured app
-identity remains unknown because its credentials are absent. Granting the CLI
-scopes could unblock a compatibility probe, but would still not certify the
-backend app. Until these permissions are available, the stateful HTTP contract
-tests remain the only evidence for the runtime v1 mapping.
+The earlier CLI `bitable/v1` probe used the production adapter's path but the
+CLI's own OAuth application identities. Their scope errors remain applicable
+to those identities only. The subsequent live suite used the actual backend
+app's tenant token and confirmed the v1 field/response mapping for the five
+business-key fields. Stateful HTTP contract tests cover error and ambiguous
+response cases not reproduced against the live service.
 
 ## Contract
 
@@ -204,10 +208,11 @@ Record the timestamp, backend app identity (ID only), tenant/Base capability,
 five per-table outcomes and latency, and any leftover probe IDs in this report.
 Never point the suite at production tables. The gated suite measures domain
 CRUD/replay on representative runtime tables.
-The suite does not cover the separately observed user-identity PATCH, history,
-batch and chapter-size probes. Absolute payload ceilings, throttling and
-cross-client conflicts need bounded follow-up measurements; none are silently
-marked passed by the CRUD suite.
+The suite does not cover the separately observed user-identity and backend-app
+v3 PATCH, history, batch, chapter-size and bounded read-burst probes. Absolute
+payload ceilings, throttling thresholds and cross-client conflicts need
+workload-driven follow-up measurements; none are silently marked passed by the
+CRUD suite.
 
 ## Additive rollout and rollback
 
