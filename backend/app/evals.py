@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import time
 import uuid
 from pathlib import Path
@@ -10,7 +11,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.generation import CallContext, Completion, ModelFailure, ModelRouter, Prompt, Route, TraceRecorder, digest
+from app.generation import CallContext, ChatProvider, Completion, ModelFailure, ModelRouter, Prompt, Route, TraceRecorder, digest
 
 
 class StrictOutput(BaseModel):
@@ -127,12 +128,64 @@ def compare(fixtures: list[dict]) -> dict:
             "limitations":"Harness regression evidence only; no live model quality/cost or human revision observations."}
 
 
+def evaluate_live(fixtures: list[dict], route: Route, provider, prompt: Prompt) -> dict:
+    """Run the same synthetic constraints through a real provider; keep output text local."""
+    if not fixtures:
+        raise ValueError("At least one fixture required")
+    trace = OfflineTrace()
+    router = ModelRouter({"eval":route},{route.provider:provider},trace)
+    rows = []
+    started = time.monotonic()
+    try:
+        for fixture in fixtures:
+            try:
+                output = router.generate("eval",prompt,fixture["input"],SCHEMAS[fixture["kind"]],
+                    CallContext(run_id="live-eval",step_id=fixture["id"],workflow_version="live-eval-v1"))
+                content = output.model_dump()
+                rows.append({"fixture_id":fixture["id"],"kind":fixture["kind"],"schema_pass":True,
+                             "findings":violations(content,fixture["expected"]),"output_hash":digest(content),
+                             "failure_class":None})
+            except ModelFailure as exc:
+                rows.append({"fixture_id":fixture["id"],"kind":fixture["kind"],"schema_pass":False,
+                             "findings":["schema_failure"] if exc.failure_class == "SchemaFailure" else [],
+                             "output_hash":None,"failure_class":exc.failure_class})
+    finally:
+        router.close()
+    return {"evidence":"live-provider-synthetic-fixtures","fixture_hash":digest(fixtures),
+            "route_config":route.model_dump(),"route_hash":digest(route.model_dump()),
+            "prompt":prompt.model_dump(),"prompt_hash":digest(prompt.model_dump()),
+            "workflow_version":"live-eval-v1","fixtures":rows,
+            "schema_pass_rate":sum(row["schema_pass"] for row in rows)/len(rows),
+            "constraint_violations":sum(len(row["findings"]) for row in rows),
+            "usage":trace.usage(run_id="live-eval"),"wall_seconds":round(time.monotonic()-started,3),
+            "human_revision_rate":None,
+            "limitations":"Synthetic fixtures; no production workflow, human revision or provider invoice observations."}
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--fixtures",type=Path,default=Path(__file__).resolve().parent/"fixtures"/"evals.json")
     parser.add_argument("--output",type=Path)
+    parser.add_argument("--live-provider",choices=("openai","deepseek"))
+    parser.add_argument("--live-model")
+    parser.add_argument("--live-prompt",default="Return JSON grounded in supplied canonical facts.")
     args = parser.parse_args()
-    report = json.dumps(compare(json.loads(args.fixtures.read_text())),ensure_ascii=False,indent=2)
+    fixtures = json.loads(args.fixtures.read_text())
+    if args.live_provider:
+        if not args.live_model:
+            parser.error("--live-model is required with --live-provider")
+        key = os.environ.get(args.live_provider.upper()+"_API_KEY","")
+        if not key:
+            parser.error(args.live_provider.upper()+"_API_KEY is required for a live evaluation")
+        route = Route(provider=args.live_provider,model=args.live_model,max_retries=0,
+                      timeout=10,max_output_tokens=512)
+        result = evaluate_live(fixtures,route,ChatProvider(args.live_provider,key),
+                               Prompt(version="live-eval-v1",template=args.live_prompt))
+    else:
+        if args.live_model:
+            parser.error("--live-provider is required with --live-model")
+        result = compare(fixtures)
+    report = json.dumps(result,ensure_ascii=False,indent=2)
     if args.output:
         args.output.write_text(report+"\n")
     else:
