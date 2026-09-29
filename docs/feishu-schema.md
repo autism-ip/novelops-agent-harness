@@ -247,19 +247,27 @@ Hit-pattern and novelization analysis.
 
 ## 14. RevisionTasks
 
+ZEN-41 stores a durable chapter revision command here before enqueueing its rewrite run. The existing constraint columns carry JSON arrays. Add the new fields below to the Feishu table before enabling the review desk; domain IDs are used for actions, not Feishu record IDs.
+
 | Field | Purpose |
 |---|---|
 | `revision_task_id` | Revision task ID. |
-| `target_type` | chapter / title / cover / mini_bible. |
-| `target_id` | Target artifact. |
+| `target_type` | `chapter_version` for chapter editorial revision. |
+| `target_id` | Book/chapter logical target. |
 | `from_version_id` | Source version. |
-| `revision_type` | minor_revise / rewrite / regenerate. |
+| `source_artifact_id` | Exact source ChapterVersion Artifact (ZEN-41). |
+| `book_id` | Source Book ID (ZEN-41). |
+| `chapter_no` | Chapter number (ZEN-41). |
+| `revision_type` | `human` for editor-directed revision. |
 | `reason` | Reason. |
 | `must_keep` | Required preserved elements. |
 | `must_change` | Required changes. |
 | `do_not_change` | Forbidden changes. |
 | `assigned_agent_id` | Agent assigned. |
-| `status` | pending / running / completed / cancelled. |
+| `created_by` | Editor identity (ZEN-41). |
+| `run_id` | Deterministic rewrite run ID (ZEN-41). |
+| `request_json` | Exact frozen generation request for safe retry (ZEN-41). |
+| `status` | `open` until enqueue, then `queued`. |
 | `created_at` | Created time. |
 
 ## 15. AgentTeamSnapshots

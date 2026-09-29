@@ -54,6 +54,8 @@ class Settings(BaseSettings):
     CHAPTER_LOOP_ENABLED: bool = False
     CHAPTER_MAX_REWRITES: int = Field(default=1, ge=0, le=1)
     CHAPTER_MAX_ESTIMATED_COST: float | None = Field(default=None, gt=0)
+    CHAPTER_REVIEW_FIRST_N: int = Field(default=0, ge=0, le=10000)
+    CHAPTER_REVIEW_SCORE_THRESHOLD: int = Field(default=0, ge=0, le=5)
     OPENAI_API_KEY: str = ""
     DEEPSEEK_API_KEY: str = ""
     MODEL_ROUTES_JSON: str = "{}"
