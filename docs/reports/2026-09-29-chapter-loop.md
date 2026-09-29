@@ -20,6 +20,7 @@ Main modules: `backend/app/chapter_loop.py` owns the domain loop; `backend/app/a
 | Frontend | 12 tests passed; ESLint, TypeScript and Next.js production build passed |
 | Ruff | `app` and `tests` passed |
 | Backend package | sdist and wheel built successfully |
+| GitHub CI | [Run 36515116733](https://github.com/autism-ip/novelops-agent-harness/actions/runs/36515116733) for head `9e0d45fa55821ada9dcab66bf83a612f01e0a845`: every listed job and aggregate `CI quality gate` succeeded |
 | Desktop browser, 1428px | Synthetic hotspot → approved opportunity → title/cover → Book → approved StoryBible → eligible ChapterBrief → chapter generation completed with Critic pass and two model calls; chapter and critique columns remained usable |
 | Phone browser, 390px | The same Book flow and regeneration controls worked in a stacked layout without horizontal overflow; the primary action was visible near the panel start |
 | Regression coverage | Exact refs for chapters 1–3, bounded rewrite/reject/hard failures, critic validation, provider retry, cost cap, final-lock idempotency, revision source constraints, stale state, auth and forged workflow rejection |
@@ -28,7 +29,7 @@ During browser acceptance, the running fixture still had an older version alloca
 
 Screenshots: [desktop chapter and critique](assets/zen-40-chapter-desktop.png), [phone chapter panel](assets/zen-40-chapter-mobile.png).
 
-Review status and exact-head CI are checked after the final report commit. No review disposition is claimed here yet.
+Review status at the report check: no submitted reviews, discussion comments or inline threads on PR #36. No review finding needed a code disposition. The PR remains draft because PR #35 and its upstream stack remain under review. This CI result belongs to the head named above; the subsequent report-only commit needs its own check.
 
 ## Findings, limits and next dependency
 
