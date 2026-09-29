@@ -38,7 +38,10 @@ class FeishuTransport:
                 return httpx.Response(200, json={"code": 0, "data": {}})
         elif request.method == "PUT":
             assert record_id in rows, f"Domain ID leaked into storage path: {record_id}"
-            rows[record_id]["fields"].update(json.loads(request.content)["fields"])
+            changed = json.loads(request.content)["fields"]
+            rows[record_id]["fields"].update(changed)
+            return httpx.Response(200, json={"code": 0, "data": {"record": {"record_id": record_id,
+                "fields": changed}}})
         elif request.method == "DELETE":
             assert record_id in rows, f"Domain ID leaked into storage path: {record_id}"
             del rows[record_id]
