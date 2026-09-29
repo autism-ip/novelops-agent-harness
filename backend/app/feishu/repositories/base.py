@@ -8,8 +8,10 @@
 from __future__ import annotations
 
 import json
+from decimal import Decimal, InvalidOperation
 
 from app.feishu.client import FeishuAPIError, FeishuClient, FeishuNotFoundError
+from app.feishu.table_map import FLOAT_FIELD_NAMES, INTEGER_FIELD_NAMES
 
 # ============================================================
 # base repository
@@ -48,6 +50,23 @@ class BaseRepository:
         reverse = {v: k for k, v in self._field_map.items()}
         fields = record.get("fields", {})
         mapped = {reverse.get(k, k): v for k, v in fields.items()}
+        for name, value in mapped.items():
+            if name not in INTEGER_FIELD_NAMES and name not in FLOAT_FIELD_NAMES:
+                continue
+            if value is None or value == "":
+                continue
+            try:
+                number = Decimal(str(value))
+            except InvalidOperation:
+                raise FeishuAPIError("Invalid numeric cell", code=0) from None
+            if not number.is_finite():
+                raise FeishuAPIError("Invalid numeric cell", code=0)
+            if name in INTEGER_FIELD_NAMES:
+                if number != number.to_integral_value():
+                    raise FeishuAPIError("Non-integral integer cell", code=0)
+                mapped[name] = int(number)
+            else:
+                mapped[name] = float(number)
         mapped["record_id"] = record.get("record_id", "")
         return mapped
 
