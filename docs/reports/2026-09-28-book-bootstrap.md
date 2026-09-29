@@ -23,10 +23,16 @@ Bootstrap one Book and one canonical StoryState v1 from a currently approved opp
 | Real Feishu test Base schema | [Synthetic test Base](https://fcnaul7kb1kf.feishu.cn/base/T8I6buCMoaiLB6srVBrc9i2jnph): StoryStates `tblsYdH22yFXPNty` and Books `tblDUwg0EPLjflGf` created; synthetic rows read back with numeric version 1, text hashes and refs |
 | Impeccable detector | No findings on new Book UI targets |
 
-The Feishu test Base check used `lark-cli` Base v3 under user identity. It confirms field schema and cells, **not** a live end-to-end run through the backend's Feishu runtime. The browser used synthetic HTTP storage and model outputs. Book initialization deliberately leaves unprovided story facts blank; later StoryArchitect/Chapter workflows own their evolution. The current UI's full visual redesign across existing pages belongs to a separate design issue/PR.
+The original schema check used `lark-cli` Base v3 under user identity. A later backend-app v1 persistence probe is recorded below. The browser used synthetic HTTP storage and model outputs. Book initialization deliberately leaves unprovided story facts blank; later StoryArchitect/Chapter workflows own their evolution. The current UI's full visual redesign across existing pages belongs to a separate design issue/PR.
 
 ## Risks and follow-up
 
 An interrupted initialization whose approved source is later superseded stays visible as `initializing` and requires manual reconciliation; the service will not commit stale canonical state. The Base provider has no transaction or atomic compare-and-swap, so production must preserve the intent journal, one writer, and backup/recovery procedures. Live Base/runtime migration and model quality need production-specific acceptance. Existing legacy Book records are readable but not automatically upgraded to StoryState.
 
 The issue/PR workflow has already been captured in the reusable `issue-pr-delivery` skill; this task did not create another skill because Book bootstrap is domain-specific.
+
+## Backend-app v1 Book/StoryState acceptance — 2026-09-30
+
+The production `FeishuClient`, field-mapped `BaseRepository`, `FeishuStorageProvider`, `HarnessKernel`, `BookService` and `ArtifactStore` bootstrapped a synthetic approved opportunity/title/cover chain in the [authorized test Base](https://fcnaul7kb1kf.feishu.cn/base/T8I6buCMoaiLB6srVBrc9i2jnph). Upstream creative and research selections were deterministic in-process fixtures; the Book, StoryState v1 and immutable StoryState Artifact were real backend-app v1 records. The service read them back through `StoryContextProvider`, verified the eight namespaces and source provenance, and an exact bootstrap replay returned the same result without creating new rows. The three temporary records were deleted successfully. The probe took 81.65 seconds including Feishu calls and cleanup.
+
+At the current PR head, the offline backend suite passed 343 tests with 9 live tests deselected and 91.95% coverage (87.82% floor). This validates ZEN-38's canonical storage boundary and version/hash/ref round-trip against the test Base. It does not exercise live upstream hotspot/selection workflows, the HTTP route against Feishu, or production Base ACL. Those paths have offline integration and synthetic browser coverage as listed above.
