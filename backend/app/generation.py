@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from typing import Literal, Protocol
 
 import httpx
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from app.harness import encode, now, stable_id
 from app.storage import MissingRecord
@@ -54,10 +54,20 @@ class Route(BaseModel):
     provider: Literal["openai", "deepseek"]
     model: str = Field(min_length=1)
     max_retries: int = Field(default=1, ge=0, le=2)
-    timeout: float = Field(default=8, gt=0, le=10)
+    timeout: float = Field(default=8, gt=0, le=25)
     max_output_tokens: int = Field(default=2048, ge=1, le=16384)
+    deepseek_thinking: Literal["disabled", "enabled"] = "disabled"
     input_cost_per_million: float | None = Field(default=None, ge=0)
     output_cost_per_million: float | None = Field(default=None, ge=0)
+
+    @model_validator(mode="after")
+    def bounded_call(self):
+        retry_backoff = sum(0.2 * 2 ** attempt for attempt in range(self.max_retries))
+        if self.timeout * (self.max_retries + 1) + retry_backoff > 25:
+            raise ValueError("Model route call budget exceeds 25 seconds")
+        if self.provider != "deepseek" and self.deepseek_thinking != "disabled":
+            raise ValueError("deepseek_thinking requires a DeepSeek route")
+        return self
 
 
 @dataclass(frozen=True)
@@ -112,6 +122,8 @@ class ChatProvider:
         token_key = "max_completion_tokens" if self.provider == "openai" else "max_tokens"
         body = {"model": route.model, "messages": messages,
                 "response_format": {"type": "json_object"}, token_key: route.max_output_tokens}
+        if self.provider == "deepseek":
+            body["thinking"] = {"type": route.deepseek_thinking}
         try:
             response = self._http.post(self.URLS[self.provider],
                 headers={"Authorization": "Bearer " + self._api_key}, json=body, timeout=route.timeout)
