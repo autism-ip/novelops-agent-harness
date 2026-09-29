@@ -57,6 +57,7 @@ WorkflowRun, StepRun, Artifact, StoryState, ChapterVersion, Review, Approval.
 | Bot-identity read (2026-09-29) | Denied with Feishu code `99991672`, missing app scope `base:record:read`; no bot write was attempted |
 | Same-record concurrent writes (2026-09-29) | A synthetic WorkflowRun row began at logical version 1. Two user-identity `batch_update` commands set versions 2 and 3 concurrently; both returned success. The final read showed version 2 at Base `rev=7`, and history later showed version 3 → 2 at rev 7. Each call took roughly 1.5–1.7 s including CLI overhead. This is one bounded race, not a rate-limit benchmark. |
 | Direct `bitable/v1` list (2026-09-29) | The exact read path used by `BaseRepository` was dry-run and then called with `page_size=1` against the approved Base. User identity returned authorization code `99991679`; bot identity returned `99991672`. Both errors listed missing `bitable:app:readonly`, `bitable:app`, `base:record:retrieve`. Neither reached record data, so this does not establish v1 schema compatibility or incompatibility. |
+| Backend-app v1 response shapes (2026-09-30) | A live `HarnessKernel` workflow showed that v1 PUT returns only changed fields, while GET/list serializes Number cells as strings. A direct temporary StepRuns row confirmed the create/read type difference. The adapter now merges partial PUT replies with the previously resolved row and normalizes known numeric fields on read. The final synthetic approval workflow completed and its three records were deleted. Stateful HTTP tests reproduce these response shapes. |
 | Backend-app permission recovery (2026-09-29) | Tenant-token acquisition succeeded. First v1 list returned code `99991672` until the app read scope was enabled. Five v1 lists then passed, but v1 and v3 creates returned HTTP 403 / `91403`. The Base had no advanced permissions; Drive collaborator inspection found the backend app absent. Adding that app as an `edit` collaborator to this test Base resolved the denial. The CLI bot is a different application. |
 | Backend-app v1 CRUD/replay (2026-09-29) | `tests/test_storage_live.py -m integration` passed 5/5 on two runs. Each test created a unique business key, replayed `ensure`, read, updated and deleted it through the production `FeishuClient`/`BaseRepository`/`FeishuStorageProvider`. The second run took 88.41 s total; `crud_seconds` by table: PipelineRuns 12.69, StepRuns 11.30, ChapterVersions 12.83, ReviewReports 16.37, ApprovalEvents 11.34. Independent v1 lists found 0 rows in all five tables after each run. JUnit emitted five `record_property`/xunit2 compatibility warnings; the XML still contained the measured properties. |
 | Backend-app v3 PATCH (2026-09-29) | A synthetic `RuntimeProbe` row was created under the backend app identity. A PATCH containing only `version: 2` changed only `version`; `domain_id`, `kind`, and `payload` read back unchanged. App-authenticated delete succeeded, and a user-identity search found 0 remaining `probe-app-patch-` rows. v3 write payloads are top-level field maps and create returns `record_id_list`, unlike the v1 adapter envelope. |
@@ -129,6 +130,15 @@ The stateful HTTP fixture verified one committed row and one POST despite a
 malformed success reply. Local offline backend verification: 183 passed,
 9 live integration tests deselected, 88.50% coverage (floor 87.82%). This
 does not establish behavior of the live Feishu service.
+
+The 2026-09-30 workflow probe expanded PipelineRuns, StepRuns and ApprovalEvents
+in the synthetic Base with the exact Harness fields. It discovered the v1 PUT
+partial-response and Number-as-string read behavior above. The final
+`create → tick → approve` run reached `completed` with `output_version=1`
+and one approval event; all three rows were deleted. The offline provider suite
+then passed 190 tests with 88.30% coverage. ChapterVersions and ReviewReports
+remain business-key-only test tables, and none of these observations certify
+the production Base schema or ACL.
 
 Legacy repository `conditional_update` now checks before PUT and is explicitly
 **not atomic**. Hold the single-writer lock; manual edits/other backends are not
