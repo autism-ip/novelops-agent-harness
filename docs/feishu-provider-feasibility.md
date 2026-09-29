@@ -20,7 +20,7 @@ readable through the documentation fetcher. No undocumented endpoint was selecte
 | PATCH / Base v3 | v3 batch partial update is POST, not PATCH | 7 partial updates preserved other fields; literal HTTP PATCH remains unverified |
 | Batch behavior | Not used for runtime writes | 35 creates / 7 updates succeeded |
 | Record history | Not used for artifact versioning | Create + update events visible after propagation delay |
-| Limits / conflicts / throughput | No distributed CAS claim; serialized application writes | Pending isolated workload probe |
+| Limits / conflicts / throughput | No distributed CAS claim; serialized application writes | Two concurrent same-record updates both returned success; an older logical version was the final value. Rate and payload ceilings remain unmeasured. |
 | Bot identity | Backend uses app/bot credentials | Bot read blocked by missing `base:record:read` scope; user identity succeeds |
 
 Environment inspection found no backend FEISHU_APP_ID, FEISHU_APP_SECRET or
@@ -47,6 +47,7 @@ WorkflowRun, StepRun, Artifact, StoryState, ChapterVersion, Review, Approval.
 | Partial update | Submitted only version; original payload/domain_id/kind remained present |
 | User-identity create/delete (2026-09-29) | Created synthetic `RuntimeProbe` record `reczz28H19Qjc3bi`, deleted it with `--yes`, and confirmed a subsequent read returned Record not found |
 | Bot-identity read (2026-09-29) | Denied with Feishu code `99991672`, missing app scope `base:record:read`; no bot write was attempted |
+| Same-record concurrent writes (2026-09-29) | A synthetic WorkflowRun row began at logical version 1. Two user-identity `batch_update` commands set versions 2 and 3 concurrently; both returned success. The final read showed version 2 at Base `rev=7`, and history later showed version 3 → 2 at rev 7. Each call took roughly 1.5–1.7 s including CLI overhead. This is one bounded race, not a rate-limit benchmark. |
 
 CLI dry-run confirms POST `/open-apis/base/v3/bases/{base}/tables/{table}/records/batch_create`
 and POST `.../records/batch_update`. CLI help states a 200-record batch maximum;
@@ -55,15 +56,25 @@ History visibility is eventually consistent: an immediate empty response does
 not prove absence. The same caution motivates fail-closed create reconciliation.
 
 **Still open:** actual HTTP PATCH, backend-runtime v1 delete, bot-authenticated v3 access after the missing scope is granted, upper
-payload limits, throttling/concurrent-write conflicts, and runtime v1↔v3 schema
+payload limits, throttling behavior, and runtime v1↔v3 schema
 compatibility. Unknown outcomes/rate errors are simulated in code, not induced
 on the live service. Keep this PR in draft until the remaining feasibility gates
 are resolved or explicitly deferred. Do not introduce PostgreSQL on this evidence.
+
+The concurrent probe demonstrates that the numeric `version` field is not a
+server-side compare-and-swap precondition. Both writes were accepted despite
+starting from the same observed logical version; the final record held the
+older logical value. Base history visibility was delayed and an immediate
+history response did not contain every observed revision. The retained test
+row uses domain key `probe-conflict-20260929` in the approved synthetic Base.
+Keep application writes serialized and reject stale domain transitions before
+the provider update; do not infer conflict safety from either successful response.
 
 The delete probe applies only to a disposable synthetic record under the user's
 CLI identity. The bot-scope denial is an observed application permission gap, not
 evidence that Base v3 lacks a record-read endpoint. The Feishu app must receive
 `base:record:read` before a bot-authenticated runtime probe can continue.
+A repeat bot probe on 2026-09-29 returned the same code and missing scope.
 
 ## Contract
 
