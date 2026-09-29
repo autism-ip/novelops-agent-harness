@@ -141,12 +141,25 @@ class BaseRepository:
 
         return results
 
-    def update(self, record_id: str, fields: dict) -> dict:
-        """Update specific fields of a record."""
+    def update(self, record_id: str, fields: dict, *, previous: dict | None = None) -> dict:
+        """Update fields and return a complete row even when PUT echoes only the patch."""
+        current = previous if previous is not None else self.get(record_id)
+        if current is None:
+            raise FeishuNotFoundError("Record to update does not exist")
+        if current.get("record_id") != record_id:
+            raise ValueError("Previous record identity does not match update target")
         path = f"{self._base_path()}/{record_id}"
         body = {"fields": self._to_feishu(fields)}
         resp = self._client.put(path, body=body)
-        return self._from_feishu(resp["data"]["record"])
+        payload = resp.get("data") if isinstance(resp, dict) else None
+        record = payload.get("record") if isinstance(payload, dict) else None
+        if (not isinstance(record, dict) or record.get("record_id") != record_id
+                or not isinstance(record.get("fields"), dict)):
+            raise FeishuAPIError("Malformed update response", code=0)
+        updated = self._from_feishu(record)
+        if any(key not in updated for key in fields):
+            raise FeishuAPIError("Update response omitted changed fields", code=0)
+        return {**current, **updated}
 
     def delete(self, record_id: str) -> bool:
         """Delete a record. Returns True on success."""
@@ -165,4 +178,4 @@ class BaseRepository:
         current = self.get(record_id)
         if current is None or any(current.get(k) != v for k, v in condition.items()):
             raise ValueError("Record condition does not match")
-        return self.update(record_id, fields)
+        return self.update(record_id, fields, previous=current)
