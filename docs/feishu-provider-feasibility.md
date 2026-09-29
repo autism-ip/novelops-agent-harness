@@ -13,17 +13,18 @@ readable through the documentation fetcher. No undocumented endpoint was selecte
 
 | Capability | Implementation / evidence | Live measurement |
 | --- | --- | --- |
-| CRUD | Official v1 GET/POST/PUT/DELETE; stateful HTTP contract tests | v3 create/read/update verified through CLI; backend v1/delete not live tested |
+| CRUD | Official v1 GET/POST/PUT/DELETE; stateful HTTP contract tests | v3 create/read/update/delete verified through user CLI; backend v1/delete not live tested |
 | Domain identity | Provider resolves business keys, rejects duplicates/missing mutations | Mock verified |
 | Pagination | v1 token pagination guarded; v3 CLI uses offset | v3 pages 10 + 25 = 35, final has_more=false |
 | Ambiguous create | Read by stable key; no second POST; unresolved outcome stops | Mock verified |
 | PATCH / Base v3 | v3 batch partial update is POST, not PATCH | 7 partial updates preserved other fields; literal HTTP PATCH remains unverified |
 | Batch behavior | Not used for runtime writes | 35 creates / 7 updates succeeded |
 | Record history | Not used for artifact versioning | Create + update events visible after propagation delay |
-| Limits / conflicts / throughput | No distributed CAS claim; serialized application writes | Pending isolated workload probe |
+| Limits / conflicts / throughput | No distributed CAS claim; serialized application writes | Two concurrent same-record updates both returned success; an older logical version was the final value. A 50,000-character synthetic Chinese chapter payload round-tripped; absolute size and rate ceilings remain unmeasured. |
+| Bot identity | Backend uses app/bot credentials | v3 bot read blocked by missing `base:record:read`; direct v1 list also denied for both CLI identities because the response listed `bitable:app:readonly`, `bitable:app`, `base:record:retrieve` scopes |
 
 Environment inspection found no backend FEISHU_APP_ID, FEISHU_APP_SECRET or
-FEISHU_APP_TOKEN. However, `lark-cli 1.0.96` has a working user login outside the
+FEISHU_APP_TOKEN. However, `lark-cli 1.0.96` has working bot and user identities outside the
 sandbox. No Feishu MCP is exposed. After explicit user authorization, an isolated
 [test Base](https://fcnaul7kb1kf.feishu.cn/base/T8I6buCMoaiLB6srVBrc9i2jnph)
 was created and retained. These CLI measurements do not certify the backend's
@@ -44,6 +45,11 @@ WorkflowRun, StepRun, Artifact, StoryState, ChapterVersion, Review, Approval.
 | History | First immediate query returned []; later query returned create rev=1 and update rev=2, with before=1/after=2 |
 | Identity | Stable domain_id values `probe-00`…`probe-34` differ from returned rec IDs |
 | Partial update | Submitted only version; original payload/domain_id/kind remained present |
+| User-identity create/delete (2026-09-29) | Created synthetic `RuntimeProbe` record `reczz28H19Qjc3bi`, deleted it with `--yes`, and confirmed a subsequent read returned Record not found |
+| Bot-identity read (2026-09-29) | Denied with Feishu code `99991672`, missing app scope `base:record:read`; no bot write was attempted |
+| Same-record concurrent writes (2026-09-29) | A synthetic WorkflowRun row began at logical version 1. Two user-identity `batch_update` commands set versions 2 and 3 concurrently; both returned success. The final read showed version 2 at Base `rev=7`, and history later showed version 3 → 2 at rev 7. Each call took roughly 1.5–1.7 s including CLI overhead. This is one bounded race, not a rate-limit benchmark. |
+| Direct `bitable/v1` list (2026-09-29) | The exact read path used by `BaseRepository` was dry-run and then called with `page_size=1` against the approved Base. User identity returned authorization code `99991679`; bot identity returned `99991672`. Both errors listed missing `bitable:app:readonly`, `bitable:app`, `base:record:retrieve`. Neither reached record data, so this does not establish v1 schema compatibility or incompatibility. |
+| Chapter-sized text (2026-09-29) | A synthetic ChapterVersion record with 50,000 Chinese prose characters in a JSON text field was created through Base v3 under user identity. The stored payload had 50,032 characters and read back byte-for-byte equal to the submitted payload (SHA-256 `36c1b3ab18ee238f6fe3729fa25f90851e655d2fbd440737ae8a4f0491e7f00c`). This covers the code's current 50,000-character prose cap in this test table; it is not a measured platform ceiling or a production schema test. |
 
 CLI dry-run confirms POST `/open-apis/base/v3/bases/{base}/tables/{table}/records/batch_create`
 and POST `.../records/batch_update`. CLI help states a 200-record batch maximum;
@@ -51,11 +57,36 @@ we measured only 35, without stress testing or intentionally flooding the tenant
 History visibility is eventually consistent: an immediate empty response does
 not prove absence. The same caution motivates fail-closed create reconciliation.
 
-**Still open:** actual HTTP PATCH, delete, bot-authenticated v3 access, upper
-payload limits, throttling/concurrent-write conflicts, and runtime v1↔v3 schema
+**Still open:** actual HTTP PATCH, backend-runtime v1 CRUD after the listed access scopes are granted, bot-authenticated v3 access after `base:record:read` is granted, absolute
+payload limits beyond the tested chapter size, throttling behavior, and runtime v1↔v3 schema
 compatibility. Unknown outcomes/rate errors are simulated in code, not induced
 on the live service. Keep this PR in draft until the remaining feasibility gates
 are resolved or explicitly deferred. Do not introduce PostgreSQL on this evidence.
+
+The concurrent probe demonstrates that the numeric `version` field is not a
+server-side compare-and-swap precondition. Both writes were accepted despite
+starting from the same observed logical version; the final record held the
+older logical value. Base history visibility was delayed and an immediate
+history response did not contain every observed revision. The retained test
+row uses domain key `probe-conflict-20260929` in the approved synthetic Base.
+Keep application writes serialized and reject stale domain transitions before
+the provider update; do not infer conflict safety from either successful response.
+
+The delete probe applies only to a disposable synthetic record under the user's
+CLI identity. The bot-scope denial is an observed application permission gap, not
+evidence that Base v3 lacks a record-read endpoint. The Feishu app must receive
+`base:record:read` before a bot-authenticated runtime probe can continue.
+A repeat bot probe on 2026-09-29 returned the same code and missing scope.
+
+The `bitable/v1` probe used the production adapter's
+`GET /bitable/v1/apps/{app_token}/tables/{table_id}/records` path, but the CLI's own
+OAuth application identities, not backend runtime credentials. The user result
+means its OAuth grant lacks a listed access scope; the bot result means the CLI
+app has not applied for a listed access scope. The backend's configured app
+identity remains unknown because its credentials are absent. Granting the CLI
+scopes could unblock a compatibility probe, but would still not certify the
+backend app. Until these permissions are available, the stateful HTTP contract
+tests remain the only evidence for the runtime v1 mapping.
 
 ## Contract
 
@@ -79,10 +110,78 @@ covered. Deploy one backend process, not multiple uvicorn workers.
 
 ## Live feasibility protocol
 
-Use a dedicated test Base and explicit `FEISHU_FEASIBILITY_LIVE=1`; run
-`pytest tests/test_storage_live.py -m integration -v`. Never point this at a
-production table. Record tenant capabilities and timestamps alongside results.
-The gated suite measures domain CRUD/replay on representative runtime tables.
+Run this only against a dedicated, disposable test Base. The retained
+`RuntimeProbe` table above does **not** have the five runtime table schemas
+required by this suite. The CLI's bot and user identities also differ from the
+backend app: configure and verify the **backend app ID** used by `FeishuClient`,
+not just `lark-cli` OAuth access.
+
+1. In the Feishu developer console, grant the backend app the Bitable record
+   read, create, update, and delete permissions needed by its official
+   `bitable/v1` endpoints. Publish/apply the permission change and give that app
+   access to the dedicated Base. The observed v1 list denial named
+   `bitable:app:readonly`, `bitable:app`, and `base:record:retrieve` as possible
+   read scopes; use the console/API response to confirm the actual grant.
+2. Use five separate tables in that Base, with a text business-key field
+   named exactly as shown below. These empty tables were created under the
+   authorized user identity on 2026-09-29; put their real IDs in the matching
+   variables. This suite writes only those business-key fields, but the
+   adapter's field names and response shape still need live confirmation.
+
+   | Table | Required text field | Test table ID | Environment variable |
+   | --- | --- | --- | --- |
+   | PipelineRuns | `pipeline_run_id` | `tblvc86TtHXy2iC7` | `FEISHU_TABLE_ID_PIPELINE_RUNS` |
+   | StepRuns | `step_run_id` | `tbl0MbCJRiMaTgGV` | `FEISHU_TABLE_ID_STEP_RUNS` |
+   | ChapterVersions | `version_id` | `tbl27O2lmeJFf7M8` | `FEISHU_TABLE_ID_CHAPTER_VERSIONS` |
+   | ReviewReports | `review_id` | `tblSVz3EvX4wV8CY` | `FEISHU_TABLE_ID_REVIEW_REPORTS` |
+   | ApprovalEvents | `approval_id` | `tbllS5i8YmwiBV5B` | `FEISHU_TABLE_ID_APPROVAL_EVENTS` |
+
+3. Supply `FEISHU_APP_ID` and `FEISHU_APP_SECRET` for that backend app,
+   `FEISHU_APP_TOKEN` for the dedicated Base, and the five table IDs through
+   the local process environment or a secret manager. Do not commit or paste
+   secrets into a PR. `.env.example` is a template; this pytest module reads
+   `os.environ` directly and does not load `.env` by itself.
+4. From `backend/`, run the **read-only** preflight below with the same
+   exported environment. It checks all five mappings and v1 list access using
+   the backend's tenant token. It deliberately prints no credentials or row
+   data. Stop if any table fails; a successful CLI v3 call is not a substitute.
+
+   ```sh
+   python - <<'PY'
+   import os
+   from app.feishu.client import FeishuClient
+   from app.feishu.table_map import TableMapConfig
+
+   names = (
+       "pipeline_runs", "step_runs", "chapter_versions",
+       "review_reports", "approval_events",
+   )
+   client = FeishuClient(os.environ["FEISHU_APP_ID"], os.environ["FEISHU_APP_SECRET"])
+   config = TableMapConfig(os.environ["FEISHU_APP_TOKEN"])
+   try:
+       for name in names:
+           table_id = config.get_table_id(name)
+           client.get(
+               f"/bitable/v1/apps/{config.app_token}/tables/{table_id}/records",
+               params={"page_size": "1"},
+           )
+           print(f"{name}: v1 list OK")
+   finally:
+       client._http.close()
+   PY
+   ```
+
+5. Only after the preflight succeeds, opt into the write/delete probe:
+   `FEISHU_FEASIBILITY_LIVE=1 pytest tests/test_storage_live.py -m integration -v`.
+   It creates a unique `probe-...` business ID in each table, checks replay,
+   get and update, then deletes the row on normal completion. If a create
+   times out or a test fails before cleanup, inspect those IDs in the test
+   Base before retrying; an uncertain POST may have left a record.
+
+Record the timestamp, backend app identity (ID only), tenant/Base capability,
+five per-table outcomes and latency, and any leftover probe IDs in this report.
+Never point the suite at production tables. The gated suite measures domain
+CRUD/replay on representative runtime tables.
 PATCH, history, payload ceilings, batches, throttling and cross-client conflicts
 require confirmed official endpoints and a bounded follow-up probe; those are
 not silently marked passed by the CRUD suite.
