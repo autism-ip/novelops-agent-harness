@@ -16,7 +16,7 @@ readable through the documentation fetcher. No undocumented endpoint was selecte
 | CRUD | Official v1 GET/POST/PUT/DELETE; stateful HTTP contract tests | v3 create/read/update/delete verified through user CLI; backend v1/delete not live tested |
 | Domain identity | Provider resolves business keys, rejects duplicates/missing mutations | Mock verified |
 | Pagination | v1 token pagination guarded; v3 CLI uses offset | v3 pages 10 + 25 = 35, final has_more=false |
-| Ambiguous create | Read by stable key; no second POST; unresolved outcome stops | Mock verified |
+| Ambiguous create | Read by stable key; no second POST; unresolved outcome stops | Mock and stateful HTTP verified, including a committed POST with a malformed 2xx reply |
 | PATCH / Base v3 | v3 batch partial update is POST, not PATCH | 7 partial updates preserved other fields; literal HTTP PATCH remains unverified |
 | Batch behavior | Not used for runtime writes | 35 creates / 7 updates succeeded |
 | Record history | Not used for artifact versioning | Create + update events visible after propagation delay |
@@ -103,6 +103,18 @@ restart, callers must use `allow_create=False` for a previously attempted create
 until absence is established operationally. A new process must not assume its
 empty memory proves that an earlier POST did not happen. #20 owns the persistent
 creation intent and recovery policy using this contract.
+
+The 2026-09-29 regression review found that a committed POST followed by a
+well-formed JSON envelope missing `data.record` previously raised a raw
+`KeyError`; a response record missing the requested business key could also
+return apparent success. The repository now classifies malformed create
+envelopes as uncertain and the provider validates the returned business key
+before success. Both paths reconcile by the requested key without another
+POST, or stop with `AmbiguousWrite` if the read cannot establish the result.
+The stateful HTTP fixture verified one committed row and one POST despite a
+malformed success reply. Local offline backend verification: 183 passed,
+9 live integration tests deselected, 88.50% coverage (floor 87.82%). This
+does not establish behavior of the live Feishu service.
 
 Legacy repository `conditional_update` now checks before PUT and is explicitly
 **not atomic**. Hold the single-writer lock; manual edits/other backends are not

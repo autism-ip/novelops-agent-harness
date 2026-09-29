@@ -16,6 +16,7 @@ class FeishuTransport:
         self.next_id = 0
         self.calls = []
         self.fail_create = None
+        self.malformed_create_reply = None
 
     def __call__(self, request):
         self.calls.append(request)
@@ -32,6 +33,9 @@ class FeishuTransport:
             self.next_id += 1
             record_id = f"rec{self.next_id}"
             rows[record_id] = {"record_id": record_id, "fields": json.loads(request.content)["fields"]}
+            if self.malformed_create_reply == table:
+                self.malformed_create_reply = None
+                return httpx.Response(200, json={"code": 0, "data": {}})
         elif request.method == "PUT":
             assert record_id in rows, f"Domain ID leaked into storage path: {record_id}"
             rows[record_id]["fields"].update(json.loads(request.content)["fields"])
