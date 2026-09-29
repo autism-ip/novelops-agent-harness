@@ -29,12 +29,19 @@ httpx. They request JSON objects and then validate them locally with Pydantic;
 JSON mode alone does not promise schema adherence. HTTP errors, timeout,
 malformed responses, truncated output and schema failures are classified without
 persisting provider error bodies or credentials. Retry counts and per-request
-timeouts are bounded. The conservative default budget is within the kernel's
-shutdown budget for one generation; handlers adding passes must budget for them.
+timeouts are bounded. DeepSeek's current Chat Completions default enables thinking;
+the JSON adapter explicitly disables it unless a DeepSeek route opts in with
+`deepseek_thinking: "enabled"`. Thinking consumes output tokens before final JSON
+and can truncate structured results. A StoryBible route may need
+`{"timeout":20,"max_retries":0,"max_output_tokens":2048}`. The sum of request
+timeouts and retry backoff is capped at 25 seconds, below the kernel's 35-second
+shutdown wait. Handlers adding passes must budget for them.
 
 References checked using available documentation tools:
 [OpenAI Chat Completions](https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create)
 and [DeepSeek JSON output](https://api-docs.deepseek.com/guides/json_mode/).
+DeepSeek's [thinking-mode reference](https://api-docs.deepseek.com/guides/thinking_mode/)
+documents the enabled default and explicit switch.
 The implementation uses `max_completion_tokens` for OpenAI and `max_tokens` for
 DeepSeek. No CLI or MCP is called by the production model adapter.
 
@@ -112,6 +119,9 @@ prompt hashes, token use and latency; it does not store generated prose or a
 provider invoice. Model behavior can vary between runs, so compare measured
 results rather than assuming a single pass is stable. See the
 [ZEN-106 live evidence](reports/2026-09-30-model-foundations.md).
+For larger JSON schemas, set `--live-timeout` and `--live-max-output-tokens`
+within the route budget. `--live-deepseek-thinking enabled` is an explicit
+comparison variant; it can need a larger token budget.
 
 ## Verification limits
 
