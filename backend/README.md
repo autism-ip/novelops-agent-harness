@@ -23,3 +23,8 @@ primitives; it does not start a background scheduler automatically.
 Repository documentation in `docs/ci-cd.md` describes merge protection, artifacts,
 and deployment integration. The package contains the `app` modules; source
 distributions also retain the existing tests.
+
+When `STORY_PLANNING_ENABLED=true`, configure `BOOKS_ENABLED=true` and the
+`story_architect` and `chapter_planner` entries in `MODEL_ROUTES_JSON`. See
+[`docs/story-planning.md`](../docs/story-planning.md) for the StoryBible approval,
+canonical StoryState patch, snapshot, and ChapterBrief contracts.

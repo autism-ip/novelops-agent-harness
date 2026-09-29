@@ -132,10 +132,12 @@ class BookService:
             fingerprint = digest({"run": request.cover_run_id, "refs": refs})
             existing = self.kernel.storage.get("books", book_id)
             if existing:
-                if (existing.get("bootstrap_hash") != fingerprint or existing.get("story_state_id") != state_id):
+                if existing.get("bootstrap_hash") != fingerprint:
                     raise TransitionConflict("Book business key is reserved for different source artifacts")
                 if existing.get("status") == "ready":
                     return self.read(book_id)
+                if existing.get("story_state_id") != state_id:
+                    raise TransitionConflict("Initializing Book points to another StoryState")
             source = self.source(request.cover_run_id)
             if [source[name]["artifact_id"] for name in ("opportunity", "title", "cover")] != refs:
                 raise TransitionConflict("Approved source selection changed; refresh book context")

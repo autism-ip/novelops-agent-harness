@@ -34,6 +34,8 @@ test("human research gates do not lock all hotspot controls indefinitely", () =>
   assert.equal(workflowBusy({ pipeline_type: "hotspot_research_v1", status: "completed" }), false);
   assert.equal(workflowBusy({ pipeline_type: "title_candidates_v1", status: "awaiting_approval" }), false);
   assert.equal(workflowBusy({ pipeline_type: "cover_plans_v1", status: "awaiting_approval" }), false);
+  assert.equal(workflowBusy({ pipeline_type: "story_bible_v1", status: "awaiting_approval" }), false);
+  assert.equal(workflowBusy({ pipeline_type: "chapter_brief_v1", status: "running" }), false);
 });
 
 test("creative generation and exact candidate choice survive uncertain responses", () => {
