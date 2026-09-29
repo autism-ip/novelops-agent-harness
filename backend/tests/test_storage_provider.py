@@ -23,12 +23,30 @@ def records(*items):
 def test_domain_read_update_delete_never_use_domain_id_as_record_id(setup):
     client, provider = setup
     client.get.return_value = records(("rec123", {"ID": "PR-1", "Status": "pending"}))
-    client.put.return_value = {"data": {"record": {"record_id": "rec123", "fields": {"ID": "PR-1", "Status": "done"}}}}
+    client.put.return_value = {"data": {"record": {"record_id": "rec123", "fields": {"Status": "done"}}}}
     assert provider.get("runs", "PR-1") == {"id": "PR-1", "status": "pending"}
-    assert provider.update("runs", "PR-1", {"status": "done"})["status"] == "done"
+    assert provider.update("runs", "PR-1", {"status": "done"}) == {"id": "PR-1", "status": "done"}
     assert client.put.call_args.args[0].endswith("/rec123")
     provider.delete("runs", "PR-1")
     assert client.delete.call_args.args[0].endswith("/rec123")
+
+
+def test_ambiguous_update_reconciles_committed_patch_without_repeating_put(setup):
+    client, provider = setup
+    client.get.side_effect = [records(("rec123", {"ID": "PR-1", "Status": "pending"})),
+                              records(("rec123", {"ID": "PR-1", "Status": "done"}))]
+    client.put.return_value = {"data": {}}
+    assert provider.update("runs", "PR-1", {"status": "done"}) == {"id": "PR-1", "status": "done"}
+    client.put.assert_called_once()
+
+
+def test_ambiguous_update_fails_closed_when_patch_not_observed(setup):
+    client, provider = setup
+    client.get.return_value = records(("rec123", {"ID": "PR-1", "Status": "pending"}))
+    client.put.return_value = {"data": {}}
+    with pytest.raises(AmbiguousWrite, match="Update reconciliation required"):
+        provider.update("runs", "PR-1", {"status": "done"})
+    client.put.assert_called_once()
 
 
 def test_missing_duplicate_and_identity_change_fail_explicitly(setup):
