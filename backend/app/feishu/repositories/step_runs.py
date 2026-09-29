@@ -42,4 +42,5 @@ class StepRunsRepo(BaseRepository):
         return self.update(
             record["record_id"],
             {"lease_owner": owner, "status": "running"},
+            previous=record,
         )
