@@ -115,7 +115,18 @@ class FeishuStorageProvider:
             row = self._resolve(collection, domain_id)
             if row is None:
                 raise MissingRecord(f"Missing {collection}/{domain_id}")
-            return self._public(self._repos[collection].update(row["record_id"], fields))
+            try:
+                return self._public(self._repos[collection].update(row["record_id"], fields, previous=row))
+            except FeishuAPIError as exc:
+                if exc.code != 0 and not 500 <= exc.code <= 599:
+                    raise
+                try:
+                    observed = self._resolve(collection, domain_id)
+                except Exception as read_exc:
+                    raise AmbiguousWrite(f"Update reconciliation unavailable for {collection}/{domain_id}") from read_exc
+                if observed is not None and all(observed.get(name) == value for name, value in fields.items()):
+                    return self._public(observed)
+                raise AmbiguousWrite(f"Update reconciliation required for {collection}/{domain_id}") from exc
 
     def delete(self, collection: str, domain_id: str) -> None:
         with self._lock:
