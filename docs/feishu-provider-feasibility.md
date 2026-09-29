@@ -122,18 +122,19 @@ not just `lark-cli` OAuth access.
    access to the dedicated Base. The observed v1 list denial named
    `bitable:app:readonly`, `bitable:app`, and `base:record:retrieve` as possible
    read scopes; use the console/API response to confirm the actual grant.
-2. Create five separate tables in that Base, with a text business-key field
-   named exactly as shown below. Store their real `tbl...` IDs in the matching
+2. Use five separate tables in that Base, with a text business-key field
+   named exactly as shown below. These empty tables were created under the
+   authorized user identity on 2026-09-29; put their real IDs in the matching
    variables. This suite writes only those business-key fields, but the
    adapter's field names and response shape still need live confirmation.
 
-   | Table | Required text field | Environment variable |
-   | --- | --- | --- |
-   | PipelineRuns | `pipeline_run_id` | `FEISHU_TABLE_ID_PIPELINE_RUNS` |
-   | StepRuns | `step_run_id` | `FEISHU_TABLE_ID_STEP_RUNS` |
-   | ChapterVersions | `version_id` | `FEISHU_TABLE_ID_CHAPTER_VERSIONS` |
-   | ReviewReports | `review_id` | `FEISHU_TABLE_ID_REVIEW_REPORTS` |
-   | ApprovalEvents | `approval_id` | `FEISHU_TABLE_ID_APPROVAL_EVENTS` |
+   | Table | Required text field | Test table ID | Environment variable |
+   | --- | --- | --- | --- |
+   | PipelineRuns | `pipeline_run_id` | `tblvc86TtHXy2iC7` | `FEISHU_TABLE_ID_PIPELINE_RUNS` |
+   | StepRuns | `step_run_id` | `tbl0MbCJRiMaTgGV` | `FEISHU_TABLE_ID_STEP_RUNS` |
+   | ChapterVersions | `version_id` | `tbl27O2lmeJFf7M8` | `FEISHU_TABLE_ID_CHAPTER_VERSIONS` |
+   | ReviewReports | `review_id` | `tblSVz3EvX4wV8CY` | `FEISHU_TABLE_ID_REVIEW_REPORTS` |
+   | ApprovalEvents | `approval_id` | `tbllS5i8YmwiBV5B` | `FEISHU_TABLE_ID_APPROVAL_EVENTS` |
 
 3. Supply `FEISHU_APP_ID` and `FEISHU_APP_SECRET` for that backend app,
    `FEISHU_APP_TOKEN` for the dedicated Base, and the five table IDs through
