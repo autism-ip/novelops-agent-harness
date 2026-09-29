@@ -65,6 +65,53 @@ def test_unknown_outcome_is_never_blindly_retried(setup):
     client.post.assert_called_once()
 
 
+def test_committed_create_with_missing_response_record_reconciles(setup):
+    client, provider = setup
+    client.get.side_effect = [records(), records(("rec1", {"ID": "stable"}))]
+    client.post.return_value = {"code": 0, "data": {}}
+    assert provider.ensure("runs", {"id": "stable"}) == {"id": "stable"}
+    client.post.assert_called_once()
+
+
+def test_missing_create_response_record_stops_without_second_post(setup):
+    client, provider = setup
+    client.get.return_value = records()
+    client.post.return_value = {"code": 0, "data": {}}
+    with pytest.raises(AmbiguousWrite):
+        provider.ensure("runs", {"id": "stable"})
+    with pytest.raises(AmbiguousWrite):
+        provider.ensure("runs", {"id": "stable"})
+    client.post.assert_called_once()
+
+
+def test_create_response_without_requested_business_key_reconciles(setup):
+    client, provider = setup
+    client.get.side_effect = [records(), records(("rec1", {"ID": "stable"}))]
+    client.post.return_value = {"code": 0, "data": {"record": {
+        "record_id": "rec1", "fields": {"Status": "pending"},
+    }}}
+    assert provider.ensure("runs", {"id": "stable"}) == {"id": "stable"}
+    client.post.assert_called_once()
+
+
+def test_committed_malformed_http_reply_recovers_without_duplicate_post():
+    from tests.feishu_transport import make_storage
+
+    provider, transport, client = make_storage()
+    transport.malformed_create_reply = "pipeline_runs"
+    try:
+        assert provider.ensure("pipeline_runs", {"pipeline_run_id": "PR-stable"}) == {
+            "pipeline_run_id": "PR-stable",
+        }
+        assert len(transport.tables["pipeline_runs"]) == 1
+        assert sum(
+            request.method == "POST" and "/tables/pipeline_runs/" in request.url.path
+            for request in transport.calls
+        ) == 1
+    finally:
+        client._http.close()
+
+
 def test_replay_reads_existing_record(setup):
     client, provider = setup
     client.get.return_value = records(("rec1", {"ID": "stable", "Status": "done"}))
