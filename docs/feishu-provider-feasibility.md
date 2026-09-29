@@ -23,9 +23,14 @@ readable through the documentation fetcher. No undocumented endpoint was selecte
 | Limits / conflicts / throughput | No distributed CAS claim; serialized application writes | Two concurrent same-record updates both returned success; an older logical version was the final value. A 50,000-character synthetic Chinese chapter payload round-tripped; absolute size and rate ceilings remain unmeasured. |
 | Bot identity | Backend uses app/bot credentials | v3 bot read blocked by missing `base:record:read`; direct v1 list also denied for both CLI identities because the response listed `bitable:app:readonly`, `bitable:app`, `base:record:retrieve` scopes |
 
-Environment inspection found no backend FEISHU_APP_ID, FEISHU_APP_SECRET or
-FEISHU_APP_TOKEN. However, `lark-cli 1.0.96` has working bot and user identities outside the
-sandbox. No Feishu MCP is exposed. After explicit user authorization, an isolated
+The initial environment inspection found no backend FEISHU_APP_ID,
+FEISHU_APP_SECRET or FEISHU_APP_TOKEN. On 2026-09-29 the operator configured
+the backend app ID, secret and model key in a local `backend/.env.local` in the
+main checkout. The approved test Base token and five table IDs were then added
+there without copying secrets into Git. This file is now ignored by Git; it is
+not automatically loaded by the opt-in integration test. `lark-cli 1.0.96` has
+separate bot and user identities outside the sandbox. No Feishu MCP is exposed.
+After explicit user authorization, an isolated
 [test Base](https://fcnaul7kb1kf.feishu.cn/base/T8I6buCMoaiLB6srVBrc9i2jnph)
 was created and retained. These CLI measurements do not certify the backend's
 bot-authenticated v1 production configuration.
@@ -50,6 +55,7 @@ WorkflowRun, StepRun, Artifact, StoryState, ChapterVersion, Review, Approval.
 | Bot-identity read (2026-09-29) | Denied with Feishu code `99991672`, missing app scope `base:record:read`; no bot write was attempted |
 | Same-record concurrent writes (2026-09-29) | A synthetic WorkflowRun row began at logical version 1. Two user-identity `batch_update` commands set versions 2 and 3 concurrently; both returned success. The final read showed version 2 at Base `rev=7`, and history later showed version 3 → 2 at rev 7. Each call took roughly 1.5–1.7 s including CLI overhead. This is one bounded race, not a rate-limit benchmark. |
 | Direct `bitable/v1` list (2026-09-29) | The exact read path used by `BaseRepository` was dry-run and then called with `page_size=1` against the approved Base. User identity returned authorization code `99991679`; bot identity returned `99991672`. Both errors listed missing `bitable:app:readonly`, `bitable:app`, `base:record:retrieve`. Neither reached record data, so this does not establish v1 schema compatibility or incompatibility. |
+| Backend-app `bitable/v1` list (2026-09-29) | With the newly configured backend app ID and secret, tenant-token acquisition succeeded. A read-only list against the approved `PipelineRuns` table returned HTTP 400 with Feishu code `99991672`, naming `bitable:app:readonly`, `bitable:app`, or `base:record:retrieve` as missing application scopes. The remaining four tables and live CRUD were not attempted after this preflight failure. This is the actual backend app identity, unlike the earlier CLI probe. |
 | Chapter-sized text (2026-09-29) | A synthetic ChapterVersion record with 50,000 Chinese prose characters in a JSON text field was created through Base v3 under user identity. The stored payload had 50,032 characters and read back byte-for-byte equal to the submitted payload (SHA-256 `36c1b3ab18ee238f6fe3729fa25f90851e655d2fbd440737ae8a4f0491e7f00c`). This covers the code's current 50,000-character prose cap in this test table; it is not a measured platform ceiling or a production schema test. |
 
 CLI dry-run confirms POST `/open-apis/base/v3/bases/{base}/tables/{table}/records/batch_create`,
