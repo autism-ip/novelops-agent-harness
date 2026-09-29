@@ -542,20 +542,35 @@ class ChapterLoopService:
     def versions(self, book_id: str, chapter_no: int) -> list[dict]:
         with self.kernel.writer:
             result = []
-            for row in reversed(self._versions(book_id, chapter_no)):
+            rows = list(reversed(self._versions(book_id, chapter_no)))
+            by_artifact = {row["artifact_id"]: row for row in rows if row.get("artifact_id")}
+            if len(by_artifact) != sum(bool(row.get("artifact_id")) for row in rows):
+                raise AmbiguousWrite("Multiple ChapterVersions project the same Artifact")
+            for row in rows:
                 artifact_id = row.get("artifact_id", "")
                 artifact = self.kernel.artifacts.get(artifact_id) if artifact_id else None
                 if artifact and (artifact["artifact_type"] != "ChapterVersion" or
                                  artifact["content_hash"] != row.get("content_hash") or
                                  artifact["content"]["chapter_no"] != chapter_no or
-                                 artifact["content"]["book_id"] != book_id):
+                                 artifact["content"]["book_id"] != book_id or
+                                 artifact["content"]["version_no"] != row["version_no"] or
+                                 artifact["run_id"] != row.get("run_id")):
                     raise AmbiguousWrite("ChapterVersion projection provenance changed")
                 report_id = row.get("review_report_id")
                 verifier_id = row.get("verifier_artifact_id")
                 report = self.kernel.artifacts.get(report_id) if report_id else None
                 verification = self.kernel.artifacts.get(verifier_id) if verifier_id else None
-                if report and report["artifact_type"] != "CriticReport":
-                    raise AmbiguousWrite("ChapterVersion review report provenance changed")
+                if report:
+                    refs = report["source_refs"]
+                    source = by_artifact.get(refs[2]) if len(refs) >= 3 else None
+                    if (report["artifact_type"] != "CriticReport" or
+                        report["run_id"] != row.get("run_id") or
+                        report["chapter_id"] != f"{book_id}/{chapter_no}" or
+                        not artifact or refs[:2] != artifact["source_refs"][:2] or
+                        not source or source.get("run_id") != row.get("run_id") or
+                        source.get("review_report_id") != report_id or
+                        source["version_no"] > row["version_no"]):
+                        raise AmbiguousWrite("ChapterVersion review report provenance changed")
                 if verification and (verification["artifact_type"] != "ChapterVerification" or
                                      artifact and artifact["content"].get("verification_artifact_id") != verifier_id):
                     raise AmbiguousWrite("ChapterVersion verifier provenance changed")

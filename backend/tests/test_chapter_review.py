@@ -7,6 +7,7 @@ from app.config import Settings
 from app.harness import TransitionConflict
 from app.main import create_app
 from app.generation import Route
+from app.storage import AmbiguousWrite
 from tests.test_chapter_loop import critique, draft, pass_run, start
 from tests.test_story_planning import approve_bible, brief, settle
 
@@ -88,6 +89,16 @@ def test_routine_reject_regenerate_preserves_older_version(chapter):
                item["verification"]["artifact_id"] for item in history)
     with pytest.raises(TransitionConflict):
         kernel.chapter_loop.decide_review(book_id, 1, **command)
+    newer, older = history
+    kernel.storage.update("chapter_versions", newer["record"]["version_id"],
+                          {"review_report_id": older["report"]["artifact_id"]})
+    with pytest.raises(AmbiguousWrite, match="review report provenance"):
+        kernel.chapter_loop.versions(book_id, 1)
+    kernel.storage.update("chapter_versions", newer["record"]["version_id"],
+                          {"review_report_id": newer["report"]["artifact_id"],
+                           "artifact_id": older["artifact"]["artifact_id"]})
+    with pytest.raises(AmbiguousWrite, match="same Artifact"):
+        kernel.chapter_loop.versions(book_id, 1)
 
 
 def test_revision_task_binds_source_constraints_and_new_version(chapter):
