@@ -6,7 +6,7 @@ import httpx
 
 from app.feishu.client import FeishuClient
 from app.feishu.repositories.base import BaseRepository
-from app.feishu.table_map import FIELD_MAPS
+from app.feishu.table_map import FIELD_MAPS, FLOAT_FIELD_NAMES, INTEGER_FIELD_NAMES
 from app.storage import FeishuStorageProvider
 
 
@@ -25,6 +25,11 @@ class FeishuTransport:
             return httpx.Response(200, json={"code": 0, "tenant_access_token": "test", "expire": 7200})
         table = parts[parts.index("tables") + 1]
         rows = self.tables.setdefault(table, {})
+        def read_shape(row):
+            return {"record_id": row["record_id"], "fields": {
+                key: str(value) if key in INTEGER_FIELD_NAMES | FLOAT_FIELD_NAMES
+                and isinstance(value, (int, float)) and not isinstance(value, bool) else value
+                for key, value in row["fields"].items()}}
         record_id = parts[-1] if parts[-1] != "records" else None
         if request.method == "POST":
             if self.fail_create == table:
@@ -50,10 +55,11 @@ class FeishuTransport:
             matches = list(rows.values())
             for field, value in re.findall(r'CurrentValue\.\[([^]]+)\] = ("(?:\\.|[^"\\])*"|\d+)', request.url.params.get("filter", "")):
                 matches = [r for r in matches if r["fields"].get(field) == json.loads(value)]
-            return httpx.Response(200, json={"code": 0, "data": {"items": matches, "has_more": False}})
+            return httpx.Response(200, json={"code": 0, "data": {"items": [read_shape(row) for row in matches], "has_more": False}})
         if record_id not in rows:
             return httpx.Response(200, json={"code": 1254043})
-        return httpx.Response(200, json={"code": 0, "data": {"record": rows[record_id]}})
+        record = read_shape(rows[record_id]) if request.method == "GET" else rows[record_id]
+        return httpx.Response(200, json={"code": 0, "data": {"record": record}})
 
 
 def make_storage():
