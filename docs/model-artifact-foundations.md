@@ -23,6 +23,9 @@ pricing is fabricated. Configure supported JSON Chat Completions models for each
 route; missing routes/keys fail explicitly. No paid API call is made by the
 offline test/eval suite. Downstream workflow composition registers semantic
 handlers before kernel startup and accesses `kernel.semantic`.
+For local development, backend Settings loads `.env` then `.env.local`; the latter
+overrides file values, and process environment variables override both. Both
+files are ignored by Git. The backend still requires `BACKEND_API_KEY` to start.
 
 The two adapters share a contract and use official HTTPS endpoints through
 httpx. They request JSON objects and then validate them locally with Pydantic;
