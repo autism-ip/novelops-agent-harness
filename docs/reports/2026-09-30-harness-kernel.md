@@ -1,0 +1,20 @@
+# ZEN-104 — Harness kernel delivery review
+
+## Delivery
+
+- **Issue:** [ZEN-104](https://linear.app/zenhungyep/issue/ZEN-104) / [GitHub #20](https://github.com/autism-ip/novelops-agent-harness/issues/20).
+- **PR:** [#24](https://github.com/autism-ip/novelops-agent-harness/pull/24), stacked on the Feishu provider [#23](https://github.com/autism-ip/novelops-agent-harness/pull/23).
+- **Contract:** one persistent workflow writer, deterministic run/step IDs, durable creation-intent markers, explicit state transitions and versioned approvals. The kernel uses Feishu as its record store.
+
+## Verification
+
+- Offline backend after the Feishu v1 response-shape fixes: `209 passed, 9 integration tests deselected`, 90.00% coverage against an 87.815587% floor. Tests exercise replay, version conflicts, restart recovery, completion, approval idempotency, failed handlers and lifecycle composition through the real HTTP client/repository fixture.
+- On 2026-09-30, a synthetic live probe used production `build_runtime`, `HarnessKernel`, `FeishuClient`, `BaseRepository` and `FeishuStorageProvider` against the [authorized test Base](https://fcnaul7kb1kf.feishu.cn/base/T8I6buCMoaiLB6srVBrc9i2jnph). It first required PipelineRuns, StepRuns and ApprovalEvents to be empty, then created a one-step service workflow with an approval gate. `create` returned a pending run and step; `tick` produced `awaiting_approval` with integer `output_version=1`; `decide(approve, 1)` completed the run and persisted exactly one ApprovalEvent with `target_version=1`.
+- The probe took 100.56 seconds including all Feishu requests and cleanup. The one temporary row in each of PipelineRuns, StepRuns and ApprovalEvents was deleted in `finally`; all three cleanup calls succeeded. No secret values or model payloads were written to this report.
+- Earlier live attempts exposed real v1 adapter defects: a partial PUT reply omitted unchanged business fields, and GET/list returned Number cells as strings. Both fixes and stateful regressions belong to the provider PR #23. This report records the successful rerun after those fixes.
+
+## Limits and release conditions
+
+The live probe called `kernel.tick()` directly rather than starting the background scheduler or going through the HTTP API. Those paths are covered by the offline lifecycle tests but have not yet been exercised against the live Base. The test Base has the three workflow table schemas needed by this probe; it does not establish that every production table, ACL and model route is ready. Run one backend writer and keep the journal directory across restarts. Resolve any ambiguous Feishu write before resuming work.
+
+The issue's acceptance is met for deterministic execution and versioned approvals in the verified single-writer scenario. Keep broader product rollout gated on the remaining stacked issues and production configuration checks.
