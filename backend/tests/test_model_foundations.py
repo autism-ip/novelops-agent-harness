@@ -34,6 +34,10 @@ def test_provider_contract_validates_schema_and_records_usage(provider, foundati
         assert request.headers["authorization"] == "Bearer secret"
         body = json.loads(request.content)
         assert body["response_format"] == {"type":"json_object"}
+        if provider == "deepseek":
+            assert body["thinking"] == {"type":"disabled"}
+        else:
+            assert "thinking" not in body
         return httpx.Response(200, json={"model":"configured-model", "choices":[{"finish_reason":"stop", "message":{"content":'{"summary":"ok"}'}}],
                                          "usage":{"prompt_tokens":100,"completion_tokens":50}})
     http = httpx.Client(transport=httpx.MockTransport(respond))
@@ -47,6 +51,26 @@ def test_provider_contract_validates_schema_and_records_usage(provider, foundati
     assert trace.usage(chapter_id="book:1")["attempts"] == 1
     assert "secret" not in json.dumps(trace.list(run_id="run"))
     http.close()
+
+
+def test_deepseek_thinking_is_explicit_and_route_budget_is_bounded():
+    captured = []
+    def respond(request):
+        captured.append(json.loads(request.content))
+        return httpx.Response(200, json={"choices":[{"finish_reason":"stop",
+            "message":{"content":'{"summary":"ok"}'}}]})
+    with httpx.Client(transport=httpx.MockTransport(respond)) as http:
+        route = Route(provider="deepseek",model="configured-model",deepseek_thinking="enabled",
+                      timeout=20,max_retries=0)
+        assert ChatProvider("deepseek","secret",client=http).complete(route,[]).content == '{"summary":"ok"}'
+    assert captured[0]["thinking"] == {"type":"enabled"}
+    assert Route(provider="deepseek",model="m",timeout=20,max_retries=0).timeout == 20
+    with pytest.raises(ValueError,match="call budget"):
+        Route(provider="deepseek",model="m",timeout=20,max_retries=1)
+    with pytest.raises(ValueError,match="less than or equal to 25"):
+        Route(provider="deepseek",model="m",timeout=26,max_retries=0)
+    with pytest.raises(ValueError,match="DeepSeek route"):
+        Route(provider="openai",model="m",deepseek_thinking="enabled")
 
 
 @pytest.mark.parametrize("provider_name", ["openai", "deepseek"])
