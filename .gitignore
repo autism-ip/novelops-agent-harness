@@ -6,6 +6,9 @@ __pycache__/
 .runtime/
 .coverage*
 backend/build/
+.env.local
+.env.*.local
+node_modules/
 .venv/
 .ruff_cache/
 .coverage
