@@ -50,3 +50,5 @@ The `issue-pr-delivery` workflow remains suitable: exact issue/PR mapping, immed
 ## Follow-up: truthful Critic provenance after a rewrite
 
 The original Critic scores evaluate the first verified draft, not the rewritten prose. Upstream PR #36 now links the report to that first version even when a rewrite follows. This desk labels a rewritten version's carried report as the earlier draft's evaluation and calls out that the selected rewrite still needs editorial judgment; deterministic checks verify hard rules only. The downstream branch merges that upstream fix so the historical initial version can show its actual report. The ZEN-40 targeted and full backend suites passed after the fix (13 and 349 tests respectively, 91.64% coverage); this desk's checks and exact-head CI are recorded in the PR after pushing.
+
+The approved version now disables the Reject action because the exact server command rejects a conflicting second decision. Revision and final lock remain available. This removes a visible control that could only return a 409 conflict.

@@ -188,7 +188,8 @@ export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged }: {
             onChange={event => setReason(event.target.value)} maxLength={2000} /></label>
         <div className="flex flex-wrap gap-2"><Button disabled={blocked || current?.record.status === "approved"}
           onClick={() => decide("approve")}>Approve</Button>
-          <Button variant="outline" disabled={blocked} onClick={() => decide("reject")}>Reject</Button>
+          <Button variant="outline" disabled={blocked || current?.record.status === "approved"}
+            onClick={() => decide("reject")}>Reject</Button>
           <Button variant="secondary" disabled={blocked || gatePending || latest.run.status !== "completed"}
             onClick={lockFinal}>Lock final</Button></div>
         {locked && <p className="text-xs text-muted-foreground">This chapter is final-locked. Earlier versions remain readable.</p>}
