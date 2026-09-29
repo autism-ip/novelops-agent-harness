@@ -131,5 +131,9 @@ comparison variant; it can need a larger token budget.
 HTTP MockTransport tests cover both providers, retries, bad schema, missing
 configuration, timeouts, rate limits, usage, sanitization and immutable replay.
 Provider/Artifact/trace APIs run against the real Feishu client/repository stack
-with distinct simulated record IDs. The opt-in DeepSeek fixture probe made paid
-calls; full backend deployment and a live model-to-Feishu workflow remain untested.
+with distinct simulated record IDs. A separate, authorized synthetic Base check
+also persisted a real DeepSeek StoryBible Artifact and linked Trace through the
+backend application's Feishu credentials, verified same-version replay and
+readback, then deleted only the two probe rows. See the linked report for table
+IDs, usage and cleanup evidence. Full Book/Harness approval and production
+deployment remain untested.
