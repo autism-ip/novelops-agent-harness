@@ -1,3 +1,8 @@
+/**
+ * [INPUT]: hotspot, workflow, and capability APIs plus responsive viewport state
+ * [OUTPUT]: hotspot workbench with persistent requests and adaptive detail dialog
+ * [POS]: hotspot page client workflow
+ */
 "use client";
 
 import {
@@ -78,23 +83,36 @@ function Detail({
   submit: (command: Pending) => Promise<SubmitResult>;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const [desktop, setDesktop] = useState<boolean | null>(null);
   const result = useResource<Hotspot>(
     `/api/hotspots/${encodeURIComponent(id)}`,
     revision,
   );
   useEffect(() => {
-    if (window.matchMedia("(min-width: 1024px)").matches) dialog.current?.show();
-    else dialog.current?.showModal();
+    const media = window.matchMedia("(min-width: 1024px)");
+    const update = () => setDesktop(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
   }, []);
+  useEffect(() => {
+    const node = dialog.current;
+    if (!node || node.open) return;
+    if (desktop) node.show();
+    else node.showModal();
+    node.querySelector<HTMLElement>("button")?.focus();
+  }, [desktop]);
   const row = result.data;
   const sourceUrl = row && safeSourceUrl(row.url);
+  if (desktop === null) return null;
   return (
     <dialog
+      key={desktop ? "desktop" : "mobile"}
       ref={dialog}
       onClose={close}
-      onCancel={close}
+      onCancel={(event) => { event.preventDefault(); close(); }}
       aria-labelledby="hotspot-detail-title"
-      className="fixed inset-y-0 left-auto right-0 m-0 h-dvh max-h-none w-full max-w-none overflow-y-auto overscroll-contain border-0 bg-background p-5 text-foreground shadow-2xl backdrop:bg-[#101f3a]/45 sm:p-7 lg:inset-y-4 lg:right-4 lg:h-auto lg:max-h-[calc(100dvh-2rem)] lg:w-[min(40vw,35rem)] lg:rounded-[1.5rem] lg:border lg:bg-white"
+      className="fixed inset-y-0 left-auto right-0 z-50 m-0 h-dvh max-h-none w-full max-w-none overflow-y-auto overscroll-contain border-0 bg-background p-5 text-foreground shadow-2xl backdrop:bg-[#101f3a]/45 sm:p-7 lg:inset-y-4 lg:right-4 lg:h-auto lg:max-h-[calc(100dvh-2rem)] lg:w-[min(40vw,35rem)] lg:rounded-[1.5rem] lg:border lg:bg-white"
     >
       <div className="flex justify-between gap-4">
         <h2 id="hotspot-detail-title" className="text-xl font-semibold">
@@ -377,7 +395,7 @@ export function HotspotsWorkbench() {
     },
   ];
   return (
-    <div className={cn("page-shell app-reveal min-w-0 space-y-6 transition-[padding] duration-300", detailId && "review-open")}>
+    <div className={cn("page-shell min-w-0 space-y-6 transition-[padding] duration-300", detailId && "review-open")}>
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="page-title">Hotspots</h1>
@@ -439,7 +457,7 @@ export function HotspotsWorkbench() {
       {pending && (
         <div
           role="status"
-          className="surface space-y-2 border-amber-300 bg-amber-50 p-5"
+          className="surface surface-warning space-y-2 p-5"
         >
           <p>
             Request outcome is unconfirmed. Retry checks the same request
@@ -454,7 +472,7 @@ export function HotspotsWorkbench() {
         </div>
       )}
       {pendingRaw && !pending && (
-        <div role="alert" className="surface space-y-3 border-amber-300 bg-amber-50 p-5">
+        <div role="alert" className="surface surface-warning space-y-3 p-5">
           Saved request is unreadable. Review recent workflows before clearing
           it.{" "}
           <Button variant="outline" onClick={() => savePending(null)}>
