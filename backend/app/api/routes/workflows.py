@@ -70,4 +70,7 @@ def cancel(run_id: str, kernel=Depends(get_kernel)):
 
 @router.post("/steps/{step_id}/decision")
 def decision(step_id: str, body: DecisionBody, kernel=Depends(get_kernel)):
+    step = kernel.storage.get("step_runs", step_id)
+    if step and step["handler"].startswith("chapter."):
+        raise HTTPException(422, "Use the exact-version chapter review endpoint")
     return kernel.decide(step_id, body.action, body.expected_version, body.operator, reason=body.reason)

@@ -35,3 +35,12 @@ and `writer`, `critic`, and `rewrite` model routes. `CHAPTER_MAX_REWRITES` is 0 
 1. Optional `CHAPTER_MAX_ESTIMATED_COST` fails the run closed if token usage or
 route prices are unavailable. See [`docs/chapter-loop.md`](../docs/chapter-loop.md)
 for exact-source generation, deterministic checks, critique, revision and final-lock semantics.
+
+The ZEN-41 review desk optionally holds the first
+`CHAPTER_REVIEW_FIRST_N` chapters or a chapter with any Critic dimension at or
+below `CHAPTER_REVIEW_SCORE_THRESHOLD` for an exact editor decision. Both
+default to 0, so ordinary validated chapters proceed to review automatically.
+Configure the additive RevisionTasks fields in `docs/feishu-schema.md` before
+using editor-directed revision. See
+[`docs/chapter-review.md`](../docs/chapter-review.md) for the decision and
+retry contract.

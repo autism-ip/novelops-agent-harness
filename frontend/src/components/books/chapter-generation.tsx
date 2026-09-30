@@ -3,16 +3,14 @@
 import { useRef, useState, useSyncExternalStore } from "react";
 import { api, ApiError } from "@/api/client";
 import { errorMessage, useResource } from "@/components/hotspots/use-resource";
-import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import { parsePendingChapter, type PendingChapter } from "./chapter-state";
+import { ChapterReviewDesk } from "./chapter-review-desk";
 
 type Artifact = { artifact_id: string; version: number; content: Record<string, unknown>; source_refs: string[] };
 type ChapterRun = { run: { pipeline_run_id: string; status: string };
-  selected: Artifact | null; critique: Artifact | null; snapshot_artifact_id: string;
-  current: boolean;
+  selected: Artifact | null; critique: Artifact | null; snapshot_artifact_id: string; current: boolean;
   versions: { version_id: string; version_no: number; status: string }[];
-  version_summaries: { version_id: string; version_no: number; status: string }[];
   usage: { attempts: number; input_tokens: number | null; output_tokens: number | null;
     estimated_cost: number | null; latency_ms: number | null; retries: number } };
 type ChapterContext = { book_id: string; chapter_no: number; version: number; start_version_no: number;
@@ -35,9 +33,9 @@ function visibleError(cause: unknown) {
   if (cause instanceof ApiError && cause.status === 401) return "Sign in to generate chapters.";
   return errorMessage(cause);
 }
-function stringValue(value: unknown) { return typeof value === "string" ? value : ""; }
+
 function pollWhileActive(run: ChapterRun | null) {
-  return !!run && !["completed", "failed", "blocked", "cancelled"].includes(run.run.status);
+  return !!run && !["completed", "failed", "blocked", "cancelled", "awaiting_approval"].includes(run.run.status);
 }
 
 export function ChapterGeneration({ bookId }: { bookId: string }) {
@@ -57,6 +55,7 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
   const brief = useResource<Artifact>(validChapter ? `${root}/brief/eligible` : null, revision, 5000);
   const latest = runs.data;
   const runBusy = !!latest && !["completed", "failed", "blocked", "cancelled"].includes(latest.run.status);
+  const finalLocked = latest?.versions.some(row => row.status === "final") ?? false;
   const unavailable = runs.error instanceof ApiError && runs.error.status === 503;
 
   async function submit(command: PendingChapter) {
@@ -94,8 +93,9 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
         <input className="mt-1.5 block w-full px-3 py-2" type="number" min={1} max={10000}
           value={chapter} onChange={event => setChapter(event.target.value)} />
       </label>
-      <Button disabled={working || !!pendingRaw || runBusy || !validChapter || !brief.data}
-        onClick={() => void generate()}>{latest ? "Regenerate chapter" : "Generate chapter"}</Button>
+      <Button disabled={working || !!pendingRaw || runBusy || finalLocked || !validChapter || !brief.data}
+        onClick={() => void generate()}>{finalLocked ? "Chapter final-locked" :
+          latest ? "Regenerate chapter" : "Generate chapter"}</Button>
       <Button variant="ghost" disabled={working || !validChapter}
         onClick={() => setRevision(value => value + 1)}>Refresh chapter</Button>
     </div>
@@ -112,43 +112,7 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
       <Button variant="outline" onClick={() => setSaved(key, null)}>I checked the history</Button>
     </div>}
     {error && <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
-    {latest && <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(17rem,1fr)]">
-      <div className="surface-soft min-w-0 space-y-4 p-4 sm:p-5">
-        <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-semibold">Latest chapter</h3>
-          <StatusBadge status={latest.run.status} /></div>
-        {!latest.current && !latest.versions.some(version => version.status === "final") &&
-          <p role="status" className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900">
-            This draft is not current for final lock. Check the latest StoryState and chapter brief before regenerating.
-          </p>}
-        {latest.selected ? <><p className="text-xs text-muted-foreground">Version {latest.selected.version} · {latest.versions.at(-1)?.status}</p>
-          <h4 className="text-lg font-semibold">{stringValue(latest.selected.content.title)}</h4>
-          <p className="line-clamp-5 whitespace-pre-wrap text-sm leading-7">{stringValue(latest.selected.content.prose)}</p>
-          <details className="border-t pt-3 text-sm"><summary className="min-h-11 cursor-pointer font-medium">Read full chapter</summary>
-            <div className="mt-3 max-h-[36rem] overflow-auto whitespace-pre-wrap break-words leading-7">{stringValue(latest.selected.content.prose)}</div>
-          </details></> : <p className="text-sm text-muted-foreground">{runBusy ? "The writing loop is running." : "No verified chapter version is ready for review."}</p>}
-      </div>
-      <div className="surface-soft min-w-0 space-y-4 p-4 sm:p-5">
-        <h3 className="font-semibold">Critique and versions</h3>
-        {latest.critique ? <><p className="text-sm">{stringValue(latest.critique.content.summary)}</p>
-          <p className="text-xs font-medium capitalize text-muted-foreground">Decision: {stringValue(latest.critique.content.decision)}</p>
-          <details className="border-t pt-3 text-sm"><summary className="min-h-11 cursor-pointer font-medium">Review quality dimensions</summary>
-            <dl className="mt-3 space-y-2">{["pacing", "style", "repetition", "dialogue", "reader_promise", "continuity", "ai_patterns"].map(name => {
-              const dimension = latest.critique?.content[name] as { score?: number; evidence?: string } | undefined;
-              return <div key={name}><dt className="font-medium capitalize">{name.replaceAll("_", " ")} · {dimension?.score ?? "?"}/5</dt>
-                <dd className="text-muted-foreground">{dimension?.evidence ?? "No evidence"}</dd></div>;
-            })}</dl>
-          </details></> : <p className="text-sm text-muted-foreground">Critique appears after the first verified draft.</p>}
-        <div className="border-t pt-3"><p className="mb-2 text-sm font-medium">Version history</p>
-          <ul className="space-y-1 text-sm">{latest.version_summaries.map(version =>
-            <li key={version.version_id}>v{version.version_no} · {version.status}</li>)}</ul></div>
-        <details className="border-t pt-3 text-xs text-muted-foreground"><summary className="min-h-11 cursor-pointer font-medium">Sources and model usage</summary>
-          <dl className="mt-2 space-y-1 break-all"><div><dt>Context snapshot</dt><dd>{latest.snapshot_artifact_id}</dd></div>
-            <div><dt>Chapter artifact</dt><dd>{latest.selected?.artifact_id ?? "Not selected"}</dd></div>
-            <div><dt>Model attempts</dt><dd>{latest.usage.attempts} · {latest.usage.retries} retries</dd></div>
-            <div><dt>Tokens</dt><dd>{latest.usage.input_tokens ?? "unknown"} input · {latest.usage.output_tokens ?? "unknown"} output</dd></div>
-            <div><dt>Estimated cost</dt><dd>{latest.usage.estimated_cost ?? "unavailable"}</dd></div></dl>
-        </details>
-      </div>
-    </div>}
+    {validChapter && <ChapterReviewDesk key={`${bookId}:${chapterNo}`} bookId={bookId} chapterNo={chapterNo}
+      refresh={revision} onChanged={() => setRevision(value => value + 1)} />}
   </section>;
 }
