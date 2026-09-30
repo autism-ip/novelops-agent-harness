@@ -1,4 +1,6 @@
 """ZEN-40: verified chapter versions, actionable critique and bounded rewrite."""
+import json
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -99,6 +101,11 @@ def test_actionable_critique_rewrites_once_and_preserves_versions(chapter):
     assert view["critique"]["content"]["constraints"]["must_change"]
     assert view["usage"]["attempts"] == 3
     assert provider.calls[-3:] == ["writer", "critic", "rewrite"]
+    for messages in (provider.messages[-3], provider.messages[-1]):
+        sent = json.loads(messages[1]["content"])
+        assert sent["snapshot_artifact_id"] == snapshot
+        assert sent["brief_artifact_id"] == request["brief_artifact_id"]
+        assert sent["snapshot"]["planning_snapshot_id"] != snapshot
 
 
 def test_reject_and_hard_failure_never_reach_review(chapter):
