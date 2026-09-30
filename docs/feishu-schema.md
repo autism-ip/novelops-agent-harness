@@ -228,7 +228,7 @@ Hit-pattern and novelization analysis.
 | `locked_at` | Final lock timestamp, set only on the selected version (additive). |
 | `locked_by` | Final lock operator, set only on the selected version (additive). |
 | `review_report_id` | CriticReport Artifact ID on the selected review version. |
-| `prompt_version` | Prompt version. |
+| `prompt_version` | Writer or Rewrite model prompt version that produced the prose; the deterministic source-binding prompt is recorded on its own Artifact. |
 | `created_at` | Created time. |
 
 ## 13. ReviewReports
