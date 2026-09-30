@@ -2,7 +2,7 @@
 
 - Linear: [ZEN-40](https://linear.app/zenhungyep/issue/ZEN-40/implement-chapter-generation-critique-rewrite-and-verification-loop)
 - GitHub: [Issue #13](https://github.com/autism-ip/novelops-agent-harness/issues/13)
-- Delivery: draft [PR #36](https://github.com/autism-ip/novelops-agent-harness/pull/36) on `codex/zen-40-chapter-loop`, based on ZEN-39 [PR #35](https://github.com/autism-ip/novelops-agent-harness/pull/35). Merge in stack order.
+- Delivery: [PR #36](https://github.com/autism-ip/novelops-agent-harness/pull/36) on `codex/zen-40-chapter-loop`, based on ZEN-39 [PR #35](https://github.com/autism-ip/novelops-agent-harness/pull/35). Merge in stack order.
 
 ## Delivered behavior
 
@@ -87,3 +87,19 @@ The run recorded three chapter model attempts, 16,656 input tokens, 6,308 output
 A second run reached a new Writer draft and passed `verify_writer`, then DeepSeek returned a Critic response that failed the strict `Critique` schema. The low-cost probe route had `max_retries=0`; the harness correctly failed the step and kept the candidate from becoming reviewable. Its 1 ChapterVersion and other synthetic rows were cleaned. A third run, with one bounded Critic schema retry configured only in the probe, stopped during StoryBible when Feishu token-host DNS failed. Its first cleanup pass also failed under that outage; after DNS recovered, journal-targeted cleanup removed only that synthetic Book and its 1 ApprovalEvent, 4 Traces, 3 StepRuns, 1 PipelineRun, 2 StoryStates and 3 Artifacts. An independent backend-app read then found the test Base at its retained baseline: 1 Book, 1 StoryState, and zero Artifacts, Traces, PipelineRuns, StepRuns, ApprovalEvents, ChapterVersions and RevisionTasks.
 
 **Verified:** one complete live ZEN-40 Writer → Critic → Rewrite → final verification path with exact source binding, plus safe failure on invalid Critic output. **Engineering judgment:** this issue is ready for human PR review. **Still open for production:** configured route prices for an estimated cost, repeated model-quality evaluation, deployment credentials and upstream merge order. ZEN-41's live RevisionTask, approval and final-lock acceptance remains separate and its PR stays draft.
+
+
+## 2026-10-01 review disposition and current verification
+
+Four new automated inline findings on PR #36 were valid and were fixed on the owning branch:
+
+| Finding | Change | Verification |
+| --- | --- | --- |
+| Historical polling expanded every run and fetched full version Artifacts every five seconds | The Book panel reads `/generation/latest`, with only the latest run expanded and ID/status-only `version_summaries`; automatic chapter polling stops at terminal status and manual refresh remains available. | API regression asserts one expanded run across two runs, authenticated access and summary shape; the synthetic browser completed a chapter through this endpoint. |
+| A Feishu ChapterVersion Artifact could persist while its projection write failed, then its immutable version number could be reused | Allocation compares Artifact identity/number with the ChapterVersions projection and fails closed on an orphan, duplicate, or missing Artifact until reconciliation. | Regression removes a projection after a successful run, proves context and enqueue refuse to reuse the number, then restores the projection and confirms the next number is 2. |
+| A stale selected draft appeared under “Latest chapter” without warning | The panel uses the backend `current` result and marks non-final drafts as unsuitable for final lock. | In the browser, approving StoryBible v2 moved StoryState to v3; “Refresh chapter” then displayed the stale warning on the previous completed draft. |
+| The Critic prompt left repetition and AI-pattern score polarity ambiguous | `chapter-critic-v2` defines all seven as quality scores; 5 means those two defects are absent/minimal, 0 means severe. | Prompt/schema regression and one real DeepSeek Flash probe with obviously repeated synthetic prose: schema-valid `reject`, repetition 0/5 and AI patterns 0/5 (915 input, 629 output tokens, 4.278 seconds model latency). |
+
+Current offline verification: **370 backend tests passed**, 9 credentialed tests deselected, **91.15%** statement coverage against the unchanged 87.815587% gate; **12 frontend tests passed**, ESLint, TypeScript and Next.js production build passed. Local Ruff is unavailable; exact-head CI must verify it after push. The synthetic desktop browser followed hotspot selection → opportunity approval → title and cover choice → Book creation → StoryBible generation/approval → eligible brief → completed chapter with Critic pass and one review version. It also verified the stale warning after StoryState changed. No `/versions` GET occurred during that flow; chapter reads used `/generation/latest`. The test fixture is not evidence of live Feishu behavior; the preceding 2026-09-30 live acceptance remains the evidence for production service and model persistence.
+
+**Verified:** the four regression cases, local gates, one low-cost live Critic polarity sample, and the stated synthetic browser flow. **Engineering judgment:** PR #36 is ready for human merge review after exact-head CI and thread resolution, in stack order. **Unverified:** repeated Critic quality, production scale latency, deployed credentials and route cost estimates. The issue-to-PR skill remains appropriate; these fixes are specific to this implementation and do not justify a new skill.

@@ -10,10 +10,11 @@ import { parsePendingChapter, type PendingChapter } from "./chapter-state";
 type Artifact = { artifact_id: string; version: number; content: Record<string, unknown>; source_refs: string[] };
 type ChapterRun = { run: { pipeline_run_id: string; status: string };
   selected: Artifact | null; critique: Artifact | null; snapshot_artifact_id: string;
+  current: boolean;
   versions: { version_id: string; version_no: number; status: string }[];
+  version_summaries: { version_id: string; version_no: number; status: string }[];
   usage: { attempts: number; input_tokens: number | null; output_tokens: number | null;
     estimated_cost: number | null; latency_ms: number | null; retries: number } };
-type VersionEntry = { record: { version_id: string; version_no: number; status: string } };
 type ChapterContext = { book_id: string; chapter_no: number; version: number; start_version_no: number;
   state_artifact_id: string; state_version: number;
   brief_artifact_id: string; brief_version: number;
@@ -35,6 +36,9 @@ function visibleError(cause: unknown) {
   return errorMessage(cause);
 }
 function stringValue(value: unknown) { return typeof value === "string" ? value : ""; }
+function pollWhileActive(run: ChapterRun | null) {
+  return !!run && !["completed", "failed", "blocked", "cancelled"].includes(run.run.status);
+}
 
 export function ChapterGeneration({ bookId }: { bookId: string }) {
   const [chapter, setChapter] = useState("1");
@@ -48,10 +52,10 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
   const key = `novelops.chapter-generation.pending.${bookId}`;
   const pendingRaw = useSyncExternalStore(subscribe, () => saved(key), () => null);
   const pending = parsePendingChapter(pendingRaw);
-  const runs = useResource<ChapterRun[]>(validChapter ? `${root}/generations` : null, revision, 5000);
-  const versions = useResource<VersionEntry[]>(validChapter ? `${root}/versions` : null, revision, 5000);
+  const runs = useResource<ChapterRun | null>(validChapter ? `${root}/generation/latest` : null,
+    revision, 5000, pollWhileActive);
   const brief = useResource<Artifact>(validChapter ? `${root}/brief/eligible` : null, revision, 5000);
-  const latest = runs.data?.[0];
+  const latest = runs.data;
   const runBusy = !!latest && !["completed", "failed", "blocked", "cancelled"].includes(latest.run.status);
   const unavailable = runs.error instanceof ApiError && runs.error.status === 503;
 
@@ -92,6 +96,8 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
       </label>
       <Button disabled={working || !!pendingRaw || runBusy || !validChapter || !brief.data}
         onClick={() => void generate()}>{latest ? "Regenerate chapter" : "Generate chapter"}</Button>
+      <Button variant="ghost" disabled={working || !validChapter}
+        onClick={() => setRevision(value => value + 1)}>Refresh chapter</Button>
     </div>
     {validChapter && !brief.data && !(brief.loading) &&
       <p className="text-sm text-muted-foreground">Approve the StoryBible and generate a current chapter brief first.</p>}
@@ -110,6 +116,10 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
       <div className="surface-soft min-w-0 space-y-4 p-4 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-semibold">Latest chapter</h3>
           <StatusBadge status={latest.run.status} /></div>
+        {!latest.current && !latest.versions.some(version => version.status === "final") &&
+          <p role="status" className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900">
+            This draft is not current for final lock. Check the latest StoryState and chapter brief before regenerating.
+          </p>}
         {latest.selected ? <><p className="text-xs text-muted-foreground">Version {latest.selected.version} · {latest.versions.at(-1)?.status}</p>
           <h4 className="text-lg font-semibold">{stringValue(latest.selected.content.title)}</h4>
           <p className="line-clamp-5 whitespace-pre-wrap text-sm leading-7">{stringValue(latest.selected.content.prose)}</p>
@@ -129,8 +139,8 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
             })}</dl>
           </details></> : <p className="text-sm text-muted-foreground">Critique appears after the first verified draft.</p>}
         <div className="border-t pt-3"><p className="mb-2 text-sm font-medium">Version history</p>
-          <ul className="space-y-1 text-sm">{versions.data?.map(({ record }) =>
-            <li key={record.version_id}>v{record.version_no} · {record.status}</li>)}</ul></div>
+          <ul className="space-y-1 text-sm">{latest.version_summaries.map(version =>
+            <li key={version.version_id}>v{version.version_no} · {version.status}</li>)}</ul></div>
         <details className="border-t pt-3 text-xs text-muted-foreground"><summary className="min-h-11 cursor-pointer font-medium">Sources and model usage</summary>
           <dl className="mt-2 space-y-1 break-all"><div><dt>Context snapshot</dt><dd>{latest.snapshot_artifact_id}</dd></div>
             <div><dt>Chapter artifact</dt><dd>{latest.selected?.artifact_id ?? "Not selected"}</dd></div>
