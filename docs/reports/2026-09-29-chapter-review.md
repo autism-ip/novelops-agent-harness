@@ -3,7 +3,7 @@
 ## Goal and delivery scope
 
 - [Linear ZEN-41](https://linear.app/zenhungyep/issue/ZEN-41/build-chapter-review-desk-with-selective-approval-and-final-lock) / [GitHub issue #14](https://github.com/autism-ip/novelops-agent-harness/issues/14).
-- One [draft PR #37](https://github.com/autism-ip/novelops-agent-harness/pull/37) for this issue, stacked on [ZEN-40 PR #36](https://github.com/autism-ip/novelops-agent-harness/pull/36), branch `codex/zen-41-chapter-review-desk` targeting `codex/zen-40-chapter-loop`. The tested implementation commit is `16478fe8f3a45a6fff8eb52bc2644732a9708dfa`. Merge order remains the upstream stack, then ZEN-40, then ZEN-41.
+- One [PR #37](https://github.com/autism-ip/novelops-agent-harness/pull/37) for this issue, stacked on [ZEN-40 PR #36](https://github.com/autism-ip/novelops-agent-harness/pull/36), branch `codex/zen-41-chapter-review-desk` targeting `codex/zen-40-chapter-loop`. The initial implementation commit was `16478fe8f3a45a6fff8eb52bc2644732a9708dfa`; later review and live evidence is recorded below. Merge order remains the upstream stack, then ZEN-40, then ZEN-41.
 - Adds the book and chapter review desk, exact editorial APIs, persisted RevisionTasks, selective human gates, historical evidence, and final lock. The established Impeccable layout uses a desktop content/decision split, mobile stacking, rounded cards and restrained interaction transitions.
 
 ## Implementation and decisions
@@ -96,4 +96,22 @@ The current-code DeepSeek plus Feishu probe completed the upstream first-chapter
 
 The corrected probe's next attempt reached Writer and passed `verify_writer`, but a DeepSeek Critic response failed its strict schema under the probe's zero-retry route. The harness safely stopped it and cleanup succeeded. A third attempt stopped earlier when the Feishu token hostname could not resolve. After DNS recovered, cleanup targeted the current synthetic Book ID from the local journal and succeeded. An independent backend-app read confirmed 1 preexisting Book and 1 StoryState, with zero Artifacts, Traces, PipelineRuns, StepRuns, ApprovalEvents, ChapterVersions and RevisionTasks.
 
-These runs strengthen ZEN-40's live evidence but still do not exercise a persisted ZEN-41 RevisionTask, a second chapter run, an exact-version approval or final lock through real Feishu and DeepSeek. The synthetic browser workflow and real RevisionTasks schema/CRUD checks remain valid. PR #37 therefore remains draft. A future acceptance run should record the source version, constrained task, revised ChapterVersion, ApprovalEvent and locked final version, then clean only its synthetic rows.
+At this stage, the runs strengthened ZEN-40's live evidence but had not exercised a persisted ZEN-41 RevisionTask, second chapter run, exact-version approval or final lock. PR #37 remained draft pending the editorial acceptance recorded below.
+
+## 2026-09-30 real Feishu editorial acceptance
+
+The current PR branch completed a full ZEN-41 editorial path against the authorized synthetic [Feishu test Base](https://fcnaul7kb1kf.feishu.cn/base/T8I6buCMoaiLB6srVBrc9i2jnph) using the backend app identity, production `FeishuClient`/repository/storage/Harness and the actual FastAPI review routes. Model responses in **this** run were deterministic fixtures; no DeepSeek request was made. ZEN-40's separate report records a real DeepSeek Writer → Critic → Rewrite → final-verifier run.
+
+| Check | Observed result |
+| --- | --- |
+| Story setup | StoryBible approved into StoryState v2; ChapterBrief eligible |
+| First chapter | Writer, source verifier, Critic and final verifier passed; first-N policy held v1 at `awaiting_approval` despite a Critic `pass` |
+| Review API guard | Unauthenticated `GET /review` returned 401; authenticated read returned exact current version and gate |
+| Constrained revision | `POST /review/revision` returned 201 and persisted one `queued` RevisionTask with `must_keep`, nonempty `must_change`, `do_not_change`, source version and new run ID |
+| Revised chapter | Rewrite route, verifier and Critic passed; v2's `source_version_id` matched v1; the task's derived `run_status` was `awaiting_approval` |
+| Approval and lock | Exact-version `POST /review/decision` returned `approved` and completed the run; `POST /final-lock` returned `final`, repeated identically with the same result; version history remained v2 `final`, v1 `review` |
+| Cleanup | Deleted this probe's 4 ApprovalEvents, 21 Traces, 15 StepRuns, 1 RevisionTask, 2 ChapterVersions, 4 PipelineRuns, 2 StoryStates, 18 Artifacts and 1 Book. An independent app-identity read found only the Base's preexisting 1 Book and 1 StoryState; all seven other tested collections were empty. |
+
+The complete run including cleanup took **2,937.25 seconds**. Model fixtures contributed only milliseconds of latency, so this is a material Feishu/Harness performance and deployment risk for continuous editing; no production latency target has been established. The test does not prove DeepSeek can satisfy a human revision constraint reliably, production Base ACL/schema, configured model price accuracy or high-concurrency safety. Earlier local browser acceptance verifies desktop/phone editorial controls and a routine automatic pass, while this run verifies the first-N human gate and HTTP/storage path. Together they support human code review of PR #37; enabling the feature in production should wait for production Base checks and latency profiling.
+
+**Verified facts:** the HTTP status and domain assertions above, retained v1/v2 history, successful cleanup, independent baseline read, earlier offline/backend/browser tests and the separate ZEN-40 DeepSeek loop. **Engineering judgment:** PR #37 is ready for human review as a stacked, disabled-by-default feature. **Unverified assumptions:** production-scale response time, repeated real-model revision quality and production ACL. **Risk response:** keep the feature flags off until those checks pass; preserve one writer and exact-request replay. The existing `issue-pr-delivery` Skill covers the repeatable issue/PR/review workflow. This Base-specific probe is project acceptance evidence and does not justify a new general Skill.

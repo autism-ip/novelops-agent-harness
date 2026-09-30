@@ -20,4 +20,4 @@ RevisionTask `status` records enqueue progress and remains `queued` after accept
 
 ## Deployment limits
 
-Add the ZEN-41 RevisionTasks fields in [feishu-schema.md](feishu-schema.md) before enabling live revision. Live Feishu PATCH behavior, permissions, Bitable text/JSON limits, real model quality and configured price accuracy still require production acceptance. A synthetic HTTP fixture validates local behavior only.
+Add the ZEN-41 RevisionTasks fields in [feishu-schema.md](feishu-schema.md) before enabling live revision. The authorized synthetic Base passed backend-app CRUD and a full HTTP revision, approval and final-lock path using deterministic model outputs. The separate ZEN-40 run exercised real DeepSeek chapter generation. Production Base schema and ACL, real-model revision quality, Bitable limits and configured price accuracy still need production acceptance. The end-to-end Base probe took 2,937.25 seconds including cleanup; profile latency before enabling continuous editorial work.
