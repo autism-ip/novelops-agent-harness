@@ -288,3 +288,9 @@ When justified by measured workload:
 - durable workflow infrastructure can be evaluated only when execution complexity warrants it.
 
 The domain/workflow model should remain stable across those infrastructure changes.
+# v0.2 implementation note
+
+The deterministic runtime is documented in [Harness v0.2](harness-v02.md).
+That document supersedes the legacy system-Agent/lease execution descriptions
+below for new code. Semantic Agents remain model-backed handlers; scheduling,
+transitions, approvals and recovery belong to the kernel. Feishu remains SSOT.

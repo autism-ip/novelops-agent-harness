@@ -38,6 +38,12 @@ class Settings(BaseSettings):
     # --- Derived (set by create_app) ---
     APP_VERSION: str = "0.1.0"
 
+    # One backend process; persistent POST-intent markers survive restarts.
+    HARNESS_ENABLED: bool = False
+    HARNESS_JOURNAL_DIR: str = ".runtime/intents"
+    HARNESS_POLL_INTERVAL: float = 1.0
+    HARNESS_MAX_RETRIES: int = 3
+
     @field_validator("BACKEND_API_KEY")
     @classmethod
     def reject_blank_key(cls, v: str) -> str:

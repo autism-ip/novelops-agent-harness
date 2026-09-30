@@ -80,6 +80,8 @@ def _build_step_repo(client: FeishuClient, config: TableMapConfig) -> StepRunsRe
 
 def get_engine(request: Request) -> PipelineEngine:
     """FastAPI dependency — returns a PipelineEngine with real repos."""
+    if getattr(request.app.state, "kernel", None) is not None:
+        raise HTTPException(410, "Use /api/workflows for v0.2 execution")
     settings = request.app.state.settings
     client = _get_client(settings)
     config = _get_config()
