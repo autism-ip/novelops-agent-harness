@@ -23,6 +23,7 @@ docs/feishu-schema.md - 16 Feishu Bitable tables schema
 docs/pipeline-v0.1.md - 22-step pipeline, status rules, reliability rules
 docs/api-surface.md - REST API endpoints for frontend-backend communication
 docs/opportunity-research.md - ZEN-35 版本化分析、风险与审批契约、配置和恢复语义
+docs/title-cover-planning.md - ZEN-36 标题和封面候选版本、选择与下游消费契约
 docs/linear-mapping.md - Linear project, milestones, and issue mapping
 </config>
 
