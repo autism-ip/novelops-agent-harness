@@ -16,6 +16,9 @@ app/hotspots.py: ZEN-33 确定性抓取快照、去重、保留业务 ID/状态�
 app/hotspot_controls.py: ZEN-34 人工添加与丢弃命令；通过持久化工作流执行，稳定身份和状态冲突保护。
 app/research.py: ZEN-35 版本化 ResearchAgent、保守风险策略、精确版本审批与可恢复飞书分析投影。
 app/creative.py: ZEN-36 标题候选与封面方向生成、逐项 Artifacts、版本选择与飞书投影。
+app/books.py: ZEN-38 Book bootstrap 与 canonical StoryState；ready 重放兼容后续状态版本。
+app/story_planning.py: ZEN-39 StoryBible 人工审批与确定性状态补丁、不可变 StoryContextSnapshot、版本化 ChapterBrief。
+app/api/routes/story_planning.py: ZEN-39 精确版本上下文、触发、历史、审批和 eligible brief 接口。
 app/api/routes/research.py: 鉴权批量分析、历史、审批/拒绝/退修与 approved 消费契约。
 app/api/routes/creative.py: ZEN-36 标题和封面的版本 context、触发、历史、选择与 selected 消费契约。
 app/api/routes/hotspots.py: 鉴权抓取触发及热点列表/详情接口；命令只由后端配置。

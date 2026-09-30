@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useResource, errorMessage } from "@/components/hotspots/use-resource";
+import { StoryPlanning } from "./story-planning";
 
 type Book = {
   book_id: string;
@@ -51,7 +52,7 @@ function summary(value: unknown): string {
 }
 
 export function BookDetail({ bookId }: { bookId: string }) {
-  const result = useResource<BookView>(`/api/books/${encodeURIComponent(bookId)}`, 0);
+  const result = useResource<BookView>(`/api/books/${encodeURIComponent(bookId)}`, 0, 5000);
   const view = result.data;
   return <div className="page-shell app-reveal space-y-6">
     <Link href="/books" className="text-sm text-muted-foreground hover:text-foreground">← All books</Link>
@@ -64,7 +65,8 @@ export function BookDetail({ bookId }: { bookId: string }) {
         <p className="mt-5 inline-flex rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-accent-foreground">{view.state ? `Canonical StoryState · v${view.state.version}` : view.legacy ? "Legacy book" : "Initialization in progress"}</p>
       </header>
       {!view.state && <p className="surface p-5 text-sm text-muted-foreground">{view.legacy ? "This book predates canonical StoryState. Its legacy record is readable; it has not been migrated." : "Book initialization has not reached a ready canonical state. Retry the original creation request from the selected cover."}</p>}
-      {view.state && <><div className="grid gap-4 md:grid-cols-2">{Object.entries(view.state.content).map(([namespace, fields]) =>
+      {view.state && <><StoryPlanning bookId={bookId} approvedBible={Boolean(view.state.content.StoryBible?.bible_artifact_id)} />
+      <div className="grid gap-4 md:grid-cols-2">{Object.entries(view.state.content).map(([namespace, fields]) =>
         <section key={namespace} className="surface min-w-0 p-5 sm:p-6">
           <h2 className="text-lg font-semibold">{namespace.replace(/([a-z])([A-Z])/g, "$1 $2")}</h2>
           <dl className="mt-4 space-y-3">{Object.entries(fields).map(([name, value]) =>

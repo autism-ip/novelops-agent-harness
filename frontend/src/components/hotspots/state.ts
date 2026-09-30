@@ -108,8 +108,11 @@ export const WORKFLOW_LABELS: Record<string, string> = {
   hotspot_research_v1: "Research story opportunities",
   title_candidates_v1: "Generate title candidates",
   cover_plans_v1: "Plan cover directions",
+  story_bible_v1: "Develop StoryBible",
+  chapter_brief_v1: "Plan chapter brief",
 };
 
 export function workflowBusy(run: { pipeline_type: string; status: string }): boolean {
+  if (["story_bible_v1", "chapter_brief_v1"].includes(run.pipeline_type)) return false;
   return !TERMINAL.has(run.status) && !(["hotspot_research_v1", "title_candidates_v1", "cover_plans_v1"].includes(run.pipeline_type) && run.status === "awaiting_approval");
 }
