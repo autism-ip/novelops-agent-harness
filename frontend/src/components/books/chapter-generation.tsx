@@ -9,7 +9,7 @@ import { ChapterReviewDesk } from "./chapter-review-desk";
 
 type Artifact = { artifact_id: string; version: number; content: Record<string, unknown>; source_refs: string[] };
 type ChapterRun = { run: { pipeline_run_id: string; status: string };
-  selected: Artifact | null; critique: Artifact | null; snapshot_artifact_id: string;
+  selected: Artifact | null; critique: Artifact | null; snapshot_artifact_id: string; current: boolean;
   versions: { version_id: string; version_no: number; status: string }[];
   usage: { attempts: number; input_tokens: number | null; output_tokens: number | null;
     estimated_cost: number | null; latency_ms: number | null; retries: number } };
@@ -34,6 +34,10 @@ function visibleError(cause: unknown) {
   return errorMessage(cause);
 }
 
+function pollWhileActive(run: ChapterRun | null) {
+  return !!run && !["completed", "failed", "blocked", "cancelled", "awaiting_approval"].includes(run.run.status);
+}
+
 export function ChapterGeneration({ bookId }: { bookId: string }) {
   const [chapter, setChapter] = useState("1");
   const [revision, setRevision] = useState(0);
@@ -46,9 +50,10 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
   const key = `novelops.chapter-generation.pending.${bookId}`;
   const pendingRaw = useSyncExternalStore(subscribe, () => saved(key), () => null);
   const pending = parsePendingChapter(pendingRaw);
-  const runs = useResource<ChapterRun[]>(validChapter ? `${root}/generations` : null, revision, 5000);
+  const runs = useResource<ChapterRun | null>(validChapter ? `${root}/generation/latest` : null,
+    revision, 5000, pollWhileActive);
   const brief = useResource<Artifact>(validChapter ? `${root}/brief/eligible` : null, revision, 5000);
-  const latest = runs.data?.[0];
+  const latest = runs.data;
   const runBusy = !!latest && !["completed", "failed", "blocked", "cancelled"].includes(latest.run.status);
   const finalLocked = latest?.versions.some(row => row.status === "final") ?? false;
   const unavailable = runs.error instanceof ApiError && runs.error.status === 503;
@@ -91,6 +96,8 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
       <Button disabled={working || !!pendingRaw || runBusy || finalLocked || !validChapter || !brief.data}
         onClick={() => void generate()}>{finalLocked ? "Chapter final-locked" :
           latest ? "Regenerate chapter" : "Generate chapter"}</Button>
+      <Button variant="ghost" disabled={working || !validChapter}
+        onClick={() => setRevision(value => value + 1)}>Refresh chapter</Button>
     </div>
     {validChapter && !brief.data && !(brief.loading) &&
       <p className="text-sm text-muted-foreground">Approve the StoryBible and generate a current chapter brief first.</p>}

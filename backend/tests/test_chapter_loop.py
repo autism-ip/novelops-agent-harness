@@ -297,3 +297,64 @@ def test_stale_story_state_cannot_generate_chapter(chapter):
 def test_flag_requires_story_planning():
     with pytest.raises(ValueError, match="CHAPTER_LOOP_ENABLED requires STORY_PLANNING_ENABLED"):
         build_runtime(Settings(BACKEND_API_KEY="test", CHAPTER_LOOP_ENABLED=True))
+
+
+def test_orphan_version_artifact_blocks_reuse_until_projection_is_reconciled(chapter):
+    from app.storage import AmbiguousWrite
+
+    kernel, provider, book_id = chapter
+    first = pass_run(kernel, provider, book_id)
+    version = first["versions"][0]
+    next_request = kernel.chapter_loop.context(book_id, 1)
+    assert next_request["start_version_no"] == 2
+    kernel.storage.delete("chapter_versions", version["version_id"])
+    assert kernel.artifacts.get(version["artifact_id"])["artifact_type"] == "ChapterVersion"
+
+    with pytest.raises(AmbiguousWrite, match="Unprojected ChapterVersion"):
+        kernel.chapter_loop.context(book_id, 1)
+    with pytest.raises(AmbiguousWrite, match="Unprojected ChapterVersion"):
+        kernel.chapter_loop.enqueue(next_request)
+    assert len(kernel.chapter_loop._runs(book_id, 1)) == 1
+
+    kernel.storage.ensure("chapter_versions", version)
+    assert kernel.chapter_loop.context(book_id, 1)["start_version_no"] == 2
+
+
+def test_latest_chapter_read_returns_one_run_and_lightweight_version_history(chapter, monkeypatch):
+    kernel, provider, book_id = chapter
+    first = pass_run(kernel, provider, book_id)
+    second = pass_run(kernel, provider, book_id)
+    reads = []
+    original = kernel.chapter_loop.read
+
+    def observed(run_id):
+        reads.append(run_id)
+        return original(run_id)
+
+    monkeypatch.setattr(kernel.chapter_loop, "read", observed)
+    api = TestClient(create_app(Settings(BACKEND_API_KEY="test"), kernel=kernel))
+    path = f"/api/books/{book_id}/chapters/1/generation/latest"
+    assert api.get(path).status_code == 401
+    response = api.get(path, headers={"x-api-key": "test"})
+    assert response.status_code == 200
+    latest = response.json()
+    assert reads == [second["run"]["pipeline_run_id"]]
+    assert latest["selected"]["version"] == 2
+    assert latest["version_summaries"] == [
+        {"version_id": second["versions"][0]["version_id"], "version_no": 2, "status": "review"},
+        {"version_id": first["versions"][0]["version_id"], "version_no": 1, "status": "review"},
+    ]
+    assert all(set(item) == {"version_id", "version_no", "status"} for item in latest["version_summaries"])
+    api.close()
+
+
+def test_critic_prompt_defines_negative_dimensions_as_quality_scores():
+    from app.chapter_loop import CRITIC_PROMPT, Critique
+
+    assert CRITIC_PROMPT.version == "chapter-critic-v2"
+    assert "5 means the defect is absent or minimal" in CRITIC_PROMPT.template
+    assert "0 means severe repetition or obvious AI-like patterns" in CRITIC_PROMPT.template
+    poor = critique()
+    poor["repetition"] = {"score": 1, "evidence": "Repeated sentences weaken the chapter."}
+    with pytest.raises(ValueError, match="pass decision requires all quality scores"):
+        Critique.model_validate(poor)

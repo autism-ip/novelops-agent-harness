@@ -54,6 +54,11 @@ def create(book_id: str, chapter_no: int, body: ChapterRequest, chapter=Depends(
     return chapter.enqueue(body.model_dump())
 
 
+@router.get("/books/{book_id}/chapters/{chapter_no}/generation/latest")
+def latest(book_id: str, chapter_no: int, chapter=Depends(service)):
+    return chapter.latest(book_id, chapter_no)
+
+
 @router.get("/books/{book_id}/chapters/{chapter_no}/generations")
 def list_runs(book_id: str, chapter_no: int, chapter=Depends(service)):
     return chapter.list_runs(book_id, chapter_no)

@@ -41,6 +41,9 @@ function visibleError(cause: unknown) {
   return errorMessage(cause);
 }
 const dimensions = ["pacing", "style", "repetition", "dialogue", "reader_promise", "continuity", "ai_patterns"];
+function pollWhileActive(review: ReviewState) {
+  return !!review.latest && !["completed", "failed", "blocked", "cancelled", "awaiting_approval"].includes(review.latest.run.status);
+}
 
 export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged }: {
   bookId: string; chapterNo: number; refresh: number; onChanged: () => void
@@ -59,7 +62,7 @@ export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged }: {
   const [reason, setReason] = useState("");
   const busy = useRef(false);
   const { operator, update: setOperator } = useEditorIdentity();
-  const result = useResource<ReviewState>(root + "/review", refresh + revision, 5000);
+  const result = useResource<ReviewState>(root + "/review", refresh + revision, 5000, pollWhileActive);
   const data = result.data;
   const latest = data?.latest;
   const current = data?.versions.find(entry => entry.record.artifact_id === latest?.selected?.artifact_id);
@@ -138,6 +141,9 @@ export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged }: {
         <div className="max-h-[36rem] overflow-auto whitespace-pre-wrap break-words text-sm leading-7">{displayed.record.content}</div>
         {displayed.legacy && <p className="text-xs text-muted-foreground">Legacy version: exact Artifact provenance is unavailable.</p>}</>}
     </div> : <p className="surface-soft p-4 text-sm text-muted-foreground">Generate a chapter to open its review desk.</p>)}
+    {latest && !latest.current && !locked && <p role="status" className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900">
+      This draft is not current for final lock. Check the latest StoryState and chapter brief before regenerating.
+    </p>}
     {gatePending && <p className="rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm" role="status">
       This chapter needs an editor decision before the run can complete.</p>}
     {latest && <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(19rem,1fr)]">
