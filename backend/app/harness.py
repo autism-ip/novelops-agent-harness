@@ -8,6 +8,7 @@ import os
 import threading
 import time
 from datetime import datetime, timezone
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
@@ -34,6 +35,16 @@ class TransitionConflict(ValueError):
 
 class InvalidHandlerOutput(ValueError):
     """Execution returned, but its output cannot be safely persisted."""
+
+
+class PermanentStepFailure(Exception):
+    """Handler exhausted its own retry policy; the scheduler must not retry."""
+
+
+@dataclass(frozen=True)
+class StepResult:
+    payload: dict
+    requires_approval: bool = False
 
 
 class CreationJournal:
@@ -90,6 +101,8 @@ class HarnessKernel:
         self.poll_interval = poll_interval
         self.max_retries = max_retries
         self.handlers: dict[str, Callable] = {"noop": lambda step: {"output_refs": []}}
+        self.projectors: dict[str, Callable] = {}
+        self.approval_guards: dict[str, Callable] = {}
         self._stop = threading.Event()
         self._thread = None
         self._process_lock = None
@@ -125,6 +138,24 @@ class HarnessKernel:
             allow_create=self.journal.begin(collection, data[key]))
         self._observe(collection, row)
         return row
+
+    def register_projector(self, workflow_type, projector):
+        with self.writer:
+            if self.running:
+                raise RuntimeError("Register projectors before startup")
+            self.projectors[workflow_type] = projector
+
+    def register_approval_guard(self, handler, guard):
+        with self.writer:
+            if self.running:
+                raise RuntimeError("Register guards before startup")
+            self.approval_guards[handler] = guard
+
+    def _project(self, run_id):
+        run = self.get(run_id)
+        projector = self.projectors.get(run["pipeline_type"])
+        if projector:
+            projector(run)
 
     def _transition(self, collection, domain_id, status, **fields):
         row = self.storage.get(collection, domain_id)
@@ -208,8 +239,11 @@ class HarnessKernel:
         run = self.get(run_id)
         if run["status"] in {"failed", "cancelled", "blocked"}:
             self._cancel_siblings(run["steps"])
+            self._project(run_id)
             return
         if run["status"] in {"completed", "failed", "cancelled", "blocked", "creating"}:
+            if run["status"] == "completed":
+                self._project(run_id)
             return
         statuses = [s["status"] for s in run["steps"]]
         if "blocked" in statuses:
@@ -227,6 +261,7 @@ class HarnessKernel:
         self._transition("pipeline_runs", run_id, status, updated_at=now())
         if status in {"failed", "blocked"}:
             self._cancel_siblings(run["steps"])
+        self._project(run_id)
 
     def tick(self):
         with self.writer:
@@ -258,6 +293,12 @@ class HarnessKernel:
                 failure_class = None
                 try:
                     result = self.handlers[step["handler"]]({**step, "input": json.loads(step["input_json"])})
+                    requires_approval = bool(step.get("requires_approval"))
+                    if isinstance(result, StepResult):
+                        if not isinstance(result.payload, dict) or type(result.requires_approval) is not bool:
+                            raise InvalidHandlerOutput()
+                        requires_approval = requires_approval or result.requires_approval
+                        result = result.payload
                     if result is None:
                         result = {}
                     try:
@@ -270,6 +311,9 @@ class HarnessKernel:
                 except AmbiguousWrite:
                     failure_class = "AmbiguousWrite"
                     self._transition("step_runs", sid, "blocked", error_message="AmbiguousWrite: reconciliation required")
+                except PermanentStepFailure as exc:
+                    failure_class = type(exc.__cause__ or exc).__name__
+                    self._transition("step_runs", sid, "failed", error_message=failure_class + ": handler exhausted retries")
                 except Exception as exc:
                     failure_class = type(exc).__name__
                     retries = step.get("retry_count", 0)
@@ -279,7 +323,8 @@ class HarnessKernel:
                     # Completion persistence is outside handler retry: do not rerun a
                     # successful external effect because its status update timed out.
                     self._transition("step_runs", sid,
-                        "awaiting_approval" if step.get("requires_approval") else "success",
+                        "awaiting_approval" if requires_approval else "success",
+                        requires_approval=requires_approval,
                         output_json=output_json, output_version=step.get("output_version", 0) + 1,
                         finished_at=now(), error_message="")
                 if trace_id:
@@ -289,10 +334,13 @@ class HarnessKernel:
                 self._refresh_parent(run_id)
                 return
 
-    def decide(self, step_id, action, expected_version, operator):
+    def decide(self, step_id, action, expected_version, operator, *, reason=""):
         with self.writer:
-            if action not in {"approve", "reject"}:
+            if action not in {"approve", "reject", "revise"}:
                 raise ValueError("Unsupported decision")
+            reason = reason.strip()
+            if action == "revise" and not reason:
+                raise ValueError("Revision reason is required")
             step = self.storage.get("step_runs", step_id)
             if step is None:
                 raise MissingRecord(step_id)
@@ -300,19 +348,25 @@ class HarnessKernel:
                 raise TransitionConflict("Stale output version")
             approval_id = stable_id("AP-", step_id + "/" + str(expected_version))
             previous = self.storage.get("approval_events", approval_id)
-            if previous and previous["action"] != action:
+            if previous and (previous["action"] != action or previous.get("reason", "") != reason):
                 raise TransitionConflict("This version already has a different decision")
             target = "success" if action == "approve" else "failed"
             if previous and step["status"] == target:
+                self._refresh_parent(step["pipeline_run_id"])
                 return step
             parent = self.storage.get("pipeline_runs", step["pipeline_run_id"])
             if parent is None or parent["status"] in {"completed", "failed", "blocked", "cancelled"}:
                 raise TransitionConflict("Workflow is terminal")
             if step["status"] != "awaiting_approval":
                 raise TransitionConflict("Step is not awaiting approval")
+            # A persisted decision is already committed; recovery must finish it
+            # even if the domain has changed since it was accepted.
+            guard = self.approval_guards.get(step["handler"])
+            if guard and not previous:
+                guard(step, action)
             self._ensure("approval_events", "approval_id", {"approval_id": approval_id,
                 "target_type": "step_run", "target_id": step_id, "target_version": expected_version,
-                "action": action, "operator": operator, "created_at": now()})
+                "action": action, "operator": operator, "reason": reason, "created_at": now()})
             result = self._transition("step_runs", step_id, target)
             self._refresh_parent(step["pipeline_run_id"])
             return result
@@ -321,11 +375,13 @@ class HarnessKernel:
         with self.writer:
             run = self.get(run_id)
             if run["status"] == "cancelled":
+                self._refresh_parent(run_id)
                 return run
             self._transition("pipeline_runs", run_id, "cancelled", updated_at=now())
             for step in run["steps"]:
                 if "cancelled" in STEP_TRANSITIONS.get(step["status"], set()):
                     self._transition("step_runs", step["step_run_id"], "cancelled")
+            self._project(run_id)
             return self.get(run_id)
 
     def recover(self):
@@ -338,7 +394,7 @@ class HarnessKernel:
                     self._observe(collection, row)
             for run in self.storage.list("pipeline_runs"):
                 run_id = run["pipeline_run_id"]
-                if run["status"] in {"failed", "blocked", "cancelled"}:
+                if run["status"] in {"completed", "failed", "blocked", "cancelled"}:
                     self._refresh_parent(run_id)
                     continue
                 if run["status"] == "creating":
@@ -362,7 +418,8 @@ class HarnessKernel:
                         aid = stable_id("AP-", sid + "/" + str(step["output_version"]))
                         decision = self.storage.get("approval_events", aid)
                         if decision:
-                            self.decide(sid, decision["action"], step["output_version"], decision["operator"])
+                            self.decide(sid, decision["action"], step["output_version"], decision["operator"],
+                                        reason=decision.get("reason", ""))
                 self._refresh_parent(run_id)
 
     @property

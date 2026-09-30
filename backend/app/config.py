@@ -46,6 +46,8 @@ class Settings(BaseSettings):
     HARNESS_POLL_INTERVAL: float = 1.0
     HARNESS_MAX_RETRIES: int = 3
     GENERATION_ENABLED: bool = False
+    RESEARCH_ENABLED: bool = False
+    RESEARCH_SELECTION_REQUIRED: bool = True
     OPENAI_API_KEY: str = ""
     DEEPSEEK_API_KEY: str = ""
     MODEL_ROUTES_JSON: str = "{}"

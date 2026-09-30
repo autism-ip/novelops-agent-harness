@@ -14,6 +14,8 @@ app/tools/: 外部工具集成层——OpenCLIRunner 子进程执行（runner.py
 app/tools/adapters/: 工具适配器子包——抖音热点适配器（douyin_hotspots.py），DouyinHotspotAdapter 封装命令组装与字段归一化，支持多字段别名容错。
 app/hotspots.py: ZEN-33 确定性抓取快照、去重、保留业务 ID/状态、按新采集时间更新与重启对账；不调用 LLM。
 app/hotspot_controls.py: ZEN-34 人工添加与丢弃命令；通过持久化工作流执行，稳定身份和状态冲突保护。
+app/research.py: ZEN-35 版本化 ResearchAgent、保守风险策略、精确版本审批与可恢复飞书分析投影。
+app/api/routes/research.py: 鉴权批量分析、历史、审批/拒绝/退修与 approved 消费契约。
 app/api/routes/hotspots.py: 鉴权抓取触发及热点列表/详情接口；命令只由后端配置。
 
 架构决策

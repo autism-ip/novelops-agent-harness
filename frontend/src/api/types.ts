@@ -97,3 +97,26 @@ export type WorkflowRun = {
     output_json?: string;
   }[];
 };
+
+export type OpportunityAnalysis = {
+  run: WorkflowRun;
+  request: { version: number; hotspot_id: string };
+  source: { title: string };
+  current: boolean;
+  approval_status: string;
+  opportunity: {
+    artifact_id: string;
+    model: string;
+    prompt_version: string;
+    content: {
+      summary: string;
+      core_emotions: string[];
+      hit_patterns: string[];
+      genre_fit: string[];
+      reader_promise: string;
+      novelization_directions: string[];
+    };
+  } | null;
+  risk: { content: { level: string; requires_review: boolean; rule_flags: string[];
+    assessments: { reasons: string[]; uncertainties: string[]; flags: string[]; confidence: number }[] } } | null;
+};

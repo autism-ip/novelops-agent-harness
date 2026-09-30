@@ -249,7 +249,9 @@ FIELD_MAPS: dict[str, dict[str, str]] = {
 FIELD_MAPS["pipeline_runs"].update({"definition_json": "definition_json"})
 FIELD_MAPS["step_runs"].update({field: field for field in (
     "handler", "kind", "requires_approval", "input_json", "output_json", "output_version")})
-FIELD_MAPS["approval_events"].update({"target_version": "target_version"})
+FIELD_MAPS["approval_events"].update({"target_version": "target_version", "reason": "reason"})
+FIELD_MAPS["hotspot_analyses"].update({field: field for field in (
+    "version", "pipeline_run_id", "source_hash", "artifact_id", "risk_artifact_id")})
 TABLE_NAMES.update({"artifacts": "Artifacts", "traces": "Traces"})
 FIELD_MAPS["artifacts"] = {field: field for field in (
     "artifact_id", "logical_id", "version", "artifact_type", "run_id", "chapter_id", "payload_json")}

@@ -6,6 +6,7 @@ import {
   safeSourceUrl,
   canClearRejected,
   clampOffset,
+  workflowBusy,
 } from "../src/components/hotspots/state.ts";
 
 test("discarding the last result on a page returns to the last populated page", () => {
@@ -14,6 +15,23 @@ test("discarding the last result on a page returns to the last populated page", 
   assert.equal(clampOffset(40, 21), 20);
   assert.equal(clampOffset(20, 0), 0);
   assert.equal(clampOffset(0, 35), 0);
+});
+
+test("analysis retries preserve explicit versions and reject malformed manifests", () => {
+  const item = { hotspot_id: "HS-one", version: 2, source_hash: "a".repeat(64) };
+  const command = { path: "/api/analyses", body: { request_key: "batch", items: [item] } };
+  assert.deepEqual(parsePending(JSON.stringify(command)), command);
+  for (const items of [[], [null], [{ ...item, version: 0 }], [{ ...item, version: 1.5 }], [{ ...item, source_hash: "bad" }]]) {
+    assert.equal(parsePending(JSON.stringify({ ...command, body: { request_key: "batch", items } })), null);
+  }
+  assert.equal(parsePending(JSON.stringify({ path: "/api/analyses" })), null);
+});
+
+test("human research gates do not lock all hotspot controls indefinitely", () => {
+  assert.equal(workflowBusy({ pipeline_type: "hotspot_research_v1", status: "awaiting_approval" }), false);
+  assert.equal(workflowBusy({ pipeline_type: "hotspot_research_v1", status: "running" }), true);
+  assert.equal(workflowBusy({ pipeline_type: "hotspot_ingestion_v1", status: "awaiting_approval" }), true);
+  assert.equal(workflowBusy({ pipeline_type: "hotspot_research_v1", status: "completed" }), false);
 });
 
 test("an authentication rejection after an uncertain submission never drops its key", () => {
