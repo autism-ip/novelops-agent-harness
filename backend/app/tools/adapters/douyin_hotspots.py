@@ -2,7 +2,7 @@
 douyin_hotspots — DouyinHotspotAdapter normalization.
 
 [INPUT]: Depends on app.tools.runner.OpenCLIRunner, app.tools.schemas.DouyinHotspotRecord
-[OUTPUT]: Provides DouyinHotspotAdapter class, DouyinAdapterResult frozen dataclass
+[OUTPUT]: DouyinHotspotAdapter normalization and explicit exit-66 empty-source results
 [POS]: app/tools/adapters/ — Douyin-specific command assembly and field normalization
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
@@ -10,12 +10,13 @@ douyin_hotspots — DouyinHotspotAdapter normalization.
 from __future__ import annotations
 
 import hashlib
+import time
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
-from app.tools.errors import OpenCLIError, OpenCLIOutputError
+from app.tools.errors import OpenCLIError, OpenCLIExitError, OpenCLIOutputError
 from app.tools.runner import OpenCLIRunner
 from app.tools.schemas import DouyinHotspotRecord
 
@@ -67,7 +68,15 @@ class DouyinHotspotAdapter:
         if not getattr(self._settings, "OPENCLI_ENABLED", True):
             raise OpenCLIError("OpenCLI is disabled")
 
-        result = self._runner.run(self._cmd)
+        started = time.monotonic()
+        try:
+            result = self._runner.run(self._cmd)
+        except OpenCLIExitError as exc:
+            # OpenCLI's documented EmptyResultError (EX_NOINPUT) is an empty
+            # source observation, while every other exit remains a tool failure.
+            if exc.exit_code != 66:
+                raise
+            return DouyinAdapterResult((), 0, int((time.monotonic() - started) * 1000))
         if not isinstance(result.data, list):
             raise OpenCLIOutputError(
                 f"OpenCLI returned {type(result.data).__name__}, expected list"
@@ -99,10 +108,12 @@ class DouyinHotspotAdapter:
         silently dropped from the result set.
         """
         title = raw.get("title") or raw.get("word") or raw.get("name")
-        if not title:
+        if not isinstance(title, str) or not title.strip():
             return None
 
         url = raw.get("url") or raw.get("link") or ""
+        if not isinstance(url, str):
+            return None
         rank = self._to_int(
             raw.get("rank") or raw.get("position") or raw.get("index") or 0
         )
