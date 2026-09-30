@@ -84,15 +84,37 @@ def test_first_three_chapters_have_exact_sources_and_usage(chapter):
         assert all(t["input_tokens"] == 100 and t["output_tokens"] == 50 for t in traces if t["kind"] == "model")
 
 
+
+def test_model_echoed_nested_ids_cannot_change_chapter_provenance(chapter):
+    kernel, provider, book_id = chapter
+    run_id, request, snapshot = start(kernel, book_id)
+    provider.outputs.extend([draft("AR-nested-planning", "AR-nested-brief"), critique()])
+    settle(kernel, 5)
+    view = kernel.chapter_loop.read(run_id)
+    assert view["run"]["status"] == "completed"
+    selected = view["selected"]
+    assert selected["content"]["snapshot_artifact_id"] == snapshot
+    assert selected["content"]["brief_artifact_id"] == request["brief_artifact_id"]
+    bound_draft = kernel.artifacts.get(selected["source_refs"][2])
+    raw = kernel.artifacts.get(bound_draft["source_refs"][2])
+    assert raw["artifact_type"] == "ChapterModelResponse"
+    assert raw["content"]["snapshot_artifact_id"] == "AR-nested-planning"
+    assert raw["content"]["brief_artifact_id"] == "AR-nested-brief"
+    assert bound_draft["source_refs"][:2] == [snapshot, request["brief_artifact_id"]]
+    assert bound_draft["creator"] == "chapter-source-binder"
+
+
 def test_actionable_critique_rewrites_once_and_preserves_versions(chapter):
     kernel, provider, book_id = chapter
     run_id, request, snapshot = start(kernel, book_id)
     provider.outputs.extend([draft(snapshot, request["brief_artifact_id"]), critique("revise"),
-                             draft(snapshot, request["brief_artifact_id"], prose="A revised scene. " * 20)])
+                             draft("AR-nested-planning", "AR-nested-brief", prose="A revised scene. " * 20)])
     settle(kernel, 5)
     view = kernel.chapter_loop.read(run_id)
     assert view["run"]["status"] == "completed"
     assert view["selected"]["version"] == 2
+    assert view["selected"]["content"]["snapshot_artifact_id"] == snapshot
+    assert view["selected"]["content"]["brief_artifact_id"] == request["brief_artifact_id"]
     assert [row["version_no"] for row in view["versions"]] == [1, 2]
     assert [row["status"] for row in view["versions"]] == ["candidate", "review"]
     assert view["versions"][0]["review_report_id"] == view["critique"]["artifact_id"]
