@@ -8,6 +8,11 @@ export type Pending = {
   path: string;
   body: Record<string, unknown> & { request_key: string };
 };
+export type SubmitResult = { ok: true } | { ok: false; error: string };
+
+export function isDecisionPath(path: string): boolean {
+  return /^\/api\/(?:analyses|creative\/runs)\/[\w-]+\/decision$/.test(path);
+}
 
 export function canClearRejected(status: number, retry: boolean): boolean {
   return !retry && [401, 404, 409, 422].includes(status);
@@ -42,7 +47,7 @@ export function parsePending(value: string | null): Pending | null {
     if (
       !parsed ||
       typeof parsed.path !== "string" ||
-      !(parsed.path === "/api/analyses" || /^\/api\/creative\/(titles|covers|runs\/[\w-]+\/decision)$/.test(parsed.path) ||
+      !(parsed.path === "/api/analyses" || /^\/api\/creative\/(titles|covers)$/.test(parsed.path) || isDecisionPath(parsed.path) ||
         /^\/api\/hotspots\/(fetch|manual|[\w-]+\/discard)$/.test(parsed.path))
     )
       return null;
@@ -51,12 +56,19 @@ export function parsePending(value: string | null): Pending | null {
           !item || typeof item.hotspot_id !== "string" || !item.hotspot_id ||
           !Number.isSafeInteger(item.version) || Number(item.version) < 1 ||
           typeof item.source_hash !== "string" || !/^[a-f0-9]{64}$/.test(item.source_hash)))) return null;
-    if (parsed.path.startsWith("/api/creative/") && (!parsed.body || typeof parsed.body !== "object" ||
-        (parsed.path.endsWith("/decision") ?
-          typeof parsed.body.step_id !== "string" || typeof parsed.body.artifact_id !== "string" ||
-          parsed.body.action !== "approve" || !Number.isSafeInteger(parsed.body.expected_version) :
-          typeof parsed.body.source_run_id !== "string" || !parsed.body.source_run_id ||
-          typeof parsed.body.source_artifact_id !== "string" || !Number.isSafeInteger(parsed.body.version)))) return null;
+    if (isDecisionPath(parsed.path) && (!parsed.body || typeof parsed.body !== "object" ||
+        typeof parsed.body.step_id !== "string" || !parsed.body.step_id ||
+        typeof parsed.body.artifact_id !== "string" ||
+        !["approve", "reject", "revise"].includes(parsed.body.action) ||
+        typeof parsed.body.operator !== "string" || !parsed.body.operator.trim() ||
+        !Number.isSafeInteger(parsed.body.expected_version) || parsed.body.expected_version < 1 ||
+        (parsed.body.action === "approve" && !parsed.body.artifact_id) ||
+        (parsed.path.startsWith("/api/analyses/") && !parsed.body.artifact_id) ||
+        (parsed.path.startsWith("/api/creative/runs/") && parsed.body.action !== "approve" && parsed.body.artifact_id) ||
+        (parsed.body.action === "revise" && (typeof parsed.body.reason !== "string" || !parsed.body.reason.trim())))) return null;
+    if (/^\/api\/creative\/(titles|covers)$/.test(parsed.path) && (!parsed.body || typeof parsed.body !== "object" ||
+        typeof parsed.body.source_run_id !== "string" || !parsed.body.source_run_id ||
+        typeof parsed.body.source_artifact_id !== "string" || !Number.isSafeInteger(parsed.body.version))) return null;
     if (
       !parsed.body ||
       typeof parsed.body !== "object" ||

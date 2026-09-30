@@ -11,6 +11,8 @@ Node 24（`.nvmrc`）。`npm ci` 安装锁定依赖；`npm run check` 依次执�
 
 `npm test` 验证日期过滤、未知结果重试身份和安全来源链接；CI 必须通过该门禁。`/hotspots` 使用已有会话代理，浏览器不配置后端密钥。新增组件位于 `src/components/hotspots/`；`docs/hotspot-product-page.md` 记录人工操作与浏览器验收步骤。
 
+`src/components/hotspots/editor-identity.ts` 在会话内保存编辑者署名；研究、标题和封面决策共用它。`docs/approval-ui.md` 记录审批版本、退修和冲突行为。
+
 ## 目录结构
 ```
 src/
