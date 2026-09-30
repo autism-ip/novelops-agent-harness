@@ -7,7 +7,11 @@
 
 from __future__ import annotations
 
-from app.feishu.client import FeishuClient, FeishuNotFoundError
+import json
+from decimal import Decimal, InvalidOperation
+
+from app.feishu.client import FeishuAPIError, FeishuClient, FeishuNotFoundError
+from app.feishu.table_map import FLOAT_FIELD_NAMES, INTEGER_FIELD_NAMES
 
 # ============================================================
 # base repository
@@ -46,6 +50,23 @@ class BaseRepository:
         reverse = {v: k for k, v in self._field_map.items()}
         fields = record.get("fields", {})
         mapped = {reverse.get(k, k): v for k, v in fields.items()}
+        for name, value in mapped.items():
+            if name not in INTEGER_FIELD_NAMES and name not in FLOAT_FIELD_NAMES:
+                continue
+            if value is None or value == "":
+                continue
+            try:
+                number = Decimal(str(value))
+            except InvalidOperation:
+                raise FeishuAPIError("Invalid numeric cell", code=0) from None
+            if not number.is_finite():
+                raise FeishuAPIError("Invalid numeric cell", code=0)
+            if name in INTEGER_FIELD_NAMES:
+                if number != number.to_integral_value():
+                    raise FeishuAPIError("Non-integral integer cell", code=0)
+                mapped[name] = int(number)
+            else:
+                mapped[name] = float(number)
         mapped["record_id"] = record.get("record_id", "")
         return mapped
 
@@ -62,12 +83,15 @@ class BaseRepository:
             if isinstance(value, int):
                 clauses.append(f'CurrentValue.[{feishu_field}] = {value}')
             else:
-                clauses.append(f'CurrentValue.[{feishu_field}] = "{value}"')
+                clauses.append(f'CurrentValue.[{feishu_field}] = {json.dumps(value, ensure_ascii=False)}')
         return " && ".join(clauses)
 
     def find_by_business_key(self, **conditions: str | int) -> dict | None:
-        """Look up a record by business fields, returning the first match or None."""
-        results = self.list(filter_expr=self._field_filter(**conditions), page_size=1)
+        """Return a unique business-key match, rejecting duplicate records."""
+        results = self.list(filter_expr=self._field_filter(**conditions), page_size=100)
+        if len(results) > 1:
+            from app.storage import DuplicateKey
+            raise DuplicateKey("Duplicate business key")
         return results[0] if results else None
 
     # ----------------------------------------------------------
@@ -84,7 +108,17 @@ class BaseRepository:
         """Create a record and return the mapped result."""
         body = {"fields": self._to_feishu(data)}
         resp = self._client.post(self._base_path(), body=body)
-        return self._from_feishu(resp["data"]["record"])
+        payload = resp.get("data") if isinstance(resp, dict) else None
+        record = payload.get("record") if isinstance(payload, dict) else None
+        if (
+            not isinstance(record, dict)
+            or not isinstance(record.get("record_id"), str)
+            or not record["record_id"]
+            or not isinstance(record.get("fields"), dict)
+        ):
+            # The POST may have committed even if its success envelope is broken.
+            raise FeishuAPIError("Malformed create response", code=0)
+        return self._from_feishu(record)
 
     def get(self, record_id: str) -> dict | None:
         """Fetch a single record by ID, or None if not found."""
@@ -119,16 +153,32 @@ class BaseRepository:
 
             if not data.get("has_more"):
                 break
-            page_token = data.get("page_token")
+            next_token = data.get("page_token")
+            if not next_token or next_token == page_token:
+                raise ValueError("Invalid Feishu pagination token")
+            page_token = next_token
 
         return results
 
-    def update(self, record_id: str, fields: dict) -> dict:
-        """Update specific fields of a record."""
+    def update(self, record_id: str, fields: dict, *, previous: dict | None = None) -> dict:
+        """Update fields and return a complete row even when PUT echoes only the patch."""
+        current = previous if previous is not None else self.get(record_id)
+        if current is None:
+            raise FeishuNotFoundError("Record to update does not exist")
+        if current.get("record_id") != record_id:
+            raise ValueError("Previous record identity does not match update target")
         path = f"{self._base_path()}/{record_id}"
         body = {"fields": self._to_feishu(fields)}
         resp = self._client.put(path, body=body)
-        return self._from_feishu(resp["data"]["record"])
+        payload = resp.get("data") if isinstance(resp, dict) else None
+        record = payload.get("record") if isinstance(payload, dict) else None
+        if (not isinstance(record, dict) or record.get("record_id") != record_id
+                or not isinstance(record.get("fields"), dict)):
+            raise FeishuAPIError("Malformed update response", code=0)
+        updated = self._from_feishu(record)
+        if any(key not in updated for key in fields):
+            raise FeishuAPIError("Update response omitted changed fields", code=0)
+        return {**current, **updated}
 
     def delete(self, record_id: str) -> bool:
         """Delete a record. Returns True on success."""
@@ -139,21 +189,12 @@ class BaseRepository:
     def conditional_update(
         self, record_id: str, fields: dict, condition: dict
     ) -> dict:
-        """CAS update — applies *fields* only when *condition* matches.
+        """Legacy read/check/write helper, NOT an atomic server-side CAS.
 
-        Builds a Bitable filter from *condition* and includes it in the
-        PUT request.  Raises on mismatch so callers can detect races.
+        Callers must hold the application's single-writer lock. The record PUT
+        contract has no documented conditional filter parameter.
         """
-        path = f"{self._base_path()}/{record_id}"
-        body = {"fields": self._to_feishu(fields)}
-
-        # Build filter from condition dict: CurrentValue.[field] = "value"
-        if condition:
-            parts = [
-                f'CurrentValue.[{self._field_map.get(k, k)}] = "{v}"'
-                for k, v in condition.items()
-            ]
-            body["filter"] = " AND ".join(parts)
-
-        resp = self._client.put(path, body=body)
-        return self._from_feishu(resp["data"]["record"])
+        current = self.get(record_id)
+        if current is None or any(current.get(k) != v for k, v in condition.items()):
+            raise ValueError("Record condition does not match")
+        return self.update(record_id, fields, previous=current)

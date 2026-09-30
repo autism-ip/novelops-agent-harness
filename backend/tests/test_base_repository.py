@@ -89,6 +89,21 @@ class TestFromFeishu:
         result = repo._from_feishu(record)
         assert result == {"record_id": "rec-003"}
 
+    def test_number_cells_from_v1_reads_keep_domain_types(self, mock_client: MagicMock) -> None:
+        repo = BaseRepository(mock_client, "app", "table", {"output_version": "Output Version",
+            "retry_count": "Retry Count", "writability_score": "Score"})
+        result = repo._from_feishu({"record_id": "rec-004", "fields": {
+            "Output Version": "1", "Retry Count": "0", "Score": "82.5"}})
+        assert result["output_version"] == 1 and type(result["output_version"]) is int
+        assert result["retry_count"] == 0 and type(result["retry_count"]) is int
+        assert result["writability_score"] == 82.5
+
+    @pytest.mark.parametrize("bad", ["0.5", "NaN", "not-a-number"])
+    def test_invalid_integer_cell_fails_closed(self, repo: BaseRepository, bad: str) -> None:
+        from app.feishu.client import FeishuAPIError
+        with pytest.raises(FeishuAPIError, match="numeric|integer"):
+            repo._from_feishu({"record_id": "rec-005", "fields": {"output_version": bad}})
+
 
 # ============================================================
 # base_path
@@ -252,11 +267,13 @@ class TestUpdate:
     """update PUTs mapped fields and returns mapped record."""
 
     def test_update_success(self, repo: BaseRepository, mock_client: MagicMock) -> None:
+        mock_client.get.return_value = {"data": {"record": {"record_id": "rec-010",
+            "fields": {"Book ID": "B010", "Book Title": "Original"}}}}
         mock_client.put.return_value = {
             "data": {
                 "record": {
                     "record_id": "rec-010",
-                    "fields": {"Book ID": "B010", "Book Title": "Updated"},
+                    "fields": {"Book Title": "Updated"},
                 }
             }
         }
@@ -268,6 +285,7 @@ class TestUpdate:
             expected_path, body={"fields": {"Book Title": "Updated"}}
         )
         assert result["title"] == "Updated"
+        assert result["book_id"] == "B010"
         assert result["record_id"] == "rec-010"
 
 
@@ -348,7 +366,7 @@ class TestFindByBusinessKey:
         call = mock_client.get.call_args
         params = call.kwargs.get("params", call[1].get("params", {}))
         assert params["filter"] == 'CurrentValue.[Book ID] = "B001"'
-        assert params["page_size"] == "1"
+        assert params["page_size"] == "100"
 
     def test_returns_none_when_empty(self, repo: BaseRepository, mock_client: MagicMock) -> None:
         """When no record matches, find_by_business_key returns None."""

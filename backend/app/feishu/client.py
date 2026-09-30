@@ -67,6 +67,7 @@ class FeishuClient:
     - 为每次请求注入 Authorization header
     - 解析飞书 JSON 响应并在业务码非 0 时抛异常
     - 401 自动重试一次（先清 token 再认证）
+    - GET 遇到 Bitable InternalError 或传输异常时有限重试；写入不自动重放
     """
 
     def __init__(
@@ -182,6 +183,7 @@ class FeishuClient:
         """Execute an authenticated request with single 401-retry."""
         retried = False
         token_retried = False
+        read_retries = 0
 
         while True:
             token = self._get_valid_token()
@@ -197,6 +199,10 @@ class FeishuClient:
                     json=json,
                 )
             except httpx.HTTPError as exc:
+                if method == "GET" and read_retries < 2:
+                    read_retries += 1
+                    time.sleep(0.2 * read_retries)
+                    continue
                 raise FeishuAPIError(
                     f"Transport error on {method} {path}: {exc}",
                     code=0,
@@ -223,8 +229,8 @@ class FeishuClient:
             try:
                 result = resp.json()
             except ValueError as exc:
-                raise FeishuAuthError(
-                    f"Invalid JSON from {path}: {resp.text[:200]}"
+                raise FeishuAPIError(
+                    f"Invalid JSON response on {method}", code=0
                 ) from exc
 
             # -- check Feishu business-level error --
@@ -238,6 +244,11 @@ class FeishuClient:
                 if biz_code in _TOKEN_INVALID_CODES and not token_retried:
                     self._clear_token()
                     token_retried = True
+                    continue
+                # 仅幂等读取可在 Bitable 临时内部错误后重试；写入需上层对账。
+                if method == "GET" and biz_code == 1255001 and read_retries < 2:
+                    read_retries += 1
+                    time.sleep(0.2 * read_retries)
                     continue
                 # not-found → 精确异常
                 if biz_code == 1254043:
