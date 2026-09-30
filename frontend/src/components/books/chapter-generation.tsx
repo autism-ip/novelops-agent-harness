@@ -105,7 +105,7 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
       <Button variant="outline" onClick={() => setSaved(key, null)}>I checked the history</Button>
     </div>}
     {error && <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
-    {validChapter && <ChapterReviewDesk bookId={bookId} chapterNo={chapterNo} refresh={revision}
-      onChanged={() => setRevision(value => value + 1)} />}
+    {validChapter && <ChapterReviewDesk key={`${bookId}:${chapterNo}`} bookId={bookId} chapterNo={chapterNo}
+      refresh={revision} onChanged={() => setRevision(value => value + 1)} />}
   </section>;
 }

@@ -1,10 +1,12 @@
 """ZEN-41: exact editorial commands, revision tasks and selective gates."""
+import json
+
 import pytest
 from fastapi.testclient import TestClient
 
 from app.chapter_loop import ChapterLoopService
 from app.config import Settings
-from app.harness import TransitionConflict
+from app.harness import TransitionConflict, stable_id
 from app.main import create_app
 from app.generation import Route
 from app.storage import AmbiguousWrite
@@ -170,3 +172,123 @@ def test_rewrite_history_exposes_the_draft_that_critic_actually_scored(chapter):
     assert rewritten["verification"]["artifact_id"] != first_draft["verification"]["artifact_id"]
     assert rewritten["artifact"]["artifact_id"] != first_draft["report"]["source_refs"][2]
     assert kernel.chapter_loop.read(run_id)["selected"]["artifact_id"] == rewritten["artifact"]["artifact_id"]
+
+
+@pytest.mark.parametrize("decision,max_rewrites", [("reject", 1), ("revise", 0)])
+def test_low_score_terminal_critic_still_reaches_editor(chapter, decision, max_rewrites):
+    kernel, provider, book_id = chapter
+    kernel.chapter_loop = ChapterLoopService(kernel, max_rewrites=max_rewrites,
+                                              review_score_threshold=3)
+    run_id, request, snapshot = start(kernel, book_id)
+    report = {**critique(decision), "pacing": {"score": 2, "evidence": "The chapter loses momentum."}}
+    provider.outputs.extend([draft(snapshot, request["brief_artifact_id"]), report])
+    settle(kernel, 5)
+    review = kernel.chapter_loop.review_state(book_id, 1)
+    assert review["latest"]["run"]["status"] == "awaiting_approval"
+    assert review["latest"]["selected"]["version"] == 1
+    assert review["review_gate"]["status"] == "awaiting_approval"
+    assert review["latest"]["critique"]["content"]["decision"] == decision
+    assert provider.calls[-2:] == ["writer", "critic"]
+    assert kernel.chapter_loop.read(run_id)["versions"][0]["status"] == "review"
+
+
+def test_review_state_expands_only_latest_run(chapter, monkeypatch):
+    kernel, provider, book_id = chapter
+    first = pass_run(kernel, provider, book_id)
+    latest = pass_run(kernel, provider, book_id)
+    read = kernel.chapter_loop.read
+    expanded = []
+    def counted(run_id):
+        expanded.append(run_id)
+        return read(run_id)
+    monkeypatch.setattr(kernel.chapter_loop, "read", counted)
+    review = kernel.chapter_loop.review_state(book_id, 1)
+    assert expanded == [latest["run"]["pipeline_run_id"]]
+    assert review["latest"]["run"]["pipeline_run_id"] != first["run"]["pipeline_run_id"]
+    assert len(review["versions"]) == 2
+
+
+def test_revision_replay_rejects_corrupted_frozen_request(chapter):
+    kernel, provider, book_id = chapter
+    first = pass_run(kernel, provider, book_id)
+    command = {**target(first), "constraints": {"must_keep": ["Mira"],
+        "must_change": ["Sharper dialogue"], "do_not_change": []}}
+    created = kernel.chapter_loop.request_revision(book_id, 1, **command)
+    task_id = created["task"]["revision_task_id"]
+    frozen = created["task"]["request_json"]
+    request = json.loads(frozen)
+    changes = ({"book_id": "BK-other"}, {"chapter_no": 2},
+               {"source_version_id": "CV-other"},
+               {"constraints": {"must_keep": ["Mira"], "must_change": ["Different change"],
+                                "do_not_change": []}}, {"version": request["version"] + 1})
+    for change in changes:
+        kernel.storage.update("revision_tasks", task_id,
+                              {"request_json": json.dumps({**request, **change})})
+        with pytest.raises((TransitionConflict, AmbiguousWrite), match="frozen|request"):
+            kernel.chapter_loop.request_revision(book_id, 1, **command)
+    kernel.storage.update("revision_tasks", task_id, {"request_json": frozen,
+        "run_id": "PR-wrong"})
+    with pytest.raises((TransitionConflict, AmbiguousWrite), match="frozen|request"):
+        kernel.chapter_loop.request_revision(book_id, 1, **command)
+
+
+@pytest.mark.parametrize("fail_at", ["decide", "enqueue"])
+def test_open_revision_intent_replays_after_interruption(chapter, monkeypatch, fail_at):
+    kernel, provider, book_id = chapter
+    kernel.chapter_loop = ChapterLoopService(kernel, review_first_n=1)
+    run_id, request, snapshot = start(kernel, book_id)
+    provider.outputs.extend([draft(snapshot, request["brief_artifact_id"]), critique()])
+    settle(kernel, 5)
+    review = kernel.chapter_loop.review_state(book_id, 1)
+    command = {**target(review["latest"]),
+        "expected_gate_version": review["review_gate"]["output_version"],
+        "constraints": {"must_keep": ["Mira"], "must_change": ["Sharper dialogue"],
+                        "do_not_change": []}}
+    def interrupted(*args, **kwargs):
+        raise RuntimeError("synthetic interruption")
+    with monkeypatch.context() as patch:
+        patch.setattr(kernel if fail_at == "decide" else kernel.chapter_loop,
+                      fail_at, interrupted)
+        with pytest.raises(RuntimeError, match="synthetic interruption"):
+            kernel.chapter_loop.request_revision(book_id, 1, **command)
+    task_id = stable_id("RT-", "chapter-revision/" + command["version_id"])
+    intent = kernel.storage.get("revision_tasks", task_id)
+    assert intent and intent["status"] == "open"
+    if fail_at == "enqueue":
+        generic = kernel.chapter_loop.context(book_id, 1)
+        with pytest.raises(TransitionConflict, match="revision intent"):
+            kernel.chapter_loop.enqueue(generic)
+        with pytest.raises(TransitionConflict, match="revision intent"):
+            kernel.chapter_loop.decide_review(book_id, 1, **{**target(review["latest"]),
+                "expected_gate_version": command["expected_gate_version"], "action": "approve"})
+        with pytest.raises(TransitionConflict, match="revision intent"):
+            kernel.chapter_loop.lock_final(book_id, 1, **{
+                key: command[key] for key in ("version_id", "artifact_id", "version_no", "operator")})
+    resumed = kernel.chapter_loop.request_revision(book_id, 1, **command)
+    assert resumed["task"]["status"] == "queued"
+    assert resumed["run"]["pipeline_run_id"] == intent["run_id"]
+    assert kernel.chapter_loop.read(run_id)["run"]["status"] == "failed"
+
+
+def test_revision_replay_after_queued_marker_committed(chapter, monkeypatch):
+    kernel, provider, book_id = chapter
+    first = pass_run(kernel, provider, book_id)
+    command = {**target(first), "constraints": {"must_keep": [],
+        "must_change": ["Sharper dialogue"], "do_not_change": []}}
+    original_update = kernel.storage.update
+    def committed_then_interrupted(collection, domain_id, fields):
+        result = original_update(collection, domain_id, fields)
+        if collection == "revision_tasks" and fields.get("status") == "queued":
+            raise RuntimeError("synthetic response lost after commit")
+        return result
+    with monkeypatch.context() as patch:
+        patch.setattr(kernel.storage, "update", committed_then_interrupted)
+        with pytest.raises(RuntimeError, match="response lost"):
+            kernel.chapter_loop.request_revision(book_id, 1, **command)
+    task_id = stable_id("RT-", "chapter-revision/" + command["version_id"])
+    committed = kernel.storage.get("revision_tasks", task_id)
+    assert committed["status"] == "queued"
+    resumed = kernel.chapter_loop.request_revision(book_id, 1, **command)
+    assert resumed["task"] == committed
+    assert resumed["run"]["pipeline_run_id"] == committed["run_id"]
+    assert len(kernel.chapter_loop._runs(book_id, 1)) == 2
