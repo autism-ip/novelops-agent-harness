@@ -8,7 +8,7 @@ test_system_endpoints.py: 系统端点行为门禁，验证响应形状、占位
 test_api_key_guard.py: API key 中间件行为门禁，验证公开端点豁免与私有 API 拦截。
 test_acceptance_contract.py: ZEN-28 验收门禁，验证配置失败清晰、应用可导入、布局符合计划。
 test_api.py: 集成测试，验证系统端点与 API key 鉴权的 TestClient 行为。
-test_feishu_client.py: FeishuClient 行为门禁，验证 token 生命周期、Bearer 注入、401 重试、token-invalid 重试与异常路径（14 用例）。
+test_feishu_client.py: FeishuClient 行为门禁，验证 token 生命周期、Bearer 注入、401 重试、token-invalid 重试与异常路径（含有界 GET 内部错误重试与写入不重放用例）。
 test_base_repository.py: BaseRepository 行为门禁，验证 Python↔Feishu 字段映射、CRUD + 分页操作、字段过滤与业务键查找（22 用例）。
 test_table_map.py: table_map 完整性门禁，验证 16 表配置数量、映射对应关系、环境变量 fail-fast（16 用例）。
 test_domain_exceptions.py: 异常层级门禁，验证 FeishuError 家族继承关系与 code 属性（6 用例）。
