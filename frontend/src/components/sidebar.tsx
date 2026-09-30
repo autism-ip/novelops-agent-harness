@@ -1,6 +1,6 @@
 /**
  * [INPUT]: next/link, current pathname, Lucide navigation icons
- * [OUTPUT]: compact desktop top navigation and mobile bottom navigation
+ * [OUTPUT]: compact desktop top navigation and phone/tablet bottom navigation
  * [POS]: shared NovelOps application shell
  */
 "use client";
@@ -30,7 +30,7 @@ export function Sidebar() {
             </span>
             <span className="text-lg font-bold tracking-tight">NovelOps</span>
           </Link>
-          <nav aria-label="Primary" className="hidden min-w-0 items-center gap-1 md:flex">
+          <nav aria-label="Primary" className="hidden min-w-0 items-center gap-1 lg:flex">
             {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
               const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
               return <Link key={href} href={href} aria-current={active ? "page" : undefined}
@@ -48,7 +48,7 @@ export function Sidebar() {
           </div>
         </div>
       </header>
-      <nav aria-label="Mobile primary" className="app-nav mobile-safe-bottom fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 px-1 pt-2 md:hidden">
+      <nav aria-label="Mobile primary" className="app-nav mobile-safe-bottom fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 px-1 pt-2 lg:hidden">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
           const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
           return <Link key={href} href={href} aria-current={active ? "page" : undefined}
