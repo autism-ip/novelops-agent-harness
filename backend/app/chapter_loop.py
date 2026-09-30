@@ -384,6 +384,23 @@ class ChapterLoopService:
                      draft: dict, *, rewrite: bool) -> dict:
         req = manifest["request"]
         number = self._number(req, rewrite)
+        refs = draft.get("source_refs", [])
+        if (draft.get("creator") != "chapter-source-binder" or len(refs) != 3 or
+            refs[:2] != [snapshot["artifact_id"], brief["artifact_id"]]):
+            raise AmbiguousWrite("Chapter draft source binding changed")
+        response = self.kernel.artifacts.get(refs[2])
+        route = "rewrite" if rewrite or req["source_version_id"] else "writer"
+        prompt = REWRITE_PROMPT if route == "rewrite" else WRITER_PROMPT
+        expected_content = Draft.model_validate({
+            **ModelDraft.model_validate(response["content"]).model_dump(include={"chapter_no", "title", "prose"}),
+            "snapshot_artifact_id": snapshot["artifact_id"],
+            "brief_artifact_id": brief["artifact_id"]}).model_dump()
+        if (response["artifact_type"] != "ChapterModelResponse" or response["route"] != route or
+            response["prompt_version"] != prompt.version or response["run_id"] != step["pipeline_run_id"] or
+            response["step_id"] != draft["step_id"] or
+            response["source_refs"][:2] != [snapshot["artifact_id"], brief["artifact_id"]] or
+            draft["content"] != expected_content):
+            raise AmbiguousWrite("Chapter model response provenance changed")
         checked = self._verify(draft, snapshot, brief)
         if not checked["passed"]:
             raise PermanentStepFailure()
@@ -415,7 +432,7 @@ class ChapterLoopService:
                      "story_context_snapshot_id": snapshot["artifact_id"],
                      "source_refs_json": encode(source_refs), "content_hash": artifact["content_hash"],
                      "verifier_artifact_id": verification["artifact_id"],
-                     "run_id": step["pipeline_run_id"], "prompt_version": draft["prompt_version"],
+                     "run_id": step["pipeline_run_id"], "prompt_version": response["prompt_version"],
                      "created_at": artifact["created_at"]}
         row = self.kernel._ensure("chapter_versions", "version_id", {**immutable, "status": "candidate"})
         if any(row.get(key) != value for key, value in immutable.items()):
