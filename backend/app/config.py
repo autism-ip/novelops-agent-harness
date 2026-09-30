@@ -7,10 +7,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """NovelOps backend settings — loaded from env vars / .env file."""
+    """NovelOps backend settings — environment overrides local dotenv files."""
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=(".env", ".env.local"),
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",
@@ -43,6 +43,10 @@ class Settings(BaseSettings):
     HARNESS_JOURNAL_DIR: str = ".runtime/intents"
     HARNESS_POLL_INTERVAL: float = 1.0
     HARNESS_MAX_RETRIES: int = 3
+    GENERATION_ENABLED: bool = False
+    OPENAI_API_KEY: str = ""
+    DEEPSEEK_API_KEY: str = ""
+    MODEL_ROUTES_JSON: str = "{}"
 
     @field_validator("BACKEND_API_KEY")
     @classmethod
