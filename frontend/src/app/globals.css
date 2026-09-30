@@ -94,6 +94,7 @@
   background: rgb(255 255 255 / 94%);
   box-shadow: var(--surface-shadow);
 }
+.surface-warning { border-color: #f2c266; background: #fffbeb; }
 .surface-soft { border: 1px solid #dfe7f3; border-radius: 1.25rem; background: #f8faff; }
 .interactive-surface { transition: transform 220ms cubic-bezier(.2, .8, .2, 1), box-shadow 220ms cubic-bezier(.2, .8, .2, 1), border-color 220ms ease; }
 @media (hover: hover) {
@@ -112,10 +113,13 @@
   from { opacity: .75; transform: translateY(8px); filter: blur(3px); }
   to { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   html { scroll-padding-bottom: 7rem; }
-  .page-shell { padding: 1.25rem 1rem 6.5rem; }
+  .page-shell { padding-bottom: 6.5rem; }
   .mobile-safe-bottom { padding-bottom: calc(env(safe-area-inset-bottom) + .5rem); }
+}
+@media (max-width: 767px) {
+  .page-shell { padding: 1.25rem 1rem 6.5rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

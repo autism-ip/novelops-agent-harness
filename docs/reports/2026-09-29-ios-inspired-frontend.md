@@ -25,3 +25,14 @@ The design follows the confirmed solo author/editor use case: sustained desktop 
 The browser acceptance used the repository's synthetic HTTP storage and model fixture. It verifies frontend interaction and responsive behavior, not live model quality or production Feishu access. The illustrative composition mocks under `.impeccable/mocks/` contain invented layout content; the shipped interface renders repository and API content only.
 
 Screenshots: [desktop approval](assets/zen-107-desktop-approval.png), [phone approval](assets/zen-107-mobile-approval.png), and [phone book at page bottom](assets/zen-107-mobile-book-bottom.png).
+
+## 2026-09-30 review follow-up
+
+Resolved four Codex review findings on PR #34:
+
+- The hotspot detail pane no longer sits inside an animated containing block. Its desktop position remains fixed while the document scrolls. The pane now layers above the sticky header, so its Close control remains clickable.
+- A mounted detail dialog follows the 1024px breakpoint: modeless beside the list on desktop, modal with backdrop and Escape handling on phone/tablet. It retains the selected hotspot while switching modes.
+- The five-item bottom navigation stays active through tablet widths; content gets matching bottom clearance. Desktop top navigation begins at 1024px.
+- Both pending-request recovery notices use an explicit amber surface modifier, avoiding the Tailwind layer precedence conflict with the default white surface.
+
+On the review head, 10 frontend tests, ESLint, TypeScript, and the Next production build passed. A local production build against the loopback synthetic fixture showed the desktop pane at viewport top 16px before and after scrolling 95px; at 820px it changed to a full-height modal and bottom navigation replaced the top links; at 390px the modal opened, Escape closed it, and document width stayed within the viewport. Returning to 1440px restored modeless mode. The Close button was the top hit target after the layer fix. The warning surface computed to `rgb(255, 251, 235)` with an `rgb(242, 194, 102)` border. This verifies the reviewed UI paths with synthetic data; it does not change the separate live-model or Feishu acceptance boundaries.
