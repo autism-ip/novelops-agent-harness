@@ -1,7 +1,7 @@
 """
 [INPUT]: 依赖 os.environ 的 FEISHU_APP_TOKEN 与 FEISHU_TABLE_ID_* 覆盖变量
 [OUTPUT]: 对外提供 TABLE_NAMES、FIELD_MAPS、TableMapConfig
-[POS]: feishu 的配置中枢，被 repo 层与 pipeline 层消费，定义 legacy 与 v0.2 表的名称及字段映射
+[POS]: feishu 的配置中枢，被 repo 层与 pipeline 层消费，定义 legacy 与 v0.2 表的名称及字段映射；ChapterVersions 新增 canonical snapshot/Artifact 来源字段并保留 legacy 读取字段
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
 
@@ -202,7 +202,15 @@ FIELD_MAPS: dict[str, dict[str, str]] = {
         "chapter_title":          "chapter_title",
         "content":                "content",
         "status":                 "status",
-        "agent_team_snapshot_id": "agent_team_snapshot_id",
+        "agent_team_snapshot_id": "agent_team_snapshot_id",  # legacy reads only
+        "artifact_id":           "artifact_id",
+        "story_context_snapshot_id": "story_context_snapshot_id",
+        "source_refs_json":      "source_refs_json",
+        "content_hash":          "content_hash",
+        "verifier_artifact_id":  "verifier_artifact_id",
+        "run_id":                "run_id",
+        "locked_at":             "locked_at",
+        "locked_by":             "locked_by",
         "review_report_id":       "review_report_id",
         "prompt_version":         "prompt_version",
         "created_at":             "created_at",

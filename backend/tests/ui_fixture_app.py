@@ -19,6 +19,7 @@ from app.research import ResearchService
 from app.creative import CreativeService
 from app.books import BookService
 from app.story_planning import StoryPlanningService
+from app.chapter_loop import ChapterLoopService
 from app.tools.adapters.douyin_hotspots import DouyinHotspotAdapter
 from app.tools.runner import OpenCLIRunner
 from tests.feishu_transport import make_storage
@@ -62,6 +63,22 @@ def create_fixture_app():
                     "conflict": "A neighbor hides the map", "payoff": "They find a shared route",
                     "ending_hook": "The first flower speaks"}
                 return Completion(json.dumps(content), route.model, 100, 50)
+            if route.model in {"fixture-writer", "fixture-rewrite"}:
+                inputs = json.loads(messages[-1]["content"])
+                snapshot = inputs["snapshot"]
+                content = {"chapter_no": snapshot["chapter_no"],
+                    "snapshot_artifact_id": inputs["snapshot_artifact_id"],
+                    "brief_artifact_id": snapshot["brief_artifact_id"],
+                    "title": "The Garden Gate",
+                    "prose": "Mira opened the garden gate and called her neighbors together. " * 9}
+                return Completion(json.dumps(content), route.model, 100, 50)
+            if route.model == "fixture-critic":
+                dimension = {"score": 4, "evidence": "The synthetic scene advances the garden conflict."}
+                content = {"decision": "pass", **{key: dimension for key in
+                    ("pacing", "style", "repetition", "dialogue", "reader_promise", "continuity", "ai_patterns")},
+                    "summary": "A focused synthetic chapter with a clear goal.",
+                    "constraints": {"must_keep": [], "must_change": [], "do_not_change": []}}
+                return Completion(json.dumps(content), route.model, 100, 50)
             risk = {"level": "low", "flags": [], "reasons": ["Synthetic fictional setting"],
                     "confidence": .95, "uncertainties": []}
             if route.model == "fixture-risk":
@@ -76,13 +93,14 @@ def create_fixture_app():
             return Completion(json.dumps(result), route.model, 100, 50)
     kernel.artifacts = ArtifactStore(kernel)
     kernel.model_router = ModelRouter({k: Route(provider="openai", model="fixture-" + k) for k in
-        ("research", "risk", "titles", "covers", "story_architect", "chapter_planner")},
+        ("research", "risk", "titles", "covers", "story_architect", "chapter_planner", "writer", "critic", "rewrite")},
         {"openai": ResearchFixtureProvider()}, kernel.telemetry)
     kernel.semantic = SemanticRuntime(kernel.model_router, kernel.artifacts)
     kernel.research = ResearchService(kernel)
     kernel.creative = CreativeService(kernel)
     kernel.books = BookService(kernel)
     kernel.story_planning = StoryPlanningService(kernel)
+    kernel.chapter_loop = ChapterLoopService(kernel)
     app = create_app(Settings(_env_file=None, BACKEND_API_KEY="ui-fixture-key"), kernel=kernel)
     app.state.drop_manual_response = False
     app.state.drop_analysis_response = False

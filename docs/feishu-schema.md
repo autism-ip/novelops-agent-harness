@@ -217,10 +217,18 @@ Hit-pattern and novelization analysis.
 | `version_no` | v1 / v2 / v3. |
 | `chapter_title` | Chapter title. |
 | `content` | Chapter text. |
-| `status` | draft / reviewed / revision_required / final. |
-| `agent_team_snapshot_id` | Snapshot used. |
-| `review_report_id` | Review report. |
-| `prompt_version` | Prompt version. |
+| `status` | New rows: candidate / review / final. Legacy statuses remain readable. |
+| `agent_team_snapshot_id` | Legacy snapshot reference; new chapter loop writes do not use it. |
+| `artifact_id` | Immutable ChapterVersion Artifact ID (additive v0.2 field). |
+| `story_context_snapshot_id` | Immutable StoryContextSnapshot Artifact ID used by the version (additive). |
+| `source_refs_json` | Exact source Artifact IDs as canonical JSON (additive). |
+| `content_hash` | ChapterVersion Artifact SHA-256 (additive). |
+| `verifier_artifact_id` | Successful deterministic verifier Artifact ID (additive). |
+| `run_id` | Harness chapter run ID (additive). |
+| `locked_at` | Final lock timestamp, set only on the selected version (additive). |
+| `locked_by` | Final lock operator, set only on the selected version (additive). |
+| `review_report_id` | CriticReport Artifact ID on the selected review version. |
+| `prompt_version` | Writer or Rewrite model prompt version that produced the prose; the deterministic source-binding prompt is recorded on its own Artifact. |
 | `created_at` | Created time. |
 
 ## 13. ReviewReports
