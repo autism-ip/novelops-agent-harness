@@ -15,6 +15,7 @@ hotspot_analyses.py: HotspotAnalysesRepo，find_by_hotspot 查询。
 title_candidates.py: TitleCandidatesRepo，find_by_analysis 查询。
 cover_plans.py: CoverPlansRepo，find_by_title 查询。
 books.py: BooksRepo，find_by_status 查询。
+story_states.py: StoryStatesRepo，find_by_book 查询 canonical StoryState version projections。
 chapter_briefs.py: ChapterBriefsRepo，find_by_book 查询。
 chapter_versions.py: ChapterVersionsRepo，find_by_chapter 查询（复合条件 book_id + chapter_no）。
 review_reports.py: ReviewReportsRepo，find_by_target 查询（复合条件 target_type + target_id）。

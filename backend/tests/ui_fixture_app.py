@@ -17,6 +17,7 @@ from app.hotspots import HotspotService
 from app.main import create_app
 from app.research import ResearchService
 from app.creative import CreativeService
+from app.books import BookService
 from app.tools.adapters.douyin_hotspots import DouyinHotspotAdapter
 from app.tools.runner import OpenCLIRunner
 from tests.feishu_transport import make_storage
@@ -67,6 +68,7 @@ def create_fixture_app():
     kernel.semantic = SemanticRuntime(kernel.model_router, kernel.artifacts)
     kernel.research = ResearchService(kernel)
     kernel.creative = CreativeService(kernel)
+    kernel.books = BookService(kernel)
     app = create_app(Settings(_env_file=None, BACKEND_API_KEY="ui-fixture-key"), kernel=kernel)
     app.state.drop_manual_response = False
     app.state.drop_analysis_response = False

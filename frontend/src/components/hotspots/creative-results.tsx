@@ -7,13 +7,15 @@ import { Button } from "@/components/ui/button";
 import { errorMessage, useResource } from "./use-resource";
 import type { Pending, SubmitResult } from "./state";
 import { useEditorIdentity } from "./editor-identity";
+import { BookBootstrap } from "@/components/books/book-bootstrap";
 
-export function CreativeResults({ kind, sourceRunId, revision, submit, disabled }: {
+export function CreativeResults({ kind, sourceRunId, revision, submit, disabled, books }: {
   kind: "titles" | "covers";
   sourceRunId: string;
   revision: number;
   submit: (command: Pending) => Promise<SubmitResult>;
   disabled: boolean;
+  books: boolean;
 }) {
   const [error, setError] = useState<string | null>(null);
   const [reason, setReason] = useState("");
@@ -87,7 +89,9 @@ export function CreativeResults({ kind, sourceRunId, revision, submit, disabled 
         </li>)}
       </ol>
       {kind === "titles" && state.run.status === "completed" && state.decision?.choice_id && state.current &&
-        <CreativeResults kind="covers" sourceRunId={state.run.pipeline_run_id} revision={revision} submit={submit} disabled={disabled} />}
+        <CreativeResults kind="covers" sourceRunId={state.run.pipeline_run_id} revision={revision} submit={submit} disabled={disabled} books={books} />}
+      {books && kind === "covers" && state.run.status === "completed" && state.decision?.choice_id && state.current &&
+        <BookBootstrap coverRunId={state.run.pipeline_run_id} disabled={disabled} />}
     </div>)}
   </section>;
 }
