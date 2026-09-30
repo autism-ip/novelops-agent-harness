@@ -8,25 +8,29 @@
 import { Badge } from "@/components/ui/badge";
 
 const STATUS_COLORS: Record<string, string> = {
-  pending: "bg-yellow-100 text-yellow-800",
-  running: "bg-green-100 text-green-800",
-  success: "bg-green-100 text-green-800",
-  completed: "bg-blue-100 text-blue-800",
-  failed: "bg-red-100 text-red-800",
-  blocked: "bg-orange-100 text-orange-800",
-  skipped: "bg-gray-100 text-gray-800",
-  waiting_approval: "bg-purple-100 text-purple-800",
-  approved: "bg-green-100 text-green-800",
-  rejected: "bg-red-100 text-red-800",
-  revise: "bg-amber-100 text-amber-800",
+  pending: "bg-amber-100 text-amber-900",
+  running: "bg-blue-100 text-blue-900",
+  success: "bg-emerald-100 text-emerald-900",
+  completed: "bg-blue-100 text-blue-900",
+  failed: "bg-red-100 text-red-900",
+  blocked: "bg-orange-100 text-orange-900",
+  skipped: "bg-slate-100 text-slate-800",
+  waiting_approval: "bg-violet-100 text-violet-900",
+  awaiting_approval: "bg-violet-100 text-violet-900",
+  approved: "bg-emerald-100 text-emerald-900",
+  rejected: "bg-red-100 text-red-900",
+  revise: "bg-amber-100 text-amber-900",
+  ready: "bg-emerald-100 text-emerald-900",
+  initializing: "bg-amber-100 text-amber-900",
+  discarded: "bg-slate-100 text-slate-800",
 };
 
-const DEFAULT_COLOR = "bg-gray-100 text-gray-800";
+const DEFAULT_COLOR = "bg-slate-100 text-slate-800";
 
 export function StatusBadge({ status }: { status: string }) {
   const color = STATUS_COLORS[status] ?? DEFAULT_COLOR;
   return (
-    <Badge className={`${color} border-transparent transition-colors duration-300`}>
+    <Badge className={`${color} border-transparent px-3 py-1.5 text-xs font-semibold transition-colors duration-300`}>
       {status}
     </Badge>
   );

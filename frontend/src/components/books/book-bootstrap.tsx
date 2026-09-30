@@ -48,12 +48,12 @@ export function BookBootstrap({ coverRunId, disabled }: { coverRunId: string; di
     }
   }
 
-  return <div className="rounded-2xl border bg-card p-4 sm:p-5 space-y-3" aria-label="Book bootstrap">
+  return <div className="surface-soft space-y-3 p-4 sm:p-5" aria-label="Book bootstrap">
     <div>
       <h6 className="font-semibold">Start a book from this selection</h6>
       <p className="mt-1 text-sm text-muted-foreground">Create one book and its canonical StoryState v1 from the approved opportunity, title and cover.</p>
     </div>
-    {bookId ? <Link className="inline-flex rounded-xl bg-primary px-4 py-2 text-sm text-primary-foreground" href={`/books/${encodeURIComponent(bookId)}`}>Open book workspace</Link> :
+    {bookId ? <Link className="inline-flex min-h-11 items-center rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground" href={`/books/${encodeURIComponent(bookId)}`}>Open book workspace</Link> :
       <Button disabled={disabled || working || !!(pendingRaw && !pending)} onClick={() => void create(!!pending)}>
         {working ? "Checking selection…" : pending ? "Retry the same book request" : "Create book"}
       </Button>}
