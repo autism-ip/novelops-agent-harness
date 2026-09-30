@@ -67,7 +67,7 @@ class FeishuClient:
     - 为每次请求注入 Authorization header
     - 解析飞书 JSON 响应并在业务码非 0 时抛异常
     - 401 自动重试一次（先清 token 再认证）
-    - GET 遇到观测到的 Bitable InternalError 时有限重试；写入不自动重放
+    - GET 遇到 Bitable InternalError 或传输异常时有限重试；写入不自动重放
     """
 
     def __init__(
@@ -199,6 +199,10 @@ class FeishuClient:
                     json=json,
                 )
             except httpx.HTTPError as exc:
+                if method == "GET" and read_retries < 2:
+                    read_retries += 1
+                    time.sleep(0.2 * read_retries)
+                    continue
                 raise FeishuAPIError(
                     f"Transport error on {method} {path}: {exc}",
                     code=0,

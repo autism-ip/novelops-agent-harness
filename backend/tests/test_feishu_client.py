@@ -420,8 +420,28 @@ class TestHttpErrors:
 
         assert exc_info.value.code == 403
 
+    @patch("app.feishu.client.time.sleep")
     @patch("app.feishu.client.httpx.Client")
-    def test_transport_error_raises_api_error(self, mock_http_cls: MagicMock) -> None:
+    def test_get_timeout_retries_without_replaying_post(self, mock_http_cls, mock_sleep) -> None:
+        mock_http = MagicMock()
+        mock_http_cls.return_value = mock_http
+        client = FeishuClient(app_id="id", app_secret="sec")
+        mock_http.post.return_value = _mock_post_response(
+            {"code": 0, "tenant_access_token": "t-net", "expire": 7200})
+        good = _mock_data_response({"items": []})
+        mock_http.request.side_effect = [httpx.ReadTimeout("read timed out"), good]
+        assert client.get("/bitable/v1/test")["data"] == {"items": []}
+        assert mock_http.request.call_count == 2
+        assert mock_sleep.call_count == 1
+        mock_http.request.reset_mock(side_effect=True)
+        mock_http.request.side_effect = httpx.ReadTimeout("write response timed out")
+        with pytest.raises(FeishuAPIError, match="Transport error"):
+            client.post("/bitable/v1/test", body={"fields": {}})
+        assert mock_http.request.call_count == 1
+
+    @patch("app.feishu.client.time.sleep")
+    @patch("app.feishu.client.httpx.Client")
+    def test_transport_error_raises_api_error(self, mock_http_cls: MagicMock, mock_sleep) -> None:
         """Network failure raises FeishuAPIError (code=0), not FeishuAuthError."""
         mock_http = MagicMock()
         mock_http_cls.return_value = mock_http
@@ -438,6 +458,8 @@ class TestHttpErrors:
             client.get("/bitable/v1/test")
 
         assert exc_info.value.code == 0
+        assert mock_http.request.call_count == 3
+        assert mock_sleep.call_count == 2
 
     @patch("app.feishu.client.httpx.Client")
     def test_401_still_raises_auth_error(self, mock_http_cls: MagicMock) -> None:
