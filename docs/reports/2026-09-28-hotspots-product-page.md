@@ -74,3 +74,12 @@ Engineering judgment: the implemented UI/control scope is suitable for code revi
 ## Reusable workflow assessment
 
 Reused `issue-pr-delivery`, TDD, `next-upgrade` and `ego-browser` workflows. No new personal skill was needed; the documented loopback fixture and failure injection are the reusable project acceptance assets. Next substantive issue is ZEN-35 / #8 semantic research and risk analysis, including enabling Analyze selected. Remaining domain issues retain separate PR deliverables.
+
+
+## 2026-10-07 full frontend source-coverage baseline
+
+The new delivery objective requires 100% applicable statement, line, function and branch coverage. PR #28 now adds Vitest with V8 coverage for every `frontend/src/**/*.{ts,tsx}` file, including files that no test imports, and adds three React Testing Library checks for the user-visible backend health states (checking, connected, unreachable after a non-OK response or request failure). The existing five Node behavior tests remain in `npm test`; no test or coverage gate was removed. `npm ci`, all eight frontend tests, and `npm run check` (lint, TypeScript and production build) pass.
+
+The measured **Vitest source baseline**, which does not yet incorporate the separately run Node helper tests, is **3.37% statements (14/415), 3.08% lines (12/389), 4.13% functions (5/121), and 2.16% branches (6/277)**. This honest all-source report is far below 100%; neither this issue nor the wider stack can be called done under the new goal. The Next.js/Vitest setup follows their official guides, using Vite's native `resolve.tsconfigPaths`.
+
+`npm audit` currently reports five high findings through the pre-existing development-only `eslint-config-next → @next/eslint-plugin-next → fast-glob → micromatch → braces@3.0.3` chain. The same `braces` version exists in the branch's original lockfile; `npm audit --omit=dev` reports zero vulnerabilities. [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm) lists no patched `braces` version as of this check. This is a tooling availability risk when processing attacker-controlled glob patterns, not evidence of a production dependency vulnerability. It remains open for upstream remediation and should not be hidden by an audit ignore rule or a forced Next.js downgrade.
