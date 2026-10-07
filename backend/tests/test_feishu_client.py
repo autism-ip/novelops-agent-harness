@@ -1,6 +1,6 @@
 """
 [INPUT]: 依赖 app.feishu.client 的 FeishuClient、FeishuAuthError、FeishuAPIError
-[OUTPUT]: 对外提供 FeishuClient 的行为级测试用例——token 生命周期、请求注入、401 与安全读取重试、异常路径
+[OUTPUT]: 对外提供 FeishuClient 的行为级测试用例——token 生命周期、请求注入、401 与安全读取重试、认证网络故障和畸形写入响应等异常路径
 [POS]: tests 的飞书客户端门禁，验证认证与请求重试的外部行为契约
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
@@ -523,3 +523,30 @@ class TestBusinessErrorClassification:
             client.get("/bitable/v1/apps/app/tables/tbl/records/rec-missing")
 
         assert exc_info.value.code == 1254043
+
+
+def test_token_transport_failure_stops_before_data_request() -> None:
+    with patch("app.feishu.client.httpx.Client") as http_cls:
+        mock_http = http_cls.return_value
+        mock_http.post.side_effect = httpx.ConnectError("auth DNS unavailable")
+        client = FeishuClient(app_id="id", app_secret="sec")
+        with pytest.raises(FeishuAuthError, match="Token request failed") as error:
+            client.get("/bitable/v1/test")
+        assert isinstance(error.value.__cause__, httpx.ConnectError)
+        mock_http.post.assert_called_once()
+        mock_http.request.assert_not_called()
+
+
+def test_malformed_success_body_is_ambiguous_to_writer() -> None:
+    with patch("app.feishu.client.httpx.Client") as http_cls:
+        mock_http = http_cls.return_value
+        mock_http.post.return_value = _mock_post_response(
+            {"code": 0, "tenant_access_token": "t-write", "expire": 7200})
+        malformed = _mock_post_response({})
+        malformed.json.side_effect = ValueError("truncated JSON")
+        mock_http.request.return_value = malformed
+        client = FeishuClient(app_id="id", app_secret="sec")
+        with pytest.raises(FeishuAPIError, match="Invalid JSON response") as error:
+            client.post("/bitable/v1/test", body={"fields": {"id": "X"}})
+        assert error.value.code == 0
+        mock_http.request.assert_called_once()
