@@ -1,13 +1,6 @@
 import assert from "node:assert/strict";
-import test from "node:test";
-import { readFileSync } from "node:fs";
-import ts from "typescript";
-
-const source = readFileSync(new URL("../src/components/books/review-state.ts", import.meta.url), "utf8");
-const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
-const targetModule = { exports: {} };
-new Function("module", "exports", output)(targetModule, targetModule.exports);
-const { parsePendingReview } = targetModule.exports;
+import { test } from "vitest";
+import { parsePendingReview } from "../src/components/books/review-state.ts";
 const ids = { book: `BK-${"a".repeat(32)}`, run: `PR-${"b".repeat(32)}`,
   version: `CV-${"c".repeat(32)}`, artifact: `AR-${"d".repeat(32)}` };
 const root = `/api/books/${ids.book}/chapters/1`;
