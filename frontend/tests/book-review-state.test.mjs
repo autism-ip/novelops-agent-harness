@@ -24,3 +24,15 @@ test("revision requires concrete changes and final-lock names exact version", ()
     artifact_id: ids.artifact, version_no: 1, operator: "editor" } };
   assert.deepEqual(parsePendingReview(JSON.stringify(lock)), lock);
 });
+
+test("corrupt or forged pending commands cannot become review actions", () => {
+  assert.equal(parsePendingReview("{not-json"), null);
+  assert.equal(parsePendingReview(null), null);
+  assert.equal(parsePendingReview(JSON.stringify(["approve"])), null);
+  assert.equal(parsePendingReview(JSON.stringify({ path: root + "/review/decision", body: null })), null);
+  assert.equal(parsePendingReview(JSON.stringify({ path: root + "/review/decision", body: { ...target, action: "delete" } })), null);
+  assert.equal(parsePendingReview(JSON.stringify({ path: root + "/review/decision", body: { ...target, operator: "   ", action: "approve" } })), null);
+  assert.equal(parsePendingReview(JSON.stringify({ path: root + "/review/decision", body: { ...target, expected_gate_version: -1, action: "approve" } })), null);
+  assert.equal(parsePendingReview(JSON.stringify({ path: root + "/review/revision", body: { ...target, constraints: {
+    must_keep: [], must_change: ["   "], do_not_change: [] } } })), null);
+});
