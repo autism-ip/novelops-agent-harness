@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import { test } from "vitest";
 import { parsePendingChapter } from "../src/components/books/chapter-state.ts";
 
 const id = prefix => prefix + "a".repeat(32);
