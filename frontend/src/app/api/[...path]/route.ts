@@ -20,9 +20,10 @@ async function proxyRequest(
 ): Promise<NextResponse> {
   const { path } = await params;
 
-  // Reject path traversal via dot or slash in decoded segments
+  // API routes use literal names and domain IDs. Reject URL metacharacters
+  // before WHATWG URL normalization can turn them into a different path.
   for (const segment of path) {
-    if (segment === "." || segment === ".." || segment.includes("/")) {
+    if (!/^[A-Za-z0-9_-]+$/.test(segment)) {
       return NextResponse.json(
         { detail: "Invalid path" },
         { status: 400 }
