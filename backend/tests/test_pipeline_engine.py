@@ -1,5 +1,8 @@
 """
-PipelineEngine 单元测试 — 使用 mock repo 隔离飞书 Bitable 依赖。
+[INPUT]: PipelineEngine、mock Feishu repos 和 StepDef。
+[OUTPUT]: 编排、校验、回滚及父流程 record_id 更新契约。
+[POS]: PipelineEngine 行为门禁。
+[PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
 
 from __future__ import annotations
@@ -321,3 +324,33 @@ class TestValidation:
         ]
         with pytest.raises(ValueError, match="unknown step 'ghost'"):
             engine.create_pipeline("test_type", step_defs)
+
+
+def test_partial_creation_rolls_back_pipeline_by_feishu_record_id(
+    engine: PipelineEngine, pipeline_repo: MagicMock, step_repo: MagicMock
+):
+    pipeline_repo.create.return_value = {
+        "record_id": "rec-pipeline", "pipeline_run_id": "PR-generated", "status": "pending"
+    }
+    step_repo.create.side_effect = RuntimeError("step write failed")
+
+    with pytest.raises(RuntimeError, match="step write failed"):
+        engine.create_pipeline("test", [StepDef("start", "agent")])
+
+    pipeline_repo.delete.assert_called_once_with("rec-pipeline")
+
+
+def test_completed_step_updates_parent_by_feishu_record_id(
+    engine: PipelineEngine, pipeline_repo: MagicMock, step_repo: MagicMock
+):
+    step_repo.find_by_business_key.return_value = {"record_id": "rec-step"}
+    step_repo.get.return_value = {"pipeline_run_id": "PR-001", "lease_until": ""}
+    step_repo.update.return_value = {"status": "success", "pipeline_run_id": "PR-001"}
+    step_repo.find_by_pipeline.return_value = [{"step_key": "start", "status": "success"}]
+    pipeline_repo.find_by_business_key.return_value = {"record_id": "rec-pipeline"}
+
+    engine.complete_step("SR-001")
+
+    pipeline_repo.find_by_business_key.assert_called_once_with(pipeline_run_id="PR-001")
+    assert pipeline_repo.update.call_args.args[0] == "rec-pipeline"
+    assert pipeline_repo.update.call_args.args[1]["status"] == "completed"

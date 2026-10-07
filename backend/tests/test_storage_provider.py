@@ -199,3 +199,32 @@ def test_unavailable_reconciliation_stops(setup):
     client.post.side_effect = FeishuAPIError("timeout")
     with pytest.raises(AmbiguousWrite):
         provider.ensure("runs", {"id": "x"})
+
+
+def test_empty_domain_id_is_rejected_before_feishu_read(setup):
+    client, provider = setup
+    with pytest.raises(ValueError, match="non-empty domain ID"):
+        provider.get("runs", "")
+    client.get.assert_not_called()
+
+
+def test_definite_update_rejection_is_not_reconciled_or_retried(setup):
+    client, provider = setup
+    client.get.return_value = records(("rec123", {"ID": "PR-1", "Status": "pending"}))
+    client.put.side_effect = FeishuAPIError("permission denied", code=403)
+    with pytest.raises(FeishuAPIError) as error:
+        provider.update("runs", "PR-1", {"status": "done"})
+    assert error.value.code == 403
+    client.put.assert_called_once()
+    assert client.get.call_count == 1
+
+
+def test_ambiguous_update_stops_when_reconciliation_read_fails(setup):
+    client, provider = setup
+    client.get.side_effect = [records(("rec123", {"ID": "PR-1", "Status": "pending"})),
+                              FeishuAPIError("read unavailable", code=503)]
+    client.put.return_value = {"data": {}}
+    with pytest.raises(AmbiguousWrite, match="Update reconciliation unavailable"):
+        provider.update("runs", "PR-1", {"status": "done"})
+    client.put.assert_called_once()
+    assert client.get.call_count == 2
