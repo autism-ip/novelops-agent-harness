@@ -88,3 +88,7 @@ The measured **Vitest source baseline**, which does not yet incorporate the sepa
 ### Unified frontend test measurement
 
 The same five original hotspot behavior assertions now execute directly under Vitest, alongside the three React tests. They import the real `state.ts` module, so the all-source report counts their executed paths rather than leaving them in a separate Node process. No assertion was removed or weakened. **8/8 frontend tests pass**; coverage increases to **9.87% statements (41/415), 9.51% lines (37/389), 8.26% functions (10/121), 12.63% branches (35/277)**. All unimported source still contributes zero; 100% remains open.
+
+### 2026-10-08 signed-session security regression
+
+Four new tests call the real WebCrypto HMAC session module and assert successful verification before expiry; rejection at expiry; rejection of changed payloads and malformed signatures; refusal to sign without a 32-character server secret; and fail-closed behavior when browser cryptography throws. `session.ts` now has **100% statement, line, function and branch coverage**. On this ZEN-34 head, **12/12 frontend tests**, lint, TypeScript and production build pass. The full-source report is **19.51% statements (81/415), 19.02% lines (74/389), 12.39% functions (15/121), 18.41% branches (51/277)**. Other routes and UI components remain below the required 100%.
