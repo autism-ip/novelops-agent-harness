@@ -15,8 +15,8 @@ test_domain_exceptions.py: 异常层级门禁，验证 FeishuError 家族继承�
 test_token_retry.py: token 重试门禁，验证 99991663/99991668 触发清 token + 重试一次（3 用例）。
 test_config_failfast.py: 配置 fail-fast 门禁，验证缺失环境变量时 get_table_id 抛 ValueError（4 用例）。
 test_step_status_recordid.py: record_id 门禁，验证 _from_feishu/get/create 均携带 record_id（3 用例）。
-test_pipeline_engine.py: PipelineEngine 行为门禁，验证 create/get_runnable/complete/fail/rollback/validation 生命周期（15 用例）。
-test_worker_loop.py: WorkerLoop 行为门禁，验证 claim/lease/expired/poll/execute/retry 逻辑（17 用例）。
+test_pipeline_engine.py: PipelineEngine 行为门禁，验证 create/get_runnable/complete/fail/rollback/validation 生命周期及父流程 record_id 契约。
+test_worker_loop.py: WorkerLoop 行为门禁，验证 claim/lease/expired/poll/execute/retry 及父流程 record_id 契约。
 test_repository_queries.py: 全部 16 张表的工厂装配和领域查询行为门禁，验证真实映射、表隔离与过滤条件。
 test_step_runs.py: StepRunsRepo 行为门禁，验证 claim_step 业务键→record_id 解析与 find_by_pipeline 字段过滤（4 用例）。
 test_pipeline_api.py: Pipeline API 端点门禁，验证 POST 创建、GET 安全业务键查询、重复 ID 冲突和 404 处理。

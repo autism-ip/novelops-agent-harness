@@ -1,5 +1,8 @@
 """
-WorkerLoop 单元测试 — 使用 mock PipelineEngine 隔离 repo 层。
+[INPUT]: WorkerLoop、mock PipelineEngine 和 Feishu record_id 契约。
+[OUTPUT]: claim/lease/retry 与父 PipelineRun 转换行为回归。
+[POS]: WorkerLoop 状态机行为门禁。
+[PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
 
 from __future__ import annotations
@@ -327,7 +330,8 @@ class TestPipelineStatusTransition:
             "lease_owner": "",
             "pipeline_run_id": "PR-001",
         }
-        engine._pipeline_repo.get.return_value = {
+        engine._pipeline_repo.find_by_business_key.return_value = {
+            "record_id": "rec-pipeline",
             "pipeline_run_id": "PR-001",
             "status": "pending",
         }
@@ -340,5 +344,21 @@ class TestPipelineStatusTransition:
         worker.claim_step("rec-001")
 
         pipeline_update = engine._pipeline_repo.update.call_args[0]
-        assert pipeline_update[0] == "PR-001"
+        assert pipeline_update[0] == "rec-pipeline"
         assert pipeline_update[1]["status"] == "running"
+
+
+def test_first_claim_uses_parent_feishu_record_id(worker: WorkerLoop, engine: MagicMock):
+    engine._step_repo.get.return_value = {
+        "step_run_id": "SR-001", "pipeline_run_id": "PR-001", "lease_owner": ""
+    }
+    engine._step_repo.update.return_value = {"status": "running"}
+    engine._pipeline_repo.find_by_business_key.return_value = {
+        "record_id": "rec-pipeline", "pipeline_run_id": "PR-001", "status": "pending"
+    }
+
+    worker.claim_step("rec-step")
+
+    engine._pipeline_repo.find_by_business_key.assert_called_once_with(pipeline_run_id="PR-001")
+    assert engine._pipeline_repo.update.call_args.args[0] == "rec-pipeline"
+    assert engine._pipeline_repo.update.call_args.args[1]["status"] == "running"
