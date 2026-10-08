@@ -336,3 +336,48 @@ def test_review_refresh_and_decision_revalidate_remote_artifacts(chapter):
     restored = kernel.chapter_loop.review_state(book_id, 1)
     assert restored['latest']['selected'] == view['selected']
     assert restored['versions'][0]['record']['status'] == 'review'
+
+
+def test_http_editorial_revision_approval_and_lock_preserve_history(chapter):
+    kernel, provider, book_id = chapter
+    kernel.chapter_loop = ChapterLoopService(kernel, review_first_n=1)
+    first = pass_run(kernel, provider, book_id)
+    api = TestClient(create_app(Settings(BACKEND_API_KEY='test'), kernel=kernel))
+    headers = {'x-api-key': 'test'}
+    root = f'/api/books/{book_id}/chapters/1'
+    assert api.get(root + '/review').status_code == 401
+    review = api.get(root + '/review', headers=headers).json()
+    assert review['latest']['run']['status'] == 'awaiting_approval'
+    command = {**target(first), 'expected_gate_version': review['review_gate']['output_version'],
+               'constraints': {'must_keep': ['Mira helps neighbors'],
+                               'must_change': ['Sharper dialogue'], 'do_not_change': []}}
+    stale = api.post(root + '/review/revision', headers=headers,
+                     json={**command, 'artifact_id': 'AR-other'})
+    assert stale.status_code == 409
+    assert kernel.storage.list('revision_tasks') == []
+    created = api.post(root + '/review/revision', headers=headers, json=command)
+    assert created.status_code == 201
+    task = created.json()['task']
+    run_id = created.json()['run']['pipeline_run_id']
+    assert task['source_artifact_id'] == first['selected']['artifact_id']
+    assert task['from_version_id'] == command['version_id']
+    assert api.post(root + '/review/revision', headers=headers, json=command).json()['task'] == task
+    pending = api.get(f'/api/chapter-generations/{run_id}', headers=headers).json()
+    assert pending['request']['constraints'] == command['constraints']
+    provider.outputs.extend([draft(pending['snapshot_artifact_id'], first['request']['brief_artifact_id']), critique()])
+    settle(kernel, 5)
+    newer = api.get(root + '/review', headers=headers).json()
+    assert newer['latest']['run']['status'] == 'awaiting_approval'
+    assert [item['record']['version_no'] for item in newer['versions']] == [2, 1]
+    approval = {**target(newer['latest']), 'action': 'approve',
+                'expected_gate_version': newer['review_gate']['output_version']}
+    accepted = api.post(root + '/review/decision', headers=headers, json=approval)
+    assert accepted.status_code == 200 and accepted.json()['version']['status'] == 'approved'
+    locked = api.post(root + '/final-lock', headers=headers, json={
+        key: approval[key] for key in ('version_id', 'artifact_id', 'version_no', 'operator')})
+    assert locked.status_code == 200 and locked.json()['status'] == 'final'
+    history = api.get(root + '/versions', headers=headers).json()
+    assert history[1]['artifact'] == first['selected']
+    assert history[0]['record']['status'] == 'final'
+    assert len(kernel.storage.list('revision_tasks')) == 1
+    api.close()

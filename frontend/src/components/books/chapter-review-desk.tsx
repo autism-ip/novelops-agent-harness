@@ -24,6 +24,8 @@ type ReviewState = { latest: ChapterRun | null; story_state?: Record<string, Rec
   traces?: { kind: string; route?: string; model?: string; prompt_version?: string;
     input_tokens?: number; output_tokens?: number; estimated_cost?: number; latency_ms?: number; retry_count?: number }[] };
 
+// A live chapter desk read took 65.46 seconds; retain a bounded read deadline.
+const REVIEW_READ_TIMEOUT_MS = 120_000;
 const EVENT = "novelops-chapter-review-request";
 function subscribe(callback: () => void) {
   window.addEventListener(EVENT, callback);
@@ -62,7 +64,7 @@ export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged }: {
   const [reason, setReason] = useState("");
   const busy = useRef(false);
   const { operator, update: setOperator } = useEditorIdentity();
-  const result = useResource<ReviewState>(root + "/review", refresh + revision, 5000, pollWhileActive);
+  const result = useResource<ReviewState>(root + "/review", refresh + revision, 5000, pollWhileActive, REVIEW_READ_TIMEOUT_MS);
   const data = result.data;
   const latest = data?.latest;
   const current = data?.versions.find(entry => entry.record.artifact_id === latest?.selected?.artifact_id);
@@ -128,7 +130,7 @@ export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged }: {
         <p className="text-sm text-muted-foreground">Read the draft, inspect the checks, then make the next editorial decision.</p></div>
       {latest && <StatusBadge status={gatePending ? "awaiting_approval" : latest.run.status} />}
     </div>
-    {result.loading && !data && <p role="status" className="text-sm">Loading chapter review…</p>}
+    {result.loading && !data && <p role="status" className="text-sm">Loading chapter review… Chapter history may take a minute to load.</p>}
     {result.error != null && <p role="alert" className="text-sm text-destructive">{visibleError(result.error)}</p>}
     {!latest && data && (data.versions.length ? <div className="surface-soft space-y-4 p-4 sm:p-5">
       <p className="text-sm text-muted-foreground">Earlier chapter versions are available for reading. Generate a chapter to enable current run review.</p>

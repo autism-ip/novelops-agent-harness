@@ -26,6 +26,7 @@ export function useResource<T>(
   revision: number,
   pollMs = 0,
   onData?: (data: T) => boolean,
+  timeoutMs = 10_000,
 ) {
   const key = `${path}:${revision}`;
   const [result, setResult] = useState<{
@@ -40,7 +41,7 @@ export function useResource<T>(
     async function load() {
       let repeat = true;
       try {
-        const data = await api.get<T>(path!);
+        const data = await api.get<T>(path!, timeoutMs);
         if (live) {
           setResult({ key, data });
           repeat = onData?.(data) ?? true;
@@ -57,7 +58,7 @@ export function useResource<T>(
       live = false;
       clearTimeout(timer);
     };
-  }, [path, key, pollMs, onData]);
+  }, [path, key, pollMs, onData, timeoutMs]);
   return {
     data: result?.key === key ? result.data : undefined,
     error: result?.key === key ? result.error : undefined,
