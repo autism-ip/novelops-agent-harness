@@ -31,6 +31,22 @@ class FeishuTransport:
                 and isinstance(value, (int, float)) and not isinstance(value, bool) else value
                 for key, value in row["fields"].items()}}
         record_id = parts[-1] if parts[-1] != "records" else None
+        if request.method == "POST" and parts[-1] == "search":
+            body = json.loads(request.content)
+            criteria = body["filter"]
+            assert criteria["conjunction"] == "or"
+            assert 1 <= len(criteria["conditions"]) <= 50
+            for condition in criteria["conditions"]:
+                assert condition["operator"] == "is" and len(condition["value"]) == 1
+            matches = [row for row in rows.values() if any(
+                row["fields"].get(condition["field_name"]) == condition["value"][0]
+                for condition in criteria["conditions"]
+            )]
+            items = [{"record_id": row["record_id"], "fields": {
+                name: [{"type": "text", "text": value}] if isinstance(value, str) else value
+                for name, value in row["fields"].items()
+            }} for row in matches]
+            return httpx.Response(200, json={"code": 0, "data": {"items": items, "has_more": False}})
         if request.method == "POST":
             if self.fail_create == table:
                 self.fail_create = None

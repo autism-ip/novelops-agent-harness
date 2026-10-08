@@ -128,7 +128,7 @@ def test_committed_timeout_reconciles_without_second_hotspot_post(ingestion):
     failed = []
     def timeout(request):
         response = original(request)
-        if request.method == "POST" and "/tables/hotspots/" in str(request.url) and not failed:
+        if request.method == "POST" and request.url.path.endswith("/tables/hotspots/records") and not failed:
             failed.append(True)
             raise httpx.ReadTimeout("response lost", request=request)
         return response
@@ -138,7 +138,7 @@ def test_committed_timeout_reconciles_without_second_hotspot_post(ingestion):
     result = complete(kernel, service.enqueue("timeout")["pipeline_run_id"])
     assert result["status"] == "completed"
     assert len(storage.list("hotspots")) == 35
-    assert sum(r.method == "POST" and "/tables/hotspots/" in str(r.url) for r in transport.calls) == 35
+    assert sum(r.method == "POST" and r.url.path.endswith("/tables/hotspots/records") for r in transport.calls) == 35
 
 
 @pytest.mark.parametrize("payload", [[None, 3, {"title": {}}, {"title": " "}], {"error": "bad"}])
@@ -223,7 +223,7 @@ def test_unknown_hotspot_create_stops_and_restart_never_reposts(ingestion):
     original = transport.__call__
     attempts = []
     def timeout(request):
-        if request.method == "POST" and "/tables/hotspots/" in str(request.url):
+        if request.method == "POST" and request.url.path.endswith("/tables/hotspots/records"):
             attempts.append(request)
             raise httpx.ReadTimeout("unknown", request=request)
         return original(request)
