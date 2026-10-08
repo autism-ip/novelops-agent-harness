@@ -95,7 +95,11 @@ test.each([
   await act(async () => { await vi.advanceTimersByTimeAsync(24_463); });
   // POST acknowledgement starts a separate refresh GET. Wait for its body
   // so both request deadlines have completed before checking timer cleanup.
-  await act(async () => { await refreshed; });
+  await act(async () => {
+    await refreshed;
+    // jsdom queues the sessionStorage removal event on the next clock turn.
+    await vi.advanceTimersByTimeAsync(1);
+  });
   expect(onChanged).toHaveBeenCalledOnce();
   expect(sessionStorage.getItem(storageKey)).toBeNull();
   expect(transport.mock.calls.filter(([, init]) => init.method === "POST")).toHaveLength(1);
@@ -126,7 +130,11 @@ test("a hung action expires at 120 seconds and retries only the persisted exact 
   expect(sessionStorage.getItem(storageKey)).toBeNull();
   // POST acknowledgement starts a separate refresh GET. Wait for its body
   // so both request deadlines have completed before checking timer cleanup.
-  await act(async () => { await refreshed; });
+  await act(async () => {
+    await refreshed;
+    // jsdom queues the sessionStorage removal event on the next clock turn.
+    await vi.advanceTimersByTimeAsync(1);
+  });
   expect(onChanged).toHaveBeenCalledOnce();
   view.unmount();
   expect(vi.getTimerCount()).toBe(0);

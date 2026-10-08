@@ -342,16 +342,24 @@ fresh CI/review audits. No issue is marked Done or safe to merge under the 100%
 coverage requirement.
 
 
-### CI timing remediation
+### CI timing remediation and required Node version
 
-Both GitHub runs for report head `f46f7ae3040fe4c55e2be879bca9ad6a0fbaaa5c`
-failed only the frontend slow-action test's final zero-timer assertion: 73/77
-frontend cases passed; backend, adapter and workflow gates passed. The acknowledged
-POST starts a separate GET refresh, whose body was still being read when the
-assertion ran. The test now awaits that actual refresh body completion before
-asserting zero timers. Exact request identity, one write, 120-second expiration,
-persisted recovery and zero remaining timers are unchanged. All **77 frontend
-cases**, full-source coverage, lint, types and production build pass locally after
-the synchronization correction; reported coverage is unchanged. Application code
-remains exactly `3241108810e3a26494d8b71fd1d5e0a647e6529e`. The new head requires a
-fresh GitHub gate check; the failed runs remain historical evidence.
+Both runs for report head `f46f7ae3040fe4c55e2be879bca9ad6a0fbaaa5c` failed
+four final zero-timer assertions; the other 73 frontend cases and all backend,
+adapter and workflow gates passed. The first test-only remediation awaited the
+refresh body, but `e12da435c793d61265cef14fa99dae696eec6892` still failed those four
+assertions in CI. Local Node 25 success did not establish the required Node 24 gate.
+
+The bundled **Node 24.19.0** reproduced the failure locally. Temporary timer
+inspection identified jsdom's bound `_dispatchStorageEvent` from the successful
+`sessionStorage.removeItem`: a zero-delay event queued for the next fake-clock
+turn. The final test waits for the real refresh body and advances that next event
+turn by 1ms before asserting zero timers. Every exact-command, single-write,
+120-second deadline, recovery and zero-timer assertion is retained; no application
+code, test count or coverage threshold changed. Debug instrumentation was removed.
+
+Using the repository-required Node 24, **77 frontend cases**, all-source coverage,
+ESLint, typecheck and production build pass. Reported coverage is unchanged. The
+application still matches source commit `3241108810e3a26494d8b71fd1d5e0a647e6529e`;
+its actual Feishu event evidence is unaffected. Both failed CI heads remain
+historical evidence. The final test/report head requires fresh GitHub checks.
