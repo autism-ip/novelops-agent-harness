@@ -1,6 +1,6 @@
 """
 [INPUT]: 依赖 app.feishu.client.FeishuClient 的 HTTP 能力
-[OUTPUT]: 对外提供 BaseRepository——通用 Bitable CRUD + CAS + 字段过滤 + 业务键查找基类
+[OUTPUT]: 对外提供 BaseRepository——通用 Bitable CRUD + CAS + 字段过滤 + 业务键查找与批量读取基类
 [POS]: repositories 包的抽象基类，被 16 个具体 repository 继承
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
@@ -88,6 +88,10 @@ class BaseRepository:
 
     def find_by_business_key(self, **conditions: str | int) -> dict | None:
         """Return a unique business-key match, rejecting duplicate records."""
+        if len(conditions) == 1:
+            field, value = next(iter(conditions.items()))
+            if isinstance(value, str):
+                return self.get_many_by_key(field, [value]).get(value)
         results = self.list(filter_expr=self._field_filter(**conditions), page_size=100)
         if len(results) > 1:
             from app.storage import DuplicateKey
@@ -159,6 +163,62 @@ class BaseRepository:
             page_token = next_token
 
         return results
+
+    def get_many_by_key(self, field: str, domain_ids: list[str]) -> dict[str, dict]:
+        """Read domain IDs using <=50 OR conditions; missing IDs remain absent.
+
+        Search is a read-only POST with structured filters, not a record-ID API.
+        All pages must be valid before returning anything. NovelOps stores text
+        and numeric cells; search returns text as typed rich-text segments.
+        """
+        if any(not isinstance(value, str) or not value.strip() for value in domain_ids):
+            raise ValueError("Non-empty string domain IDs are required")
+        ids = list(dict.fromkeys(domain_ids))
+        results: dict[str, dict] = {}
+        for start in range(0, len(ids), 50):
+            chunk = ids[start:start + 50]
+            body = {"filter": {"conjunction": "or", "conditions": [
+                {"field_name": self._field_map.get(field, field), "operator": "is", "value": [value]}
+                for value in chunk
+            ]}}
+            params = {"page_size": "500"}
+            seen_tokens: set[str] = set()
+            while True:
+                response = self._client.search_records(
+                    self._app_token, self._table_id, body=body, params=params,
+                )
+                data = response.get("data") if isinstance(response, dict) else None
+                if (not isinstance(data, dict) or not isinstance(data.get("items"), list)
+                        or not isinstance(data.get("has_more"), bool)):
+                    raise FeishuAPIError("Malformed search response", code=0)
+                for record in data["items"]:
+                    if (not isinstance(record, dict) or not isinstance(record.get("record_id"), str)
+                            or not record["record_id"] or not isinstance(record.get("fields"), dict)):
+                        raise FeishuAPIError("Malformed search record", code=0)
+                    fields = {}
+                    for name, value in record["fields"].items():
+                        if isinstance(value, list):
+                            if any(not isinstance(part, dict) or part.get("type") != "text"
+                                   or not isinstance(part.get("text"), str) for part in value):
+                                raise FeishuAPIError("Unsupported search text cell", code=0)
+                            value = "".join(part["text"] for part in value)
+                        fields[name] = value
+                    row = self._from_feishu({**record, "fields": fields})
+                    domain_id = row.get(field)
+                    if not isinstance(domain_id, str) or domain_id not in chunk:
+                        raise FeishuAPIError("Search business key mismatch", code=0)
+                    if domain_id in results:
+                        from app.storage import DuplicateKey
+                        raise DuplicateKey("Duplicate business key in search")
+                    results[domain_id] = row
+                if not data["has_more"]:
+                    break
+                token = data.get("page_token")
+                if not isinstance(token, str) or not token or token in seen_tokens:
+                    raise FeishuAPIError("Invalid search pagination token", code=0)
+                seen_tokens.add(token)
+                params = {"page_size": "500", "page_token": token}
+        return {value: results[value] for value in ids if value in results}
 
     def update(self, record_id: str, fields: dict, *, previous: dict | None = None) -> dict:
         """Update fields and return a complete row even when PUT echoes only the patch."""
