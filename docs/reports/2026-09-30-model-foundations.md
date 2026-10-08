@@ -30,3 +30,20 @@ The remaining acceptance work belongs to the domain workflow PRs and deployment 
 ## Stack re-audit on 2026-10-07
 
 The ZEN-105/104 fixes were merged into this branch. Their new factory test initially failed here because ZEN-106 adds `artifacts` and `traces` to `TABLE_NAMES`/`FIELD_MAPS` as generic `BaseRepository` stores; the 16 domain-specific repositories remain in `create_repositories`. The test now explicitly checks all configured field maps while expecting the two generic tables outside the 16-class domain factory. The full offline backend suite passes **293 tests**, with **9 live tests deselected**. Branch-aware coverage reports **1,920 statements, 117 missed lines, 456 branches, 54 partially covered branch lines, 92% combined**. This is below the new 100% line/function/branch goal. The earlier DeepSeek and live Artifact/Trace evidence remains historical; this head has not been rerun against those external services.
+
+## Integrity-checked Artifact batch reads (2026-10-09)
+
+Consumed ZEN-105's verified native storage query. `ArtifactStore.get_many` returns
+present immutable artifacts with the same schema, artifact-ID, stable version-ID
+and content-hash validation as `get`; malformed/tampered payloads abort the batch.
+No cached result survives a call. Missing IDs remain explicitly absent, while
+single `get` retains `MissingRecord`. Regressions verify two immutable versions,
+reordered/deduplicated requests, absent IDs, one read-only HTTP request, remote
+content/identity/version/JSON tampering and fresh recovery after restoring data.
+
+**346 offline tests passed**, 10 opt-in integration cases deselected; Ruff and
+frontend lint/types/build passed. Full-source backend statement/line coverage
+94.08%, branch 85.89%, combined
+92.47%. This does not establish whole-project 100% or deployed
+chapter performance. Native Feishu batch semantics were separately proven by the
+ZEN-105 live probe; no real model was invoked for this batch-read change.

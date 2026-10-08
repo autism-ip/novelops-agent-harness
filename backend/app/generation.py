@@ -271,15 +271,29 @@ class ArtifactStore:
             row = self.kernel.storage.get("artifacts", artifact_id)
             if row is None:
                 raise MissingRecord(artifact_id)
-            try:
-                payload = Artifact.model_validate_json(row["payload_json"]).model_dump()
-                if (payload["artifact_id"] != artifact_id or
-                    stable_id("AR-", payload["logical_id"] + "/" + str(payload["version"])) != artifact_id or
-                    digest(payload["content"]) != payload["content_hash"]):
-                    raise ArtifactIntegrityError("Artifact integrity check failed")
-            except (ValueError, KeyError, TypeError):
-                raise ArtifactIntegrityError("Artifact integrity check failed") from None
-            return payload
+            return self._decode(artifact_id, row)
+
+    def get_many(self, artifact_ids: list[str]) -> dict[str, dict]:
+        """Read present immutable artifacts in one batch, checking each payload.
+
+        Missing IDs are omitted, as in the storage contract. A caller requiring
+        one ID still uses get (or checks membership). No cache survives a call.
+        """
+        with self.kernel.writer:
+            rows = self.kernel.storage.get_many("artifacts", artifact_ids)
+            return {artifact_id: self._decode(artifact_id, row) for artifact_id, row in rows.items()}
+
+    @staticmethod
+    def _decode(artifact_id: str, row: dict) -> dict:
+        try:
+            payload = Artifact.model_validate_json(row["payload_json"]).model_dump()
+            if (payload["artifact_id"] != artifact_id or
+                stable_id("AR-", payload["logical_id"] + "/" + str(payload["version"])) != artifact_id or
+                digest(payload["content"]) != payload["content_hash"]):
+                raise ArtifactIntegrityError("Artifact integrity check failed")
+        except (ValueError, KeyError, TypeError):
+            raise ArtifactIntegrityError("Artifact integrity check failed") from None
+        return payload
 
     def save(self, *, logical_id: str, version: int, artifact_type: str, content: dict,
              context: CallContext, prompt: Prompt, route: str, provider: str, model: str,
