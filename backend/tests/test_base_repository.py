@@ -347,7 +347,7 @@ class TestFindByBusinessKey:
 
     def test_returns_first_match(self, repo: BaseRepository, mock_client: MagicMock) -> None:
         """Given a record in the table, find_by_business_key returns it."""
-        mock_client.get.return_value = {
+        mock_client.search_records.return_value = {
             "data": {
                 "items": [
                     {"record_id": "rec-abc", "fields": {"Book ID": "B001", "Book Title": "Found"}},
@@ -362,15 +362,15 @@ class TestFindByBusinessKey:
         assert result["record_id"] == "rec-abc"
         assert result["book_id"] == "B001"
 
-        # verify the filter was built correctly
-        call = mock_client.get.call_args
-        params = call.kwargs.get("params", call[1].get("params", {}))
-        assert params["filter"] == 'CurrentValue.[Book ID] = "B001"'
-        assert params["page_size"] == "100"
+        assert mock_client.search_records.call_args.kwargs["body"]["filter"] == {
+            "conjunction": "or", "conditions": [
+                {"field_name": "Book ID", "operator": "is", "value": ["B001"]}],
+        }
+        assert mock_client.search_records.call_args.kwargs["params"] == {"page_size": "500"}
 
     def test_returns_none_when_empty(self, repo: BaseRepository, mock_client: MagicMock) -> None:
         """When no record matches, find_by_business_key returns None."""
-        mock_client.get.return_value = {
+        mock_client.search_records.return_value = {
             "data": {"items": [], "has_more": False}
         }
 
@@ -388,7 +388,7 @@ def test_blank_numeric_cells_preserve_absence_without_coercion(repo: BaseReposit
 def test_business_key_lookup_rejects_duplicate_matches(repo: BaseRepository, mock_client: MagicMock) -> None:
     from app.storage import DuplicateKey
 
-    mock_client.get.return_value = {"data": {"items": [
+    mock_client.search_records.return_value = {"data": {"items": [
         {"record_id": "r1", "fields": {"Book ID": "same"}},
         {"record_id": "r2", "fields": {"Book ID": "same"}},
     ], "has_more": False}}
@@ -447,3 +447,17 @@ def test_conditional_update_rejects_stale_record_without_put(
     with pytest.raises(ValueError, match="Record condition does not match"):
         repo.conditional_update("rec-1", {"title": "Updated"}, {"title": "Original"})
     mock_client.put.assert_not_called()
+
+
+def test_compound_and_numeric_legacy_business_keys_reject_duplicates(repo, mock_client):
+    from app.storage import DuplicateKey
+
+    mock_client.get.return_value = {"data": {"items": [{"record_id": "r1", "fields": {"chapter_no": 1}}]}}
+    assert repo.find_by_business_key(chapter_no=1)["chapter_no"] == 1
+    assert mock_client.get.call_args.kwargs["params"]["filter"] == 'CurrentValue.[chapter_no] = 1'
+    mock_client.get.return_value = {"data": {"items": []}}
+    assert repo.find_by_business_key(book_id="B1", chapter_no=1) is None
+    mock_client.get.return_value = {"data": {"items": [
+        {"record_id": "r1", "fields": {}}, {"record_id": "r2", "fields": {}}]}}
+    with pytest.raises(DuplicateKey):
+        repo.find_by_business_key(book_id="B1", chapter_no=1)

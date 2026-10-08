@@ -321,3 +321,49 @@ def test_invalid_tool_result_has_failed_trace(foundation):
     row = trace.list(run_id=run["pipeline_run_id"])[0]
     assert row["status"] == "failed"
     assert row["failure_class"] == "InvalidHandlerOutput"
+
+
+def test_artifact_batch_checks_immutable_versions_and_is_read_only(foundation):
+    kernel, _, artifacts = foundation
+    fields = dict(logical_id="batch", artifact_type="OpportunityAnalysis", context=context(),
+                  prompt=Prompt(version="1", template="JSON"), route="research", model="model", provider="deepseek")
+    first = artifacts.save(**fields, version=1, content={"summary": "first"})
+    second = artifacts.save(**fields, version=2, content={"summary": "second"})
+    calls = []
+    client = kernel.storage._repos["artifacts"]._client._http
+    client.event_hooks["request"].append(calls.append)
+    assert artifacts.get_many([]) == {} and calls == []
+    actual = artifacts.get_many([second["artifact_id"], "missing", first["artifact_id"], second["artifact_id"]])
+    assert actual == {second["artifact_id"]: second, first["artifact_id"]: first}
+    assert list(actual) == [second["artifact_id"], first["artifact_id"]]
+    assert len(calls) == 1 and calls[0].method == "POST" and calls[0].url.path.endswith("/records/search")
+    assert actual[first["artifact_id"]]["source_refs"] == list(context().input_refs)
+    assert "record_id" not in json.dumps(actual)
+
+
+@pytest.mark.parametrize("tamper", ["content", "identity", "version", "malformed"])
+def test_artifact_batch_integrity_failure_and_fresh_recovery(foundation, tamper):
+    from app.generation import ArtifactIntegrityError
+    from app.harness import encode
+
+    kernel, _, artifacts = foundation
+    fields = dict(logical_id="batch-integrity", artifact_type="OpportunityAnalysis", context=context(),
+                  prompt=Prompt(version="1", template="JSON"), route="research", model="model", provider="deepseek")
+    first = artifacts.save(**fields, version=1, content={"summary": "original"})
+    second = artifacts.save(**fields, version=2, content={"summary": "next"})
+    ids = [first["artifact_id"], second["artifact_id"]]
+    assert artifacts.get_many(ids) == {ids[0]: first, ids[1]: second}
+    changed = {**second}
+    if tamper == "content":
+        changed["content"] = {"summary": "changed remotely"}
+    elif tamper == "identity":
+        changed["artifact_id"] = ids[0]
+    elif tamper == "version":
+        changed["version"] = 3
+    payload = "not JSON" if tamper == "malformed" else encode(changed)
+    kernel.storage.update("artifacts", ids[1], {"payload_json": payload})
+    with pytest.raises(ArtifactIntegrityError):
+        artifacts.get_many(ids)
+    kernel.storage.update("artifacts", ids[1], {"payload_json": encode(second)})
+    assert artifacts.get_many(ids) == {ids[0]: first, ids[1]: second}
+    assert artifacts.get_many(["missing"]) == {}
