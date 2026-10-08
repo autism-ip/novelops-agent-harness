@@ -219,7 +219,19 @@ Full-source V8: statement **58.17%**, line **62.03%**, function **51.01%**, bran
 **53.43%**. No exclusions, skipped offline tests or relaxed thresholds were added.
 The whole-project 100% objective therefore remains open.
 
-A fresh application-identity live review read is in progress in the previously
-authorized synthetic Base. Its latency/content/independent-cleanup result will
-be recorded when the process completes. This probe uses persisted synthetic
-workflow data and does not call a real model or verify a deployed frontend proxy.
+The fresh application-identity live probe passed **1/1 in 279.25 seconds** at
+code `404cd7cdee01833bec608a3a190c4bc33611872c` in the authorized synthetic Base.
+It seeded **21 rows** after absence checks and read the mounted authenticated
+review API: chapter, Bible, brief, snapshot, verifier, history and two model-attempt
+usage records matched their expected immutable sources. Unauthorized access was
+rejected. The response took **26.703 seconds / 22 read requests** (11 GETs and 11
+native search POSTs); no mutation request occurred during the read. Seed time was
+121.270s and cleanup 103.156s, with no cleanup failure. An independent app client
+found **zero remaining probe rows**. No real model was called.
+
+The prior equivalent persisted case took 65.460s / 27 GETs. These are two single
+observations on different runs; network/service variation prevents attributing the
+entire latency difference to code or claiming p95 performance. The controlled
+same-transport count comparison above isolates the batching change. This verifies
+the actual Feishu read path, not live model generation, current frontend write
+latency, a deployed proxy, platform duration limits or continuous-editor acceptance.

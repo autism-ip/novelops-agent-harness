@@ -29,13 +29,13 @@ The per-issue reports under `docs/reports/` carry the full event traces, cleanup
 - Reproduced and fixed a Feishu-filter injection in `GET /api/pipelines/{id}`. The repository now escapes the path ID and rejects duplicate business keys with 409. A real HTTP regression asserts the outbound filter expression.
 - Reproduced and fixed three legacy pipeline parent mutations that passed `pipeline_run_id` where Feishu requires `record_id`: rollback, completion and first Worker claim.
 - Added provider/repository cases for blank IDs, duplicate records, pagination, partial/malformed response handling, permission rejection and ambiguous-read failure. The 16 domain repository mappings and filters are exercised. ZEN-106's Artifacts/Traces remain generic stores, explicitly reflected in the downstream test.
-- Merged these owning-PR changes and the new frontend coverage tool through every dependent branch, verified each backend/frontend scope and pushed all 13 branch refs. The final branch has **425 passing offline backend tests, 9 credentialed tests deselected, 60 unified Vitest frontend tests**, and passing frontend lint, typecheck and production build.
+- Merged these owning-PR changes and the new frontend coverage tool through every dependent branch, verified each backend/frontend scope and pushed all 13 branch refs. The final branch has **481 passing offline backend tests, 10 credentialed tests deselected, 60 unified Vitest frontend tests**, and passing frontend lint, typecheck and production build.
 - On the authorized synthetic Base, the current five-table provider CRUD probe passed **5/5 in 83.29 seconds**; independent reads found no `probe-` rows. The current direct-kernel live approval flow completed with one ApprovalEvent; independent reads found zero PipelineRuns, StepRuns and ApprovalEvents afterward. No secret values entered Git.
 - A GraphQL review audit read reviews, discussion and all inline threads for all 13 PRs, including resolved/outdated threads. There are **zero unresolved threads**; all previously valid automated findings have documented fixes and regressions in their owning reports. No human approval is inferred. Latest CI must be associated with each exact PR head; a green ancestor or old head is insufficient.
 
 ## Coverage and delivery blockers
 
-The latest code tree reports backend **92.83% statements/lines (3,884/4,184), 79.98% branches (875/1,094), 90.17% combined**: 300 missed lines, 219 missing branch arcs and 193 partial branch lines. Raw named Python function entries are **95.77% (385/402)**; 11 anonymous lambdas remain outside this metric, so full function coverage is not claimed. The count includes six Protocol method declarations; coverage.py defaults omit those declarations and four adjacent blank lines, with no new project exclusion. All-source frontend coverage includes every unimported TS/TSX source and is **58.17% statements (587/1,009), 62.03% lines (531/856), 51.01% functions (151/296), 53.43% branches (599/1,121)**. Seven auth/proxy/parser/HTTP/resource/health modules reach all four metrics at 100%; the whole project remains below the required target. No ignore rule, test removal or gate reduction was used.
+The latest code tree reports backend **92.97% statements/lines (3,952/4,251), 80.60% branches (906/1,124), 90.38% combined**: 299 missed lines, 218 missing branch arcs and 192 partial branch lines. A fresh complete Python function metric is **not established** at this head. The earlier named-entry measurement (385/402, 95.77%, before this batch-read change) omitted anonymous lambdas and included Protocol declarations; it is historical evidence and cannot support a current all-function claim. No new project exclusion was added. All-source frontend coverage includes every unimported TS/TSX source and is **58.17% statements (587/1,009), 62.03% lines (531/856), 51.01% functions (151/296), 53.43% branches (599/1,121)**. Seven auth/proxy/parser/HTTP/resource/health modules reach all four metrics at 100%; the whole project remains below the required target. No ignore rule, test removal or gate reduction was used.
 
 The previous live ZEN-41 editorial flow required **2,677 seconds** with deterministic model fixtures and about 1,333 requests in a corresponding stateful transport replay. It verifies correct persisted behavior but leaves continuous-editing performance unresolved. Repeated real-model revision quality, production Base ACL/schema, configured route price/cost accuracy and cross-process writes remain unverified. The app retains a single-writer deployment contract and feature flags.
 
@@ -67,3 +67,41 @@ The real delay exposed the browser's ten-second abort. Code `4bc60bb1` permits o
 ## Decision and next work
 
 **Verified facts:** tests, coverage numbers, current Feishu probes, cleanup, current Linear status, open PR map and review-thread counts above. **Engineering judgment:** the stack is suitable for continued code review but not Done, safe merge, or production enablement under the active goal. **Unverified assumptions:** issue-specific event behavior at every current head, production latency and ACL, and repeated real-model quality. **Next actions:** await exact-head CI on the refreshed PR stack; add meaningful backend and full-source frontend behavioral tests until every applicable metric is 100%; measure Python function coverage; reduce Feishu read amplification and verify an acceptable editorial response time; then re-run exact-head CI, issue event checks and review audit. The existing personal `issue-pr-delivery` Skill was extended with reusable PR-SHA and stale Next generated-type checks; no new Skill was created.
+
+
+## Native read correctness and performance follow-up (2026-10-09)
+
+- A fresh root-provider probe proved the old GET formula falsely reported absence
+  for a quote/backslash ID that native search returned. Owning PR #23 now uses
+  structured search for single string IDs and 50-ID chunked batch reads. It rejects
+  malformed envelopes/rows, mismatched/duplicate business IDs and cyclic pagination,
+  converts text segments and numeric cells, and preserves write reconciliation.
+- The real provider repeat passed in 39.69s: two present IDs plus one missing ID
+  returned in one search POST / 0.869s. Special-character ensure replay created no
+  row. Three probe rows were independently confirmed absent after cleanup. The
+  initial false-absence row was separately targeted and independently removed; a
+  later SSL auth EOF occurred before any write and was not hidden.
+- PR #25 adds Artifact batch reads with identical integrity checks and fresh-call
+  semantics. Owning downstream tests continue asserting actual creates, blocked
+  ambiguous recovery and no repeated writes; POST search is explicitly read-only.
+- All 13 branches were synchronized in dependency order, each at its own backend,
+  frontend-test (where configured), Ruff and frontend lint/types/build scope. One
+  module-description conflict preserved both StoryState mapping and safe-read notes.
+  Every pushed dependency head passed both CI runs; the newest PR #37 code head
+  was still awaiting its aggregate checks at the audit immediately after push.
+- PR #37 batches immutable sources/history and RevisionTask run statuses within one
+  response. The controlled full editorial path lowered review requests **27→22**
+  for v1 and **31→23** for v2; generation, revision, approval and lock counts were
+  unchanged. Refresh/decision tampering, missing-Artifact restoration, optional
+  Critic absence and empty-history assertions remain behavior-based.
+- The fresh mounted review API using real Feishu passed **1/1 in 279.25s** at code
+  `404cd7cdee01833bec608a3a190c4bc33611872c`: **22 read requests / 26.703s**, complete
+  immutable sources/usage verified, **21 seeded rows cleaned**, independent residual
+  count **0**, no real model call. The earlier equivalent case was 27 GETs/65.460s;
+  these separate single observations are not a p95 or controlled latency benchmark.
+- Remaining gates: 100% all applicable coverage metrics; current complete live
+  generation/editorial and frontend write-path timing; repeat domain-model evals;
+  deployed-proxy/platform duration/production ACL verification; fresh CI/review
+  audit at the final report-only head. No issue is declared Done or safely mergeable.
+- Reuse assessment: existing `issue-pr-delivery` plus `lark-openapi-explorer` cover
+  this work. No new personal Skill is needed for one provider-specific optimization.
