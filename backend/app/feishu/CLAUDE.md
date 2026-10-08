@@ -3,7 +3,7 @@
 
 成员清单
 __init__.py: 包入口，重导出 FeishuClient、FeishuError 异常族（FeishuAuthError/FeishuNotFoundError/FeishuAPIError）、TABLE_NAMES、FIELD_MAPS、TableMapConfig。
-client.py: 同步飞书 HTTP 客户端，自动管理 tenant_access_token 获取/刷新，401 自动重试，token-invalid（99991663/99991668）清缓存重试，业务码非 0 抛类型化异常（FeishuNotFoundError/FeishuAPIError）。
+client.py: 同步飞书 HTTP 客户端，自动管理 tenant_access_token 获取/刷新，401 自动重试，token-invalid（99991663/99991668）清缓存重试，业务码非 0 抛类型化异常（FeishuNotFoundError/FeishuAPIError）；GET 与只读记录搜索可有限重试，普通写入不重放。
 table_map.py: 16 张 Bitable 表的名称映射（TABLE_NAMES）、字段映射（FIELD_MAPS）、运行时配置类（TableMapConfig），get_table_id 缺失环境变量时 raise ValueError。
 repositories/: 16 个具体 repository + 工厂，继承 BaseRepository 并添加领域查询方法。详见 repositories/CLAUDE.md。
 

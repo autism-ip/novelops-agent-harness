@@ -172,7 +172,7 @@ class TestListStepRuns:
         assert len(data) == 2
 
 
-def test_pipeline_lookup_quotes_untrusted_domain_id_before_feishu_filter(settings, monkeypatch):
+def test_pipeline_lookup_uses_structured_literal_business_id(settings, monkeypatch):
     from urllib.parse import quote
 
     from app.feishu.table_map import TableMapConfig
@@ -180,7 +180,7 @@ def test_pipeline_lookup_quotes_untrusted_domain_id_before_feishu_filter(setting
     monkeypatch.setenv("FEISHU_TABLE_ID_PIPELINE_RUNS", "tbl_pipeline_runs")
     monkeypatch.setenv("FEISHU_TABLE_ID_STEP_RUNS", "tbl_step_runs")
     feishu = MagicMock()
-    feishu.get.return_value = {"data": {"items": [], "has_more": False}}
+    feishu.search_records.return_value = {"data": {"items": [], "has_more": False}}
     app = create_app(settings)
     unsafe_id = 'PR-1" || CurrentValue.[status] = "approved'
     with patch("app.api.routes.pipelines._get_client", return_value=feishu), \
@@ -189,9 +189,11 @@ def test_pipeline_lookup_quotes_untrusted_domain_id_before_feishu_filter(setting
         response = http.get(f"/api/pipelines/{quote(unsafe_id, safe='')}",
                             headers={"x-api-key": settings.BACKEND_API_KEY})
     assert response.status_code == 404
-    assert feishu.get.call_count == 1
-    assert feishu.get.call_args.kwargs["params"]["filter"] == (
-        'CurrentValue.[pipeline_run_id] = "PR-1\\" || CurrentValue.[status] = \\"approved"')
+    assert feishu.search_records.call_count == 1
+    assert feishu.search_records.call_args.kwargs["body"]["filter"] == {
+        "conjunction": "or", "conditions": [
+            {"field_name": "pipeline_run_id", "operator": "is", "value": [unsafe_id]}],
+    }
 
 
 def test_pipeline_lookup_rejects_duplicate_business_ids(client, mock_pipeline_repo, auth_headers):
