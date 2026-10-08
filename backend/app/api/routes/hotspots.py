@@ -1,0 +1,44 @@
+"""Authenticated ingestion trigger and hotspot read contract for ZEN-33."""
+from typing import Literal
+
+from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
+
+from app.api.routes.workflows import get_kernel
+
+router = APIRouter()
+
+
+def service(kernel=Depends(get_kernel)):
+    result = getattr(kernel, "hotspots", None)
+    if result is None:
+        raise HTTPException(503, "Hotspot ingestion is not configured")
+    return result
+
+
+class FetchBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    request_key: str = Field(min_length=1, max_length=200)
+    limit: int = Field(default=50, ge=30, le=50)
+
+
+@router.post("/fetch", status_code=201)
+def fetch(body: FetchBody, hotspots=Depends(service)):
+    if not hotspots.collection_enabled:
+        raise HTTPException(503, "Hotspot collection is disabled")
+    return hotspots.enqueue(body.request_key, body.limit)
+
+
+@router.get("")
+def list_hotspots(source: Literal["douyin", "manual"] | None = None,
+                  status: Literal["new", "normalized", "analyzed", "approved", "discarded"] | None = None,
+                  captured_from: AwareDatetime | None = None, captured_to: AwareDatetime | None = None,
+                  offset: int = Query(0, ge=0), limit: int = Query(50, ge=1, le=100),
+                  hotspots=Depends(service)):
+    return hotspots.list(source=source, status=status, captured_from=captured_from,
+                         captured_to=captured_to, offset=offset, limit=limit)
+
+
+@router.get("/{hotspot_id}")
+def get_hotspot(hotspot_id: str, hotspots=Depends(service)):
+    return hotspots.get(hotspot_id)

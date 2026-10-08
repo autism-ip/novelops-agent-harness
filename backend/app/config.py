@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import field_validator
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -29,8 +29,10 @@ class Settings(BaseSettings):
 
     # --- OpenCLI ---
     OPENCLI_ENABLED: bool = False
+    HOTSPOTS_ENABLED: bool = False
     opencli_bin: str = "opencli"
-    opencli_timeout: int = 30
+    opencli_timeout: int = Field(default=30, gt=0, le=30)
+    OPENCLI_DOUYIN_COMMAND: list[str] = Field(default_factory=list)
 
     # --- CORS ---
     CORS_ORIGINS: list[str] = ["http://localhost:3000"]
