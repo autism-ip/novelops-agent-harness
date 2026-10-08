@@ -107,12 +107,12 @@ def test_partial_creation_recovers_existing_but_never_reposts_unknown(runtime):
     transport.fail_create = "step_runs"
     with pytest.raises(Exception):
         kernel.create("partial", "test", definition())
-    posts_before = len([r for r in transport.calls if r.method == "POST"])
+    posts_before = len([r for r in transport.calls if r.method == "POST" and r.url.path.endswith("/records")])
     restarted = HarnessKernel(storage, journal_dir=journal)
     restarted.recover()
     run = storage.list("pipeline_runs")[0]
     assert run["status"] == "blocked"
-    assert len([r for r in transport.calls if r.method == "POST"]) == posts_before
+    assert len([r for r in transport.calls if r.method == "POST" and r.url.path.endswith("/records")]) == posts_before
 
 
 def test_terminal_and_dependency_transitions_are_guarded(runtime):

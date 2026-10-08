@@ -18,12 +18,12 @@ def setup():
 
 
 def records(*items):
-    return {"data": {"items": [{"record_id": rid, "fields": fields} for rid, fields in items]}}
+    return {"data": {"items": [{"record_id": rid, "fields": fields} for rid, fields in items], "has_more": False}}
 
 
 def test_domain_read_update_delete_never_use_domain_id_as_record_id(setup):
     client, provider = setup
-    client.get.return_value = records(("rec123", {"ID": "PR-1", "Status": "pending"}))
+    client.search_records.return_value = records(("rec123", {"ID": "PR-1", "Status": "pending"}))
     client.put.return_value = {"data": {"record": {"record_id": "rec123", "fields": {"Status": "done"}}}}
     assert provider.get("runs", "PR-1") == {"id": "PR-1", "status": "pending"}
     assert provider.update("runs", "PR-1", {"status": "done"}) == {"id": "PR-1", "status": "done"}
@@ -34,7 +34,7 @@ def test_domain_read_update_delete_never_use_domain_id_as_record_id(setup):
 
 def test_ambiguous_update_reconciles_committed_patch_without_repeating_put(setup):
     client, provider = setup
-    client.get.side_effect = [records(("rec123", {"ID": "PR-1", "Status": "pending"})),
+    client.search_records.side_effect = [records(("rec123", {"ID": "PR-1", "Status": "pending"})),
                               records(("rec123", {"ID": "PR-1", "Status": "done"}))]
     client.put.return_value = {"data": {}}
     assert provider.update("runs", "PR-1", {"status": "done"}) == {"id": "PR-1", "status": "done"}
@@ -43,7 +43,7 @@ def test_ambiguous_update_reconciles_committed_patch_without_repeating_put(setup
 
 def test_ambiguous_update_fails_closed_when_patch_not_observed(setup):
     client, provider = setup
-    client.get.return_value = records(("rec123", {"ID": "PR-1", "Status": "pending"}))
+    client.search_records.return_value = records(("rec123", {"ID": "PR-1", "Status": "pending"}))
     client.put.return_value = {"data": {}}
     with pytest.raises(AmbiguousWrite, match="Update reconciliation required"):
         provider.update("runs", "PR-1", {"status": "done"})
@@ -65,13 +65,13 @@ def test_number_cells_survive_v1_read_and_partial_update():
 
 def test_missing_duplicate_and_identity_change_fail_explicitly(setup):
     client, provider = setup
-    client.get.return_value = records()
+    client.search_records.return_value = records()
     assert provider.get("runs", "missing") is None
     with pytest.raises(MissingRecord):
         provider.update("runs", "missing", {"status": "done"})
     with pytest.raises(MissingRecord):
         provider.delete("runs", "missing")
-    client.get.return_value = records(("r1", {"ID": "same"}), ("r2", {"ID": "same"}))
+    client.search_records.return_value = records(("r1", {"ID": "same"}), ("r2", {"ID": "same"}))
     with pytest.raises(DuplicateKey):
         provider.get("runs", "same")
     with pytest.raises(ValueError):
@@ -80,7 +80,7 @@ def test_missing_duplicate_and_identity_change_fail_explicitly(setup):
 
 def test_committed_timeout_reconciles_without_second_post(setup):
     client, provider = setup
-    client.get.side_effect = [records(), records(("rec1", {"ID": "stable"}))]
+    client.search_records.side_effect = [records(), records(("rec1", {"ID": "stable"}))]
     client.post.side_effect = FeishuAPIError("transport timeout", code=0)
     assert provider.ensure("runs", {"id": "stable"}) == {"id": "stable"}
     client.post.assert_called_once()
@@ -88,7 +88,7 @@ def test_committed_timeout_reconciles_without_second_post(setup):
 
 def test_unknown_outcome_is_never_blindly_retried(setup):
     client, provider = setup
-    client.get.return_value = records()
+    client.search_records.return_value = records()
     client.post.side_effect = FeishuAPIError("timeout", code=0)
     with pytest.raises(AmbiguousWrite):
         provider.ensure("runs", {"id": "stable"})
@@ -99,7 +99,7 @@ def test_unknown_outcome_is_never_blindly_retried(setup):
 
 def test_committed_create_with_missing_response_record_reconciles(setup):
     client, provider = setup
-    client.get.side_effect = [records(), records(("rec1", {"ID": "stable"}))]
+    client.search_records.side_effect = [records(), records(("rec1", {"ID": "stable"}))]
     client.post.return_value = {"code": 0, "data": {}}
     assert provider.ensure("runs", {"id": "stable"}) == {"id": "stable"}
     client.post.assert_called_once()
@@ -107,7 +107,7 @@ def test_committed_create_with_missing_response_record_reconciles(setup):
 
 def test_missing_create_response_record_stops_without_second_post(setup):
     client, provider = setup
-    client.get.return_value = records()
+    client.search_records.return_value = records()
     client.post.return_value = {"code": 0, "data": {}}
     with pytest.raises(AmbiguousWrite):
         provider.ensure("runs", {"id": "stable"})
@@ -118,7 +118,7 @@ def test_missing_create_response_record_stops_without_second_post(setup):
 
 def test_create_response_without_requested_business_key_reconciles(setup):
     client, provider = setup
-    client.get.side_effect = [records(), records(("rec1", {"ID": "stable"}))]
+    client.search_records.side_effect = [records(), records(("rec1", {"ID": "stable"}))]
     client.post.return_value = {"code": 0, "data": {"record": {
         "record_id": "rec1", "fields": {"Status": "pending"},
     }}}
@@ -138,6 +138,7 @@ def test_committed_malformed_http_reply_recovers_without_duplicate_post():
         assert len(transport.tables["pipeline_runs"]) == 1
         assert sum(
             request.method == "POST" and "/tables/pipeline_runs/" in request.url.path
+            and not request.url.path.endswith("/search")
             for request in transport.calls
         ) == 1
     finally:
@@ -146,21 +147,23 @@ def test_committed_malformed_http_reply_recovers_without_duplicate_post():
 
 def test_replay_reads_existing_record(setup):
     client, provider = setup
-    client.get.return_value = records(("rec1", {"ID": "stable", "Status": "done"}))
+    client.search_records.return_value = records(("rec1", {"ID": "stable", "Status": "done"}))
     assert provider.ensure("runs", {"id": "stable", "status": "pending"})["status"] == "done"
     client.post.assert_not_called()
 
 
-def test_filter_escapes_untrusted_business_keys(setup):
+def test_filter_keeps_untrusted_business_keys_literal(setup):
     client, provider = setup
-    client.get.return_value = records()
+    client.search_records.return_value = records()
     provider.get("runs", 'a"\\b')
-    assert client.get.call_args.kwargs["params"]["filter"] == 'CurrentValue.[ID] = "a\\"\\\\b"'
+    assert client.search_records.call_args.kwargs["body"]["filter"] == {
+        "conjunction": "or", "conditions": [{"field_name": "ID", "operator": "is", "value": ['a"\\b']}],
+    }
 
 
 def test_restart_reconciliation_never_posts_when_outcome_unknown(setup):
     client, provider = setup
-    client.get.return_value = records()
+    client.search_records.return_value = records()
     with pytest.raises(AmbiguousWrite):
         provider.ensure("runs", {"id": "prior-process"}, allow_create=False)
     client.post.assert_not_called()
@@ -187,7 +190,7 @@ def test_real_transport_contract_for_pipeline_step_and_rollback():
 
 def test_definite_provider_rejection_does_not_become_ambiguous(setup):
     client, provider = setup
-    client.get.return_value = records()
+    client.search_records.return_value = records()
     client.post.side_effect = FeishuAPIError("permission denied", code=403)
     with pytest.raises(FeishuAPIError):
         provider.ensure("runs", {"id": "x"})
@@ -195,7 +198,7 @@ def test_definite_provider_rejection_does_not_become_ambiguous(setup):
 
 def test_unavailable_reconciliation_stops(setup):
     client, provider = setup
-    client.get.side_effect = [records(), FeishuAPIError("read unavailable")]
+    client.search_records.side_effect = [records(), FeishuAPIError("read unavailable")]
     client.post.side_effect = FeishuAPIError("timeout")
     with pytest.raises(AmbiguousWrite):
         provider.ensure("runs", {"id": "x"})
@@ -205,26 +208,26 @@ def test_empty_domain_id_is_rejected_before_feishu_read(setup):
     client, provider = setup
     with pytest.raises(ValueError, match="non-empty domain ID"):
         provider.get("runs", "")
-    client.get.assert_not_called()
+    client.search_records.assert_not_called()
 
 
 def test_definite_update_rejection_is_not_reconciled_or_retried(setup):
     client, provider = setup
-    client.get.return_value = records(("rec123", {"ID": "PR-1", "Status": "pending"}))
+    client.search_records.return_value = records(("rec123", {"ID": "PR-1", "Status": "pending"}))
     client.put.side_effect = FeishuAPIError("permission denied", code=403)
     with pytest.raises(FeishuAPIError) as error:
         provider.update("runs", "PR-1", {"status": "done"})
     assert error.value.code == 403
     client.put.assert_called_once()
-    assert client.get.call_count == 1
+    assert client.search_records.call_count == 1
 
 
 def test_ambiguous_update_stops_when_reconciliation_read_fails(setup):
     client, provider = setup
-    client.get.side_effect = [records(("rec123", {"ID": "PR-1", "Status": "pending"})),
+    client.search_records.side_effect = [records(("rec123", {"ID": "PR-1", "Status": "pending"})),
                               FeishuAPIError("read unavailable", code=503)]
     client.put.return_value = {"data": {}}
     with pytest.raises(AmbiguousWrite, match="Update reconciliation unavailable"):
         provider.update("runs", "PR-1", {"status": "done"})
     client.put.assert_called_once()
-    assert client.get.call_count == 2
+    assert client.search_records.call_count == 2

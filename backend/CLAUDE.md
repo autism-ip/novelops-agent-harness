@@ -8,6 +8,7 @@ pyproject.toml: Python 项目元数据与依赖门禁；固定 Ruff/coverage/bui
 app/: FastAPI 应用实现 — 工厂函数、配置、中间件、路由。
 tests/: 行为级 pytest 门禁，验证 ZEN-28 验收契约而非仅验证进程可启动。
 app/api/: FastAPI 路由层——中间件守卫（deps.py）、端点注册（routes/__init__.py）、健康探活（routes/health.py）、管线端点（routes/pipelines.py）。
+app/generation.py: 版本化 Artifact 与模型/遥测基础；批量产物读取复用单条读取的身份、稳定版本 ID 与内容哈希校验，每次调用重新读取。
 app/feishu/: 飞书 Bitable 集成层——HTTP 客户端（client.py）、16 表配置（table_map.py）、16 个具体 Repository + 工厂（repositories/）。
 app/pipeline/: 流水线引擎——数据模型（models.py）、编排器（engine.py）、lease-based worker 执行循环（worker.py）。
 app/tools/: 外部工具集成层——OpenCLIRunner 子进程执行（runner.py）、OpenCLIResult 结果封装（含 data 字段）、DouyinHotspotRecord 数据契约（schemas.py）、错误层级（errors.py）、DouyinAdapterResult 归一化结果。
