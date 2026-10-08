@@ -62,3 +62,11 @@ The full probe lasted 1,550.97 seconds including cleanup. All its temporary rows
 Profiling found that `eligible_brief` expanded every historical brief to return only the newest one. A behavior regression using the actual Feishu client/repositories and stateful HTTP fixture reproduced **22 GETs for three versions**. Eligibility now selects the latest persisted run before expanding it: **8 GETs for the same three-version case**, a 63.6% reduction in this fixture. Run definitions are still validated, the current state and latest run still determine eligibility, and an unfinished newest proposal never falls back to an older completed brief. The full history endpoint is unchanged. There is no persistent or cross-request cache and no write-contract change.
 
 On the owning ZEN-39 branch: **393 offline backend tests passed**, 9 credentialed tests deselected; branch-aware coverage **91.52% combined** against the unchanged gate. **49 frontend tests**, lint, types and production build passed; Ruff 0.16.9 passed. This is request-count evidence for controlled storage, not a current production latency measurement. Remaining storage/Harness requests and full live event acceptance still require work. Project-wide 100% coverage remains pending.
+
+## Native search propagation (2026-10-09)
+
+The latest-eligible-brief regression retains its eight-request bound and exact
+latest Artifact assertion. It now recognizes native `POST .../records/search`
+as read-only and inspects the structured filter values, positively requiring the
+latest brief ID and rejecting every older brief ID. This preserves the historical
+read-amplification guard across the updated provider transport.

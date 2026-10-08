@@ -1,4 +1,6 @@
 """ZEN-39: exact StoryBible approval, canonical patch and versioned brief behavior."""
+import json
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -250,9 +252,12 @@ def test_eligible_brief_reads_only_latest_completed_version(planning):
     assert eligible == artifacts[-1]
     # Actual HTTP client + stateful Feishu fixture: history must not amplify reads.
     assert len(calls) <= 8
-    assert all(request.method == 'GET' for request in calls)
-    artifact_filters = [request.url.params.get('filter', '') for request in calls
+    assert all(request.method == 'GET' or request.method == 'POST'
+               and request.url.path.endswith('/records/search') for request in calls)
+    artifact_filters = [json.dumps(json.loads(request.content)['filter']) if request.method == 'POST'
+                        else request.url.params.get('filter', '') for request in calls
                         if '/tables/artifacts/' in request.url.path]
+    assert any(artifacts[-1]['artifact_id'] in value for value in artifact_filters)
     assert not any(artifact['artifact_id'] in value for artifact in artifacts[:-1]
                    for value in artifact_filters)
 

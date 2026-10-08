@@ -60,7 +60,7 @@ class TestClaimStep:
         self, repo: StepRunsRepo, mock_client: MagicMock
     ) -> None:
         """update() must receive the Feishu record_id, not the business step_run_id."""
-        # --- arrange: find_by_business_key will list+filter and return a record
+        # --- arrange: find_by_business_key will structured search and return a record
         list_response = {
             "data": {
                 "items": [
@@ -88,7 +88,7 @@ class TestClaimStep:
                 }
             }
         }
-        mock_client.get.return_value = list_response
+        mock_client.search_records.return_value = list_response
         mock_client.put.return_value = update_response
 
         # --- act
@@ -116,7 +116,7 @@ class TestClaimStep:
         self, repo: StepRunsRepo, mock_client: MagicMock
     ) -> None:
         """When no record matches the business key, ValueError is raised."""
-        mock_client.get.return_value = {
+        mock_client.search_records.return_value = {
             "data": {"items": [], "has_more": False}
         }
 

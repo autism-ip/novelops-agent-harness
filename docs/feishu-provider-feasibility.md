@@ -105,7 +105,7 @@ response cases not reproduced against the live service.
 
 ## Contract
 
-`get/list/ensure/update/delete` accept collection names and business IDs.
+`get/get_many/list/ensure/update/delete` accept collection names and business IDs.
 `record_id` never leaves the provider. `ensure` is replay-safe for an existing
 business key. Missing mutations raise `MissingRecord`; duplicate IDs raise
 `DuplicateKey`; IDs cannot be changed by update. Mutable field conflicts are
@@ -241,3 +241,25 @@ CRUD suite.
 No second primary database is introduced. Existing legacy engine/worker callers
 are replaced by the provider-based runtime in #20; they are not evidence of
 v0.2 production composition by themselves.
+
+## Native business-key batch reads (2026-10-09)
+
+The official [record search contract](https://open.feishu.cn/document/docs/bitable-v1/app-table-record/search.md)
+was retrieved through the official top-level and cloud-document module indexes.
+It specifies read-only `POST /bitable/v1/apps/:app_token/tables/:table_id/records/search`,
+`filter.conjunction="or"`, `operator="is"`, at most 50 conditions and 500 rows per page.
+The adapter uses structured values instead of interpolating a filter formula.
+`in` is explicitly unsupported by this API; it is not used.
+
+`get_many(collection, domain_ids)` deduplicates inputs, returns present business IDs
+in input order and omits missing IDs. It never exposes `record_id`. Every chunk
+and page must pass response, identity and uniqueness checks before returning.
+Malformed records, unsupported rich-text segments, unexpected business IDs,
+duplicates and invalid/cyclic pagination fail instead of yielding partial data.
+Text segments are joined in order; numeric cells retain their domain types.
+The protocol still does not promise an atomic snapshot across pages or collections.
+
+Only this dedicated native search method enables bounded read retries for its POST.
+Ordinary POST/PUT/DELETE keep their existing no-blind-replay semantics. Single string business-key lookups also use this structured query, because a live
+quote/backslash key was not found by the older GET formula. Chapter reading will
+consume bulk reads in its own PR after this change is verified and propagated.
