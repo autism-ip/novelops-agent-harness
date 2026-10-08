@@ -31,6 +31,8 @@ test_story_planning.py: ZEN-39 API 与 Harness 门禁，覆盖人工审批、状
 test_chapter_loop.py: ZEN-40 章节生成、结构化 Critic、条件改写、硬规则/成本门禁、重试与最终锁定验收。
 test_chapter_review.py: ZEN-41 选择性人工关卡、精确审阅命令、RevisionTask、重放、历史和最终锁定验收。
 
+test_chapter_review.py: ZEN-41 精确审稿、选择性关卡、退修恢复、单次响应读取数量与跨刷新产物完整性门禁。
+
 架构决策
 测试以 BDD 验收行为为中心：状态值必须精确、密钥不得回显、鉴权必须先于路由缺失返回。门禁允许当前实现缺失时失败；它的职责是定义合格线，而不是替实现兜底。CI 显式排除 integration，保留全部离线断言，要求 app 语句覆盖率至少当前基线 87.82%，上传 coverage XML 与 JUnit 报告；Ruff 同时检查测试代码。不得为过门禁降低覆盖率下限、删除或弱化断言、增加应用代码排除项。
 

@@ -1,4 +1,4 @@
-"""Versioned chapter generation, critique, bounded rewrite and final lock."""
+"""Versioned chapter workflows with request-scoped immutable review reads."""
 from __future__ import annotations
 
 import json
@@ -301,7 +301,7 @@ class ChapterLoopService:
             prompt=CONTEXT_PROMPT, route="deterministic", provider="", model="",
             input_hash=digest(content), creator="chapter-context-builder")
 
-    def _live(self, run: dict, manifest: dict) -> tuple[dict, dict]:
+    def _live(self, run: dict, manifest: dict, *, _artifact_get=None) -> tuple[dict, dict]:
         req = manifest["request"]
         state = self.kernel.books.context_provider.get(req["book_id"])["state"]
         brief = self.kernel.story_planning.eligible_brief(req["book_id"], req["chapter_no"])
@@ -313,7 +313,7 @@ class ChapterLoopService:
             runs[-1]["pipeline_run_id"] != run["pipeline_run_id"] or
             self._lock(req["book_id"], req["chapter_no"])):
             raise TransitionConflict("Chapter source, run version or final lock changed")
-        snapshot = self.kernel.artifacts.get(manifest["snapshot_id"])
+        snapshot = (_artifact_get or self.kernel.artifacts.get)(manifest["snapshot_id"])
         if (snapshot["artifact_type"] != "StoryContextSnapshot" or
             snapshot["content"]["state_artifact_id"] != state["artifact_id"] or
             snapshot["content"]["brief_artifact_id"] != brief["artifact_id"]):
@@ -597,8 +597,9 @@ class ChapterLoopService:
         required = self._human_review_required(req, report["content"])
         return StepResult(payload, requires_approval=True) if required else payload
 
-    def read(self, run_id: str) -> dict:
+    def read(self, run_id: str, *, _artifact_get=None) -> dict:
         with self.kernel.writer:
+            get_artifact = _artifact_get or self.kernel.artifacts.get
             run = self.kernel.get(run_id)
             _, manifest = self._manifest(run)
             req = manifest["request"]
@@ -607,12 +608,12 @@ class ChapterLoopService:
             if final_step["status"] in {"success", "awaiting_approval", "failed"} and final_step.get("output_json"):
                 try:
                     selected_id = json.loads(final_step["output_json"])["output_refs"][0]
-                    selected = self.kernel.artifacts.get(selected_id)
+                    selected = get_artifact(selected_id)
                 except (ValueError, KeyError, TypeError, IndexError, MissingRecord):
                     if final_step["status"] != "failed":
                         raise AmbiguousWrite("Final ChapterVersion is unreadable") from None
             try:
-                critique = self._artifact(req, "critique", req["version"])
+                critique = get_artifact(stable_id("AR-", self._logical(req, "critique") + "/" + str(req["version"])))
             except MissingRecord:
                 critique = None
             all_versions = self._versions(req["book_id"], req["chapter_no"])
@@ -621,7 +622,7 @@ class ChapterLoopService:
             version_summaries = [{"version_id": row["version_id"], "version_no": row["version_no"],
                                   "status": row["status"]} for row in reversed(all_versions)]
             try:
-                self._live(run, manifest)
+                self._live(run, manifest, _artifact_get=get_artifact)
                 current = True
             except (TransitionConflict, MissingRecord):
                 current = False
@@ -639,8 +640,9 @@ class ChapterLoopService:
         with self.kernel.writer:
             return [self.read(row["pipeline_run_id"]) for row in reversed(self._runs(book_id, chapter_no))]
 
-    def versions(self, book_id: str, chapter_no: int) -> list[dict]:
+    def versions(self, book_id: str, chapter_no: int, *, _artifact_get=None) -> list[dict]:
         with self.kernel.writer:
+            get_artifact = _artifact_get or self.kernel.artifacts.get
             result = []
             rows = list(reversed(self._versions(book_id, chapter_no)))
             by_artifact = {row["artifact_id"]: row for row in rows if row.get("artifact_id")}
@@ -648,7 +650,7 @@ class ChapterLoopService:
                 raise AmbiguousWrite("Multiple ChapterVersions project the same Artifact")
             for row in rows:
                 artifact_id = row.get("artifact_id", "")
-                artifact = self.kernel.artifacts.get(artifact_id) if artifact_id else None
+                artifact = get_artifact(artifact_id) if artifact_id else None
                 if artifact and (artifact["artifact_type"] != "ChapterVersion" or
                                  artifact["content_hash"] != row.get("content_hash") or
                                  artifact["content"]["chapter_no"] != chapter_no or
@@ -658,8 +660,8 @@ class ChapterLoopService:
                     raise AmbiguousWrite("ChapterVersion projection provenance changed")
                 report_id = row.get("review_report_id")
                 verifier_id = row.get("verifier_artifact_id")
-                report = self.kernel.artifacts.get(report_id) if report_id else None
-                verification = self.kernel.artifacts.get(verifier_id) if verifier_id else None
+                report = get_artifact(report_id) if report_id else None
+                verification = get_artifact(verifier_id) if verifier_id else None
                 if report:
                     refs = report["source_refs"]
                     source = by_artifact.get(refs[2]) if len(refs) >= 3 else None
@@ -680,9 +682,16 @@ class ChapterLoopService:
 
     def review_state(self, book_id: str, chapter_no: int) -> dict:
         with self.kernel.writer:
+            # Only this read response shares already integrity-checked payloads.
+            # Decisions, refreshes and writes always start with fresh remote reads.
+            artifacts = {}
+            def get_artifact(artifact_id):
+                if artifact_id not in artifacts:
+                    artifacts[artifact_id] = self.kernel.artifacts.get(artifact_id)
+                return artifacts[artifact_id]
             run_rows = self._runs(book_id, chapter_no)
-            latest = self.read(run_rows[-1]["pipeline_run_id"]) if run_rows else None
-            versions = self.versions(book_id, chapter_no)
+            latest = self.read(run_rows[-1]["pipeline_run_id"], _artifact_get=get_artifact) if run_rows else None
+            versions = self.versions(book_id, chapter_no, _artifact_get=get_artifact)
             tasks = []
             for task in self.kernel.storage.list("revision_tasks", target_id=f"{book_id}/{chapter_no}"):
                 run = (self.kernel.storage.get("pipeline_runs", task["run_id"])
@@ -690,11 +699,11 @@ class ChapterLoopService:
                 tasks.append({**task, "run_status": run["status"] if run else None})
             if latest is None:
                 return {"latest": None, "versions": versions, "revision_tasks": tasks}
-            snapshot = self.kernel.artifacts.get(latest["snapshot_artifact_id"])
-            bible = self.kernel.artifacts.get(snapshot["content"]["bible_artifact_id"])
-            brief = self.kernel.artifacts.get(latest["request"]["brief_artifact_id"])
+            snapshot = get_artifact(latest["snapshot_artifact_id"])
+            bible = get_artifact(snapshot["content"]["bible_artifact_id"])
+            brief = get_artifact(latest["request"]["brief_artifact_id"])
             selected = latest["selected"]
-            verification = self.kernel.artifacts.get(selected["content"]["verification_artifact_id"]) if selected else None
+            verification = get_artifact(selected["content"]["verification_artifact_id"]) if selected else None
             gate = self._step(latest["run"], "final_verify")
             return {"latest": latest, "story_state": snapshot["content"]["story_state"],
                     "story_bible": bible, "brief": brief, "snapshot": snapshot,

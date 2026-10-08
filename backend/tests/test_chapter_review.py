@@ -198,9 +198,9 @@ def test_review_state_expands_only_latest_run(chapter, monkeypatch):
     latest = pass_run(kernel, provider, book_id)
     read = kernel.chapter_loop.read
     expanded = []
-    def counted(run_id):
+    def counted(run_id, **options):
         expanded.append(run_id)
-        return read(run_id)
+        return read(run_id, **options)
     monkeypatch.setattr(kernel.chapter_loop, "read", counted)
     review = kernel.chapter_loop.review_state(book_id, 1)
     assert expanded == [latest["run"]["pipeline_run_id"]]
@@ -292,3 +292,47 @@ def test_revision_replay_after_queued_marker_committed(chapter, monkeypatch):
     assert resumed["task"] == committed
     assert resumed["run"]["pipeline_run_id"] == committed["run_id"]
     assert len(kernel.chapter_loop._runs(book_id, 1)) == 2
+
+
+def test_review_response_reuses_validated_immutable_artifacts(chapter):
+    kernel, provider, book_id = chapter
+    _, request, snapshot = start(kernel, book_id)
+    provider.outputs.extend([draft(snapshot, request['brief_artifact_id']), critique('revise'),
+                             draft(snapshot, request['brief_artifact_id'], prose='A revised scene. ' * 20)])
+    settle(kernel, 5)
+    calls = []
+    client = kernel.storage._repos['artifacts']._client._http
+    client.event_hooks['request'].append(calls.append)
+    review = kernel.chapter_loop.review_state(book_id, 1)
+    latest = review['latest']
+    assert latest['selected'] == review['versions'][0]['artifact']
+    assert latest['critique'] == review['versions'][0]['report']
+    assert review['verification'] == review['versions'][0]['verification']
+    assert review['versions'][1]['report']['source_refs'][2] == review['versions'][1]['artifact']['artifact_id']
+    assert latest['usage']['attempts'] == 3
+    assert all(request.method == 'GET' for request in calls)
+    for artifact_id in {snapshot, latest['selected']['artifact_id'], latest['critique']['artifact_id'],
+                        *(item['verification']['artifact_id'] for item in review['versions'])}:
+        assert sum(artifact_id in request.url.params.get('filter', '') for request in calls
+                   if '/tables/artifacts/' in request.url.path) == 1
+
+
+def test_review_refresh_and_decision_revalidate_remote_artifacts(chapter):
+    kernel, provider, book_id = chapter
+    view = pass_run(kernel, provider, book_id)
+    first = kernel.chapter_loop.review_state(book_id, 1)
+    assert first['latest']['selected'] == view['selected']
+    artifact_id = view['selected']['artifact_id']
+    row = kernel.storage.get('artifacts', artifact_id)
+    corrupt = json.loads(row['payload_json'])
+    corrupt['content']['prose'] = 'Tampered remote prose'
+    kernel.storage.update('artifacts', artifact_id, {'payload_json': json.dumps(corrupt)})
+    with pytest.raises(AmbiguousWrite, match='Final ChapterVersion is unreadable'):
+        kernel.chapter_loop.review_state(book_id, 1)
+    with pytest.raises(AmbiguousWrite, match='Final ChapterVersion is unreadable'):
+        kernel.chapter_loop.decide_review(book_id, 1, **target(view), action='approve')
+    assert kernel.storage.list('approval_events', target_type='chapter_version') == []
+    kernel.storage.update('artifacts', artifact_id, {'payload_json': row['payload_json']})
+    restored = kernel.chapter_loop.review_state(book_id, 1)
+    assert restored['latest']['selected'] == view['selected']
+    assert restored['versions'][0]['record']['status'] == 'review'
