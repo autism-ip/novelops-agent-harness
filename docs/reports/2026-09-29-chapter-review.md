@@ -235,3 +235,108 @@ entire latency difference to code or claiming p95 performance. The controlled
 same-transport count comparison above isolates the batching change. This verifies
 the actual Feishu read path, not live model generation, current frontend write
 latency, a deployed proxy, platform duration limits or continuous-editor acceptance.
+
+
+## Slow editorial actions and exact empty-note replay — 2026-10-09
+
+**Actual requirement events and discovered defects.** The mounted API with real
+app-identity Feishu storage approved an exact ChapterVersion and then final-locked
+it. Approval took **34.463s / 30 requests**, final lock **25.398s / 26 requests**;
+this established that the browser's default ten-second POST budget was too short.
+The 21 transferred synthetic rows plus one ApprovalEvent were deleted; independent
+reads found zero remaining IDs. This probe did not call a real model.
+
+A subsequent current-client/production-Next-proxy run accepted the approval in
+37.841s but rejected the identical replay with 409. A focused one-row real Base
+probe established the cause: the create response contains `reason=""`, whereas
+native search omits that empty text field; every other event field round-tripped
+unchanged. That row was independently confirmed absent after cleanup. Chapter
+review now treats only an omitted optional note as the empty domain default.
+Version, target, Artifact, action, editor and non-empty notes still compare exactly.
+Approve and reject regressions assert a single event, zero mutation on replay and
+rejection of changed notes/editors/actions. Source commit:
+`3241108810e3a26494d8b71fd1d5e0a647e6529e`.
+
+**User-visible implementation and tests.** Chapter review GET and all four exact
+editorial POST actions use a 120-second bounded client deadline. Other requests
+retain ten seconds. The client keeps the timer until complete JSON body parsing,
+and an AbortError from an error body remains a timeout rather than a fabricated
+502. Saving has its own progress message; an expired deadline retains the exact
+command for explicit replay. Real component/resource/client tests verify a
+34.463-second response, no duplicate submission, all four actions, 120-second
+expiry, byte-identical replay and timer cleanup. Additional behavior checks cover
+stale drafts, final-lock read-only state with old prose still readable, earlier
+Critic provenance, legacy-only history, empty/running chapters, expired sessions
+and failure to persist recovery intent before any write.
+
+**Local verification and full-source coverage.** `BACKEND_API_KEY=ci-contract-key
+python -m pytest -p tests.function_entry_coverage -m 'not integration' --cov=app
+--cov-branch` passed **483 tests**, with 10 explicit live cases deselected; Ruff
+0.16.9 passed. Backend statements/lines **3,953/4,251 = 92.99%**, branches
+**907/1,124 = 80.69%**, combined **90.42%**. The complete source-function entry
+probe reports **401/419 = 95.70%**, including **11/11 lambdas**. Its raw denominator
+also retains the seven Protocol declarations; no calls were manufactured for
+empty declarations. Module/class execution and compiler-generated comprehensions
+are not source functions. The plugin was validated against decorated/nested
+functions, methods, distinct same-line lambdas and a retained uncalled function.
+The reproducible plugin is `backend/tests/function_entry_coverage.py`; its result
+is `docs/reports/2026-10-09-function-entry-coverage.json`. Only its generated JSON
+output is git-ignored, not application code or coverage responsibility.
+
+`npm --prefix frontend run test:coverage` passed **77 tests**; lint, typecheck and
+production build passed. All-source V8 coverage is **596/1,011 = 58.95% statements**,
+**537/857 = 62.66% lines**, **155/296 = 52.36% functions**, and **627/1,127 = 55.63%
+branches**. The HTTP client retains all four metrics at 100%. No test removal,
+new app exclusion, threshold change or offline skip was used. Whole-project 100%
+remains unfinished.
+
+**Probe failure handling and reusable workflow.** The first production-proxy
+probe collided with a concurrent `.next` build and did not send an approval. Its
+cleanup then failed while terminating an already-exited child. Recovery removed
+19 stable records plus two random Trace IDs, validated by their exact owned run,
+Writer/Critic routes and step identities. Independent reads verified no remaining
+records or model traces for that run. A reconstructed fixture's new random Trace
+IDs were not accepted as proof of cleanup. The probe now starts an immutable build
+copy before seeding, journals actual attempted IDs, tolerates exited children and
+runs independent verification within finally. The later replay-409 run cleaned
+all 22 rows and independently verified zero residual IDs despite its failure.
+The existing `issue-pr-delivery` skill was updated with operation-based read/write
+fault injection and exact-ID/finally cleanup rules, then validated by skill-creator.
+No additional personal skill was created.
+
+
+### Current production-proxy requirement event and cleanup reconciliation
+
+Source tree `3241108810e3a26494d8b71fd1d5e0a647e6529e` completed the current
+TypeScript ApiClient (transpiled for this probe) → local production Next.js signed
+session proxy → Uvicorn FastAPI → actual Feishu path. The probe starts no worker;
+its synthetic v1 was generated locally beforehand. It is not a deployed-host or
+browser-DOM test. Before each signed action, an unsigned POST returned **401**;
+no client-side backend API key was supplied. Each signed action sent exactly one
+client POST and returned the exact version/Artifact/operator expected:
+
+| Event | Client elapsed | Feishu requests | Persisted result |
+| --- | ---: | ---: | --- |
+| Approve exact v1 | 30.259s | 30 | Exactly one matching ApprovalEvent; version approved |
+| Replay byte-identical approval | 22.824s | 27 | Same event; all 27 calls read-only, zero new writes |
+| Lock that same v1 | 24.487s | 26 | Version final with the exact locking editor |
+
+The authenticated mounted desk read also matched all immutable sources/history
+in **25.732s / 22 reads**. These are single observations, not latency targets or
+p95 benchmarks. All three operation assertions and the final single-event/final
+row checks passed. The overall pytest nevertheless **failed during cleanup**:
+one PipelineRun cleanup call raised FeishuAPIError (its code was not captured).
+This failure is retained in the runtime report, not rewritten as a passing run.
+A separate recovery read all **22 original journal IDs**, found no remaining rows
+and sent **zero further deletes**. A fresh independent app client batch-read all
+collections and verified **zero residual rows**; that recovery test passed **1/1
+in 25.29s**. The owned proxy/backend processes and build copy were removed.
+
+`docs/reports/2026-10-09-editorial-runtime.json` preserves both the completed
+requirement events and failed initial cleanup/reconciliation. This closes the
+current routine approval/replay/final-lock path and its client deadline check.
+Full live generation, constrained rewrite and selective human gates at the latest
+code, repeated DeepSeek quality/cost, complete browser acceptance and production
+platform/ACL/latency remain pending. The source and report PR heads still require
+fresh CI/review audits. No issue is marked Done or safe to merge under the 100%
+coverage requirement.

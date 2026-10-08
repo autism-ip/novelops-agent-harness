@@ -29,13 +29,13 @@ The per-issue reports under `docs/reports/` carry the full event traces, cleanup
 - Reproduced and fixed a Feishu-filter injection in `GET /api/pipelines/{id}`. The repository now escapes the path ID and rejects duplicate business keys with 409. A real HTTP regression asserts the outbound filter expression.
 - Reproduced and fixed three legacy pipeline parent mutations that passed `pipeline_run_id` where Feishu requires `record_id`: rollback, completion and first Worker claim.
 - Added provider/repository cases for blank IDs, duplicate records, pagination, partial/malformed response handling, permission rejection and ambiguous-read failure. The 16 domain repository mappings and filters are exercised. ZEN-106's Artifacts/Traces remain generic stores, explicitly reflected in the downstream test.
-- Merged these owning-PR changes and the new frontend coverage tool through every dependent branch, verified each backend/frontend scope and pushed all 13 branch refs. The final branch has **481 passing offline backend tests, 10 credentialed tests deselected, 60 unified Vitest frontend tests**, and passing frontend lint, typecheck and production build.
+- Merged these owning-PR changes and the new frontend coverage tool through every dependent branch, verified each backend/frontend scope and pushed all 13 branch refs. The final branch has **483 passing offline backend tests, 10 credentialed tests deselected, 77 unified Vitest frontend tests**, and passing frontend lint, typecheck and production build.
 - On the authorized synthetic Base, the current five-table provider CRUD probe passed **5/5 in 83.29 seconds**; independent reads found no `probe-` rows. The current direct-kernel live approval flow completed with one ApprovalEvent; independent reads found zero PipelineRuns, StepRuns and ApprovalEvents afterward. No secret values entered Git.
 - A GraphQL review audit read reviews, discussion and all inline threads for all 13 PRs, including resolved/outdated threads. There are **zero unresolved threads**; all previously valid automated findings have documented fixes and regressions in their owning reports. No human approval is inferred. Latest CI must be associated with each exact PR head; a green ancestor or old head is insufficient.
 
 ## Coverage and delivery blockers
 
-The latest code tree reports backend **92.97% statements/lines (3,952/4,251), 80.60% branches (906/1,124), 90.38% combined**: 299 missed lines, 218 missing branch arcs and 192 partial branch lines. A fresh complete Python function metric is **not established** at this head. The earlier named-entry measurement (385/402, 95.77%, before this batch-read change) omitted anonymous lambdas and included Protocol declarations; it is historical evidence and cannot support a current all-function claim. No new project exclusion was added. All-source frontend coverage includes every unimported TS/TSX source and is **58.17% statements (587/1,009), 62.03% lines (531/856), 51.01% functions (151/296), 53.43% branches (599/1,121)**. Seven auth/proxy/parser/HTTP/resource/health modules reach all four metrics at 100%; the whole project remains below the required target. No ignore rule, test removal or gate reduction was used.
+The latest code tree at `3241108810e3a26494d8b71fd1d5e0a647e6529e` reports backend **92.99% statements/lines (3,953/4,251), 80.69% branches (907/1,124), 90.42% combined**: 298 missed lines, 217 missing branch arcs and 191 partial branch lines. Fresh raw Python source-function entries are **401/419 = 95.70%**, with **11/11 lambdas** included; the denominator retains seven Protocol declarations. The reproducible measurement and missing definitions are in `backend/tests/function_entry_coverage.py` and `docs/reports/2026-10-09-function-entry-coverage.json`. No empty declarations were called just to increase coverage. All-source frontend coverage includes unimported TS/TSX sources: **58.95% statements (596/1,011), 62.66% lines (537/857), 52.36% functions (155/296), 55.63% branches (627/1,127)**. The HTTP client retains 100% on all four metrics. No new application exclusion, test removal or gate reduction was used; the whole-project 100% target remains open.
 
 The previous live ZEN-41 editorial flow required **2,677 seconds** with deterministic model fixtures and about 1,333 requests in a corresponding stateful transport replay. It verifies correct persisted behavior but leaves continuous-editing performance unresolved. Repeated real-model revision quality, production Base ACL/schema, configured route price/cost accuracy and cross-process writes remain unverified. The app retains a single-writer deployment contract and feature flags.
 
@@ -105,3 +105,35 @@ The real delay exposed the browser's ten-second abort. Code `4bc60bb1` permits o
   audit at the final report-only head. No issue is declared Done or safely mergeable.
 - Reuse assessment: existing `issue-pr-delivery` plus `lark-openapi-explorer` cover
   this work. No new personal Skill is needed for one provider-specific optimization.
+
+
+## 2026-10-09 editorial timeout and replay follow-up
+
+- Owning ZEN-41 PR #37 fixes valid slow editorial POSTs, deadlines covering JSON
+  bodies and the real empty-note replay defect. Precise targets/editors/non-empty
+  notes retain their conflict semantics; explicit replay never creates a second
+  event. See the issue report for failed and successful probe scopes.
+- Mounted real Feishu approval **34.463s/30 requests**, lock **25.398s/26** confirmed
+  the ten-second UI deadline mismatch. Current component/client regressions cover
+  four slow actions, bounded expiry, exact saved-command recovery and read-only
+  history after final lock. Full local gates and current metrics appear above.
+- The first production-proxy startup failure required cleanup recovery of 19
+  stable rows and two random traces. They were independently removed. Probe
+  cleanup now uses actual-ID journals, immutable builds and finally verification.
+  A subsequent approval succeeded but replay returned 409; all 22 rows were cleaned.
+  A one-row live probe verified create/search differ for empty optional text.
+- Existing `issue-pr-delivery` skill updated and skill-creator validation passed.
+  No human approval, production performance, deployment or Done is inferred.
+
+- Current code `3241108810e3a26494d8b71fd1d5e0a647e6529e` completed the actual
+  ApiClient → local production Next signed-session proxy → Uvicorn → real Feishu
+  routine v1 flow: approve **30.259s/30 calls**, exact replay **22.824s/27 read-only
+  calls, zero new writes**, final lock **24.487s/26 calls**. Unsigned requests were
+  rejected with 401 and each signed client request sent once. No real model ran.
+- All event assertions passed, but the whole probe failed at one initial cleanup
+  FeishuAPIError. The full original-ID journal recovery found all 22 rows already
+  absent, sent zero further deletes and independently batch-verified zero residual;
+  recovery passed in 25.29s. The raw failure and recovery are retained in
+  `docs/reports/2026-10-09-editorial-runtime.json`. Owned servers/build copy removed.
+- Remaining: full-source 100%, live full generation/revision/selective-gate events,
+  real-model evals, browser/deployed-platform/ACL/latency acceptance and new-head CI.
