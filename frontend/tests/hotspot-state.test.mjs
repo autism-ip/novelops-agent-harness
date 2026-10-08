@@ -132,3 +132,9 @@ test("source links cannot execute script or embed credentials", () => {
     assert.equal(safeSourceUrl(value), null);
   }
 });
+
+test("pending commands reject missing or malformed request identities", () => {
+  for (const body of [null, "not-an-object", {}, { request_key: 1 }, { request_key: " " }]) {
+    assert.equal(parsePending(JSON.stringify({ path: "/api/hotspots/manual", body })), null);
+  }
+});
