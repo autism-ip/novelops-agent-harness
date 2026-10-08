@@ -1,4 +1,4 @@
-"""Versioned StoryBible, context snapshot and chapter brief workflows."""
+"""Versioned story planning; eligibility validates only the current brief."""
 from __future__ import annotations
 
 import json
@@ -452,7 +452,9 @@ class StoryPlanningService:
             return [self.read(row["pipeline_run_id"]) for row in reversed(self._runs("brief", book_id, chapter_no))]
 
     def eligible_brief(self, book_id: str, chapter_no: int) -> dict:
-        runs = self.list_briefs(book_id, chapter_no)
-        if not runs or not runs[0]["eligible"]:
-            raise TransitionConflict("No current policy-eligible ChapterBrief")
-        return runs[0]["artifact"]
+        with self.kernel.writer:
+            rows = self._runs("brief", book_id, chapter_no)
+            latest = self.read(rows[-1]["pipeline_run_id"]) if rows else None
+            if latest is None or not latest["eligible"]:
+                raise TransitionConflict("No current policy-eligible ChapterBrief")
+            return latest["artifact"]

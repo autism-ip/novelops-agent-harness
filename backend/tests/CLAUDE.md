@@ -27,7 +27,7 @@ test_research_workflow.py: ZEN-35 schema/风险分流、模型失败、版本审
 test_research_kernel_contract.py: 动态审批、退修理由、永久失败与终态投影恢复契约。
 test_creative_workflow.py: ZEN-36 十标题/三封面、模型输出验证、精确选择、版本及失败契约。
 ui_fixture_app.py: 仅本机浏览器验收服务；复用真实 API/Harness 与合成 HTTP 存储，提供受鉴权保护的响应丢失/上游失败注入；不进入生产包。
-test_story_planning.py: ZEN-39 API 与 Harness 门禁，覆盖人工审批、状态版本、不可变快照、brief 资格和中断恢复。
+test_story_planning.py: ZEN-39 API 与 Harness 门禁，覆盖人工审批、状态版本、不可变快照、brief 资格、历史读取数量上限、禁止回退旧提纲和中断恢复。
 test_chapter_loop.py: ZEN-40 章节生成、结构化 Critic、条件改写、硬规则/成本门禁、重试与最终锁定验收。
 test_chapter_review.py: ZEN-41 选择性人工关卡、精确审阅命令、RevisionTask、重放、历史和最终锁定验收。
 
