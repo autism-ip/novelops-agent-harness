@@ -778,7 +778,8 @@ class ChapterLoopService:
                      "action": action, "operator": operator, "reason": reason.strip(),
                      "choice_id": artifact_id, "created_at": now()}
             previous = self.kernel.storage.get("approval_events", approval_id)
-            if previous and any(previous.get(key) != event[key] for key in
+            # Search omits empty text cells; an absent optional note means "".
+            if previous and any(previous.get(key, "" if key == "reason" else None) != event[key] for key in
                                 ("target_type", "target_id", "target_version", "action", "operator", "reason", "choice_id")):
                 raise TransitionConflict("ChapterVersion already has a different review decision")
             if gate["status"] in {"awaiting_approval", "failed"}:

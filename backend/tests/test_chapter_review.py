@@ -427,3 +427,27 @@ def test_unstarted_review_has_empty_history_and_no_artifact_query(chapter):
     assert kernel.chapter_loop.review_state(book_id, 1) == {
         'latest': None, 'versions': [], 'revision_tasks': []}
     assert not any('/tables/artifacts/' in request.url.path for request in calls)
+
+
+@pytest.mark.parametrize("action", ["approve", "reject"])
+def test_review_replay_accepts_an_omitted_optional_empty_reason(chapter, action):
+    kernel, provider, book_id = chapter
+    view = pass_run(kernel, provider, book_id)
+    command = {**target(view), "action": action, "reason": ""}
+    first = kernel.chapter_loop.decide_review(book_id, 1, **command)
+    approval_id = first["decision"]["approval_id"]
+    transport = kernel.storage._repos["approval_events"]._client._http._transport.handler
+    # Search omits the empty text cell in the real authorized Base.
+    event = next(row for row in transport.tables["approval_events"].values()
+                 if row["fields"]["approval_id"] == approval_id)
+    event["fields"].pop("reason")
+    before = len(transport.calls)
+    replay = kernel.chapter_loop.decide_review(book_id, 1, **command)
+    assert replay["decision"]["approval_id"] == approval_id
+    assert replay["version"]["status"] == ("approved" if action == "approve" else "rejected")
+    assert len(kernel.storage.list("approval_events", target_id=command["version_id"])) == 1
+    assert all(request.method == "GET" or request.method == "POST"
+               and request.url.path.endswith("/records/search") for request in transport.calls[before:])
+    for changed in ({"reason": "Changed note"}, {"operator": "another-editor"}, {"action": "reject" if action == "approve" else "approve"}):
+        with pytest.raises(TransitionConflict, match="different review decision"):
+            kernel.chapter_loop.decide_review(book_id, 1, **{**command, **changed})

@@ -24,8 +24,8 @@ type ReviewState = { latest: ChapterRun | null; story_state?: Record<string, Rec
   traces?: { kind: string; route?: string; model?: string; prompt_version?: string;
     input_tokens?: number; output_tokens?: number; estimated_cost?: number; latency_ms?: number; retry_count?: number }[] };
 
-// A live chapter desk read took 65.46 seconds; retain a bounded read deadline.
-const REVIEW_READ_TIMEOUT_MS = 120_000;
+// Live Feishu review reads and editorial writes exceeded the default ten seconds.
+const REVIEW_TIMEOUT_MS = 120_000;
 const EVENT = "novelops-chapter-review-request";
 function subscribe(callback: () => void) {
   window.addEventListener(EVENT, callback);
@@ -64,7 +64,7 @@ export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged }: {
   const [reason, setReason] = useState("");
   const busy = useRef(false);
   const { operator, update: setOperator } = useEditorIdentity();
-  const result = useResource<ReviewState>(root + "/review", refresh + revision, 5000, pollWhileActive, REVIEW_READ_TIMEOUT_MS);
+  const result = useResource<ReviewState>(root + "/review", refresh + revision, 5000, pollWhileActive, REVIEW_TIMEOUT_MS);
   const data = result.data;
   const latest = data?.latest;
   const current = data?.versions.find(entry => entry.record.artifact_id === latest?.selected?.artifact_id);
@@ -90,7 +90,7 @@ export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged }: {
     busy.current = true; setWorking(true); setError(null);
     try {
       setSaved(key, JSON.stringify(command));
-      await api.post(command.path, command.body);
+      await api.post(command.path, command.body, REVIEW_TIMEOUT_MS);
       setSaved(key, null);
       setRevision(value => value + 1);
       onChanged();
@@ -252,7 +252,7 @@ export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged }: {
       </div>
     </div>}
     {pending && <div className="surface-soft space-y-2 p-4 text-sm" role="status">
-      <p>The last review command has an unknown outcome. Retry uses the same exact version and editor identity.</p>
+      <p>{working ? "Saving your chapter action… This may take a minute." : "The last review command has an unknown outcome. Retry uses the same exact version and editor identity."}</p>
       <div className="flex flex-wrap gap-2"><Button variant="outline" disabled={working}
         onClick={() => void submit(pending)}>Retry the same command</Button>
         <Button variant="ghost" disabled={working} onClick={() => setSaved(key, null)}>I checked the version history</Button></div>
