@@ -310,11 +310,17 @@ def test_review_response_reuses_validated_immutable_artifacts(chapter):
     assert review['verification'] == review['versions'][0]['verification']
     assert review['versions'][1]['report']['source_refs'][2] == review['versions'][1]['artifact']['artifact_id']
     assert latest['usage']['attempts'] == 3
-    assert all(request.method == 'GET' for request in calls)
+    assert len(calls) <= 23
+    assert any(len(json.loads(request.content)['filter']['conditions']) > 1 for request in calls
+               if request.url.path.endswith('/tables/artifacts/records/search'))
+    assert all(request.method == 'GET' or request.method == 'POST'
+               and request.url.path.endswith('/records/search') for request in calls)
     for artifact_id in {snapshot, latest['selected']['artifact_id'], latest['critique']['artifact_id'],
                         *(item['verification']['artifact_id'] for item in review['versions'])}:
-        assert sum(artifact_id in request.url.params.get('filter', '') for request in calls
-                   if '/tables/artifacts/' in request.url.path) == 1
+        assert sum(any(condition['field_name'] == 'artifact_id' and condition['operator'] == 'is'
+                       and condition['value'] == [artifact_id]
+                       for condition in json.loads(request.content)['filter']['conditions'])
+                   for request in calls if '/tables/artifacts/' in request.url.path) == 1
 
 
 def test_review_refresh_and_decision_revalidate_remote_artifacts(chapter):
@@ -381,3 +387,43 @@ def test_http_editorial_revision_approval_and_lock_preserve_history(chapter):
     assert history[0]['record']['status'] == 'final'
     assert len(kernel.storage.list('revision_tasks')) == 1
     api.close()
+
+
+def test_review_batch_missing_required_artifact_fails_and_refresh_recovers(chapter):
+    kernel, provider, book_id = chapter
+    original = pass_run(kernel, provider, book_id)
+    artifact_id = original['selected']['artifact_id']
+    row = kernel.storage.get('artifacts', artifact_id)
+    kernel.storage.delete('artifacts', artifact_id)
+    with pytest.raises(AmbiguousWrite, match='Final ChapterVersion is unreadable'):
+        kernel.chapter_loop.review_state(book_id, 1)
+    assert kernel.storage.list('approval_events', target_type='chapter_version') == []
+    kernel.storage.ensure('artifacts', row)
+    restored = kernel.chapter_loop.review_state(book_id, 1)
+    assert restored['latest']['selected'] == original['selected']
+    assert restored['versions'][0]['record']['status'] == 'review'
+
+
+def test_pending_review_batch_omits_optional_critique_without_extra_lookup(chapter):
+    kernel, _, book_id = chapter
+    run_id, request, _ = start(kernel, book_id)
+    calls = []
+    kernel.storage._repos['artifacts']._client._http.event_hooks['request'].append(calls.append)
+    actual = kernel.chapter_loop.review_state(book_id, 1)
+    assert actual['latest']['run']['pipeline_run_id'] == run_id
+    assert actual['latest']['selected'] is None and actual['latest']['critique'] is None
+    assert actual['versions'] == [] and actual['verification'] is None
+    searches = [json.loads(request.content)['filter']['conditions'] for request in calls
+                if request.url.path.endswith('/tables/artifacts/records/search')]
+    critique_id = stable_id('AR-', f'books/{book_id}/chapters/1/critique/{request["version"]}')
+    assert sum(any(condition['value'] == [critique_id] for condition in conditions)
+               for conditions in searches) == 1
+
+
+def test_unstarted_review_has_empty_history_and_no_artifact_query(chapter):
+    kernel, _, book_id = chapter
+    calls = []
+    kernel.storage._repos['artifacts']._client._http.event_hooks['request'].append(calls.append)
+    assert kernel.chapter_loop.review_state(book_id, 1) == {
+        'latest': None, 'versions': [], 'revision_tasks': []}
+    assert not any('/tables/artifacts/' in request.url.path for request in calls)

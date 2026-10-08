@@ -177,3 +177,49 @@ Two new tests render the actual ChapterReviewDesk, resource hook and HTTP client
 Final code-tree gates: **425 offline backend tests passed**, 9 credentialed tests deselected, Ruff passed; **60 frontend tests**, ESLint, TypeScript and production build passed. Backend statements/lines **92.83% (3,884/4,184)**, branches **79.98% (875/1,094)**, combined **90.17%**; 300 lines, 219 branch arcs and 193 partial branch lines remain. Python named-function entry measurement is **95.77% (385/402)** with 11 anonymous lambdas outside that metric; it is not full function coverage. The raw definition count includes six Protocol method declarations. Coverage.py's inherited defaults omit those declarations and four adjacent blank lines; no project exclusion was added.
 
 All-source frontend coverage: **58.17% statements (587/1,009), 62.03% lines (531/856), 51.01% functions (151/296), 53.43% branches (599/1,121)**. The HTTP client, resource hook and previously verified auth/proxy/parser modules retain all four metrics at 100%. No ignore or gate change was made. The project-wide 100% requirement, full current-head event revalidation, continuous editor latency and production rollout acceptance remain open. All 13 Linear issues remain In Review; no Done or merge approval is implied.
+
+## Native batch consumption (2026-10-09)
+
+The response collects current manifest/history Artifact IDs and reads their
+integrity-checked payloads in one batch, loaded lazily inside the existing domain
+error boundary. Present payloads and confirmed absence are reused only for this
+response. Version rows are read once for response assembly; canonical Book/State,
+brief eligibility, latest run and final-lock checks remain in force. RevisionTask
+run statuses are queried as one business-key batch. Decisions and subsequent
+refreshes still start with fresh reads; no shared or persistent cache was added.
+
+The same complete HTTP-transport editorial fixture measured:
+
+| Event | Before batch consumption | After |
+| --- | ---: | ---: |
+| Generate v1 | 354 | 354 |
+| Read review v1 | 27 | 22 |
+| Request editorial revision | 94 | 94 |
+| Generate v2 | 251 | 251 |
+| Read review v2 | 31 | 23 |
+| Approve v2 | 30 | 30 |
+| Lock final | 26 | 26 |
+
+These are request counts against the actual application/client/repositories and
+stateful HTTP fixture, not live latency. The fixture verified immutable v1/v2
+history, explicit RevisionTask constraints, exact approval and final lock. A
+regression enforces <=23 read requests for a two-version rewrite desk, requires a
+multi-ID Artifact search and counts each shared source/verifier ID exactly once.
+New cases verify required Artifact deletion fails closed, restored data is read
+fresh, a pending chapter's optional Critic absence is queried once, and an
+unstarted chapter returns empty history without fetching Artifacts. Existing
+remote-tamper refresh/decision assertions and provenance validation are preserved.
+
+Local verification: **481 backend tests passed**, **10 opt-in live cases
+deselected**, Ruff passed. Full-source backend statement/line coverage is
+**3,952/4,251 = 92.97%**, branch **906/1,124 = 80.60%**, combined **90.38%**;
+192 branch lines are partially covered. Function coverage for this new head is
+not established. **60 frontend tests passed**, lint/types/production build passed.
+Full-source V8: statement **58.17%**, line **62.03%**, function **51.01%**, branch
+**53.43%**. No exclusions, skipped offline tests or relaxed thresholds were added.
+The whole-project 100% objective therefore remains open.
+
+A fresh application-identity live review read is in progress in the previously
+authorized synthetic Base. Its latency/content/independent-cleanup result will
+be recorded when the process completes. This probe uses persisted synthetic
+workflow data and does not call a real model or verify a deployed frontend proxy.

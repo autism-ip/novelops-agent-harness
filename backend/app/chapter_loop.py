@@ -597,7 +597,7 @@ class ChapterLoopService:
         required = self._human_review_required(req, report["content"])
         return StepResult(payload, requires_approval=True) if required else payload
 
-    def read(self, run_id: str, *, _artifact_get=None) -> dict:
+    def read(self, run_id: str, *, _artifact_get=None, _version_rows=None) -> dict:
         with self.kernel.writer:
             get_artifact = _artifact_get or self.kernel.artifacts.get
             run = self.kernel.get(run_id)
@@ -616,7 +616,8 @@ class ChapterLoopService:
                 critique = get_artifact(stable_id("AR-", self._logical(req, "critique") + "/" + str(req["version"])))
             except MissingRecord:
                 critique = None
-            all_versions = self._versions(req["book_id"], req["chapter_no"])
+            all_versions = (_version_rows if _version_rows is not None
+                            else self._versions(req["book_id"], req["chapter_no"]))
             versions = [row for row in all_versions
                         if row["version_no"] in {self._number(req), self._number(req, True)}]
             version_summaries = [{"version_id": row["version_id"], "version_no": row["version_no"],
@@ -640,11 +641,12 @@ class ChapterLoopService:
         with self.kernel.writer:
             return [self.read(row["pipeline_run_id"]) for row in reversed(self._runs(book_id, chapter_no))]
 
-    def versions(self, book_id: str, chapter_no: int, *, _artifact_get=None) -> list[dict]:
+    def versions(self, book_id: str, chapter_no: int, *, _artifact_get=None, _version_rows=None) -> list[dict]:
         with self.kernel.writer:
             get_artifact = _artifact_get or self.kernel.artifacts.get
             result = []
-            rows = list(reversed(self._versions(book_id, chapter_no)))
+            rows = list(reversed(_version_rows if _version_rows is not None
+                                 else self._versions(book_id, chapter_no)))
             by_artifact = {row["artifact_id"]: row for row in rows if row.get("artifact_id")}
             if len(by_artifact) != sum(bool(row.get("artifact_id")) for row in rows):
                 raise AmbiguousWrite("Multiple ChapterVersions project the same Artifact")
@@ -682,21 +684,40 @@ class ChapterLoopService:
 
     def review_state(self, book_id: str, chapter_no: int) -> dict:
         with self.kernel.writer:
-            # Only this read response shares already integrity-checked payloads.
+            # This response batches immutable payloads and shares its version rows.
             # Decisions, refreshes and writes always start with fresh remote reads.
+            run_rows = self._runs(book_id, chapter_no)
+            version_rows = self._versions(book_id, chapter_no)
+            batch_ids = {row.get(field) for row in version_rows
+                         for field in ("artifact_id", "review_report_id", "verifier_artifact_id")
+                         if row.get(field)}
+            if run_rows:
+                _, manifest = self._manifest(run_rows[-1])
+                req = manifest["request"]
+                batch_ids.update((manifest["snapshot_id"], req["brief_artifact_id"],
+                    stable_id("AR-", self._logical(req, "critique") + "/" + str(req["version"]))))
             artifacts = {}
+            loaded = False
             def get_artifact(artifact_id):
+                nonlocal loaded
+                if not loaded:
+                    # Lazy load preserves the caller's domain error translation.
+                    artifacts.update(self.kernel.artifacts.get_many(sorted(batch_ids)))
+                    loaded = True
+                if artifact_id in batch_ids and artifact_id not in artifacts:
+                    raise MissingRecord(artifact_id)
                 if artifact_id not in artifacts:
                     artifacts[artifact_id] = self.kernel.artifacts.get(artifact_id)
                 return artifacts[artifact_id]
-            run_rows = self._runs(book_id, chapter_no)
-            latest = self.read(run_rows[-1]["pipeline_run_id"], _artifact_get=get_artifact) if run_rows else None
-            versions = self.versions(book_id, chapter_no, _artifact_get=get_artifact)
-            tasks = []
-            for task in self.kernel.storage.list("revision_tasks", target_id=f"{book_id}/{chapter_no}"):
-                run = (self.kernel.storage.get("pipeline_runs", task["run_id"])
-                       if task.get("run_id") else None)
-                tasks.append({**task, "run_status": run["status"] if run else None})
+            latest = self.read(run_rows[-1]["pipeline_run_id"], _artifact_get=get_artifact,
+                               _version_rows=version_rows) if run_rows else None
+            versions = self.versions(book_id, chapter_no, _artifact_get=get_artifact,
+                                     _version_rows=version_rows)
+            task_rows = self.kernel.storage.list("revision_tasks", target_id=f"{book_id}/{chapter_no}")
+            task_runs = self.kernel.storage.get_many("pipeline_runs", [task["run_id"] for task in task_rows
+                                                                       if task.get("run_id")])
+            tasks = [{**task, "run_status": task_runs[task["run_id"]]["status"]
+                      if task.get("run_id") in task_runs else None} for task in task_rows]
             if latest is None:
                 return {"latest": None, "versions": versions, "revision_tasks": tasks}
             snapshot = get_artifact(latest["snapshot_artifact_id"])
