@@ -30,6 +30,7 @@ class AmbiguousWrite(StorageError):
 
 class StorageProvider(Protocol):
     def get(self, collection: str, domain_id: str) -> dict | None: ...
+    def get_many(self, collection: str, domain_ids: list[str]) -> dict[str, dict]: ...
     def list(self, collection: str, **conditions: str | int) -> list[dict]: ...
     def ensure(self, collection: str, data: dict, *, allow_create: bool = True) -> dict: ...
     def update(self, collection: str, domain_id: str, fields: dict) -> dict: ...
@@ -62,15 +63,18 @@ class FeishuStorageProvider:
         if not domain_id:
             raise ValueError("A non-empty domain ID is required")
         repo = self._repos[collection]
-        matches = repo.list(filter_expr=repo._field_filter(**{self._keys[collection]: domain_id}))
-        if len(matches) > 1:
-            raise DuplicateKey(f"Duplicate business key in {collection}")
-        return matches[0] if matches else None
+        return repo.find_by_business_key(**{self._keys[collection]: domain_id})
 
     def get(self, collection: str, domain_id: str) -> dict | None:
         with self._lock:
             row = self._resolve(collection, domain_id)
             return self._public(row) if row else None
+
+    def get_many(self, collection: str, domain_ids: list[str]) -> dict[str, dict]:
+        """Return present IDs only, without platform identities or partial failures."""
+        with self._lock:
+            rows = self._repos[collection].get_many_by_key(self._keys[collection], domain_ids)
+            return {key: self._public(row) for key, row in rows.items()}
 
     def list(self, collection: str, **conditions: str | int) -> list[dict]:
         with self._lock:

@@ -34,3 +34,13 @@ The configured backend identity and Base token were checked against the user-aut
 All five automated inline review threads on PR #24 are resolved, including deterministic step ordering, sibling terminalization, status-read cost, invalid handler output and missing-handler recovery. No new discussion comments or review submissions were present beyond the documented review. The remote branch ref contains the live rerun report at `34678bf2`, but GitHub's PR object still advertised older head `6ae00a4d` during the stack audit; exact-head CI and diff isolation remain pending until GitHub reports the same SHA as the branch ref. This metadata discrepancy is separate from the runtime result and is not treated as acceptance evidence.
 
 After pushing `af20f9df`, GitHub's PR #24 head SHA matched the remote branch ref. The stale PR metadata condition is resolved; CI for this new report head must still be checked independently.
+
+## Structured storage read propagation (2026-10-09)
+
+Consumed the ZEN-105 literal-ID/batch-read fix. The partial-creation recovery regression
+still asserts blocked recovery and no additional record-create requests; it now counts
+only `POST .../records`, because native `POST .../records/search` is a read.
+**298 offline tests passed**, 10 opt-in integration cases deselected; Ruff and frontend
+lint/types/build passed. Backend combined branch measurement: 93.68%;
+statement/line 95.02%, branch 88.24%.
+This propagation does not establish full-project 100% or final runtime acceptance.
