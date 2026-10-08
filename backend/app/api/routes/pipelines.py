@@ -6,7 +6,7 @@
          app.feishu.table_map.TableMapConfig、
          app.pipeline.engine.PipelineEngine、app.pipeline.models.StepDef
 [OUTPUT]: 对外提供 router（POST /pipelines、GET /pipelines/{id}、GET /pipelines/{id}/steps）
-[POS]: api.routes 包的管线端点模块，封装 PipelineEngine 生命周期，被 routes/__init__.py 注册到 api_router
+[POS]: api.routes 包的管线端点模块，封装 PipelineEngine 生命周期和安全业务键查询，被 routes/__init__.py 注册到 api_router
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
 
@@ -22,6 +22,7 @@ from app.feishu.repositories.step_runs import StepRunsRepo
 from app.feishu.table_map import TableMapConfig
 from app.pipeline.engine import PipelineEngine
 from app.pipeline.models import StepDef
+from app.storage import DuplicateKey
 
 router = APIRouter()
 
@@ -138,13 +139,13 @@ async def get_pipeline(
     pipeline_repo = _build_pipeline_repo(client, config)
     step_repo = _build_step_repo(client, config)
 
-    runs = pipeline_repo.list(
-        filter_expr=f'CurrentValue.[pipeline_run_id] = "{pipeline_run_id}"'
-    )
-    if not runs:
+    try:
+        pipeline = pipeline_repo.find_by_business_key(pipeline_run_id=pipeline_run_id)
+    except DuplicateKey as exc:
+        raise HTTPException(status_code=409, detail="Duplicate pipeline run ID") from exc
+    if pipeline is None:
         raise HTTPException(status_code=404, detail="Pipeline run not found")
 
-    pipeline = runs[0]
     pipeline["step_runs"] = step_repo.find_by_pipeline(pipeline_run_id)
     return pipeline
 

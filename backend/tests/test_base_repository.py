@@ -11,7 +11,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from app.feishu.client import FeishuAuthError, FeishuNotFoundError
+from app.feishu.client import FeishuAPIError, FeishuAuthError, FeishuNotFoundError
 from app.feishu.repositories.base import BaseRepository
 
 
@@ -88,6 +88,21 @@ class TestFromFeishu:
         record = {"record_id": "rec-003"}
         result = repo._from_feishu(record)
         assert result == {"record_id": "rec-003"}
+
+    def test_number_cells_from_v1_reads_keep_domain_types(self, mock_client: MagicMock) -> None:
+        repo = BaseRepository(mock_client, "app", "table", {"output_version": "Output Version",
+            "retry_count": "Retry Count", "writability_score": "Score"})
+        result = repo._from_feishu({"record_id": "rec-004", "fields": {
+            "Output Version": "1", "Retry Count": "0", "Score": "82.5"}})
+        assert result["output_version"] == 1 and type(result["output_version"]) is int
+        assert result["retry_count"] == 0 and type(result["retry_count"]) is int
+        assert result["writability_score"] == 82.5
+
+    @pytest.mark.parametrize("bad", ["0.5", "NaN", "not-a-number"])
+    def test_invalid_integer_cell_fails_closed(self, repo: BaseRepository, bad: str) -> None:
+        from app.feishu.client import FeishuAPIError
+        with pytest.raises(FeishuAPIError, match="numeric|integer"):
+            repo._from_feishu({"record_id": "rec-005", "fields": {"output_version": bad}})
 
 
 # ============================================================
@@ -252,11 +267,13 @@ class TestUpdate:
     """update PUTs mapped fields and returns mapped record."""
 
     def test_update_success(self, repo: BaseRepository, mock_client: MagicMock) -> None:
+        mock_client.get.return_value = {"data": {"record": {"record_id": "rec-010",
+            "fields": {"Book ID": "B010", "Book Title": "Original"}}}}
         mock_client.put.return_value = {
             "data": {
                 "record": {
                     "record_id": "rec-010",
-                    "fields": {"Book ID": "B010", "Book Title": "Updated"},
+                    "fields": {"Book Title": "Updated"},
                 }
             }
         }
@@ -268,6 +285,7 @@ class TestUpdate:
             expected_path, body={"fields": {"Book Title": "Updated"}}
         )
         assert result["title"] == "Updated"
+        assert result["book_id"] == "B010"
         assert result["record_id"] == "rec-010"
 
 
@@ -329,7 +347,7 @@ class TestFindByBusinessKey:
 
     def test_returns_first_match(self, repo: BaseRepository, mock_client: MagicMock) -> None:
         """Given a record in the table, find_by_business_key returns it."""
-        mock_client.get.return_value = {
+        mock_client.search_records.return_value = {
             "data": {
                 "items": [
                     {"record_id": "rec-abc", "fields": {"Book ID": "B001", "Book Title": "Found"}},
@@ -344,18 +362,102 @@ class TestFindByBusinessKey:
         assert result["record_id"] == "rec-abc"
         assert result["book_id"] == "B001"
 
-        # verify the filter was built correctly
-        call = mock_client.get.call_args
-        params = call.kwargs.get("params", call[1].get("params", {}))
-        assert params["filter"] == 'CurrentValue.[Book ID] = "B001"'
-        assert params["page_size"] == "1"
+        assert mock_client.search_records.call_args.kwargs["body"]["filter"] == {
+            "conjunction": "or", "conditions": [
+                {"field_name": "Book ID", "operator": "is", "value": ["B001"]}],
+        }
+        assert mock_client.search_records.call_args.kwargs["params"] == {"page_size": "500"}
 
     def test_returns_none_when_empty(self, repo: BaseRepository, mock_client: MagicMock) -> None:
         """When no record matches, find_by_business_key returns None."""
-        mock_client.get.return_value = {
+        mock_client.search_records.return_value = {
             "data": {"items": [], "has_more": False}
         }
 
         result = repo.find_by_business_key(book_id="MISSING")
 
         assert result is None
+
+
+def test_blank_numeric_cells_preserve_absence_without_coercion(repo: BaseRepository) -> None:
+    row = repo._from_feishu({"record_id": "rec-blank", "fields": {
+        "output_version": None, "retry_count": ""}})
+    assert row["output_version"] is None and row["retry_count"] == ""
+
+
+def test_business_key_lookup_rejects_duplicate_matches(repo: BaseRepository, mock_client: MagicMock) -> None:
+    from app.storage import DuplicateKey
+
+    mock_client.search_records.return_value = {"data": {"items": [
+        {"record_id": "r1", "fields": {"Book ID": "same"}},
+        {"record_id": "r2", "fields": {"Book ID": "same"}},
+    ], "has_more": False}}
+    with pytest.raises(DuplicateKey, match="Duplicate business key"):
+        repo.find_by_business_key(book_id="same")
+
+
+@pytest.mark.parametrize("continuation", [None, "same"])
+def test_invalid_pagination_token_stops_without_repeating_page(
+    repo: BaseRepository, mock_client: MagicMock, continuation: str | None
+) -> None:
+    mock_client.get.side_effect = [
+        {"data": {"items": [{"record_id": "r1", "fields": {"Book ID": "B1"}}],
+                  "has_more": True, "page_token": "same"}},
+        {"data": {"items": [], "has_more": True, "page_token": continuation}},
+    ] if continuation else [
+        {"data": {"items": [], "has_more": True, "page_token": None}},
+    ]
+    with pytest.raises(ValueError, match="Invalid Feishu pagination token"):
+        repo.list(page_size=1)
+    assert mock_client.get.call_count == (2 if continuation else 1)
+
+
+def test_update_rejects_disappeared_record_without_put(repo: BaseRepository, mock_client: MagicMock) -> None:
+    mock_client.get.side_effect = FeishuNotFoundError("missing")
+    with pytest.raises(FeishuNotFoundError, match="does not exist"):
+        repo.update("rec-missing", {"title": "Updated"})
+    mock_client.put.assert_not_called()
+
+
+def test_update_rejects_previous_record_from_another_target(
+    repo: BaseRepository, mock_client: MagicMock
+) -> None:
+    with pytest.raises(ValueError, match="Previous record identity"):
+        repo.update("rec-target", {"title": "Updated"}, previous={
+            "record_id": "rec-other", "book_id": "B1"})
+    mock_client.put.assert_not_called()
+
+
+def test_partial_update_response_must_echo_changed_field(
+    repo: BaseRepository, mock_client: MagicMock
+) -> None:
+    mock_client.put.return_value = {"data": {"record": {
+        "record_id": "rec-1", "fields": {"Book ID": "B1"}}}}
+    with pytest.raises(FeishuAPIError, match="omitted changed fields"):
+        repo.update("rec-1", {"title": "Updated"}, previous={
+            "record_id": "rec-1", "book_id": "B1", "title": "Original"})
+    mock_client.put.assert_called_once()
+
+
+def test_conditional_update_rejects_stale_record_without_put(
+    repo: BaseRepository, mock_client: MagicMock
+) -> None:
+    mock_client.get.return_value = {"data": {"record": {
+        "record_id": "rec-1", "fields": {"Book ID": "B1", "Book Title": "Changed"}}}}
+    with pytest.raises(ValueError, match="Record condition does not match"):
+        repo.conditional_update("rec-1", {"title": "Updated"}, {"title": "Original"})
+    mock_client.put.assert_not_called()
+
+
+def test_compound_and_numeric_legacy_business_keys_reject_duplicates(repo, mock_client):
+    from app.storage import DuplicateKey
+
+    mock_client.get.return_value = {"data": {"items": [{"record_id": "r1", "fields": {"chapter_no": 1}}]}}
+    assert repo.find_by_business_key(chapter_no=1)["chapter_no"] == 1
+    assert mock_client.get.call_args.kwargs["params"]["filter"] == 'CurrentValue.[chapter_no] = 1'
+    mock_client.get.return_value = {"data": {"items": []}}
+    assert repo.find_by_business_key(book_id="B1", chapter_no=1) is None
+    mock_client.get.return_value = {"data": {"items": [
+        {"record_id": "r1", "fields": {}}, {"record_id": "r2", "fields": {}}]}}
+    with pytest.raises(DuplicateKey):
+        repo.find_by_business_key(book_id="B1", chapter_no=1)

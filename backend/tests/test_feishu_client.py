@@ -1,6 +1,6 @@
 """
 [INPUT]: 依赖 app.feishu.client 的 FeishuClient、FeishuAuthError、FeishuAPIError
-[OUTPUT]: 对外提供 FeishuClient 的行为级测试用例——token 生命周期、请求注入、401 重试、异常路径
+[OUTPUT]: 对外提供 FeishuClient 的行为级测试用例——token 生命周期、请求注入、401 与安全读取重试、认证网络故障和畸形写入响应等异常路径
 [POS]: tests 的飞书客户端门禁，验证认证与请求重试的外部行为契约
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
@@ -283,6 +283,44 @@ class TestAuthErrors:
             client.get("/bitable/v1/test")
 
 
+class TestTransientReadRetry:
+    @patch("app.feishu.client.time.sleep")
+    @patch("app.feishu.client.httpx.Client")
+    def test_bitable_internal_error_retries_get_only(self, mock_http_cls, mock_sleep):
+        mock_http = MagicMock()
+        mock_http_cls.return_value = mock_http
+        client = FeishuClient(app_id="id", app_secret="sec")
+        mock_http.post.return_value = _mock_post_response(
+            {"code": 0, "tenant_access_token": "t-read", "expire": 7200})
+        internal = _mock_post_response({"code": 1255001, "msg": "InternalError"})
+        good = _mock_data_response({"items": []})
+        mock_http.request.side_effect = [internal, internal, good]
+        assert client.get("/bitable/v1/test")["data"] == {"items": []}
+        assert mock_http.request.call_count == 3
+        assert mock_sleep.call_count == 2
+
+        mock_http.request.reset_mock(side_effect=True)
+        mock_http.request.return_value = internal
+        with pytest.raises(FeishuAPIError, match="1255001"):
+            client.post("/bitable/v1/test", body={"fields": {}})
+        assert mock_http.request.call_count == 1
+
+    @patch("app.feishu.client.time.sleep")
+    @patch("app.feishu.client.httpx.Client")
+    def test_bitable_internal_error_get_retry_is_bounded(self, mock_http_cls, mock_sleep):
+        mock_http = MagicMock()
+        mock_http_cls.return_value = mock_http
+        client = FeishuClient(app_id="id", app_secret="sec")
+        mock_http.post.return_value = _mock_post_response(
+            {"code": 0, "tenant_access_token": "t-read", "expire": 7200})
+        mock_http.request.return_value = _mock_post_response(
+            {"code": 1255001, "msg": "InternalError"})
+        with pytest.raises(FeishuAPIError, match="1255001"):
+            client.get("/bitable/v1/test")
+        assert mock_http.request.call_count == 3
+        assert mock_sleep.call_count == 2
+
+
 # ============================================================
 # HTTP verbs
 # ============================================================
@@ -382,8 +420,28 @@ class TestHttpErrors:
 
         assert exc_info.value.code == 403
 
+    @patch("app.feishu.client.time.sleep")
     @patch("app.feishu.client.httpx.Client")
-    def test_transport_error_raises_api_error(self, mock_http_cls: MagicMock) -> None:
+    def test_get_timeout_retries_without_replaying_post(self, mock_http_cls, mock_sleep) -> None:
+        mock_http = MagicMock()
+        mock_http_cls.return_value = mock_http
+        client = FeishuClient(app_id="id", app_secret="sec")
+        mock_http.post.return_value = _mock_post_response(
+            {"code": 0, "tenant_access_token": "t-net", "expire": 7200})
+        good = _mock_data_response({"items": []})
+        mock_http.request.side_effect = [httpx.ReadTimeout("read timed out"), good]
+        assert client.get("/bitable/v1/test")["data"] == {"items": []}
+        assert mock_http.request.call_count == 2
+        assert mock_sleep.call_count == 1
+        mock_http.request.reset_mock(side_effect=True)
+        mock_http.request.side_effect = httpx.ReadTimeout("write response timed out")
+        with pytest.raises(FeishuAPIError, match="Transport error"):
+            client.post("/bitable/v1/test", body={"fields": {}})
+        assert mock_http.request.call_count == 1
+
+    @patch("app.feishu.client.time.sleep")
+    @patch("app.feishu.client.httpx.Client")
+    def test_transport_error_raises_api_error(self, mock_http_cls: MagicMock, mock_sleep) -> None:
         """Network failure raises FeishuAPIError (code=0), not FeishuAuthError."""
         mock_http = MagicMock()
         mock_http_cls.return_value = mock_http
@@ -400,6 +458,8 @@ class TestHttpErrors:
             client.get("/bitable/v1/test")
 
         assert exc_info.value.code == 0
+        assert mock_http.request.call_count == 3
+        assert mock_sleep.call_count == 2
 
     @patch("app.feishu.client.httpx.Client")
     def test_401_still_raises_auth_error(self, mock_http_cls: MagicMock) -> None:
@@ -463,3 +523,30 @@ class TestBusinessErrorClassification:
             client.get("/bitable/v1/apps/app/tables/tbl/records/rec-missing")
 
         assert exc_info.value.code == 1254043
+
+
+def test_token_transport_failure_stops_before_data_request() -> None:
+    with patch("app.feishu.client.httpx.Client") as http_cls:
+        mock_http = http_cls.return_value
+        mock_http.post.side_effect = httpx.ConnectError("auth DNS unavailable")
+        client = FeishuClient(app_id="id", app_secret="sec")
+        with pytest.raises(FeishuAuthError, match="Token request failed") as error:
+            client.get("/bitable/v1/test")
+        assert isinstance(error.value.__cause__, httpx.ConnectError)
+        mock_http.post.assert_called_once()
+        mock_http.request.assert_not_called()
+
+
+def test_malformed_success_body_is_ambiguous_to_writer() -> None:
+    with patch("app.feishu.client.httpx.Client") as http_cls:
+        mock_http = http_cls.return_value
+        mock_http.post.return_value = _mock_post_response(
+            {"code": 0, "tenant_access_token": "t-write", "expire": 7200})
+        malformed = _mock_post_response({})
+        malformed.json.side_effect = ValueError("truncated JSON")
+        mock_http.request.return_value = malformed
+        client = FeishuClient(app_id="id", app_secret="sec")
+        with pytest.raises(FeishuAPIError, match="Invalid JSON response") as error:
+            client.post("/bitable/v1/test", body={"fields": {"id": "X"}})
+        assert error.value.code == 0
+        mock_http.request.assert_called_once()
