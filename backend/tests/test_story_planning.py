@@ -230,3 +230,43 @@ def test_revision_feedback_is_carried_into_next_bible_version(planning):
     assert kernel.story_planning.read(second["pipeline_run_id"])["artifact"]["content"]["premise"] == \
         "Mira chooses to share the magical seed"
     assert "Make the protagonist's choice more specific" in provider.messages[-1][-1]["content"]
+
+
+def test_eligible_brief_reads_only_latest_completed_version(planning):
+    kernel, provider, book_id, _ = planning
+    approve_bible(kernel, provider, book_id)
+    artifacts = []
+    for version in range(1, 4):
+        request = kernel.story_planning.brief_context(book_id, 1)
+        assert request['version'] == version
+        run = kernel.story_planning.enqueue_brief(request)
+        provider.outputs.append(brief())
+        settle(kernel, 2)
+        artifacts.append(kernel.story_planning.read(run['pipeline_run_id'])['artifact'])
+    calls = []
+    client = kernel.storage._repos['artifacts']._client._http
+    client.event_hooks['request'].append(calls.append)
+    eligible = kernel.story_planning.eligible_brief(book_id, 1)
+    assert eligible == artifacts[-1]
+    # Actual HTTP client + stateful Feishu fixture: history must not amplify reads.
+    assert len(calls) <= 8
+    assert all(request.method == 'GET' for request in calls)
+    artifact_filters = [request.url.params.get('filter', '') for request in calls
+                        if '/tables/artifacts/' in request.url.path]
+    assert not any(artifact['artifact_id'] in value for artifact in artifacts[:-1]
+                   for value in artifact_filters)
+
+
+def test_eligible_brief_never_falls_back_to_older_completed_version(planning):
+    kernel, provider, book_id, _ = planning
+    approve_bible(kernel, provider, book_id)
+    for _ in range(2):
+        request = kernel.story_planning.brief_context(book_id, 1)
+        run = kernel.story_planning.enqueue_brief(request)
+        provider.outputs.append(brief())
+        settle(kernel, 2)
+    newest = kernel.story_planning.read(run['pipeline_run_id'])['artifact']
+    assert kernel.story_planning.eligible_brief(book_id, 1) == newest
+    kernel.story_planning.enqueue_brief(kernel.story_planning.brief_context(book_id, 1))
+    with pytest.raises(TransitionConflict, match='No current policy-eligible'):
+        kernel.story_planning.eligible_brief(book_id, 1)
