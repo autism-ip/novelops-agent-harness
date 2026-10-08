@@ -26,8 +26,20 @@ const chapter = {
 afterEach(() => { cleanup(); sessionStorage.clear(); vi.useRealTimers(); vi.unstubAllGlobals(); });
 
 function transportWithWriteDelay(delay: number | null) {
+  let bodiesRead = 0;
+  let finishRefresh: () => void = () => undefined;
+  const refreshed = new Promise<void>(resolve => { finishRefresh = resolve; });
   const transport = vi.fn((_input: unknown, init: RequestInit) => {
-    if (init.method !== "POST") return Promise.resolve(Response.json(chapter));
+    if (init.method !== "POST") {
+      const response = Response.json(chapter);
+      const readBody = response.json.bind(response);
+      response.json = async () => {
+        const body = await readBody();
+        if (++bodiesRead >= 2) finishRefresh();
+        return body;
+      };
+      return Promise.resolve(response);
+    }
     return new Promise<Response>((resolve, reject) => {
       const timer = delay === null ? null : setTimeout(() => resolve(Response.json({ saved: true })), delay);
       init.signal?.addEventListener("abort", () => {
@@ -37,7 +49,7 @@ function transportWithWriteDelay(delay: number | null) {
     });
   });
   vi.stubGlobal("fetch", transport);
-  return transport;
+  return { transport, refreshed };
 }
 
 async function openDesk() {
@@ -56,7 +68,7 @@ test.each([
     must_keep: [], must_change: ["Sharper dialogue"], do_not_change: [] } }],
 ] as const)("%s can save a 34-second exact chapter action once", async (label, suffix, extra) => {
   vi.useFakeTimers();
-  const transport = transportWithWriteDelay(34_463);
+  const { transport, refreshed } = transportWithWriteDelay(34_463);
   const { onChanged } = await openDesk();
   if (suffix === "/review/revision") {
     fireEvent.click(screen.getByText("Request a constrained revision"));
@@ -81,6 +93,9 @@ test.each([
       run_id: run, expected_gate_version: 0 }), ...extra });
   expect(JSON.parse(sessionStorage.getItem(storageKey) ?? "null").path).toBe(root + suffix);
   await act(async () => { await vi.advanceTimersByTimeAsync(24_463); });
+  // POST acknowledgement starts a separate refresh GET. Wait for its body
+  // so both request deadlines have completed before checking timer cleanup.
+  await act(async () => { await refreshed; });
   expect(onChanged).toHaveBeenCalledOnce();
   expect(sessionStorage.getItem(storageKey)).toBeNull();
   expect(transport.mock.calls.filter(([, init]) => init.method === "POST")).toHaveLength(1);
@@ -89,7 +104,7 @@ test.each([
 
 test("a hung action expires at 120 seconds and retries only the persisted exact command", async () => {
   vi.useFakeTimers();
-  const transport = transportWithWriteDelay(null);
+  const { transport, refreshed } = transportWithWriteDelay(null);
   const { onChanged, view } = await openDesk();
   fireEvent.click(screen.getByRole("button", { name: "Approve" }));
   await act(async () => { await vi.advanceTimersByTimeAsync(119_999); });
@@ -109,6 +124,9 @@ test("a hung action expires at 120 seconds and retries only the persisted exact 
   expect(writes[1][0]).toBe(first?.[0]);
   expect(writes[1][1].body).toBe(first?.[1].body);
   expect(sessionStorage.getItem(storageKey)).toBeNull();
+  // POST acknowledgement starts a separate refresh GET. Wait for its body
+  // so both request deadlines have completed before checking timer cleanup.
+  await act(async () => { await refreshed; });
   expect(onChanged).toHaveBeenCalledOnce();
   view.unmount();
   expect(vi.getTimerCount()).toBe(0);

@@ -340,3 +340,18 @@ code, repeated DeepSeek quality/cost, complete browser acceptance and production
 platform/ACL/latency remain pending. The source and report PR heads still require
 fresh CI/review audits. No issue is marked Done or safe to merge under the 100%
 coverage requirement.
+
+
+### CI timing remediation
+
+Both GitHub runs for report head `f46f7ae3040fe4c55e2be879bca9ad6a0fbaaa5c`
+failed only the frontend slow-action test's final zero-timer assertion: 73/77
+frontend cases passed; backend, adapter and workflow gates passed. The acknowledged
+POST starts a separate GET refresh, whose body was still being read when the
+assertion ran. The test now awaits that actual refresh body completion before
+asserting zero timers. Exact request identity, one write, 120-second expiration,
+persisted recovery and zero remaining timers are unchanged. All **77 frontend
+cases**, full-source coverage, lint, types and production build pass locally after
+the synchronization correction; reported coverage is unchanged. Application code
+remains exactly `3241108810e3a26494d8b71fd1d5e0a647e6529e`. The new head requires a
+fresh GitHub gate check; the failed runs remain historical evidence.
