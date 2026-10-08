@@ -63,3 +63,12 @@ Engineering judgment: implementation is ready for human code review once its cur
 ## Reusable workflow and next work
 
 Reused the personal `issue-pr-delivery` skill for capability discovery, dependent PR scope, review regressions and evidence boundaries. Its existing workflow is sufficient; no additional personal skill was needed. The project OpenCLI adapter and its lockfile/tests are the reusable deliverables specific to this source. Next executable issue: ZEN-34 / #7, the hotspot product page and manual controls, followed by ZEN-35 semantic analysis.
+
+## Native search propagation (2026-10-09)
+
+Consumed the storage and Artifact batch-read changes. Fault injection remains at
+`POST .../tables/hotspots/records`, where a record can commit before its response
+is lost. Native `POST .../records/search` is a read and is excluded from this
+write-failure injector and record-create counter. The regressions still require
+35 unique stored hotspots/35 creates after committed response loss, and blocked
+recovery with exactly one unknown create attempt even after restart.

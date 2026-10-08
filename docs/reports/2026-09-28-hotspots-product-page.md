@@ -106,3 +106,10 @@ Eight new tests render the real HotspotsWorkbench with its real resource hook an
 The login interaction first exposed an ambiguous wrong-password message. It now explicitly reports an invalid workspace password. A real login-route test also reproduced an uncaught signing error when `SESSION_SECRET` is missing; the endpoint now returns a controlled 503 and issues no Cookie. Successful login tests use real HMAC signing and verify the 24-hour expiry, HttpOnly/SameSite attributes and production Secure Cookie. Additional real-client/resource tests assert server-key injection, JSON serialization, malformed upstream errors, ten-second AbortController timeout, timer release, 401 polling stop, transient recovery and no state/polling restart after unmount. Health checks also reject late updates after navigation. Pending request parsers reject malformed business identities.
 
 **42/42 frontend tests**, zero-warning lint, TypeScript and production build pass on this owning branch. Full-source coverage is **89.20% statements (372/417), 89.51% lines (350/391), 81.81% functions (99/121), 92.44% branches (257/278)**. `api/client.ts`, `use-resource.ts`, HealthIndicator, the login route, session module and catch-all proxy each reach 100% on all four metrics. The two added login failure statements and password-error branches remain included. Static shell/pages and remaining Hotspots branches prevent the overall 100% target; no ignore, assertion weakening or source exclusion was used.
+
+## Native read transport propagation (2026-10-09)
+
+The manual-create timeout probe now injects at the actual hotspot-record POST,
+not the native search POST introduced by the storage adapter. It still verifies
+committed-response loss completes without duplicate creation and an unobserved
+create blocks without replay. No product behavior or assertion was relaxed.
