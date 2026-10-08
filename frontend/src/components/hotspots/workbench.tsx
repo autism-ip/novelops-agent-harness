@@ -278,7 +278,9 @@ export function HotspotsWorkbench() {
       form.reset();
       refresh();
     } catch (cause) {
-      setError(errorMessage(cause));
+      setError(cause instanceof ApiError && cause.status === 401
+        ? "Invalid workspace password. Try again."
+        : errorMessage(cause));
     } finally {
       busy.current = false;
       setSubmitting(false);
