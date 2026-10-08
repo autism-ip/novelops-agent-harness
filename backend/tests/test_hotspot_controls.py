@@ -96,7 +96,7 @@ def test_manual_create_timeout_is_reconciled_without_blind_repost(ingestion, com
     original = transport.__call__
     attempts = []
     def request(req):
-        if req.method == 'POST' and '/tables/hotspots/' in str(req.url):
+        if req.method == 'POST' and req.url.path.endswith('/tables/hotspots/records'):
             attempts.append(req)
             if committed:
                 original(req)

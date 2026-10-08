@@ -58,3 +58,45 @@ The active delivery objective now requires 100% statement, line, function and br
 ## Live provider rerun on 2026-10-07
 
 At the current provider commit `6bdec7be`, the opt-in `tests/test_storage_live.py` suite ran against the user-authorized synthetic Base using the backend application's configured identity. All **5/5** collection cases passed in **83.29 seconds**: PipelineRuns, StepRuns, ChapterVersions, ReviewReports and ApprovalEvents each completed create, replay, read, update and delete. A separate subsequent read of all five tables found **zero** remaining `probe-` IDs. The configured Base token was checked against the authorized Base before writes; no secrets were printed or committed. This verifies this bounded live CRUD path, not the new 100% coverage goal or v3 runtime migration.
+
+## Native batch reads and literal business IDs (2026-10-09)
+
+The official record-search API was read through `llms.txt` → cloud-document index →
+[search specification](https://open.feishu.cn/document/docs/bitable-v1/app-table-record/search.md).
+`StorageProvider.get_many` now performs bounded, structured OR queries: 50 business
+IDs per chunk, 500 records per page, deduplicated inputs and deterministic result
+order. Missing IDs remain absent. All pages must pass envelope, record, business
+identity, uniqueness and pagination checks before returning. The adapter converts
+ordered text segments and Number cells to the existing domain format and keeps
+platform record IDs private. This is not a multi-page atomic snapshot.
+
+The first application-identity live probe found a real incompatibility in the old
+JSON-escaped GET formula: a key containing both a quote and backslash was stored
+and returned by structured search, but the old single-key lookup reported absence.
+The original cleanup therefore did not see that one row. A targeted structured
+lookup deleted that exact probe row by its verified platform identity, and a new
+independent client confirmed zero remaining rows for all three probe keys.
+Single string business-key lookup (including the legacy pipeline API and worker
+claim lookup) now uses the same structured search, so ensure/reconciliation cannot
+mistake that valid literal key for absence. Compound/numeric legacy query behavior
+is retained and tested. The subsequent probe attempt failed at token acquisition
+with an SSL EOF before any record write; auth retry semantics were not relaxed.
+
+Local root-PR verification: **276 offline tests passed**, **10 opt-in integration
+cases deselected**; Ruff 0.16.9 and frontend lint/typecheck/production build passed.
+Coverage.py, with the same complete `app` source and branch measurement, reports
+**1,053/1,104 statements/lines (95.38%)**, **224/248 branches (90.32%)**, and **94.45%
+combined**. Client, generic repository and concrete provider are each at **100%
+statement/line/branch coverage**. Function coverage is not established for this
+root head. Existing no-blind-replay write assertions remain in force; they classify
+`/records/search` as a read-only POST rather than counting it as a record creation.
+The 100% whole-project and complete runtime acceptance objectives remain open.
+
+The final application-identity repeat passed **1/1** in **39.69 seconds**, including
+preflight, three synthetic writes and cleanup. A batch requesting two present IDs
+plus one absent ID used **one read-only POST in 0.869 seconds**. Quote/backslash/
+Chinese-key ensure replay issued **zero record creates**. Rich-text and numeric
+roundtrips passed, and a fresh independent client observed **zero remaining probe
+rows**. These timings describe this small probe, not the chapter desk or platform
+limits. Exact-head CI remains pending immediately before push. Batch consumption
+and chapter-desk latency will be verified in their owning PRs.
