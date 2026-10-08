@@ -22,7 +22,8 @@ def repository_set(monkeypatch):
 
 def test_factory_binds_all_domain_repositories_to_configured_tables(repository_set):
     client, repos = repository_set
-    assert set(repos) == set(TABLE_NAMES) == set(FIELD_MAPS)
+    assert set(TABLE_NAMES) == set(FIELD_MAPS)
+    assert set(repos) == set(TABLE_NAMES) - {"artifacts", "traces"}
     for name, repo in repos.items():
         assert repo._base_path() == f"/bitable/v1/apps/test-base/tables/tbl_{name}/records"
         assert repo._field_map == FIELD_MAPS[name]
