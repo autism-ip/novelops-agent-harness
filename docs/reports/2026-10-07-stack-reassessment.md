@@ -29,13 +29,13 @@ The per-issue reports under `docs/reports/` carry the full event traces, cleanup
 - Reproduced and fixed a Feishu-filter injection in `GET /api/pipelines/{id}`. The repository now escapes the path ID and rejects duplicate business keys with 409. A real HTTP regression asserts the outbound filter expression.
 - Reproduced and fixed three legacy pipeline parent mutations that passed `pipeline_run_id` where Feishu requires `record_id`: rollback, completion and first Worker claim.
 - Added provider/repository cases for blank IDs, duplicate records, pagination, partial/malformed response handling, permission rejection and ambiguous-read failure. The 16 domain repository mappings and filters are exercised. ZEN-106's Artifacts/Traces remain generic stores, explicitly reflected in the downstream test.
-- Merged these owning-PR changes and the new frontend coverage tool through every dependent branch, verified each backend/frontend scope and pushed all 13 branch refs. The final branch has **483 passing offline backend tests, 10 credentialed tests deselected, 77 unified Vitest frontend tests**, and passing frontend lint, typecheck and production build.
+- Merged these owning-PR changes and the new frontend coverage tool through every dependent branch, verified each backend/frontend scope and pushed all 13 branch refs. The final branch has **489 passing offline backend tests, 10 credentialed tests deselected, 77 unified Vitest frontend tests**, and passing frontend lint, typecheck and production build.
 - On the authorized synthetic Base, the current five-table provider CRUD probe passed **5/5 in 83.29 seconds**; independent reads found no `probe-` rows. The current direct-kernel live approval flow completed with one ApprovalEvent; independent reads found zero PipelineRuns, StepRuns and ApprovalEvents afterward. No secret values entered Git.
 - A GraphQL review audit read reviews, discussion and all inline threads for all 13 PRs, including resolved/outdated threads. There are **zero unresolved threads**; all previously valid automated findings have documented fixes and regressions in their owning reports. No human approval is inferred. Latest CI must be associated with each exact PR head; a green ancestor or old head is insufficient.
 
 ## Coverage and delivery blockers
 
-The latest code tree at `3241108810e3a26494d8b71fd1d5e0a647e6529e` reports backend **92.99% statements/lines (3,953/4,251), 80.69% branches (907/1,124), 90.42% combined**: 298 missed lines, 217 missing branch arcs and 191 partial branch lines. Fresh raw Python source-function entries are **401/419 = 95.70%**, with **11/11 lambdas** included; the denominator retains seven Protocol declarations. The reproducible measurement and missing definitions are in `backend/tests/function_entry_coverage.py` and `docs/reports/2026-10-09-function-entry-coverage.json`. No empty declarations were called just to increase coverage. All-source frontend coverage includes unimported TS/TSX sources: **58.95% statements (596/1,011), 62.66% lines (537/857), 52.36% functions (155/296), 55.63% branches (627/1,127)**. The HTTP client retains 100% on all four metrics. No new application exclusion, test removal or gate reduction was used; the whole-project 100% target remains open.
+The latest code tree at `e2bd6534c72fc03b89af24599bc778e3d8cab020` reports backend **92.99% statements/lines (3,956/4,254), 80.73% branches (909/1,126), 90.43% combined**: 298 missed lines, 217 missing branch arcs and 191 partial branch lines. Fresh raw Python source-function entries are **401/419 = 95.70%**, with **11/11 lambdas** included; the denominator retains seven Protocol declarations. The reproducible measurement and missing definitions are in `backend/tests/function_entry_coverage.py` and `docs/reports/2026-10-09-function-entry-coverage.json`. No empty declarations were called just to increase coverage. All-source frontend coverage includes unimported TS/TSX sources: **58.95% statements (596/1,011), 62.66% lines (537/857), 52.36% functions (155/296), 55.63% branches (627/1,127)**. The HTTP client retains 100% on all four metrics. No new application exclusion, test removal or gate reduction was used; the whole-project 100% target remains open.
 
 The previous live ZEN-41 editorial flow required **2,677 seconds** with deterministic model fixtures and about 1,333 requests in a corresponding stateful transport replay. It verifies correct persisted behavior but leaves continuous-editing performance unresolved. Repeated real-model revision quality, production Base ACL/schema, configured route price/cost accuracy and cross-process writes remain unverified. The app retains a single-writer deployment contract and feature flags.
 
@@ -125,7 +125,7 @@ The real delay exposed the browser's ten-second abort. Code `4bc60bb1` permits o
 - Existing `issue-pr-delivery` skill updated and skill-creator validation passed.
   No human approval, production performance, deployment or Done is inferred.
 
-- Current code `3241108810e3a26494d8b71fd1d5e0a647e6529e` completed the actual
+- Current code `e2bd6534c72fc03b89af24599bc778e3d8cab020` completed the actual
   ApiClient → local production Next signed-session proxy → Uvicorn → real Feishu
   routine v1 flow: approve **30.259s/30 calls**, exact replay **22.824s/27 read-only
   calls, zero new writes**, final lock **24.487s/26 calls**. Unsigned requests were
@@ -157,6 +157,11 @@ code, test count or coverage threshold changed. Debug instrumentation was remove
 
 Using the repository-required Node 24, **77 frontend cases**, all-source coverage,
 ESLint, typecheck and production build pass. Reported coverage is unchanged. The
-application still matches source commit `3241108810e3a26494d8b71fd1d5e0a647e6529e`;
+application still matches source commit `e2bd6534c72fc03b89af24599bc778e3d8cab020`;
 its actual Feishu event evidence is unaffected. Both failed CI heads remain
 historical evidence. The final test/report head requires fresh GitHub checks.
+
+
+## Projection-read continuation (2026-10-09)
+
+ZEN-35's owning PR #29 now selects a projector from the freshly read run type before loading steps. Five behavioral regressions and seven individually verified descendant branches preserve projection/recovery semantics. The final stack has 489 passing offline backend tests and 77 passing frontend tests. A full constrained editorial round-trip regression preserves old prose, exact source/version identity, one revision task/approval, verification and final lock. Controlled before/after HTTP counts are 800→790; only ten unused step reads changed, all mutation and other reads match. This is a 1.25% call reduction, not verified real-service latency improvement. See `2026-10-09-projection-read-profile.json` and the chapter review report for all scope results, failures corrected, coverage and unverified gates. Current exact-head CI/review must be rechecked after the final report/test commit; no Done/merge/deployment claim is made.

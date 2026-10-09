@@ -451,3 +451,62 @@ def test_review_replay_accepts_an_omitted_optional_empty_reason(chapter, action)
     for changed in ({"reason": "Changed note"}, {"operator": "another-editor"}, {"action": "reject" if action == "approve" else "approve"}):
         with pytest.raises(TransitionConflict, match="different review decision"):
             kernel.chapter_loop.decide_review(book_id, 1, **{**command, **changed})
+
+
+def test_editorial_round_trip_keeps_sources_and_bounded_remote_reads(chapter):
+    kernel, provider, book_id = chapter
+    calls = []
+    client = kernel.storage._repos['artifacts']._client._http
+    client.event_hooks['request'].append(calls.append)
+    counts = {}
+
+    def stage(name, action):
+        calls.clear()
+        result = action()
+        counts[name] = len(calls)
+        return result
+
+    try:
+        first = stage('generate_v1', lambda: pass_run(kernel, provider, book_id))
+        original = first['selected']
+        reviewed = stage('review_v1', lambda: kernel.chapter_loop.review_state(book_id, 1))
+        assert reviewed['latest']['selected'] == original
+        command = {**target(first), 'constraints': {
+            'must_keep': ['Mira helps neighbors'], 'must_change': ['Sharper dialogue'],
+            'do_not_change': ['The gate opens at dawn']}}
+        created = stage('request_revision', lambda: kernel.chapter_loop.request_revision(book_id, 1, **command))
+        run_id = created['run']['pipeline_run_id']
+        pending = kernel.chapter_loop.read(run_id)
+        assert pending['request']['constraints'] == command['constraints']
+        assert pending['request']['source_version_id'] == command['version_id']
+        provider.outputs.extend([draft(pending['snapshot_artifact_id'], first['request']['brief_artifact_id']), critique()])
+        stage('generate_v2', lambda: settle(kernel, 5))
+        newer = stage('review_v2', lambda: kernel.chapter_loop.review_state(book_id, 1))
+        latest = newer['latest']
+        assert latest['run']['status'] == 'completed'
+        assert latest['selected']['content']['source_version_id'] == command['version_id']
+        assert latest['selected']['version'] == 2
+        assert newer['versions'][1]['artifact'] == original
+        assert newer['versions'][0]['verification']['content']['passed'] is True
+        assert provider.calls[-2:] == ['rewrite', 'critic']
+        approved = stage('approve_v2', lambda: kernel.chapter_loop.decide_review(
+            book_id, 1, **target(latest), action='approve'))
+        assert approved['version']['status'] == 'approved'
+        locked = stage('lock_final', lambda: kernel.chapter_loop.lock_final(
+            book_id, 1, **{k: v for k, v in target(latest).items() if k != 'run_id'}))
+        assert locked['status'] == 'final'
+        assert locked['artifact_id'] == latest['selected']['artifact_id']
+        assert len(kernel.storage.list('approval_events', target_type='chapter_version')) == 1
+        assert len(kernel.storage.list('revision_tasks', book_id=book_id)) == 1
+        history = kernel.chapter_loop.versions(book_id, 1)
+        assert [entry['record']['status'] for entry in history] == ['final', 'review']
+        assert history[1]['artifact'] == original
+        # Whole round trip budget: removing unused projection snapshots saves
+        # five step-list reads per five-step generation. Other stage budgets
+        # retain fresh review/decision reads; no stale cache is introduced.
+        budgets = {'generate_v1': 349, 'review_v1': 22, 'request_revision': 94,
+                   'generate_v2': 246, 'review_v2': 23, 'approve_v2': 30, 'lock_final': 26}
+        assert counts.keys() == budgets.keys()
+        assert all(counts[name] <= budgets[name] for name in budgets), counts
+    finally:
+        client.event_hooks['request'].remove(calls.append)
