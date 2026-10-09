@@ -70,3 +70,16 @@
 复用 `issue-pr-delivery`、TDD 和 `ego-browser` 技能；现有技能已涵盖工具发现、依赖 PR、真实验收与证据限制。本次无新建技能的必要。
 
 工程判断：可进入代码审阅；生产可合并性仍取决于依赖栈与真实服务验收。后续推进 ZEN-36 的标题/封面候选，以及 ZEN-37 的人工审批页面。
+
+
+## 2026-10-09: read only needed projection snapshots
+
+Goal: preserve current opportunity projection and restart recovery while avoiding an unused remote step-list read for workflows without a projector. Git history places the projection extension in ZEN-35, so this fix belongs to PR #29 rather than the older kernel PR #24.
+
+A stateful native-client/repository regression first failed: an unprojected one-step tick read steps three times rather than twice. `_project` now reads the current PipelineRun under the same writer lock, looks up its current type, and loads fresh StepRuns only when a projector exists. There is no stored business snapshot or new cache. Projected workflows retain their previous number of reads and fresh data, including cancelled siblings. A failed projector propagates its error; recovery repairs projection without repeating the completed handler effect. Missing PipelineRuns still raise explicitly.
+
+Five added regressions prove completion/output version, fresh type selection and full step output, cancellation, failed projection recovery and missing identity. A first full-suite run exposed a fixture-registration problem (414 passed, five setup errors); fixture reuse was corrected without weakening assertions. Final own-scope backend: **419 passed**, 10 opt-in live cases deselected; Ruff passes. Statement/line: **2509/2652** (94.6078%); branches: **583/674** (86.4985%); combined 92.9645%. Frontend on required Node 24.19.0: **44 passed**, lint/types/production build passed. Function coverage is not measured at this older branch scope. All project-wide 100% metrics remain pending.
+
+The measured change uses the actual storage/client/repository/kernel composition with a synthetic HTTP store. It does not prove real Feishu latency, deployment readiness, or model quality. Full editorial before/after profiling and descendant scope validation will be reported on PR #37 after propagation. No new external resources were created by this regression. Existing review feedback remains resolved at the pre-change audit; fresh exact-head CI/review must be checked after push.
+
+Reusable workflow assessment: the existing issue-pr-delivery skill covers owning-branch identification, fresh read contracts and descendant verification. No new skill is required for this small adapter-independent optimization.
