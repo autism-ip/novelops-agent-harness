@@ -152,10 +152,13 @@ class HarnessKernel:
             self.approval_guards[handler] = guard
 
     def _project(self, run_id):
-        run = self.get(run_id)
-        projector = self.projectors.get(run["pipeline_type"])
-        if projector:
-            projector(run)
+        with self.writer:
+            run = self.storage.get("pipeline_runs", run_id)
+            if run is None:
+                raise MissingRecord(run_id)
+            projector = self.projectors.get(run["pipeline_type"])
+            if projector:
+                projector({**run, "steps": self.storage.list("step_runs", pipeline_run_id=run_id)})
 
     def _transition(self, collection, domain_id, status, **fields):
         row = self.storage.get(collection, domain_id)
