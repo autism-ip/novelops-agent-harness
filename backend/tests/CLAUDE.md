@@ -2,6 +2,7 @@
 > L2 | 父级: ../CLAUDE.md
 
 成员清单
+test_harness_projection.py: 投影读取契约；无投影器不加载未使用步骤，有投影器保留当前类型、最新状态、取消兄弟步骤与投影失败后的无副作用重放恢复。
 __init__.py: pytest 包标记。
 function_entry_coverage.py: 可显式加载的全 app 函数入口报告插件；含未导入模块、嵌套函数、lambda 和 Protocol 声明，不替代语句/分支覆盖率；输出 coverage-functions.json。
 conftest.py: 测试环境与 AsyncClient 夹具（pytest_asyncio.fixture），隔离环境变量，TYPE_CHECKING 导入 Settings。
