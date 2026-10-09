@@ -2,6 +2,7 @@
 > L2 | 父级: ../CLAUDE.md
 
 成员清单
+test_harness_projection.py: 投影读取契约；无投影器不加载未使用步骤，有投影器保留当前类型、最新状态、取消兄弟步骤与投影失败后的无副作用重放恢复。
 __init__.py: pytest 包标记。
 conftest.py: 测试环境与 AsyncClient 夹具（pytest_asyncio.fixture），隔离环境变量，TYPE_CHECKING 导入 Settings。
 test_system_endpoints.py: 系统端点行为门禁，验证响应形状、占位状态与不泄密。
