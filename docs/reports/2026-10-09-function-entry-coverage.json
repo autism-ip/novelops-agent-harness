@@ -208,8 +208,8 @@
   ],
   "definition_scope": "every app Python source including unimported modules and Protocol declarations; module/class bodies and compiler-generated comprehensions are not source functions",
   "measurement_validation": "decorated functions, nested functions, methods, two same-line lambdas and one retained uncalled function validated in isolated source",
-  "code_commit": "3241108810e3a26494d8b71fd1d5e0a647e6529e",
-  "source_commit": "e2bd6534c72fc03b89af24599bc778e3d8cab020",
+  "code_commit": "e2bd6534c72fc03b89af24599bc778e3d8cab020",
   "validation_run": "489 offline backend tests passed in 167.14s, 10 opt-in live tests deselected",
-  "additional_test": "test_editorial_round_trip_keeps_sources_and_bounded_remote_reads"
+  "additional_test": "test_editorial_round_trip_keeps_sources_and_bounded_remote_reads",
+  "previous_measurement_code_commit": "3241108810e3a26494d8b71fd1d5e0a647e6529e"
 }
