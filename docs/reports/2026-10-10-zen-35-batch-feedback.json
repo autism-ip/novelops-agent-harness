@@ -1,0 +1,56 @@
+{
+  "issue": "ZEN-35",
+  "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/29",
+  "requirement": "Show actionable per-item research failures without hiding successful reservations or confusing HTTP 201 with complete success",
+  "red": {
+    "failed": 2,
+    "log": "/tmp/novelops-batch-owner-red.log"
+  },
+  "green": {
+    "new_cases": 2,
+    "whole_frontend_tests": 51,
+    "coverage": {
+      "lines": {
+        "total": 444,
+        "covered": 395,
+        "skipped": 0,
+        "pct": 88.96
+      },
+      "statements": {
+        "total": 475,
+        "covered": 419,
+        "skipped": 0,
+        "pct": 88.21
+      },
+      "functions": {
+        "total": 135,
+        "covered": 106,
+        "skipped": 0,
+        "pct": 78.51
+      },
+      "branches": {
+        "total": 368,
+        "covered": 314,
+        "skipped": 0,
+        "pct": 85.32
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "lint_types_build": "passed Node 24"
+  },
+  "verified_boundaries": [
+    "Actual workbench + ApiClient, native HTTP batch response and Storage clearance fault",
+    "All/partial failure includes each business cause together with native clearance error",
+    "Exact saved manifest survives failed clearance and retries unchanged",
+    "Successful Run remains visible; all-failed result has no fabricated Run",
+    "Known outcome clears intent after storage recovers and retains business errors"
+  ],
+  "runtime_and_mobile_consumer_verification": "pending after dependent approval UI contract propagation",
+  "coverage_100": false,
+  "full_goal_complete": false
+}

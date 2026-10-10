@@ -73,6 +73,7 @@ function Detail({
   creative,
   submit,
   requestPhase,
+  batchFeedback,
 }: {
   id: string;
   revision: number;
@@ -83,6 +84,7 @@ function Detail({
   creative: boolean;
   submit: (command: SubmitRequest) => Promise<SubmitResult>;
   requestPhase: "preparing" | "saving" | null;
+  batchFeedback: string | null;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const result = useResource<Hotspot>(
@@ -111,6 +113,7 @@ function Detail({
         </Button>
       </div>
       {requestPhase && <p role="status" aria-live="polite">{requestPhase === "preparing" ? "Preparing request…" : "Saving request…"}</p>}
+      {batchFeedback && <p role="alert">{batchFeedback}</p>}
       {result.loading && <p role="status">Loading details…</p>}
       {result.error != null && <p role="alert">{errorMessage(result.error)}</p>}
       {row && (
@@ -174,6 +177,7 @@ export function HotspotsWorkbench() {
   const [manual, setManual] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [batchFeedback, setBatchFeedback] = useState<{ hotspot_id: string; detail: string }[]>([]);
   const [requestPhase, setRequestPhase] = useState<"preparing" | "saving" | null>(null);
   const busy = useRef(false);
   const pendingRaw = useSyncExternalStore(subscribe, snapshot, () => null);
@@ -243,6 +247,10 @@ export function HotspotsWorkbench() {
     setError(null);
     setRequestPhase(typeof request === "function" ? "preparing" : "saving");
     let command: Pending | null = null;
+    let batchError: string | null = null;
+    let batchErrors: { hotspot_id: string; detail: string }[] = [];
+    setBatchFeedback([]);
+
     try {
       command = typeof request === "function" ? await request() : request;
       setRequestPhase("saving");
@@ -251,23 +259,28 @@ export function HotspotsWorkbench() {
         const batch = await api.post<{ runs: WorkflowRun[]; errors: { hotspot_id: string; detail: string }[] }>(command.path, command.body);
         setActiveRun(batch.runs[0]?.pipeline_run_id ?? null);
         setSelected([]);
-        if (batch.errors.length) setError(batch.errors.map(e => `${e.hotspot_id}: ${e.detail}`).join("; "));
+        batchErrors = batch.errors;
+        batchError = batch.errors.map(e => `${e.hotspot_id}: ${e.detail}`).join("; ") || null;
+        if (batchError) setError(batchError);
       } else if (command.path.startsWith("/api/creative/") || isDecisionPath(command.path)) {
         const payload: Record<string, unknown> = { ...command.body };
         delete payload.request_key;
         const response = await api.post<WorkflowRun>(command.path, payload);
         if (!isDecisionPath(command.path)) setActiveRun(response.pipeline_run_id);
+
       } else {
         const run = await api.post<WorkflowRun>(command.path, command.body);
         setActiveRun(run.pipeline_run_id);
       }
       savePending(null);
+      setBatchFeedback(batchErrors);
       if (command.path === "/api/hotspots/manual") setManual(false);
       refresh();
-      return { ok: true };
+      return batchError ? { ok: false, error: batchError } : { ok: true };
+
     } catch (cause) {
       // A rejected retry cannot disprove an earlier committed attempt.
-      let message = errorMessage(cause);
+      let message = `${batchError ? `${batchError} ` : ""}${errorMessage(cause)}`;
       if (
         cause instanceof ApiError &&
         canClearRejected(cause.status, retry) && command && command.path !== "/api/analyses"
@@ -722,6 +735,7 @@ export function HotspotsWorkbench() {
           creative={!!capabilities.data?.creative}
           submit={submit}
           requestPhase={requestPhase}
+          batchFeedback={batchFeedback.filter(item => item.hotspot_id === detailId).map(item => `${item.hotspot_id}: ${item.detail}`).join("; ") || null}
         />
       )}
     </div>
