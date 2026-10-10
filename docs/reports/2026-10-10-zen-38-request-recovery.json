@@ -1,0 +1,104 @@
+{
+  "date": "2026-10-10",
+  "issue": "ZEN-38",
+  "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/32",
+  "branch": "codex/zen-38-book-bootstrap",
+  "requirement_event": "After checking persisted history, a local saved-command clear failure reports cause/recovery and keeps exact intent; restoring storage permits the same action to clear it without a business write.",
+  "implementation": {
+    "component": "frontend/src/components/books/book-bootstrap.tsx",
+    "decision": "Catch errors at the user control boundary; clear error before retry; retain exact source/version request and existing UI tokens/flows."
+  },
+  "verified_facts": {
+    "red_failure_cases": 2,
+    "added_contract_tests": 10,
+    "frontend_suite_passed": 57,
+    "node": "24.19.0",
+    "lint": "zero warnings passed",
+    "typecheck": "passed",
+    "production_build": "passed"
+  },
+  "coverage": {
+    "all_frontend_source": {
+      "lines": {
+        "total": 567,
+        "covered": 414,
+        "skipped": 0,
+        "pct": 73.01
+      },
+      "statements": {
+        "total": 632,
+        "covered": 442,
+        "skipped": 0,
+        "pct": 69.93
+      },
+      "functions": {
+        "total": 185,
+        "covered": 112,
+        "skipped": 0,
+        "pct": 60.54
+      },
+      "branches": {
+        "total": 619,
+        "covered": 367,
+        "skipped": 0,
+        "pct": 59.28
+      }
+    },
+    "component": {
+      "lines": {
+        "total": 35,
+        "covered": 35,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 9,
+        "covered": 9,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 42,
+        "covered": 40,
+        "skipped": 0,
+        "pct": 95.23
+      },
+      "branches": {
+        "total": 31,
+        "covered": 30,
+        "skipped": 0,
+        "pct": 96.77
+      }
+    },
+    "all_applicable_100": false,
+    "gate_config_change": "None; no exclusions, dropped tests, private disabled-control invocation or weakened assertions."
+  },
+  "runtime_scope": "React DOM user controls with actual ApiClient and relevant hooks. Native HTTP/storage boundaries controlled; exact command retention/recovery and zero unexpected writes asserted. No fresh production browser, Feishu or model outcome is claimed.",
+  "engineering_judgment": "Local clear is a recovery operation. Do not dispatch an unrelated business mutation or discard intent after a storage error.",
+  "review": "Fresh all-13 PR audit has no unresolved threads; each issue retains its existing one PR and remains In Review. Exact new-head CI/reviews are checked after pushes and reported in the PR.",
+  "known_limits": [
+    "Whole-source project coverage remains below required 100%",
+    "Fresh actual DeepSeek complete generation/rewrite quality and cost acceptance pending",
+    "Production/deployed schema, ACL, timeout and service latency pending",
+    "Fresh visual inspection for these local recovery states pending; prior screenshot CDP timeout not hidden"
+  ],
+  "risks": {
+    "security": "No new credentials or external fixture writes; blocked persistence prevents untracked writes. This is not a full security audit.",
+    "regression": "User-visible storage recovery and exact request replay tested; backend contracts and layout tokens untouched."
+  },
+  "reusable_skill": {
+    "reused": [
+      "issue-pr-delivery",
+      "tdd-workflow",
+      "impeccable harden/craft-floor"
+    ],
+    "created_or_changed": false,
+    "assessment": "Existing issue ownership, bounded hardening and native boundary tests cover this workflow; no new abstraction warranted."
+  },
+  "completion": {
+    "local_recovery_event_verified": true,
+    "issue_done": false,
+    "goal_done": false,
+    "merge_ready_claim": false
+  }
+}
