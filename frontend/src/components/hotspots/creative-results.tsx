@@ -5,7 +5,7 @@ import { api } from "@/api/client";
 import type { CreativeRun } from "@/api/types";
 import { Button } from "@/components/ui/button";
 import { errorMessage, useResource } from "./use-resource";
-import type { Pending, SubmitResult } from "./state";
+import type { SubmitRequest, SubmitResult } from "./state";
 import { useEditorIdentity } from "./editor-identity";
 import { BookBootstrap } from "@/components/books/book-bootstrap";
 
@@ -13,7 +13,7 @@ export function CreativeResults({ kind, sourceRunId, revision, submit, disabled,
   kind: "titles" | "covers";
   sourceRunId: string;
   revision: number;
-  submit: (command: Pending) => Promise<SubmitResult>;
+  submit: (command: SubmitRequest) => Promise<SubmitResult>;
   disabled: boolean;
   books: boolean;
 }) {
@@ -25,14 +25,14 @@ export function CreativeResults({ kind, sourceRunId, revision, submit, disabled,
   async function generate() {
     setError(null);
     if (!result.data) { setError("Candidate history is still loading. Wait for it before generating a new version."); return; }
-    try {
+    const outcome = await submit(async () => {
       const context = await api.get<{ source_artifact_id: string; next_version: number }>(`/api/creative/${kind}/${encodeURIComponent(sourceRunId)}/context`);
       const revision = latest?.decision?.action === "revise" && latest.current ? latest : null;
-      const outcome = await submit({ path: `/api/creative/${kind}`, body: { request_key: crypto.randomUUID(), source_run_id: sourceRunId,
+      return { path: `/api/creative/${kind}`, body: { request_key: crypto.randomUUID(), source_run_id: sourceRunId,
         source_artifact_id: context.source_artifact_id, version: context.next_version,
-        ...(revision ? { revision_of: revision.run.pipeline_run_id, feedback: reason.trim() || revision.decision?.reason || "" } : {}) } });
-      if (!outcome.ok) setError(outcome.error);
-    } catch (cause) { setError(errorMessage(cause)); }
+        ...(revision ? { revision_of: revision.run.pipeline_run_id, feedback: reason.trim() || revision.decision?.reason || "" } : {}) } };
+    });
+    if (!outcome.ok) setError(outcome.error);
   }
   async function decide(state: CreativeRun, action: "approve" | "reject" | "revise", artifactId = "") {
     const step = state.run.steps?.find(s => s.step_key === "select");
