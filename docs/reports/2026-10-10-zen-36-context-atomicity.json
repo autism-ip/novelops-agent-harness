@@ -1,0 +1,145 @@
+{
+  "date": "2026-10-10",
+  "issue": "ZEN-36",
+  "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/30",
+  "original_goal": "Generate at least ten distinct title candidates from an approved opportunity, then at least three cover directions from the selected title, with immutable sources and selectable outputs.",
+  "requirement_event": "Repeated public generation clicks during a slow context read must prepare and submit one exact version; unknown outcomes must replay that same source after reload.",
+  "implementation": [
+    "Shared workbench async request factory owns the lock across context GET, persistence, POST and clearing.",
+    "Preparing and Saving status is announced; all sibling mutation controls remain disabled.",
+    "Creative history loading or failure prevents uninformed generation; context failures never persist a command.",
+    "Selected research batch preparation now uses the same lock instead of handing it off between separate handlers."
+  ],
+  "evidence": {
+    "new_native_boundary_component_tests": 13,
+    "red_tests": {
+      "title_contexts": {
+        "expected": 1,
+        "observed": 2
+      },
+      "cover_contexts": {
+        "expected": 1,
+        "observed": 2
+      },
+      "history_loading_disabled": {
+        "expected": true,
+        "observed": false
+      }
+    },
+    "red_log": "/tmp/novelops-creative-red.log",
+    "verification_log": "/tmp/novelops-creative-own-coverage.log",
+    "quality_gate_log": "/tmp/novelops-creative-own-check.log",
+    "gates": [
+      "all frontend tests passed",
+      "ESLint zero warnings",
+      "Next typegen and TypeScript passed",
+      "Node 24 production build passed"
+    ],
+    "test_boundaries": "Actual HotspotsWorkbench, nested CreativeResults/ResearchHistory, useResource and ApiClient; only native fetch, Storage.setItem fault and jsdom missing dialog methods are controlled. No private callbacks or mocked business components.",
+    "synthetic_output_scope": "Fixtures show ten titles and three cover directions. This is not proof of real model quality, Feishu persistence or deployed authorization."
+  },
+  "full_source_coverage": {
+    "lines": {
+      "total": 451,
+      "covered": 394,
+      "skipped": 0,
+      "pct": 87.36
+    },
+    "statements": {
+      "total": 485,
+      "covered": 418,
+      "skipped": 0,
+      "pct": 86.18
+    },
+    "functions": {
+      "total": 144,
+      "covered": 114,
+      "skipped": 0,
+      "pct": 79.16
+    },
+    "branches": {
+      "total": 435,
+      "covered": 376,
+      "skipped": 0,
+      "pct": 86.43
+    },
+    "branchesTrue": {
+      "total": 0,
+      "covered": 0,
+      "skipped": 0,
+      "pct": 100
+    }
+  },
+  "component_coverage": {
+    "/Users/zen/.codex/worktrees/issue-delivery/novelops-agent-harness/frontend/src/components/hotspots/creative-results.tsx": {
+      "lines": {
+        "total": 17,
+        "covered": 17,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 9,
+        "covered": 9,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 20,
+        "covered": 18,
+        "skipped": 0,
+        "pct": 90
+      },
+      "branches": {
+        "total": 44,
+        "covered": 40,
+        "skipped": 0,
+        "pct": 90.9
+      }
+    },
+    "/Users/zen/.codex/worktrees/issue-delivery/novelops-agent-harness/frontend/src/components/hotspots/workbench.tsx": {
+      "lines": {
+        "total": 157,
+        "covered": 143,
+        "skipped": 0,
+        "pct": 91.08
+      },
+      "functions": {
+        "total": 57,
+        "covered": 50,
+        "skipped": 0,
+        "pct": 87.71
+      },
+      "statements": {
+        "total": 174,
+        "covered": 152,
+        "skipped": 0,
+        "pct": 87.35
+      },
+      "branches": {
+        "total": 163,
+        "covered": 137,
+        "skipped": 0,
+        "pct": 84.04
+      }
+    }
+  },
+  "known_failures": [
+    "First test-file creation used frontend/tests relative to frontend cwd; no file was created. Corrected the path, then obtained the three real behavioral red failures."
+  ],
+  "review": {
+    "initial_all13_heads_match": true,
+    "initial_unresolved_threads": 0,
+    "source_of_fix": "Code history identifies ZEN-36 as creative generation owner; ZEN-37 owns research revision controls."
+  },
+  "runtime_verification": "Pending latest-code production browser verification; existing TaskSpace 2 is authorized and reusable.",
+  "requirement_event_achieved": false,
+  "coverage_100_verified": false,
+  "remaining": [
+    "Full project statements/lines/functions/branches 100%.",
+    "Latest real DeepSeek/Feishu and deployed full-flow acceptance.",
+    "Propagate to the existing issue PR descendants and audit their current-head CI/reviews."
+  ],
+  "skill_assessment": "Existing issue-pr-delivery workflow and Impeccable harden playbook apply. No additional skill abstraction is needed for this narrower repeated native-context request defect.",
+  "status": "In Review; no merge, deployment or Done claim"
+}

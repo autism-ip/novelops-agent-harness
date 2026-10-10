@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { errorMessage, useResource } from "./use-resource";
 import { CreativeResults } from "./creative-results";
 import { useEditorIdentity } from "./editor-identity";
-import type { Pending, SubmitResult } from "./state";
+import type { SubmitRequest, SubmitResult } from "./state";
 
 const labels: Record<string, string> = {
   awaiting_risk_review: "Needs human risk review",
@@ -62,7 +62,7 @@ export function ResearchResult({ runId, revision }: { runId: string; revision: n
 }
 
 function AnalysisActions({ analysis, submit, disabled }: { analysis: OpportunityAnalysis;
-  submit: (command: Pending) => Promise<SubmitResult>; disabled: boolean }) {
+  submit: (command: SubmitRequest) => Promise<SubmitResult>; disabled: boolean }) {
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
   const { operator, update: setOperator } = useEditorIdentity();
@@ -81,16 +81,16 @@ function AnalysisActions({ analysis, submit, disabled }: { analysis: Opportunity
   }
   async function regenerate() {
     setError(null);
-    try {
+    const outcome = await submit(async () => {
       const context = await api.get<{ next_version: number; source_hash: string; can_analyze: boolean }>(
         `/api/hotspots/${encodeURIComponent(analysis.request.hotspot_id)}/research-context`);
       if (!context.can_analyze) throw new Error("This source is no longer available for analysis.");
-      const outcome = await submit({ path: "/api/analyses", body: { request_key: crypto.randomUUID(), items: [{
+      return { path: "/api/analyses", body: { request_key: crypto.randomUUID(), items: [{
         hotspot_id: analysis.request.hotspot_id, source_hash: context.source_hash,
         version: context.next_version, revision_of: analysis.run.pipeline_run_id,
-        feedback: reason.trim() || revision?.reason || "" }] } });
-      if (!outcome.ok) setError(outcome.error);
-    } catch (cause) { setError(errorMessage(cause)); }
+        feedback: reason.trim() || revision?.reason || "" }] } };
+    });
+    if (!outcome.ok) setError(outcome.error);
   }
   if (!analysis.current) return null;
   if (!gate && !revision) return null;
@@ -120,7 +120,7 @@ function AnalysisActions({ analysis, submit, disabled }: { analysis: Opportunity
 
 export function ResearchHistory({ hotspotId, revision, submit, disabled, creative }: { hotspotId: string; revision: number;
   creative: boolean;
-  submit: (command: Pending) => Promise<SubmitResult>; disabled: boolean }) {
+  submit: (command: SubmitRequest) => Promise<SubmitResult>; disabled: boolean }) {
   const result = useResource<OpportunityAnalysis[]>(`/api/hotspots/${encodeURIComponent(hotspotId)}/analyses`, revision, 5000);
   return <section aria-label="Analysis history" className="space-y-3">
     <h3 className="font-semibold">Analysis history</h3>
