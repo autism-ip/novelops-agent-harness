@@ -38,3 +38,5 @@ components.json  - shadcn CLI 配置（style: default, baseColor: neutral, cssVa
 - 支持 dark mode class 策略
 
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+
+热点工作台原生请求存储读取失败时禁止新建与重试，显式重查后恢复；清理失败保留原始字节、显示原因并释放操作锁，API 拒绝与清理失败并列呈现。已提交请求只重放原身份，不能重新构造命令。回归见 `tests/hotspots-storage-contract.test.tsx`。
