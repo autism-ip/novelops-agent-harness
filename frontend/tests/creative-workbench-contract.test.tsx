@@ -68,7 +68,7 @@ for (const kind of ["titles", "covers"] as const) {
     const store = fixture(); store.holdContexts(); render(<HotspotsWorkbench />); const dialog = await open();
     const button = await within(dialog).findByRole("button", { name: kind === "titles" ? "Generate next title version" : "Generate next cover version" });
     fireEvent.click(button); fireEvent.click(button);
-    const contextCount = store.contexts.length, globalDisabled = (screen.getByRole("button", { name: "Add manually" }) as HTMLButtonElement).disabled, progress = screen.queryByText("Preparing request…");
+    const contextCount = store.contexts.length, globalDisabled = (screen.getByRole("button", { name: "Add manually" }) as HTMLButtonElement).disabled, progress = within(dialog).queryByText("Preparing request…");
     await store.finishContexts(); await waitFor(() => expect(sessionStorage.getItem(storageKey)).toBeNull());
     expect(contextCount).toBe(1); expect(globalDisabled).toBe(true); expect(progress).not.toBeNull(); expect(store.commands).toHaveLength(1);
     const command = store.commands[0]; expect(command.path).toBe(`/api/creative/${kind}`);
@@ -117,13 +117,15 @@ test("historical titles retain content and provenance without selection or cover
 test("the exact command stays saved and all creative actions stay disabled until POST completes", async () => {
   const store = fixture(); store.holdWrites(); render(<HotspotsWorkbench />); const dialog = await open();
   fireEvent.click(await within(dialog).findByRole("button", { name: "Generate next cover version" }));
-  await screen.findByText("Saving request…");
+  await waitFor(() => expect(store.commands).toHaveLength(1));
+  const progress = within(dialog).queryByText("Saving request…");
   expect(store.commands).toHaveLength(1); const saved = sessionStorage.getItem(storageKey);
   expect(saved).toBe(store.commands[0].saved); expect(saved).not.toBeNull();
   const titleButton = within(dialog).getByRole("button", { name: "Generate next title version" });
   expect((titleButton as HTMLButtonElement).disabled).toBe(true); fireEvent.click(titleButton);
   expect(store.contexts).toHaveLength(1); expect(store.commands).toHaveLength(1);
   await store.finishWrites(); await waitFor(() => expect(sessionStorage.getItem(storageKey)).toBeNull());
+  expect(progress).not.toBeNull();
   expect(screen.queryByText("Saving request…")).toBeNull();
 });
 

@@ -141,5 +141,19 @@
     "Propagate to the existing issue PR descendants and audit their current-head CI/reviews."
   ],
   "skill_assessment": "Existing issue-pr-delivery workflow and Impeccable harden playbook apply. No additional skill abstraction is needed for this narrower repeated native-context request defect.",
-  "status": "In Review; no merge, deployment or Done claim"
+  "status": "In Review; no merge, deployment or Done claim",
+  "runtime_follow_up": {
+    "source_tree": "3ae8791862ed9603731971cf8a24211b44d29e22",
+    "desktop": "1280px browser: two native Enter activations per kind => one context GET, exact one POST 201 and one fresh persisted version for titles/covers.",
+    "mobile_business": "390px actual research revision => one GET/POST/version; exact v2 Artifact approved once through UI; old version preserved. Synthetic HTTP/model fixtures, not real Feishu/DeepSeek.",
+    "defect": "Preparing status was outside the active mobile modal, which makes background content inert.",
+    "red_regression": "Three scoped-dialog regressions failed: title/cover Preparing missing and Saving missing.",
+    "fix": "Detail receives shared phase and renders Preparing/Saving within the actual dialog. Workbench renders it only when no detail is open.",
+    "evidence": [
+      "/tmp/novelops-creative-browser.json",
+      "/tmp/novelops-research-browser.json",
+      "/tmp/novelops-modal-progress-red.log"
+    ],
+    "remaining": "Fresh production browser verification of corrected modal progress is pending."
+  }
 }
