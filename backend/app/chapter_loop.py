@@ -1,4 +1,4 @@
-"""Versioned chapter generation, critique, bounded rewrite and final lock."""
+"""Versioned chapter workflows with request-scoped immutable review reads."""
 from __future__ import annotations
 
 import json
@@ -7,7 +7,7 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
 from app.generation import CallContext, ModelFailure, Prompt, digest
-from app.harness import PermanentStepFailure, TransitionConflict, encode, now, stable_id
+from app.harness import PermanentStepFailure, StepResult, TransitionConflict, encode, now, stable_id
 from app.storage import AmbiguousWrite, MissingRecord
 
 Text = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
@@ -124,19 +124,24 @@ class CriticInput(Strict):
 
 
 class ChapterLoopService:
-    def __init__(self, kernel, *, max_rewrites: int = 1, max_estimated_cost: float | None = None):
+    def __init__(self, kernel, *, max_rewrites: int = 1, max_estimated_cost: float | None = None,
+                 review_first_n: int = 0, review_score_threshold: int = 0):
         if not getattr(kernel, "story_planning", None):
             raise ValueError("Chapter loop requires story planning")
         if max_rewrites not in {0, 1}:
             raise ValueError("Chapter rewrite limit must be zero or one")
         if max_estimated_cost is not None and max_estimated_cost <= 0:
             raise ValueError("Chapter estimate cap must be positive")
+        if review_first_n < 0 or not 0 <= review_score_threshold <= 5:
+            raise ValueError("Invalid chapter review policy")
         for route in ("writer", "critic", "rewrite"):
             if route not in kernel.model_router.routes:
                 raise ValueError(f"Chapter loop requires {route} model route")
         self.kernel = kernel
         self.max_rewrites = max_rewrites
         self.max_estimated_cost = max_estimated_cost
+        self.review_first_n = review_first_n
+        self.review_score_threshold = review_score_threshold
         for name, handler in (("chapter.writer", self.write), ("chapter.verify_writer", self.verify_writer),
                               ("chapter.critic", self.critic), ("chapter.rewrite", self.rewrite),
                               ("chapter.final_verify", self.final_verify)):
@@ -160,7 +165,9 @@ class ChapterLoopService:
                            for name in ("writer", "critic", "rewrite")},
                 "prompts": {name: digest(prompt.model_dump()) for name, prompt in
                             (("writer", WRITER_PROMPT), ("critic", CRITIC_PROMPT), ("rewrite", REWRITE_PROMPT))},
-                "max_rewrites": self.max_rewrites, "max_estimated_cost": self.max_estimated_cost}
+                "max_rewrites": self.max_rewrites, "max_estimated_cost": self.max_estimated_cost,
+                "review_first_n": self.review_first_n,
+                "review_score_threshold": self.review_score_threshold}
 
     def _runs(self, book_id: str, chapter_no: int) -> list[dict]:
         rows = self.kernel.storage.list("pipeline_runs", pipeline_type=WORKFLOW)
@@ -245,6 +252,11 @@ class ChapterLoopService:
                 if manifest["request"] != req:
                     raise TransitionConflict("Chapter run version already reserved with different inputs")
                 return self.kernel.create(identity, WORKFLOW, self.steps(manifest), book_id=req["book_id"])
+            for task in self.kernel.storage.list("revision_tasks",
+                target_id=f'{req["book_id"]}/{req["chapter_no"]}', status="open"):
+                if (task.get("run_id") != stable_id("PR-", identity) or
+                    self._frozen_request(task) != req):
+                    raise TransitionConflict("An open revision intent must be reconciled first")
             if self._lock(req["book_id"], req["chapter_no"]):
                 raise TransitionConflict("Chapter is final-locked")
             expected = self.context(req["book_id"], req["chapter_no"])
@@ -257,7 +269,7 @@ class ChapterLoopService:
                 raise TransitionConflict("Resolve the current chapter run first")
             prior = self._versions(req["book_id"], req["chapter_no"])
             if req["source_version_id"]:
-                if not prior or req["source_version_id"] != prior[-1]["version_id"] or prior[-1]["status"] != "review":
+                if not prior or req["source_version_id"] != prior[-1]["version_id"] or prior[-1]["status"] not in {"review", "approved"}:
                     raise TransitionConflict("Revision must name the current review ChapterVersion")
             snapshot = self._snapshot(req)
             manifest = {"request": req, "snapshot_id": snapshot["artifact_id"],
@@ -289,7 +301,7 @@ class ChapterLoopService:
             prompt=CONTEXT_PROMPT, route="deterministic", provider="", model="",
             input_hash=digest(content), creator="chapter-context-builder")
 
-    def _live(self, run: dict, manifest: dict) -> tuple[dict, dict]:
+    def _live(self, run: dict, manifest: dict, *, _artifact_get=None) -> tuple[dict, dict]:
         req = manifest["request"]
         state = self.kernel.books.context_provider.get(req["book_id"])["state"]
         brief = self.kernel.story_planning.eligible_brief(req["book_id"], req["chapter_no"])
@@ -301,7 +313,7 @@ class ChapterLoopService:
             runs[-1]["pipeline_run_id"] != run["pipeline_run_id"] or
             self._lock(req["book_id"], req["chapter_no"])):
             raise TransitionConflict("Chapter source, run version or final lock changed")
-        snapshot = self.kernel.artifacts.get(manifest["snapshot_id"])
+        snapshot = (_artifact_get or self.kernel.artifacts.get)(manifest["snapshot_id"])
         if (snapshot["artifact_type"] != "StoryContextSnapshot" or
             snapshot["content"]["state_artifact_id"] != state["artifact_id"] or
             snapshot["content"]["brief_artifact_id"] != brief["artifact_id"]):
@@ -360,7 +372,7 @@ class ChapterLoopService:
         prior = None
         if req["source_version_id"]:
             row = self.kernel.storage.get("chapter_versions", req["source_version_id"])
-            if not row or row["status"] != "review":
+            if not row or row["status"] not in {"review", "approved"}:
                 raise PermanentStepFailure()
             prior = self.kernel.artifacts.get(row["artifact_id"])["content"]
         prompt, route = (REWRITE_PROMPT, "rewrite") if prior else (WRITER_PROMPT, "writer")
@@ -499,6 +511,12 @@ class ChapterLoopService:
         if usage["estimated_cost"] is None or usage["estimated_cost"] > self.max_estimated_cost:
             raise PermanentStepFailure()
 
+    def _human_review_required(self, req: dict, report: dict) -> bool:
+        scores = [report[name]["score"] for name in
+                  ("pacing", "style", "repetition", "dialogue", "reader_promise", "continuity", "ai_patterns")]
+        return req["chapter_no"] <= self.review_first_n or (
+            self.review_score_threshold > 0 and min(scores) <= self.review_score_threshold)
+
     def rewrite(self, step: dict) -> dict:
         _, manifest, snapshot, brief = self._prepare(step)
         self._check_budget(step["pipeline_run_id"])
@@ -509,6 +527,8 @@ class ChapterLoopService:
         if critique.decision == "pass":
             return {"output_refs": [original["artifact_id"]]}
         if critique.decision == "reject" or self.max_rewrites == 0:
+            if self._human_review_required(req, report["content"]):
+                return {"output_refs": [original["artifact_id"]]}
             raise PermanentStepFailure()
         refs = (snapshot["artifact_id"], brief["artifact_id"], original["artifact_id"], report["artifact_id"])
         try:
@@ -556,8 +576,13 @@ class ChapterLoopService:
         decision = report["content"]["decision"]
         if decision == "pass" and selected["version"] != self._number(req):
             raise AmbiguousWrite("Pass decision selected a rewritten version")
-        if decision == "revise" and selected["version"] != self._number(req, True):
+        held_original = (self._human_review_required(req, report["content"]) and
+                         selected["version"] == self._number(req) and
+                         (decision == "reject" or self.max_rewrites == 0))
+        if decision == "revise" and selected["version"] != self._number(req, True) and not held_original:
             raise AmbiguousWrite("Revision decision did not select a rewritten version")
+        if decision == "reject" and not held_original:
+            raise AmbiguousWrite("Rejected chapter did not select its verified candidate")
         version_id = stable_id("CV-", self._logical(req, "versions") + "/" + str(selected["version"]))
         row = self.kernel.storage.get("chapter_versions", version_id)
         if not row or row["artifact_id"] != selected_id:
@@ -567,33 +592,38 @@ class ChapterLoopService:
                 {"status": "review", "review_report_id": report["artifact_id"]})
         elif row["status"] != "review" or row.get("review_report_id") != report["artifact_id"]:
             raise AmbiguousWrite("Selected ChapterVersion review status changed")
-        return {"output_refs": [selected_id, report["artifact_id"],
-                                selected["content"]["verification_artifact_id"]]}
+        payload = {"output_refs": [selected_id, report["artifact_id"],
+                                   selected["content"]["verification_artifact_id"]]}
+        required = self._human_review_required(req, report["content"])
+        return StepResult(payload, requires_approval=True) if required else payload
 
-    def read(self, run_id: str) -> dict:
+    def read(self, run_id: str, *, _artifact_get=None, _version_rows=None) -> dict:
         with self.kernel.writer:
+            get_artifact = _artifact_get or self.kernel.artifacts.get
             run = self.kernel.get(run_id)
             _, manifest = self._manifest(run)
             req = manifest["request"]
             final_step = self._step(run, "final_verify")
             selected = None
-            if final_step["status"] == "success":
+            if final_step["status"] in {"success", "awaiting_approval", "failed"} and final_step.get("output_json"):
                 try:
                     selected_id = json.loads(final_step["output_json"])["output_refs"][0]
-                    selected = self.kernel.artifacts.get(selected_id)
+                    selected = get_artifact(selected_id)
                 except (ValueError, KeyError, TypeError, IndexError, MissingRecord):
-                    raise AmbiguousWrite("Final ChapterVersion is unreadable") from None
+                    if final_step["status"] != "failed":
+                        raise AmbiguousWrite("Final ChapterVersion is unreadable") from None
             try:
-                critique = self._artifact(req, "critique", req["version"])
+                critique = get_artifact(stable_id("AR-", self._logical(req, "critique") + "/" + str(req["version"])))
             except MissingRecord:
                 critique = None
-            all_versions = self._versions(req["book_id"], req["chapter_no"])
+            all_versions = (_version_rows if _version_rows is not None
+                            else self._versions(req["book_id"], req["chapter_no"]))
             versions = [row for row in all_versions
                         if row["version_no"] in {self._number(req), self._number(req, True)}]
             version_summaries = [{"version_id": row["version_id"], "version_no": row["version_no"],
                                   "status": row["status"]} for row in reversed(all_versions)]
             try:
-                self._live(run, manifest)
+                self._live(run, manifest, _artifact_get=get_artifact)
                 current = True
             except (TransitionConflict, MissingRecord):
                 current = False
@@ -611,25 +641,285 @@ class ChapterLoopService:
         with self.kernel.writer:
             return [self.read(row["pipeline_run_id"]) for row in reversed(self._runs(book_id, chapter_no))]
 
-    def versions(self, book_id: str, chapter_no: int) -> list[dict]:
+    def versions(self, book_id: str, chapter_no: int, *, _artifact_get=None, _version_rows=None) -> list[dict]:
         with self.kernel.writer:
+            get_artifact = _artifact_get or self.kernel.artifacts.get
             result = []
-            for row in reversed(self._versions(book_id, chapter_no)):
+            rows = list(reversed(_version_rows if _version_rows is not None
+                                 else self._versions(book_id, chapter_no)))
+            by_artifact = {row["artifact_id"]: row for row in rows if row.get("artifact_id")}
+            if len(by_artifact) != sum(bool(row.get("artifact_id")) for row in rows):
+                raise AmbiguousWrite("Multiple ChapterVersions project the same Artifact")
+            for row in rows:
                 artifact_id = row.get("artifact_id", "")
-                artifact = self.kernel.artifacts.get(artifact_id) if artifact_id else None
+                artifact = get_artifact(artifact_id) if artifact_id else None
                 if artifact and (artifact["artifact_type"] != "ChapterVersion" or
                                  artifact["content_hash"] != row.get("content_hash") or
                                  artifact["content"]["chapter_no"] != chapter_no or
-                                 artifact["content"]["book_id"] != book_id):
+                                 artifact["content"]["book_id"] != book_id or
+                                 artifact["content"]["version_no"] != row["version_no"] or
+                                 artifact["run_id"] != row.get("run_id")):
                     raise AmbiguousWrite("ChapterVersion projection provenance changed")
-                result.append({"record": row, "artifact": artifact, "legacy": artifact is None})
+                report_id = row.get("review_report_id")
+                verifier_id = row.get("verifier_artifact_id")
+                report = get_artifact(report_id) if report_id else None
+                verification = get_artifact(verifier_id) if verifier_id else None
+                if report:
+                    refs = report["source_refs"]
+                    source = by_artifact.get(refs[2]) if len(refs) >= 3 else None
+                    if (report["artifact_type"] != "CriticReport" or
+                        report["run_id"] != row.get("run_id") or
+                        report["chapter_id"] != f"{book_id}/{chapter_no}" or
+                        not artifact or refs[:2] != artifact["source_refs"][:2] or
+                        not source or source.get("run_id") != row.get("run_id") or
+                        source.get("review_report_id") != report_id or
+                        source["version_no"] > row["version_no"]):
+                        raise AmbiguousWrite("ChapterVersion review report provenance changed")
+                if verification and (verification["artifact_type"] != "ChapterVerification" or
+                                     artifact and artifact["content"].get("verification_artifact_id") != verifier_id):
+                    raise AmbiguousWrite("ChapterVersion verifier provenance changed")
+                result.append({"record": row, "artifact": artifact, "legacy": artifact is None,
+                               "report": report, "verification": verification})
             return result
+
+    def review_state(self, book_id: str, chapter_no: int) -> dict:
+        with self.kernel.writer:
+            # This response batches immutable payloads and shares its version rows.
+            # Decisions, refreshes and writes always start with fresh remote reads.
+            run_rows = self._runs(book_id, chapter_no)
+            version_rows = self._versions(book_id, chapter_no)
+            batch_ids = {row.get(field) for row in version_rows
+                         for field in ("artifact_id", "review_report_id", "verifier_artifact_id")
+                         if row.get(field)}
+            if run_rows:
+                _, manifest = self._manifest(run_rows[-1])
+                req = manifest["request"]
+                batch_ids.update((manifest["snapshot_id"], req["brief_artifact_id"],
+                    stable_id("AR-", self._logical(req, "critique") + "/" + str(req["version"]))))
+            artifacts = {}
+            loaded = False
+            def get_artifact(artifact_id):
+                nonlocal loaded
+                if not loaded:
+                    # Lazy load preserves the caller's domain error translation.
+                    artifacts.update(self.kernel.artifacts.get_many(sorted(batch_ids)))
+                    loaded = True
+                if artifact_id in batch_ids and artifact_id not in artifacts:
+                    raise MissingRecord(artifact_id)
+                if artifact_id not in artifacts:
+                    artifacts[artifact_id] = self.kernel.artifacts.get(artifact_id)
+                return artifacts[artifact_id]
+            latest = self.read(run_rows[-1]["pipeline_run_id"], _artifact_get=get_artifact,
+                               _version_rows=version_rows) if run_rows else None
+            versions = self.versions(book_id, chapter_no, _artifact_get=get_artifact,
+                                     _version_rows=version_rows)
+            task_rows = self.kernel.storage.list("revision_tasks", target_id=f"{book_id}/{chapter_no}")
+            task_runs = self.kernel.storage.get_many("pipeline_runs", [task["run_id"] for task in task_rows
+                                                                       if task.get("run_id")])
+            tasks = [{**task, "run_status": task_runs[task["run_id"]]["status"]
+                      if task.get("run_id") in task_runs else None} for task in task_rows]
+            if latest is None:
+                return {"latest": None, "versions": versions, "revision_tasks": tasks}
+            snapshot = get_artifact(latest["snapshot_artifact_id"])
+            bible = get_artifact(snapshot["content"]["bible_artifact_id"])
+            brief = get_artifact(latest["request"]["brief_artifact_id"])
+            selected = latest["selected"]
+            verification = get_artifact(selected["content"]["verification_artifact_id"]) if selected else None
+            gate = self._step(latest["run"], "final_verify")
+            return {"latest": latest, "story_state": snapshot["content"]["story_state"],
+                    "story_bible": bible, "brief": brief, "snapshot": snapshot,
+                    "verification": verification, "versions": versions,
+                    "revision_tasks": tasks,
+                    "review_gate": {"step_id": gate["step_run_id"], "status": gate["status"],
+                                    "output_version": gate["output_version"]},
+                    "traces": self.kernel.telemetry.list(run_id=latest["run"]["pipeline_run_id"])}
+
+    def _review_target(self, book_id: str, chapter_no: int, run_id: str,
+                       version_id: str, artifact_id: str, version_no: int) -> tuple[dict, dict, dict]:
+        runs = self._runs(book_id, chapter_no)
+        if not runs or runs[-1]["pipeline_run_id"] != run_id:
+            raise TransitionConflict("Review must target the latest chapter run")
+        view = self.read(run_id)
+        selected = view["selected"]
+        if (not view["current"] or not selected or selected["artifact_id"] != artifact_id or
+            selected["version"] != version_no or
+            version_id != stable_id("CV-", self._logical(view["request"], "versions") + "/" + str(version_no))):
+            raise TransitionConflict("Review must name the current verified ChapterVersion")
+        row = self.kernel.storage.get("chapter_versions", version_id)
+        if not row or row.get("artifact_id") != artifact_id:
+            raise TransitionConflict("ChapterVersion projection changed")
+        gate = self._step(view["run"], "final_verify")
+        rejected_gate = gate["status"] == "failed" and bool(
+            self.kernel.storage.get("approval_events",
+                stable_id("AP-", gate["step_run_id"] + "/" + str(gate["output_version"]))))
+        if view["run"]["status"] not in {"completed", "awaiting_approval"} and not rejected_gate:
+            raise TransitionConflict("Chapter run is not ready for editorial review")
+        return view, row, gate
+
+    def decide_review(self, book_id: str, chapter_no: int, *, run_id: str,
+                      version_id: str, artifact_id: str, version_no: int,
+                      action: Literal["approve", "reject"], operator: str,
+                      expected_gate_version: int = 0, reason: str = "") -> dict:
+        with self.kernel.writer:
+            operator = operator.strip()
+            if not operator:
+                raise ValueError("Operator is required")
+            view, row, gate = self._review_target(
+                book_id, chapter_no, run_id, version_id, artifact_id, version_no)
+            if row["status"] not in {"review", "approved", "rejected"}:
+                raise TransitionConflict("ChapterVersion is not reviewable")
+            pending_revision = self.kernel.storage.get(
+                "revision_tasks", stable_id("RT-", "chapter-revision/" + version_id))
+            if pending_revision and pending_revision.get("status") == "open":
+                raise TransitionConflict("Open revision intent must be reconciled first")
+            approval_id = stable_id("AP-", "chapter-review/" + version_id)
+            event = {"approval_id": approval_id, "target_type": "chapter_version",
+                     "target_id": version_id, "target_version": version_no,
+                     "action": action, "operator": operator, "reason": reason.strip(),
+                     "choice_id": artifact_id, "created_at": now()}
+            previous = self.kernel.storage.get("approval_events", approval_id)
+            # Search omits empty text cells; an absent optional note means "".
+            if previous and any(previous.get(key, "" if key == "reason" else None) != event[key] for key in
+                                ("target_type", "target_id", "target_version", "action", "operator", "reason", "choice_id")):
+                raise TransitionConflict("ChapterVersion already has a different review decision")
+            if gate["status"] in {"awaiting_approval", "failed"}:
+                if gate["output_version"] != expected_gate_version:
+                    raise TransitionConflict("Stale chapter review gate version")
+                self.kernel.decide(gate["step_run_id"], action, expected_gate_version, operator,
+                                   reason=reason.strip(), choice_id=artifact_id)
+            elif expected_gate_version and gate["output_version"] != expected_gate_version:
+                raise TransitionConflict("Stale chapter review gate version")
+            stored = self.kernel._ensure("approval_events", "approval_id", event)
+            if stored["action"] != action or stored.get("choice_id") != artifact_id:
+                raise AmbiguousWrite("Chapter review event conflicts")
+            target_status = "approved" if action == "approve" else "rejected"
+            if row["status"] != target_status:
+                if row["status"] != "review":
+                    raise TransitionConflict("ChapterVersion already has another editorial state")
+                row = self.kernel.storage.update("chapter_versions", version_id, {"status": target_status})
+            return {"decision": stored, "version": row, "run": self.kernel.get(view["run"]["pipeline_run_id"])}
+
+    @staticmethod
+    def _frozen_request(task: dict) -> dict:
+        try:
+            return ChapterRequest.model_validate_json(task["request_json"]).model_dump()
+        except (ValueError, KeyError, TypeError):
+            raise AmbiguousWrite("RevisionTask frozen request is unreadable") from None
+
+    def _resolve_revision_gate(self, book_id: str, chapter_no: int, run_id: str,
+                               version_id: str, artifact_id: str, version_no: int,
+                               operator: str, limits: Constraints, expected_gate_version: int) -> None:
+        _, row, gate = self._review_target(
+            book_id, chapter_no, run_id, version_id, artifact_id, version_no)
+        if row["status"] not in {"review", "approved"}:
+            raise TransitionConflict("Only a current review ChapterVersion can be revised")
+        if gate["status"] in {"awaiting_approval", "failed"}:
+            if gate["output_version"] != expected_gate_version:
+                raise TransitionConflict("Stale chapter review gate version")
+            self.kernel.decide(gate["step_run_id"], "revise", expected_gate_version, operator,
+                               reason="; ".join(limits.must_change), choice_id=artifact_id)
+        elif expected_gate_version and gate["output_version"] != expected_gate_version:
+            raise TransitionConflict("Stale chapter review gate version")
+
+    def request_revision(self, book_id: str, chapter_no: int, *, run_id: str,
+                         version_id: str, artifact_id: str, version_no: int,
+                         operator: str, constraints: dict, expected_gate_version: int = 0) -> dict:
+        with self.kernel.writer:
+            operator = operator.strip()
+            if not operator:
+                raise ValueError("Operator is required")
+            limits = Constraints.model_validate(constraints)
+            if not limits.must_change:
+                raise ValueError("Revision needs an explicit must_change constraint")
+            task_id = stable_id("RT-", "chapter-revision/" + version_id)
+            previous = self.kernel.storage.get("revision_tasks", task_id)
+            if previous:
+                source = self.kernel.storage.get("chapter_versions", version_id)
+                if (not source or source.get("book_id") != book_id or source.get("chapter_no") != chapter_no or
+                    source.get("run_id") != run_id or source.get("version_no") != version_no or
+                    source.get("artifact_id") != artifact_id or
+                    previous.get("from_version_id") != version_id or
+                    previous.get("source_artifact_id") != artifact_id or
+                    previous.get("book_id") != book_id or previous.get("chapter_no") != chapter_no or
+                    previous.get("target_type") != "chapter_version" or
+                    previous.get("target_id") != f"{book_id}/{chapter_no}" or
+                    previous.get("created_by") != operator or
+                    previous.get("must_keep") != encode(limits.must_keep) or
+                    previous.get("must_change") != encode(limits.must_change) or
+                    previous.get("do_not_change") != encode(limits.do_not_change)):
+                    raise TransitionConflict("Revision replay does not match its source ChapterVersion")
+                request = self._frozen_request(previous)
+                expected_run_id = stable_id("PR-", self.identity(book_id, chapter_no, request["version"]))
+                if (request["book_id"] != book_id or request["chapter_no"] != chapter_no or
+                    request["source_version_id"] != version_id or
+                    request["constraints"] != limits.model_dump() or
+                    previous.get("run_id") != expected_run_id):
+                    raise AmbiguousWrite("RevisionTask frozen request does not match the exact command")
+                existing_run = self.kernel.storage.get("pipeline_runs", expected_run_id)
+                if previous["status"] == "queued" and existing_run is None:
+                    raise AmbiguousWrite("Queued revision run is missing; reconcile before retry")
+                if previous["status"] not in {"open", "queued"}:
+                    raise AmbiguousWrite("RevisionTask status is not replayable")
+                if existing_run is None:
+                    self._resolve_revision_gate(book_id, chapter_no, run_id, version_id,
+                                                artifact_id, version_no, operator, limits,
+                                                expected_gate_version)
+                else:
+                    source_run = self.kernel.get(run_id)
+                    gate = self._step(source_run, "final_verify")
+                    if gate["status"] == "failed":
+                        if gate["output_version"] != expected_gate_version:
+                            raise TransitionConflict("Stale chapter review gate version")
+                        self.kernel.decide(gate["step_run_id"], "revise", expected_gate_version,
+                                           operator, reason="; ".join(limits.must_change),
+                                           choice_id=artifact_id)
+                    elif gate["status"] != "success":
+                        raise AmbiguousWrite("Revision run exists before its source gate resolved")
+                run = self.enqueue(request)
+                if previous["status"] != "queued":
+                    previous = self.kernel.storage.update("revision_tasks", task_id, {"status": "queued"})
+                return {"task": previous, "run": run}
+            _, row, gate = self._review_target(
+                book_id, chapter_no, run_id, version_id, artifact_id, version_no)
+            if row["status"] not in {"review", "approved"}:
+                raise TransitionConflict("Only a current review ChapterVersion can be revised")
+            if gate["status"] in {"awaiting_approval", "failed"}:
+                if gate["output_version"] != expected_gate_version:
+                    raise TransitionConflict("Stale chapter review gate version")
+            elif expected_gate_version and gate["output_version"] != expected_gate_version:
+                raise TransitionConflict("Stale chapter review gate version")
+            request = {**self.context(book_id, chapter_no), "source_version_id": version_id,
+                       "constraints": limits.model_dump()}
+            req = ChapterRequest.model_validate(request).model_dump()
+            next_run_id = stable_id("PR-", self.identity(book_id, chapter_no, req["version"]))
+            task_data = {"revision_task_id": task_id, "target_type": "chapter_version",
+                 "target_id": f"{book_id}/{chapter_no}", "from_version_id": version_id,
+                 "source_artifact_id": artifact_id, "book_id": book_id, "chapter_no": chapter_no,
+                 "revision_type": "human", "reason": "; ".join(limits.must_change),
+                 "must_keep": encode(limits.must_keep), "must_change": encode(limits.must_change),
+                 "do_not_change": encode(limits.do_not_change),
+                 "assigned_agent_id": "rewrite", "created_by": operator,
+                 "status": "open", "run_id": next_run_id,
+                 "request_json": encode(req), "created_at": now()}
+            task = self.kernel._ensure("revision_tasks", "revision_task_id", task_data)
+            if any(task.get(key) != value for key, value in task_data.items() if key != "created_at"):
+                raise AmbiguousWrite("Persisted RevisionTask does not match the frozen request")
+            if gate["status"] in {"awaiting_approval", "failed"}:
+                self.kernel.decide(gate["step_run_id"], "revise", expected_gate_version, operator,
+                                   reason="; ".join(limits.must_change), choice_id=artifact_id)
+            run = self.enqueue(req)
+            task = self.kernel.storage.update("revision_tasks", task_id, {"status": "queued"})
+            return {"task": task, "run": run}
 
     def lock_final(self, book_id: str, chapter_no: int, *, version_id: str,
                    artifact_id: str, version_no: int, operator: str) -> dict:
         with self.kernel.writer:
             if not operator.strip():
                 raise ValueError("Operator is required")
+            pending_revision = self.kernel.storage.get(
+                "revision_tasks", stable_id("RT-", "chapter-revision/" + version_id))
+            if pending_revision and pending_revision.get("status") == "open":
+                raise TransitionConflict("Open revision intent must be reconciled first")
             existing = self._lock(book_id, chapter_no)
             if existing:
                 if (existing["version_id"] == version_id and existing.get("artifact_id") == artifact_id and
@@ -646,7 +936,7 @@ class ChapterLoopService:
                 version_id != stable_id("CV-", self._logical(view["request"], "versions") + "/" + str(version_no))):
                 raise TransitionConflict("Final lock must name the current verified ChapterVersion")
             row = self.kernel.storage.get("chapter_versions", version_id)
-            if (not row or row.get("status") != "review" or row.get("artifact_id") != artifact_id or
+            if (not row or row.get("status") not in {"review", "approved"} or row.get("artifact_id") != artifact_id or
                 row.get("verifier_artifact_id") != selected["content"]["verification_artifact_id"]):
                 raise TransitionConflict("ChapterVersion is not ready for final lock")
             return self.kernel.storage.update("chapter_versions", version_id,

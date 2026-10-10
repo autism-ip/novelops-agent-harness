@@ -1,6 +1,6 @@
 /**
  * [INPUT]: 依赖 app/api/[...path]/route.ts 的服务端代理（注入 x-api-key）
- * [OUTPUT]: 对外提供 ApiError 类、createApiClient 工厂函数、api 默认实例
+ * [OUTPUT]: 对外提供 ApiError、涵盖响应正文的默认十秒请求及可指定限时的 GET/POST
  * [POS]: api 模块的 HTTP 通信层，被所有业务 hook 消费；浏览器端走服务端代理，不携带 API key
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
@@ -31,7 +31,8 @@ type ApiClientOptions = {
 export function createApiClient({ baseUrl, apiKey }: ApiClientOptions) {
   async function request<T>(
     path: string,
-    options?: RequestInit
+    options?: RequestInit,
+    timeoutMs = 10_000
   ): Promise<T> {
     const url = `${baseUrl}${path}`
     const headers: HeadersInit = {
@@ -40,7 +41,7 @@ export function createApiClient({ baseUrl, apiKey }: ApiClientOptions) {
     }
 
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 10_000)
+    const timeout = setTimeout(() => controller.abort(), timeoutMs)
 
     try {
       const res = await fetch(url, {
@@ -52,11 +53,14 @@ export function createApiClient({ baseUrl, apiKey }: ApiClientOptions) {
       if (!res.ok) {
         throw new ApiError(
           res.status,
-          await res.json().catch(() => res.statusText)
+          await res.json().catch((error: unknown) => {
+            if (error instanceof DOMException && error.name === "AbortError") throw error;
+            return res.statusText;
+          })
         )
       }
 
-      return res.json() as Promise<T>
+      return await res.json() as T
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") {
         throw new ApiError(0, "Request timeout")
@@ -68,9 +72,9 @@ export function createApiClient({ baseUrl, apiKey }: ApiClientOptions) {
   }
 
   return {
-    get: <T>(path: string) => request<T>(path),
-    post: <T>(path: string, body: unknown) =>
-      request<T>(path, { method: "POST", body: JSON.stringify(body) }),
+    get: <T>(path: string, timeoutMs?: number) => request<T>(path, undefined, timeoutMs),
+    post: <T>(path: string, body: unknown, timeoutMs?: number) =>
+      request<T>(path, { method: "POST", body: JSON.stringify(body) }, timeoutMs),
   }
 }
 
