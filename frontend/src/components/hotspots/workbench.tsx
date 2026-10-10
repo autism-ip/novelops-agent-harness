@@ -115,7 +115,7 @@ function Detail({
       onClose={close}
       onCancel={(event) => { event.preventDefault(); close(); }}
       aria-labelledby="hotspot-detail-title"
-      className="fixed inset-y-0 left-auto right-0 z-50 m-0 h-dvh max-h-none w-full max-w-none overflow-y-auto overscroll-contain border-0 bg-background p-5 text-foreground shadow-2xl backdrop:bg-[#101f3a]/45 sm:p-7 lg:inset-y-4 lg:right-4 lg:h-auto lg:max-h-[calc(100dvh-2rem)] lg:w-[min(40vw,35rem)] lg:rounded-[1.5rem] lg:border lg:bg-white"
+      className="fixed inset-y-0 left-auto right-0 z-50 m-0 h-dvh max-h-none w-full max-w-none overflow-y-auto overscroll-contain border-0 bg-background p-5 text-foreground shadow-2xl backdrop:bg-[#101f3a]/45 sm:p-7 lg:top-24 lg:bottom-4 lg:right-4 lg:h-auto lg:max-h-[calc(100dvh-7rem)] lg:w-[min(40vw,35rem)] lg:rounded-[1.5rem] lg:border lg:bg-white"
     >
       <div className="flex justify-between gap-4">
         <h2 id="hotspot-detail-title" className="text-xl font-semibold">

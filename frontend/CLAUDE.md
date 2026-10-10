@@ -52,3 +52,5 @@ components.json  - shadcn CLI 配置（style: default, baseColor: neutral, cssVa
 ZEN-37 的研究退修和标题/封面反馈再生成均通过工作台异步请求工厂持有锁；保留编辑者、确切 Artifact/步骤/输出版本和原退修反馈。`creative-workbench-contract.test.tsx` 使用真实审批组件和原生 HTTP/Storage 边界，覆盖 risk/selection、拒绝、退修、来源失效、失败及重试。
 
 热点详情打开时，Preparing/Saving 状态必须放在实际 `<dialog>` 内；手机模态框会使外部内容 inert。没有详情时状态显示在工作台。回归断言按当前对话框定位，延迟 HTTP 在断言前完成清理。
+
+桌面热点详情面板从顶部导航下方开始（top-24 / bottom-4），自身滚动；不能遮挡全局导航。手机仍使用全屏模态框。视觉验收使用真实生产浏览器和确切 1280/390 视口，不仅检查 CSS 类。
