@@ -72,6 +72,7 @@ function Detail({
   creative,
   books,
   submit,
+  requestPhase,
 }: {
   id: string;
   revision: number;
@@ -82,6 +83,7 @@ function Detail({
   creative: boolean;
   books: boolean;
   submit: (command: SubmitRequest) => Promise<SubmitResult>;
+  requestPhase: "preparing" | "saving" | null;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [desktop, setDesktop] = useState<boolean | null>(null);
@@ -123,6 +125,7 @@ function Detail({
           Close
         </Button>
       </div>
+      {requestPhase && <p role="status" aria-live="polite">{requestPhase === "preparing" ? "Preparing request…" : "Saving request…"}</p>}
       {result.loading && <p role="status">Loading details…</p>}
       {result.error != null && <p role="alert">{errorMessage(result.error)}</p>}
       {row && (
@@ -427,7 +430,7 @@ export function HotspotsWorkbench() {
           </Button>
         </div>
       </header>
-      {requestPhase && <p role="status" aria-live="polite">{requestPhase === "preparing" ? "Preparing request…" : "Saving request…"}</p>}
+      {!detailId && requestPhase && <p role="status" aria-live="polite">{requestPhase === "preparing" ? "Preparing request…" : "Saving request…"}</p>}
       {error && (
         <p
           role="alert"
@@ -724,6 +727,7 @@ export function HotspotsWorkbench() {
           creative={!!capabilities.data?.creative}
           books={!!capabilities.data?.books}
           submit={submit}
+          requestPhase={requestPhase}
         />
       )}
     </div>
