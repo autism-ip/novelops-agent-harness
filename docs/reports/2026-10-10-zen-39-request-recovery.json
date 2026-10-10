@@ -3,71 +3,72 @@
   "issue": "ZEN-39",
   "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/35",
   "branch": "codex/zen-39-story-planning",
-  "requirement_event": "After checking persisted history, a local saved-command clear failure reports cause/recovery and keeps exact intent; restoring storage permits the same action to clear it without a business write.",
+  "requirement_event": "After checking persisted history, a local saved-command clear failure reports cause/recovery and keeps exact intent; restoring storage permits the same action to clear it without a business write. During context preparation, two rapid user clicks produce one context read and one frozen-command write, with visible progress.",
   "implementation": {
     "component": "frontend/src/components/books/story-planning.tsx",
-    "decision": "Catch errors at the user control boundary; clear error before retry; retain exact source/version request and existing UI tokens/flows."
+    "decision": "Catch errors at the user control boundary; clear error before retry; retain exact source/version request and existing UI tokens/flows. The synchronous busy guard now owns context GET, intent persistence, POST and clear through one try/finally."
   },
   "verified_facts": {
     "red_failure_cases": 2,
-    "added_contract_tests": 19,
-    "frontend_suite_passed": 78,
+    "added_contract_tests": 21,
+    "frontend_suite_passed": 80,
     "node": "24.19.0",
     "lint": "zero warnings passed",
     "typecheck": "passed",
-    "production_build": "passed"
+    "production_build": "passed",
+    "context_concurrency_red_cases": 2
   },
   "coverage": {
     "all_frontend_source": {
       "lines": {
-        "total": 676,
-        "covered": 528,
+        "total": 675,
+        "covered": 527,
         "skipped": 0,
-        "pct": 78.1
+        "pct": 78.07
       },
       "statements": {
-        "total": 774,
-        "covered": 585,
+        "total": 773,
+        "covered": 584,
         "skipped": 0,
-        "pct": 75.58
+        "pct": 75.54
       },
       "functions": {
-        "total": 222,
-        "covered": 154,
+        "total": 224,
+        "covered": 156,
         "skipped": 0,
-        "pct": 69.36
+        "pct": 69.64
       },
       "branches": {
-        "total": 813,
-        "covered": 535,
+        "total": 820,
+        "covered": 542,
         "skipped": 0,
-        "pct": 65.8
+        "pct": 66.09
       }
     },
     "component": {
       "lines": {
-        "total": 75,
-        "covered": 75,
+        "total": 74,
+        "covered": 74,
         "skipped": 0,
         "pct": 100
       },
       "functions": {
-        "total": 27,
-        "covered": 27,
+        "total": 29,
+        "covered": 29,
         "skipped": 0,
         "pct": 100
       },
       "statements": {
-        "total": 94,
-        "covered": 89,
+        "total": 93,
+        "covered": 88,
         "skipped": 0,
-        "pct": 94.68
+        "pct": 94.62
       },
       "branches": {
-        "total": 107,
-        "covered": 102,
+        "total": 114,
+        "covered": 109,
         "skipped": 0,
-        "pct": 95.32
+        "pct": 95.61
       }
     },
     "all_applicable_100": false,
@@ -99,7 +100,8 @@
     "local_recovery_event_verified": true,
     "issue_done": false,
     "goal_done": false,
-    "merge_ready_claim": false
+    "merge_ready_claim": false,
+    "context_concurrency_event_verified": true
   },
   "original_goal": "Create approved, versioned StoryBible and source-bound ChapterBriefs from canonical StoryState, with selective human review and traceable state changes.",
   "contract_cases": [
@@ -115,10 +117,74 @@
     "SSR privacy",
     "401 Bible/brief context failure retains feedback",
     "Storage failure prevents untracked write",
-    "Running Bible/brief prevents overlap"
+    "Running Bible/brief prevents overlap",
+    "Bible/brief deferred context: two real clicks yield one GET, disabled preparation control, visible status and one exact POST"
   ],
   "test_setup_failures": [
     "First run also had two ambiguous text selectors; exact counts replaced ambiguous selectors without weakening expected content. Reconfirmed 2 business failures/13 other passes before source fix.",
-    "A follow-up test append used frontend/tests from frontend cwd; file write failed with no source change. Correct path repaired, 4 contract cases added and final full suite/gates passed."
+    "A follow-up test append used frontend/tests from frontend cwd; file write failed with no source change. Correct path repaired, 4 contract cases added and final full suite/gates passed.",
+    "Two additional deferred-context regressions failed before fix: each produced two context GETs from two user clicks. No private handler or forced disabled-control invocation was used."
+  ],
+  "verification_history": [
+    {
+      "scope": "First clear-recovery fix",
+      "tests": 78,
+      "coverage": {
+        "all_frontend_source": {
+          "lines": {
+            "total": 675,
+            "covered": 527,
+            "skipped": 0,
+            "pct": 78.07
+          },
+          "statements": {
+            "total": 773,
+            "covered": 584,
+            "skipped": 0,
+            "pct": 75.54
+          },
+          "functions": {
+            "total": 224,
+            "covered": 156,
+            "skipped": 0,
+            "pct": 69.64
+          },
+          "branches": {
+            "total": 820,
+            "covered": 542,
+            "skipped": 0,
+            "pct": 66.09
+          }
+        },
+        "component": {
+          "lines": {
+            "total": 74,
+            "covered": 74,
+            "skipped": 0,
+            "pct": 100
+          },
+          "functions": {
+            "total": 29,
+            "covered": 29,
+            "skipped": 0,
+            "pct": 100
+          },
+          "statements": {
+            "total": 93,
+            "covered": 88,
+            "skipped": 0,
+            "pct": 94.62
+          },
+          "branches": {
+            "total": 114,
+            "covered": 109,
+            "skipped": 0,
+            "pct": 95.61
+          }
+        },
+        "all_applicable_100": false,
+        "gate_config_change": "None; no exclusions, dropped tests, private disabled-control invocation or weakened assertions."
+      }
+    }
   ]
 }

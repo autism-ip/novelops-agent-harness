@@ -1,5 +1,5 @@
 import { afterEach, expect, test, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import { StoryPlanning } from "../src/components/books/story-planning";
 
@@ -218,4 +218,29 @@ test("running Bible and brief show progress and prevent overlapping generation",
     fireEvent.click(button);
   }
   expect(writes(transport)).toHaveLength(0);
+});
+
+test.each(["bible", "brief"] as const)("the %s context phase blocks repeated planning clicks", async kind => {
+  const contexts: ((response: Response) => void)[] = [];
+  const transport = vi.fn((input: unknown, init: RequestInit) => String(input).endsWith("/context") ?
+    new Promise<Response>(resolve => { contexts.push(resolve); }) : Promise.resolve(Response.json(init.method === "POST" ? { saved: true } : [])));
+  vi.stubGlobal("fetch", transport);
+  render(<StoryPlanning bookId={book} approvedBible={true} />);
+  await waitFor(() => expect(screen.queryByText("Loading story planning…")).toBeNull());
+  const button = screen.getByRole("button", { name: kind === "bible" ? "Propose major StoryBible change" : "Generate chapter brief" });
+  fireEvent.click(button); fireEvent.click(button);
+  const wasDisabled = (button as HTMLButtonElement).disabled;
+  const contextCount = contexts.length;
+  const hadProgress = screen.queryByText("Preparing story planning…") !== null;
+  const data = kind === "bible" ? { ...bibleContext, change_scope: "major" } : {
+    book_id: book, chapter_no: 1, state_artifact_id: state, state_version: 2, version: 4, feedback: "" };
+  await act(async () => { for (const resolve of contexts) resolve(Response.json(data)); });
+  await waitFor(() => expect(transport.mock.calls.filter(([, init]) => init.method === "POST").length).toBeGreaterThanOrEqual(1));
+  await waitFor(() => expect(sessionStorage.getItem(key)).toBeNull());
+  expect(contextCount).toBe(1);
+  expect(wasDisabled).toBe(true);
+  expect(hadProgress).toBe(true);
+  const posts = transport.mock.calls.filter(([, init]) => init.method === "POST");
+  expect(posts).toHaveLength(1);
+  expect(JSON.parse(String(posts[0][1].body))).toEqual(data);
 });
