@@ -9,6 +9,8 @@ export type Pending = {
   body: Record<string, unknown> & { request_key: string };
 };
 
+export type SubmitRequest = Pending | (() => Promise<Pending>);
+
 export function canClearRejected(status: number, retry: boolean): boolean {
   return !retry && [401, 404, 409, 422].includes(status);
 }
@@ -42,7 +44,8 @@ export function parsePending(value: string | null): Pending | null {
     if (
       !parsed ||
       typeof parsed.path !== "string" ||
-      !(parsed.path === "/api/analyses" || /^\/api\/hotspots\/(fetch|manual|[\w-]+\/discard)$/.test(parsed.path))
+      !(parsed.path === "/api/analyses" || /^\/api\/creative\/(titles|covers|runs\/[\w-]+\/decision)$/.test(parsed.path) ||
+        /^\/api\/hotspots\/(fetch|manual|[\w-]+\/discard)$/.test(parsed.path))
     )
       return null;
     if (parsed.path === "/api/analyses" && (!Array.isArray(parsed.body.items) || !parsed.body.items.length ||
@@ -50,6 +53,12 @@ export function parsePending(value: string | null): Pending | null {
           !item || typeof item.hotspot_id !== "string" || !item.hotspot_id ||
           !Number.isSafeInteger(item.version) || Number(item.version) < 1 ||
           typeof item.source_hash !== "string" || !/^[a-f0-9]{64}$/.test(item.source_hash)))) return null;
+    if (parsed.path.startsWith("/api/creative/") && (!parsed.body || typeof parsed.body !== "object" ||
+        (parsed.path.endsWith("/decision") ?
+          typeof parsed.body.step_id !== "string" || typeof parsed.body.artifact_id !== "string" ||
+          parsed.body.action !== "approve" || !Number.isSafeInteger(parsed.body.expected_version) :
+          typeof parsed.body.source_run_id !== "string" || !parsed.body.source_run_id ||
+          typeof parsed.body.source_artifact_id !== "string" || !Number.isSafeInteger(parsed.body.version)))) return null;
     if (
       !parsed.body ||
       typeof parsed.body !== "object" ||
@@ -87,8 +96,10 @@ export const WORKFLOW_LABELS: Record<string, string> = {
   hotspot_manual_v1: "Add a hotspot",
   hotspot_discard_v1: "Discard a hotspot",
   hotspot_research_v1: "Research story opportunities",
+  title_candidates_v1: "Generate title candidates",
+  cover_plans_v1: "Plan cover directions",
 };
 
 export function workflowBusy(run: { pipeline_type: string; status: string }): boolean {
-  return !TERMINAL.has(run.status) && !(run.pipeline_type === "hotspot_research_v1" && run.status === "awaiting_approval");
+  return !TERMINAL.has(run.status) && !(["hotspot_research_v1", "title_candidates_v1", "cover_plans_v1"].includes(run.pipeline_type) && run.status === "awaiting_approval");
 }

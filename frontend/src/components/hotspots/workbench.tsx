@@ -31,6 +31,7 @@ import {
   workflowBusy,
   type Filters,
   type Pending,
+  type SubmitRequest,
 } from "./state";
 
 const STORAGE_KEY = "novelops.hotspots.pending";
@@ -67,6 +68,9 @@ function Detail({
   discard,
   disabled,
   analyze,
+  creative,
+  submit,
+  requestPhase,
 }: {
   id: string;
   revision: number;
@@ -74,6 +78,9 @@ function Detail({
   discard: (row: Hotspot) => void;
   disabled: boolean;
   analyze: boolean;
+  creative: boolean;
+  submit: (command: SubmitRequest) => Promise<boolean>;
+  requestPhase: "preparing" | "saving" | null;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const result = useResource<Hotspot>(
@@ -101,6 +108,7 @@ function Detail({
           Close
         </Button>
       </div>
+      {requestPhase && <p role="status" aria-live="polite">{requestPhase === "preparing" ? "Preparing request…" : "Saving request…"}</p>}
       {result.loading && <p role="status">Loading details…</p>}
       {result.error != null && <p role="alert">{errorMessage(result.error)}</p>}
       {row && (
@@ -148,7 +156,7 @@ function Detail({
               {JSON.stringify(row.raw_json, null, 2)}
             </pre>
           </details>
-          {analyze && <ResearchHistory hotspotId={id} revision={revision} />}
+          {analyze && <ResearchHistory hotspotId={id} revision={revision} submit={submit} disabled={disabled} creative={creative} />}
         </div>
       )}
     </dialog>
@@ -170,6 +178,7 @@ export function HotspotsWorkbench() {
   const [manual, setManual] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [requestPhase, setRequestPhase] = useState<"preparing" | "saving" | null>(null);
   const busy = useRef(false);
   const pendingRaw = useSyncExternalStore(subscribe, snapshot, () => null);
   const storageUnavailable = pendingRaw === STORAGE_UNAVAILABLE;
@@ -210,7 +219,7 @@ export function HotspotsWorkbench() {
   );
   const recent =
     runs.data
-      ?.filter((run) => run.pipeline_type.startsWith("hotspot_"))
+      ?.filter((run) => run.pipeline_type.startsWith("hotspot_") || ["title_candidates_v1", "cover_plans_v1"].includes(run.pipeline_type))
       .sort((a, b) => b.created_at.localeCompare(a.created_at)) ?? [];
   const working =
     recent.some(workflowBusy) ||
@@ -226,7 +235,7 @@ export function HotspotsWorkbench() {
     setRevision((value) => value + 1);
   }
 
-  async function submit(command: Pending, retry = false) {
+  async function submit(request: SubmitRequest, retry = false) {
     const stored = snapshot();
     if (stored === STORAGE_UNAVAILABLE) {
       window.dispatchEvent(new Event(EVENT));
@@ -236,8 +245,13 @@ export function HotspotsWorkbench() {
     busy.current = true;
     setSubmitting(true);
     setError(null);
+    setRequestPhase(typeof request === "function" ? "preparing" : "saving");
+    let command: Pending | null = null;
     let batchError: string | null = null;
+
     try {
+      command = typeof request === "function" ? await request() : request;
+      setRequestPhase("saving");
       savePending(command); // Persist before the POST, retaining the same key after timeout/reload.
       if (command.path === "/api/analyses") {
         const batch = await api.post<{ runs: WorkflowRun[]; errors: { hotspot_id: string; detail: string }[] }>(command.path, command.body);
@@ -245,6 +259,12 @@ export function HotspotsWorkbench() {
         setSelected([]);
         batchError = batch.errors.map(e => `${e.hotspot_id}: ${e.detail}`).join("; ") || null;
         if (batchError) setError(batchError);
+      } else if (command.path.startsWith("/api/creative/")) {
+        const payload: Record<string, unknown> = { ...command.body };
+        delete payload.request_key;
+        const response = await api.post<WorkflowRun>(command.path, payload);
+        if (!command.path.endsWith("/decision")) setActiveRun(response.pipeline_run_id);
+
       } else {
         const run = await api.post<WorkflowRun>(command.path, command.body);
         setActiveRun(run.pipeline_run_id);
@@ -258,7 +278,7 @@ export function HotspotsWorkbench() {
       let message = `${batchError ? `${batchError} ` : ""}${errorMessage(cause)}`;
       if (
         cause instanceof ApiError &&
-        canClearRejected(cause.status, retry) && command.path !== "/api/analyses"
+        canClearRejected(cause.status, retry) && command && command.path !== "/api/analyses"
       ) {
         try { savePending(null); }
         catch (clearCause) { message += ` ${errorMessage(clearCause)}`; }
@@ -266,6 +286,7 @@ export function HotspotsWorkbench() {
       setError(message);
       return false;
     } finally {
+      setRequestPhase(null);
       busy.current = false;
       setSubmitting(false);
     }
@@ -286,23 +307,14 @@ export function HotspotsWorkbench() {
   }
   async function analyzeSelected() {
     if (busy.current || disabled || !visibleSelected.length) return;
-    busy.current = true;
-    setSubmitting(true);
-    setError(null);
-    try {
+    await submit(async () => {
       const items = await Promise.all(visibleSelected.map(async hotspot_id => {
         const context = await api.get<{ next_version: number; source_hash: string; can_analyze: boolean }>(`/api/hotspots/${encodeURIComponent(hotspot_id)}/research-context`);
         if (!context.can_analyze) throw new Error("A selected hotspot was discarded. Refresh the list.");
         return { hotspot_id, version: context.next_version, source_hash: context.source_hash };
       }));
-      busy.current = false;
-      await submit({ path: "/api/analyses", body: { request_key: crypto.randomUUID(), items } });
-    } catch (cause) {
-      setError(errorMessage(cause));
-    } finally {
-      busy.current = false;
-      setSubmitting(false);
-    }
+      return { path: "/api/analyses", body: { request_key: crypto.randomUUID(), items } };
+    });
   }
   async function add(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -428,6 +440,7 @@ export function HotspotsWorkbench() {
           </Button>
         </div>
       </header>
+      {!detailId && requestPhase && <p role="status" aria-live="polite">{requestPhase === "preparing" ? "Preparing request…" : "Saving request…"}</p>}
       {error && (
         <p
           role="alert"
@@ -715,6 +728,9 @@ export function HotspotsWorkbench() {
           discard={discard}
           disabled={disabled || !capabilities.data?.discard}
           analyze={!!capabilities.data?.analyze}
+          creative={!!capabilities.data?.creative}
+          submit={submit}
+          requestPhase={requestPhase}
         />
       )}
     </div>

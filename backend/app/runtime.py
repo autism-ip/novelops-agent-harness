@@ -12,6 +12,8 @@ from app.storage import FeishuStorageProvider
 def build_runtime(settings):
     if settings.RESEARCH_ENABLED and not (settings.GENERATION_ENABLED and (settings.HOTSPOTS_ENABLED or settings.OPENCLI_ENABLED)):
         raise ValueError("RESEARCH_ENABLED requires GENERATION_ENABLED and HOTSPOTS_ENABLED or OPENCLI_ENABLED")
+    if settings.CREATIVE_ENABLED and not settings.RESEARCH_ENABLED:
+        raise ValueError("CREATIVE_ENABLED requires RESEARCH_ENABLED")
     config = TableMapConfig()
     if not config.app_token:
         raise ValueError("FEISHU_APP_TOKEN is required when HARNESS_ENABLED=true")
@@ -29,6 +31,8 @@ def build_runtime(settings):
             names += ("artifacts",)
         if settings.RESEARCH_ENABLED:
             names += ("hotspot_analyses",)
+        if settings.CREATIVE_ENABLED:
+            names += ("title_candidates", "cover_plans")
         repositories = {name: BaseRepository(client, config.app_token, config.get_table_id(name), FIELD_MAPS[name])
                         for name in names}
         storage = FeishuStorageProvider(repositories, {name: next(iter(FIELD_MAPS[name])) for name in names})
@@ -55,6 +59,9 @@ def build_runtime(settings):
         if settings.RESEARCH_ENABLED:
             from app.research import ResearchService
             kernel.research = ResearchService(kernel, selection_required=settings.RESEARCH_SELECTION_REQUIRED)
+        if settings.CREATIVE_ENABLED:
+            from app.creative import CreativeService
+            kernel.creative = CreativeService(kernel)
         return kernel, client
     except Exception:
         if "kernel" in locals() and getattr(kernel, "model_router", None):
