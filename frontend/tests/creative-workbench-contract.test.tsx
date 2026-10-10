@@ -65,11 +65,13 @@ function fixture(options: { titleSelected?: boolean; historical?: boolean; holdH
     discardSource: () => { available = false; }, rejectWrite: (status: number) => { writeStatus = status; }, rejectContext: (status: number) => { contextStatus = status; }, interruptWrite: () => { interrupt = true; } };
 }
 beforeEach(() => {
+  vi.stubGlobal("matchMedia", () => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() }));
+  Object.defineProperty(HTMLDialogElement.prototype, "show", { configurable: true, value: function () { this.setAttribute("open", ""); } });
   Object.defineProperty(HTMLDialogElement.prototype, "showModal", { configurable: true, value: function () { this.setAttribute("open", ""); } });
   Object.defineProperty(HTMLDialogElement.prototype, "close", { configurable: true, value: function () { this.removeAttribute("open"); this.dispatchEvent(new Event("close")); } });
 });
 afterEach(() => { cleanup(); sessionStorage.clear(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
-async function open() { fireEvent.click(await screen.findByRole("button", { name: row.title })); return screen.findByRole("dialog", { name: "Hotspot details" }); }
+async function open() { const table = await screen.findByRole("table"); fireEvent.click(await within(table).findByRole("button", { name: row.title })); return screen.findByRole("dialog", { name: "Hotspot details" }); }
 for (const kind of ["titles", "covers"] as const) {
   test(`${kind}: one command owns context preparation, persistence and POST`, async () => {
     const store = fixture(); store.holdContexts(); render(<HotspotsWorkbench />); const dialog = await open();
