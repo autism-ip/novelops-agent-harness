@@ -38,6 +38,7 @@ import {
 
 const STORAGE_KEY = "novelops.hotspots.pending";
 const EVENT = "novelops-hotspot-request";
+const STORAGE_UNAVAILABLE = Symbol("request storage unavailable");
 const field = "block w-full rounded-md border bg-background p-2 text-sm mt-1";
 function subscribe(callback: () => void) {
   window.addEventListener(EVENT, callback);
@@ -47,12 +48,18 @@ function snapshot() {
   try {
     return sessionStorage.getItem(STORAGE_KEY);
   } catch {
-    return null;
+    return STORAGE_UNAVAILABLE;
   }
 }
 function savePending(command: Pending | null) {
   if (command) sessionStorage.setItem(STORAGE_KEY, JSON.stringify(command));
-  else sessionStorage.removeItem(STORAGE_KEY);
+  else {
+    try {
+      sessionStorage.removeItem(STORAGE_KEY);
+    } catch (cause) {
+      throw new Error(`Could not clear saved request. ${cause instanceof DOMException ? cause.message : errorMessage(cause)} Check browser storage access and try again.`);
+    }
+  }
   window.dispatchEvent(new Event(EVENT));
 }
 
@@ -172,7 +179,8 @@ export function HotspotsWorkbench() {
   const [requestPhase, setRequestPhase] = useState<"preparing" | "saving" | null>(null);
   const busy = useRef(false);
   const pendingRaw = useSyncExternalStore(subscribe, snapshot, () => null);
-  const pending = parsePending(pendingRaw);
+  const storageUnavailable = pendingRaw === STORAGE_UNAVAILABLE;
+  const pending = parsePending(storageUnavailable ? null : pendingRaw);
   let path: string | null = null;
   let filterError: string | null = null;
   try {
@@ -226,7 +234,12 @@ export function HotspotsWorkbench() {
   }
 
   async function submit(request: SubmitRequest, retry = false): Promise<SubmitResult> {
-    if (busy.current || (!retry && snapshot())) return { ok: false, error: "Another request is pending. Retry the saved request first." };
+    const stored = snapshot();
+    if (stored === STORAGE_UNAVAILABLE) {
+      window.dispatchEvent(new Event(EVENT));
+      return { ok: false, error: "Cannot read saved requests. Check browser storage access and try again." };
+    }
+    if (busy.current || (!retry && stored)) return { ok: false, error: "Another request is pending. Retry the saved request first." };
     busy.current = true;
     setSubmitting(true);
     setError(null);
@@ -256,18 +269,28 @@ export function HotspotsWorkbench() {
       return { ok: true };
     } catch (cause) {
       // A rejected retry cannot disprove an earlier committed attempt.
+      let message = errorMessage(cause);
       if (
         cause instanceof ApiError &&
         canClearRejected(cause.status, retry) && command && command.path !== "/api/analyses"
-      )
-        savePending(null);
-      const message = errorMessage(cause);
+      ) {
+        try { savePending(null); }
+        catch (clearCause) { message += ` ${errorMessage(clearCause)}`; }
+      }
       setError(message);
       return { ok: false, error: message };
     } finally {
       setRequestPhase(null);
       busy.current = false;
       setSubmitting(false);
+    }
+  }
+  function clearReviewedRequest() {
+    try {
+      savePending(null);
+      setError(null);
+    } catch (cause) {
+      setError(errorMessage(cause));
     }
   }
   function discard(row: Hotspot) {
@@ -455,11 +478,19 @@ export function HotspotsWorkbench() {
           </Button>
         </div>
       )}
-      {pendingRaw && !pending && (
+      {storageUnavailable && (
+        <div role="alert" className="rounded-lg border border-amber-200 bg-amber-50 p-4 space-y-3">
+          Cannot read saved requests. Check browser storage access before starting or retrying work.
+          <Button variant="outline" onClick={() => window.dispatchEvent(new Event(EVENT))}>
+            Check request storage
+          </Button>
+        </div>
+      )}
+      {pendingRaw && !storageUnavailable && !pending && (
         <div role="alert">
           Saved request is unreadable. Review recent workflows before clearing
           it.{" "}
-          <Button variant="outline" onClick={() => savePending(null)}>
+          <Button variant="outline" onClick={clearReviewedRequest}>
             I have checked recent workflows
           </Button>
         </div>
