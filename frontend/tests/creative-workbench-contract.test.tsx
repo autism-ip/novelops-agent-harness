@@ -264,6 +264,7 @@ test("known HTTP 201 research item failure is visible inside the current mobile 
   await waitFor(() => expect(sessionStorage.getItem(storageKey)).toBeNull());
   expect(store.commands).toHaveLength(1); expect(store.contexts).toHaveLength(1);
   expect(store.commands[0]).toMatchObject({ path: "/api/analyses", body: { items: [{ hotspot_id: row.hotspot_id, version: 3, source_hash: "b".repeat(64), revision_of: sourceRunId, feedback: "Develop the archive mystery" }] } });
-  expect((within(dialog).getByRole("button", { name: "Regenerate analysis from feedback" }) as HTMLButtonElement).disabled).toBe(false);
+  const regeneratedControl = await within(dialog).findByRole("button", { name: "Regenerate analysis from feedback" });
+  await waitFor(() => expect((regeneratedControl as HTMLButtonElement).disabled).toBe(false));
   expect(screen.queryByRole("button", { name: "Retry same request" })).toBeNull();
 });
