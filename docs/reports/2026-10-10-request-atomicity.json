@@ -7,38 +7,49 @@
       "issue": "ZEN-38",
       "pr": 32,
       "branch": "codex/zen-38-book-bootstrap",
-      "head": "a9f0ad16726b",
+      "head": "a9f0ad16726bc6fd0fcf443ba6569eba09e2f79f",
       "owning_tests": 57,
-      "added_contract_cases": 10
+      "added_contract_cases": 10,
+      "original_goal": "Bootstrap canonical Book and StoryState v1 from approved opportunity, title and cover with stable source identities and idempotent retry.",
+      "pr_url": "https://github.com/autism-ip/novelops-agent-harness/pull/32"
     },
     {
       "issue": "ZEN-107",
       "pr": 34,
       "branch": "codex/zen-107-ios-design",
-      "head": "80f5be79dc6a",
-      "owning_tests": 58
+      "head": "80f5be79dc6a7dc0ce9e490075d4c37aa181a3e4",
+      "owning_tests": 58,
+      "original_goal": "Apply the approved minimal modern iOS-inspired top navigation and list/approval split, rounded responsive surfaces and restrained motion across existing and future pages.",
+      "pr_url": "https://github.com/autism-ip/novelops-agent-harness/pull/34"
     },
     {
       "issue": "ZEN-39",
       "pr": 35,
       "branch": "codex/zen-39-story-planning",
-      "head": "db0d4623d1b6",
+      "head": "db0d4623d1b67e6f4b9fb35af40494719529e8f6",
       "owning_tests": 80,
-      "added_contract_cases": 21
+      "added_contract_cases": 21,
+      "original_goal": "Create approved versioned StoryBible and source-bound ChapterBriefs from canonical StoryState with selective human review.",
+      "pr_url": "https://github.com/autism-ip/novelops-agent-harness/pull/35"
     },
     {
       "issue": "ZEN-40",
       "pr": 36,
       "branch": "codex/zen-40-chapter-loop",
-      "head": "476a5b18e487",
+      "head": "476a5b18e4878e19126bf0fd7c54e1d94becdd67",
       "owning_tests": 104,
-      "added_contract_cases": 23
+      "added_contract_cases": 23,
+      "original_goal": "Writer, deterministic checks, actionable Critic, conditional constrained Rewrite and final verification; retain every ChapterVersion and model provenance.",
+      "pr_url": "https://github.com/autism-ip/novelops-agent-harness/pull/36"
     },
     {
       "issue": "ZEN-41",
       "pr": 37,
       "branch": "codex/zen-41-chapter-review-desk",
-      "owning_tests": 142
+      "owning_tests": 142,
+      "original_goal": "An author/editor can read actual chapter prose/history and source-bound Critic/Verifier, approve/reject/revise/final-lock the exact version with selective gates.",
+      "head": "359268e2693253657ad6a819872c0d10f9d9062e",
+      "pr_url": "https://github.com/autism-ip/novelops-agent-harness/pull/37"
     }
   ],
   "dependency_order": [
@@ -52,7 +63,7 @@
     {
       "event": "After checking history, storage removal failure retains exact saved request, reports cause/recovery, permits clear after restoration, sends no unrelated business POST",
       "implementation": "Catch user clear boundaries in BookBootstrap, StoryPlanning and ChapterGeneration",
-      "verification": "2 red clear cases per owning component; ReactDOM/native storage and actual ApiClient; fresh real browser proof for planning/generation on both viewport sizes",
+      "verification": "2 red clear cases per owning component; ReactDOM/native storage and actual ApiClient; fresh real browser proof for planning/generation on both viewport sizes; BookBootstrap desktop and 390px confirmation with zero POSTs and exact malformed intent retained/recovered.",
       "achieved_for_local_scope": true
     },
     {
@@ -470,6 +481,150 @@
       "chapter_2_versions": 1,
       "chapter_status": "completed",
       "canonical_state_not_changed_by_unapproved_bible": true
+    },
+    "book_clear_recovery": {
+      "devices": [
+        {
+          "name": "desktop",
+          "width": 1280,
+          "documentWidth": 1280,
+          "screenWidth": 1280,
+          "visualWidth": 1280,
+          "dialogWidth": 512,
+          "pending": "{unreadable",
+          "posts": [],
+          "uncaught": [],
+          "error": "Could not clear the saved book request. Browser storage temporarily unavailable Check browser storage access and try again.",
+          "buttonHeight": 44
+        },
+        {
+          "name": "mobile",
+          "width": 390,
+          "documentWidth": 390,
+          "screenWidth": 390,
+          "visualWidth": 390,
+          "dialogWidth": 390,
+          "pending": "{unreadable",
+          "posts": [],
+          "uncaught": [],
+          "error": "Could not clear the saved book request. Browser storage temporarily unavailable Check browser storage access and try again.",
+          "buttonHeight": 44
+        }
+      ],
+      "visual_limitation": "Both prior Page.captureScreenshot calls timed out; no fresh screenshot claim. Explicit screen dimensions and CSS layout viewport checked in this confirmation.",
+      "recovered": {
+        "pending": null,
+        "posts": [],
+        "uncaught": []
+      }
+    },
+    "screenshot_failures": [
+      {
+        "name": "desktop",
+        "error": "CdpRequestTimeoutError: CDP request timed out: Page.captureScreenshot"
+      },
+      {
+        "name": "mobile",
+        "error": "CdpRequestTimeoutError: CDP request timed out: Page.captureScreenshot"
+      }
+    ],
+    "device_diagnosis": {
+      "before": {
+        "inner": [
+          390,
+          844
+        ],
+        "screen": [
+          390,
+          844
+        ],
+        "visual": {
+          "width": 390,
+          "scale": 1
+        },
+        "document": 390,
+        "dialog": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844,
+          "top": 0,
+          "right": 390,
+          "bottom": 844,
+          "left": 0
+        }
+      },
+      "afterFocus": {
+        "inner": [
+          390,
+          844
+        ],
+        "screen": [
+          390,
+          844
+        ],
+        "visual": {
+          "width": 390,
+          "scale": 1
+        },
+        "document": 390,
+        "dialog": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844,
+          "top": 0,
+          "right": 390,
+          "bottom": 844,
+          "left": 0
+        }
+      },
+      "metrics": {
+        "layoutViewport": {
+          "pageX": 0,
+          "pageY": 2226,
+          "clientWidth": 780,
+          "clientHeight": 1688
+        },
+        "visualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 1113,
+          "clientWidth": 780,
+          "clientHeight": 1688,
+          "scale": 1,
+          "zoom": 1
+        },
+        "contentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 780,
+          "height": 8248
+        },
+        "cssLayoutViewport": {
+          "pageX": 0,
+          "pageY": 1113,
+          "clientWidth": 390,
+          "clientHeight": 844
+        },
+        "cssVisualViewport": {
+          "offsetX": 0,
+          "offsetY": 0,
+          "pageX": 0,
+          "pageY": 1113,
+          "clientWidth": 390,
+          "clientHeight": 844,
+          "scale": 1,
+          "zoom": 1
+        },
+        "cssContentSize": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 4124
+        }
+      }
     }
   },
   "failures_and_recovery": [
@@ -480,7 +635,9 @@
     "Browser dblclick first activation locked the control; tool second activation timed out on disabled element. No forced disabled action used.",
     "Held HTTP probe exceeded native timeout across rounds; temporary helper did not forward reject, producing AbortError in probe. Preserved failed attempt, confirmed zero writes, corrected abort propagation, reloaded same page.",
     "Coordinate double-click did not hit control; actual state confirmed zero contexts/writes/errors. Successful runtime proof uses two actual Enter presses; DOM regressions separately use two actual public clicks.",
-    "Expected fixture hotspot title 1 was not on first page; observed actual title 31. Completed cover activity showed generic pipeline details; research activity supplies the nested cover/book UI."
+    "Expected hotspot title 1 was on page 2, not the first viewport. Generic completed cover/research activity only shows read details; selected actual hotspot 1 on page 2 reveals nested approved title/cover/book controls. No new research/title/cover or book write was used.",
+    "Book measurement initially queried explicit role=dialog, but interface uses native dialog. Observation corrected to native tag, reused existing failure state.",
+    "Desktop/mobile screenshots both failed with Page.captureScreenshot CDP timeout. Following the screenshot attempt, requested 390px differed from actual 576px. Initial overflow suspicion was withdrawn after explicit screenWidth/screenHeight and independent CSS layout viewport confirmed stable 390px before/after focus. Strict confirmation asserted requested dimensions directly, no product layout change was needed."
   ],
   "review": {
     "all_13_unresolved_at_initial_current_audit": 0,
@@ -496,7 +653,8 @@
     "All project statement/line/function/branch coverage is still below 100%; no exclusion or weaker gate used.",
     "Fresh actual DeepSeek generation/rewrite quality/cost and full selective approval events pending.",
     "Deployment schema/ACL and execution timeout/latency acceptance pending.",
-    "Full issue original business completion remains open; all issues stay In Review."
+    "Full issue original business completion remains open; all issues stay In Review.",
+    "Fresh screenshot inspection unavailable due CDP capture timeouts; semantic DOM, physical keyboard/pointer behavior, dimensions and computed error colors verified."
   ],
   "risks": {
     "security": "No credential exposure/new external fixture writes. Native browser fault injection scoped to task-owned local requests. Not a complete security audit.",
@@ -518,5 +676,6 @@
     "issue_done": false,
     "goal_done": false,
     "safe_merge_claim": false
-  }
+  },
+  "source_commit": "359268e2693253657ad6a819872c0d10f9d9062e"
 }
