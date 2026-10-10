@@ -97,6 +97,13 @@ export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged }: {
     } catch (cause) { setError(visibleError(cause)); }
     finally { busy.current = false; setWorking(false); }
   }
+  function clearPending() {
+    setError(null);
+    try { setSaved(key, null); }
+    catch (cause) {
+      setError(`Could not clear the saved review command. ${visibleError(cause)} Check browser storage access and try again.`);
+    }
+  }
   function target() {
     if (!latest?.selected || !current || !gate) return null;
     return { run_id: latest.run.pipeline_run_id, version_id: current.record.version_id,
@@ -255,11 +262,11 @@ export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged }: {
       <p>{working ? "Saving your chapter action… This may take a minute." : "The last review command has an unknown outcome. Retry uses the same exact version and editor identity."}</p>
       <div className="flex flex-wrap gap-2"><Button variant="outline" disabled={working}
         onClick={() => void submit(pending)}>Retry the same command</Button>
-        <Button variant="ghost" disabled={working} onClick={() => setSaved(key, null)}>I checked the version history</Button></div>
+        <Button variant="ghost" disabled={working} onClick={clearPending}>I checked the version history</Button></div>
     </div>}
     {pendingRaw && !pending && <div className="surface-soft space-y-2 p-4 text-sm" role="alert">
       <p>The saved review command is unreadable. Check the version history before clearing it.</p>
-      <Button variant="outline" onClick={() => setSaved(key, null)}>I checked the version history</Button>
+      <Button variant="outline" onClick={clearPending}>I checked the version history</Button>
     </div>}
     {error && <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
   </div>;

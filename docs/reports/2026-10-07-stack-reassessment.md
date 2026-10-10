@@ -165,3 +165,25 @@ historical evidence. The final test/report head requires fresh GitHub checks.
 ## Projection-read continuation (2026-10-09)
 
 ZEN-35's owning PR #29 now selects a projector from the freshly read run type before loading steps. Five behavioral regressions and seven individually verified descendant branches preserve projection/recovery semantics. The final stack has 489 passing offline backend tests and 77 passing frontend tests. A full constrained editorial round-trip regression preserves old prose, exact source/version identity, one revision task/approval, verification and final lock. Controlled before/after HTTP counts are 800→790; only ten unused step reads changed, all mutation and other reads match. This is a 1.25% call reduction, not verified real-service latency improvement. See `2026-10-09-projection-read-profile.json` and the chapter review report for all scope results, failures corrected, coverage and unverified gates. Current exact-head CI/review must be rechecked after the final report/test commit; no Done/merge/deployment claim is made.
+
+
+## 2026-10-10: exact command recovery through the actual client
+
+ZEN-41 PR #37 now catches storage removal failure from both checked-history buttons. A failed clear keeps the identical pending command, displays the cause and storage recovery guidance; successful retry clears both command and error without writing a chapter decision. Two red cases reproduced uncaught errors before the source change; both are now green.
+
+Added 11 integration contracts using actual ApiClient, resource polling and editor identity (only native HTTP/storage boundaries controlled). All **88 frontend tests** pass; required Node 24.19.0 lint (zero warnings), types and production build pass. Tests cover exact replay with changed editor, 401/409 recovery, no untracked write when storage fails, historical evidence, unavailable legacy metadata, SSR privacy and real polling → selective gate → approval state change. No tests removed, assertions weakened, coverage exclusions added or gates lowered.
+
+| All frontend source | Covered / total | Percent |
+| --- | ---: | ---: |
+| Statement | 621 / 1,013 | 61.30% |
+| Line | 553 / 858 | 64.45% |
+| Function | 168 / 295 | 56.94% |
+| Branch | 645 / 1,127 | 57.23% |
+
+Review desk line/function metrics reach 100%; its statement is **110/117 (94.01%)** and branch **160/166 (96.38%)**. Editor identity reaches all four 100%. **Whole-project coverage is still below the required 100%.** Defensive handlers were not privately invoked to manufacture execution. Backend source was untouched; previous 489-test result remains separately scoped historical evidence.
+
+Actual production Next → signed-session proxy → FastAPI/kernel/record repositories workflow with synthetic HTTP/model boundaries: keyboard desktop **1280×900** and pointer mobile **390×844** preserve exact intent on clear failure, show contextual recovery guidance, expose a **44px** button and have no horizontal overflow. After restoring storage, the same user action removes command/error. Zero POST and uncaught errors; fresh HTTP GET confirms original v1 remains review with run/gate awaiting approval. This verifies the local recovery requirement event, not model quality or real Feishu latency.
+
+Two CDP screenshot timeouts prevent a new visual inspection claim. Original space/process handles were gone; user authorized a replacement space and local services. A mobile click after metrics change was intercepted; fresh DOM/snapshot inspection located the live button and normal ref click succeeded. A script helper error was repaired without replaying the already executed action. Browser space was closed once. Structured evidence and all limitations: [review recovery report](2026-10-10-review-recovery.json).
+
+Latest pre-push audit: all 13 open PRs have no unresolved threads or changed review/discussion bodies; ZEN-41 remains In Review. Exact-head CI after this delivery is pending until checked independently. Current full real-model flow, deployment/schema/ACL acceptance and project-wide 100% coverage remain open. Existing issue-pr-delivery, TDD, Impeccable and ego-browser skills reused; no new skill warranted. Impeccable detector ran once and returned []; DESIGN.md is newer than its sidecar, which can be refreshed separately with document.

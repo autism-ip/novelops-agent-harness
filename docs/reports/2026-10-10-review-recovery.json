@@ -1,0 +1,240 @@
+{
+  "date": "2026-10-10",
+  "issue": "ZEN-41",
+  "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/37",
+  "base": "codex/zen-40-chapter-loop",
+  "branch": "codex/zen-41-chapter-review-desk",
+  "verified_parent": "feffe370aa6e8769b588d7936ef0f6e24a3bdce0",
+  "original_goal": "Book/chapter review, selective gates, explicit version-bound decisions and revisions, immutable history and final lock.",
+  "requirement_event": "After an editor checks version history, a failed local command clear preserves exact intent and reports how to recover; restored storage permits clearing without any chapter mutation.",
+  "implementation": {
+    "module": "frontend/src/components/books/chapter-review-desk.tsx",
+    "change": "One clearPending handler catches removeItem errors, exposes cause and storage recovery guidance, retains the command and clears the error after successful retry."
+  },
+  "tests": {
+    "added_file": "frontend/tests/chapter-review-contract.test.tsx",
+    "new_tests": 11,
+    "all_frontend_tests_passed": 88,
+    "red": {
+      "failed": 2,
+      "unhandled_errors": 2,
+      "cases": [
+        "valid pending command",
+        "unreadable pending command"
+      ],
+      "cause": "Both direct removeItem handlers threw without recovery UI."
+    },
+    "contracts": [
+      "exact saved-command retention and clear recovery",
+      "real editor identity and trimmed signature/note",
+      "immutable version-specific critique/check/source details",
+      "unavailable usage and legacy artifacts",
+      "409 stale replay preserves original command after signature changes",
+      "401 preserves exact intent and same-body retry",
+      "failed session storage prevents untracked writes and supports in-memory identity",
+      "deferred default GET loading/empty states",
+      "server-render privacy and no client fetch",
+      "active-run polling stops at selective gate and actual approval response unlocks final lock"
+    ],
+    "boundaries": "Actual ApiClient, useResource and editor identity; native HTTP fetch boundary and browser storage failures controlled. No private handler invocation, removed tests or weakened assertions.",
+    "quality_gates": {
+      "node": "24.19.0",
+      "lint": "passed zero warnings after fixing four unused test callback parameters",
+      "typecheck": "passed",
+      "production_build": "passed"
+    },
+    "frontend_coverage": {
+      "lines": {
+        "total": 858,
+        "covered": 553,
+        "skipped": 0,
+        "pct": 64.45
+      },
+      "statements": {
+        "total": 1013,
+        "covered": 621,
+        "skipped": 0,
+        "pct": 61.3
+      },
+      "functions": {
+        "total": 295,
+        "covered": 168,
+        "skipped": 0,
+        "pct": 56.94
+      },
+      "branches": {
+        "total": 1127,
+        "covered": 645,
+        "skipped": 0,
+        "pct": 57.23
+      }
+    },
+    "review_desk_coverage": {
+      "lines": {
+        "total": 89,
+        "covered": 89,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 41,
+        "covered": 41,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 117,
+        "covered": 110,
+        "skipped": 0,
+        "pct": 94.01
+      },
+      "branches": {
+        "total": 166,
+        "covered": 160,
+        "skipped": 0,
+        "pct": 96.38
+      }
+    },
+    "editor_identity_coverage": {
+      "lines": {
+        "total": 12,
+        "covered": 12,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 6,
+        "covered": 6,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 17,
+        "covered": 17,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 2,
+        "covered": 2,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "all_applicable_metrics_100": false,
+    "config_change": "None; full source include, exclusions and thresholds preserved.",
+    "backend": "No backend change in this delivery. Previous separate full offline run: 489 passed/10 live deselected, not claimed as a newly executed backend run."
+  },
+  "browser": {
+    "desktop": {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "documentWidth": 1280,
+      "devicePixelRatio": 2,
+      "visualScale": 1,
+      "button": {
+        "width": 225.8125,
+        "height": 44
+      },
+      "alert": [
+        "Could not clear the saved review command. Browser storage temporarily unavailable Check browser storage access and try again."
+      ],
+      "pending": "{\"path\":\"/api/books/BK-d4b640a4246b246701016294b86aac38/chapters/1/review/decision\",\"body\":{\"run_id\":\"PR-bc05fa6d23b99007f251b42727ba717f\",\"version_id\":\"CV-3d3bfbb5964e67e1ac523533fbd87a13\",\"artifact_id\":\"AR-3d3bfbb5964e67e1ac523533fbd87a13\",\"version_no\":1,\"expected_gate_version\":1,\"operator\":\"Browser editor\",\"action\":\"approve\",\"reason\":\"UI probe only\"}}",
+      "posts": [],
+      "uncaught": []
+    },
+    "mobile": {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "documentWidth": 390,
+      "alert": "Could not clear the saved review command. Browser storage temporarily unavailable Check browser storage access and try again.",
+      "alertStyle": {
+        "color": "rgb(180, 35, 50)",
+        "backgroundColor": "oklab(0.503265 0.166535 0.0666135 / 0.1)"
+      },
+      "button": {
+        "width": 225.8125,
+        "height": 44,
+        "focus": true
+      },
+      "pending": "{\"path\":\"/api/books/BK-d4b640a4246b246701016294b86aac38/chapters/1/review/decision\",\"body\":{\"run_id\":\"PR-bc05fa6d23b99007f251b42727ba717f\",\"version_id\":\"CV-3d3bfbb5964e67e1ac523533fbd87a13\",\"artifact_id\":\"AR-3d3bfbb5964e67e1ac523533fbd87a13\",\"version_no\":1,\"expected_gate_version\":1,\"operator\":\"Browser editor\",\"action\":\"approve\",\"reason\":\"UI probe only\"}}",
+      "posts": [],
+      "uncaught": []
+    },
+    "recovered": {
+      "pending": null,
+      "posts": [],
+      "uncaught": [],
+      "retryVisible": false
+    },
+    "reviewHttpStatus": 200,
+    "state": {
+      "run": "awaiting_approval",
+      "gate": "awaiting_approval",
+      "versions": [
+        {
+          "version": 1,
+          "status": "review"
+        }
+      ]
+    },
+    "screenshotStatus": "Two Page.captureScreenshot CDP timeouts; visual inspection pending",
+    "environment": "Current immutable production Next build \u2192 signed-session proxy \u2192 real FastAPI/kernel/repositories/model routing/artifact workflow, synthetic HTTP record store and model responses; no external service requests.",
+    "cleanup": "Browser task.finish({keep:[]}) resolved once; owned API/Next handles ended 0/130; production build copy removed. Synthetic fixture temporary store cleaned by app lifespan. No external records created."
+  },
+  "failures_and_recovery": [
+    "Previous process handles 9100/81958 and browser taskSpace 1 were missing; listener/process inspection confirmed services exited. User explicitly authorized a new task space; services restarted with synthetic local data.",
+    "First seeded fixture used limit 3; API required >=30. Corrected synthetic setup to 35; no external write.",
+    "First ego-browser file argument was unsupported; ran the same saved script using documented stdin.",
+    "Two Page.captureScreenshot CDP observation timeouts; same page retained and inspected, no business write replay or extra browser space.",
+    "Linear MCP first transport read failed; same issue read retried successfully.",
+    "First mobile click after device emulation change reported a role=status wrapper intercepting input. Inspected current DOM hit target and semantic snapshot, then successful button ref click. No source workaround or forced click.",
+    "A local script edit omitted its inspection helper; ReferenceError occurred after the mobile click. Restored helper, read existing state without redoing that action, then completed recovery."
+  ],
+  "review": {
+    "audit": "All 13 PR review/comment bodies unchanged from initial current-round audit; zero unresolved threads. ZEN-41 remains In Review.",
+    "exact_head_ci": "Pending after new delivery push."
+  },
+  "verified_facts": [
+    "11 added integration contracts and all 88 frontend tests pass",
+    "review desk line/function coverage 100%, statement/branch below 100%",
+    "whole project coverage requirement remains incomplete",
+    "1280\u00d7900 keyboard and 390\u00d7844 pointer recovery: exact pending intent retained on failure, zero POST/uncaught errors, button height 44px and no page horizontal overflow",
+    "Recovered storage clears exact command and alert; fresh HTTP review GET 200 shows original v1 remains review and both run/gate awaiting_approval"
+  ],
+  "engineering_judgment": "Clear remains a local recovery action. Failed removal must not erase intent or dispatch an editorial mutation.",
+  "unverified": [
+    "Real DeepSeek quality/cost for complete current generation/rewrite flow",
+    "Real Feishu current full-flow latency and deployed host 120-second limit",
+    "Production schema and ACL acceptance",
+    "Complete all-source statement/line/function/branch 100%",
+    "Rendered visual review pending if screenshot failure persists"
+  ],
+  "risks": {
+    "security": "Synthetic loopback credentials/data only; no browser backend key exposure in contract tests, server snapshot excludes tab-local editor/commands. This is not a complete security audit.",
+    "regression": "No API contract or layout token change; actual client hooks and recovery tests protect exact command behavior. Remaining frontend page/component coverage still incomplete."
+  },
+  "reusable_skill": {
+    "reused": [
+      "issue-pr-delivery",
+      "tdd-workflow",
+      "impeccable harden/polish",
+      "ego-browser"
+    ],
+    "changed": false,
+    "assessment": "Existing workflows cover issue ownership, exact-head reporting, immutable production probes and bounded hardening. No new abstraction warranted.",
+    "impeccable_detector": "One manual detector run returned []; no rerun.",
+    "design_metadata": "DESIGN.md has newer edits than the Impeccable sidecar; refresh with document can be offered separately; no scope expansion."
+  },
+  "completion": {
+    "event_verified": true,
+    "issue_done": false,
+    "goal_complete": false,
+    "merge_ready_claim": false,
+    "reason": "Full project coverage and current real-service/deployment acceptance are still open."
+  }
+}
