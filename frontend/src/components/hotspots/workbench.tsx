@@ -22,6 +22,7 @@ import { errorMessage, useResource } from "./use-resource";
 import { ResearchHistory, ResearchResult } from "./research-results";
 import {
   listPath,
+  isDecisionPath,
   parsePending,
   safeSourceUrl,
   canClearRejected,
@@ -31,6 +32,7 @@ import {
   workflowBusy,
   type Filters,
   type Pending,
+  type SubmitResult,
   type SubmitRequest,
 } from "./state";
 
@@ -71,6 +73,7 @@ function Detail({
   creative,
   submit,
   requestPhase,
+  batchFeedback,
 }: {
   id: string;
   revision: number;
@@ -79,8 +82,9 @@ function Detail({
   disabled: boolean;
   analyze: boolean;
   creative: boolean;
-  submit: (command: SubmitRequest) => Promise<boolean>;
+  submit: (command: SubmitRequest) => Promise<SubmitResult>;
   requestPhase: "preparing" | "saving" | null;
+  batchFeedback: string | null;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const result = useResource<Hotspot>(
@@ -109,28 +113,14 @@ function Detail({
         </Button>
       </div>
       {requestPhase && <p role="status" aria-live="polite">{requestPhase === "preparing" ? "Preparing request…" : "Saving request…"}</p>}
+      {batchFeedback && <p role="alert">{batchFeedback}</p>}
       {result.loading && <p role="status">Loading details…</p>}
       {result.error != null && <p role="alert">{errorMessage(result.error)}</p>}
       {row && (
         <div className="mt-6 space-y-5">
           <h3 className="text-lg font-medium break-words">{row.title}</h3>
           <StatusBadge status={row.status} />
-          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm break-all">
-            {Object.entries({
-              ID: row.hotspot_id,
-              Source: row.source,
-              Rank: row.rank,
-              Heat: row.heat_value,
-              Category: row.category || "—",
-              Captured: new Date(row.captured_at).toLocaleString(),
-              "Dedupe key": row.dedupe_hash,
-            }).map(([key, value]) => (
-              <div key={key} className="contents">
-                <dt className="text-muted-foreground">{key}</dt>
-                <dd>{String(value)}</dd>
-              </div>
-            ))}
-          </dl>
+          {analyze && <ResearchHistory hotspotId={id} revision={revision} submit={submit} disabled={disabled} creative={creative} />}
           {sourceUrl && (
             <a
               className="text-sm underline"
@@ -141,22 +131,31 @@ function Detail({
               Open source
             </a>
           )}
-          <Button
-            variant="destructive"
-            disabled={disabled || row.status === "discarded"}
-            onClick={() => discard(row)}
-          >
-            Discard hotspot
-          </Button>
           <details>
-            <summary className="cursor-pointer font-medium">
-              Raw source payload
-            </summary>
+            <summary className="cursor-pointer font-medium">Source details</summary>
+            <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm break-all">
+              {Object.entries({
+                ID: row.hotspot_id,
+                Source: row.source,
+                Rank: row.rank,
+                Heat: row.heat_value,
+                Category: row.category || "—",
+                Captured: new Date(row.captured_at).toLocaleString(),
+                "Dedupe key": row.dedupe_hash,
+              }).map(([key, value]) => (
+                <div key={key} className="contents">
+                  <dt className="text-muted-foreground">{key}</dt>
+                  <dd>{String(value)}</dd>
+                </div>
+              ))}
+            </dl>
             <pre className="mt-3 whitespace-pre-wrap break-all rounded border p-3 text-xs">
               {JSON.stringify(row.raw_json, null, 2)}
             </pre>
           </details>
-          {analyze && <ResearchHistory hotspotId={id} revision={revision} submit={submit} disabled={disabled} creative={creative} />}
+          <Button variant="destructive" disabled={disabled || row.status === "discarded"} onClick={() => discard(row)}>
+            Discard hotspot
+          </Button>
         </div>
       )}
     </dialog>
@@ -178,6 +177,7 @@ export function HotspotsWorkbench() {
   const [manual, setManual] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [batchFeedback, setBatchFeedback] = useState<{ hotspot_id: string; detail: string }[]>([]);
   const [requestPhase, setRequestPhase] = useState<"preparing" | "saving" | null>(null);
   const busy = useRef(false);
   const pendingRaw = useSyncExternalStore(subscribe, snapshot, () => null);
@@ -235,19 +235,21 @@ export function HotspotsWorkbench() {
     setRevision((value) => value + 1);
   }
 
-  async function submit(request: SubmitRequest, retry = false) {
+  async function submit(request: SubmitRequest, retry = false): Promise<SubmitResult> {
     const stored = snapshot();
     if (stored === STORAGE_UNAVAILABLE) {
       window.dispatchEvent(new Event(EVENT));
-      return false;
+      return { ok: false, error: "Cannot read saved requests. Check browser storage access and try again." };
     }
-    if (busy.current || (!retry && stored)) return false;
+    if (busy.current || (!retry && stored)) return { ok: false, error: "Another request is pending. Retry the saved request first." };
     busy.current = true;
     setSubmitting(true);
     setError(null);
     setRequestPhase(typeof request === "function" ? "preparing" : "saving");
     let command: Pending | null = null;
     let batchError: string | null = null;
+    let batchErrors: { hotspot_id: string; detail: string }[] = [];
+    setBatchFeedback([]);
 
     try {
       command = typeof request === "function" ? await request() : request;
@@ -257,22 +259,25 @@ export function HotspotsWorkbench() {
         const batch = await api.post<{ runs: WorkflowRun[]; errors: { hotspot_id: string; detail: string }[] }>(command.path, command.body);
         setActiveRun(batch.runs[0]?.pipeline_run_id ?? null);
         setSelected([]);
+        batchErrors = batch.errors;
         batchError = batch.errors.map(e => `${e.hotspot_id}: ${e.detail}`).join("; ") || null;
         if (batchError) setError(batchError);
-      } else if (command.path.startsWith("/api/creative/")) {
+      } else if (command.path.startsWith("/api/creative/") || isDecisionPath(command.path)) {
         const payload: Record<string, unknown> = { ...command.body };
         delete payload.request_key;
         const response = await api.post<WorkflowRun>(command.path, payload);
-        if (!command.path.endsWith("/decision")) setActiveRun(response.pipeline_run_id);
+        if (!isDecisionPath(command.path)) setActiveRun(response.pipeline_run_id);
 
       } else {
         const run = await api.post<WorkflowRun>(command.path, command.body);
         setActiveRun(run.pipeline_run_id);
       }
       savePending(null);
+      setBatchFeedback(batchErrors);
       if (command.path === "/api/hotspots/manual") setManual(false);
       refresh();
-      return !batchError;
+      return batchError ? { ok: false, error: batchError } : { ok: true };
+
     } catch (cause) {
       // A rejected retry cannot disprove an earlier committed attempt.
       let message = `${batchError ? `${batchError} ` : ""}${errorMessage(cause)}`;
@@ -284,7 +289,7 @@ export function HotspotsWorkbench() {
         catch (clearCause) { message += ` ${errorMessage(clearCause)}`; }
       }
       setError(message);
-      return false;
+      return { ok: false, error: message };
     } finally {
       setRequestPhase(null);
       busy.current = false;
@@ -320,8 +325,7 @@ export function HotspotsWorkbench() {
     event.preventDefault();
     const form = event.currentTarget;
     const values = new FormData(form);
-    if (
-      await submit({
+    const outcome = await submit({
         path: "/api/hotspots/manual",
         body: {
           request_key: crypto.randomUUID(),
@@ -329,8 +333,8 @@ export function HotspotsWorkbench() {
           url: String(values.get("url")),
           category: String(values.get("category")),
         },
-      })
-    ) {
+      });
+    if (outcome.ok) {
       form.reset();
       setManual(false);
     }
@@ -731,6 +735,7 @@ export function HotspotsWorkbench() {
           creative={!!capabilities.data?.creative}
           submit={submit}
           requestPhase={requestPhase}
+          batchFeedback={batchFeedback.filter(item => item.hotspot_id === detailId).map(item => `${item.hotspot_id}: ${item.detail}`).join("; ") || null}
         />
       )}
     </div>
