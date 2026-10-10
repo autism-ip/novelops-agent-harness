@@ -24,8 +24,8 @@ const columns: Column<AgentState>[] = [
 
 export default function AgentsPage() {
   return (
-    <div className="flex-1 p-6 space-y-6 animate-fade-in">
-      <h1 className="text-2xl font-bold">Agents</h1>
+    <div className="page-shell app-reveal space-y-6">
+      <header className="space-y-2"><h1 className="page-title">Agents</h1><p className="page-intro">View agent state exposed by the current backend.</p></header>
       <Card>
         <CardHeader>
           <CardTitle>Agent States</CardTitle>
