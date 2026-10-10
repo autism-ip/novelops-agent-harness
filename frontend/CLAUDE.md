@@ -12,6 +12,7 @@ Node 24（`.nvmrc`）。`npm ci` 安装锁定依赖；`npm run check` 依次执�
 `npm test` 在 Vitest 中执行原有行为断言和组件测试；`npm run test:coverage` 使用 V8 对所有 `src/**/*.{ts,tsx}`（含未导入文件）报告语句、行、函数和分支覆盖率。CI 必须通过现有门禁。`/hotspots` 使用已有会话代理，浏览器不配置后端密钥。代理仅接受字母、数字、下划线和连字符组成的路径段，以防 URL 归一化改变后端目标路径。登录签名配置缺失时返回 503；密码错误显示明确提示。新增组件位于 `src/components/hotspots/`；`docs/hotspot-product-page.md` 记录人工操作与浏览器验收步骤。
 
 `src/components/hotspots/editor-identity.ts` 在会话内保存编辑者署名；研究、标题和封面决策共用它。`docs/approval-ui.md` 记录审批版本、退修和冲突行为。
+`src/components/books/story-planning.tsx` 提供 StoryBible 审批与版本化章节 brief 工作台；从读取上下文起锁定操作并显示准备进度，防止重复生成；检查历史后的清除失败保留精确请求并显示存储恢复指引；`planning-state.ts` 校验待重放的精确命令。视觉规范以仓库根目录 `DESIGN.md` 为准，包含响应式圆角卡片与短时动效。
 
 `src/components/books/book-bootstrap.tsx` 从批准来源创建书籍；检查 Books 后的本地清除失败显示原因和恢复指引，并保留原请求，恢复存储后可再次清除。
 
@@ -22,7 +23,7 @@ src/
     api/
       auth/login/route.ts  - POST /api/auth/login 签发 session cookie
       [...path]/route.ts   - catch-all 代理，验证 session 后注入 x-api-key
-    globals.css  - shadcn/ui neutral 主题 CSS 变量 + Tailwind v4 @theme
+    globals.css  - NovelOps 珍珠白、石板色和钴蓝色视觉变量 + Tailwind v4 @theme
     layout.tsx   - 根布局，Geist 字体
     page.tsx     - 首页
   api/

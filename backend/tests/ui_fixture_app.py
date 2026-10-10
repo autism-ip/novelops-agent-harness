@@ -18,6 +18,7 @@ from app.main import create_app
 from app.research import ResearchService
 from app.creative import CreativeService
 from app.books import BookService
+from app.story_planning import StoryPlanningService
 from app.tools.adapters.douyin_hotspots import DouyinHotspotAdapter
 from app.tools.runner import OpenCLIRunner
 from tests.feishu_transport import make_storage
@@ -50,6 +51,17 @@ def create_fixture_app():
                     "cover_prompt": f"Paint an original magical garden angle {i} with no real people",
                     "negative_prompt": "logos, real likenesses"} for i in range(3)]}
                 return Completion(json.dumps(content), route.model, 100, 50)
+            if route.model == "fixture-story_architect":
+                content = {"premise": "An invented town rebuilds a magical garden",
+                    "protagonist": "Mira, a fictional gardener", "core_conflict": "Neighbors disagree about restoring the garden",
+                    "power_rules": ["Magic needs shared care"], "reader_promise": "An earned cooperative victory",
+                    "style_contract": ["Warm, concise scenes"], "forbidden_rules": ["No real people"]}
+                return Completion(json.dumps(content), route.model, 100, 50)
+            if route.model == "fixture-chapter_planner":
+                content = {"opening_hook": "The garden gate opens at dawn", "scene_goal": "Mira finds the missing seed",
+                    "conflict": "A neighbor hides the map", "payoff": "They find a shared route",
+                    "ending_hook": "The first flower speaks"}
+                return Completion(json.dumps(content), route.model, 100, 50)
             risk = {"level": "low", "flags": [], "reasons": ["Synthetic fictional setting"],
                     "confidence": .95, "uncertainties": []}
             if route.model == "fixture-risk":
@@ -63,12 +75,14 @@ def create_fixture_app():
                 "novelization_directions": ["Invent a town where neighbors restore a magical garden"], "risk": risk}
             return Completion(json.dumps(result), route.model, 100, 50)
     kernel.artifacts = ArtifactStore(kernel)
-    kernel.model_router = ModelRouter({k: Route(provider="openai", model="fixture-" + k) for k in ("research", "risk", "titles", "covers")},
+    kernel.model_router = ModelRouter({k: Route(provider="openai", model="fixture-" + k) for k in
+        ("research", "risk", "titles", "covers", "story_architect", "chapter_planner")},
         {"openai": ResearchFixtureProvider()}, kernel.telemetry)
     kernel.semantic = SemanticRuntime(kernel.model_router, kernel.artifacts)
     kernel.research = ResearchService(kernel)
     kernel.creative = CreativeService(kernel)
     kernel.books = BookService(kernel)
+    kernel.story_planning = StoryPlanningService(kernel)
     app = create_app(Settings(_env_file=None, BACKEND_API_KEY="ui-fixture-key"), kernel=kernel)
     app.state.drop_manual_response = False
     app.state.drop_analysis_response = False
