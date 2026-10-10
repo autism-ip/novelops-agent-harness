@@ -25,6 +25,16 @@ export function BookBootstrap({ coverRunId, disabled }: { coverRunId: string; di
   const [error, setError] = useState<string | null>(null);
   const busy = useRef(false);
 
+  function clearPending() {
+    setError(null);
+    try {
+      sessionStorage.removeItem(key);
+      window.dispatchEvent(new Event(EVENT));
+    } catch (cause) {
+      setError(`Could not clear the saved book request. ${errorMessage(cause)} Check browser storage access and try again.`);
+    }
+  }
+
   async function create(retry: boolean) {
     if (busy.current || disabled || (pendingRaw && !pending)) return;
     busy.current = true;
@@ -60,7 +70,7 @@ export function BookBootstrap({ coverRunId, disabled }: { coverRunId: string; di
     {pending && !bookId && <p className="text-sm text-muted-foreground">The previous outcome is unconfirmed. Retry uses the same book and source IDs.</p>}
     {pendingRaw && !pending && <div role="alert" className="space-y-2 text-sm">
       <p>Saved book request is unreadable. Check Books for an existing result before clearing it.</p>
-      <Button variant="outline" onClick={() => { sessionStorage.removeItem(key); window.dispatchEvent(new Event(EVENT)); }}>
+      <Button variant="outline" onClick={clearPending}>
         I checked the Books list
       </Button>
     </div>}

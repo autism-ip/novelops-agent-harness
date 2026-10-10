@@ -1,0 +1,129 @@
+{
+  "date": "2026-10-10",
+  "issue": "ZEN-40",
+  "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/36",
+  "branch": "codex/zen-40-chapter-loop",
+  "requirement_event": "After checking persisted history, a local saved-command clear failure reports cause/recovery and keeps exact intent; restoring storage permits the same action to clear it without a business write. Repeated clicks while context GET is pending yield one context read and one exact source-bound write with visible preparation status.",
+  "implementation": {
+    "component": "frontend/src/components/books/chapter-generation.tsx",
+    "decision": "Catch errors at the user control boundary; clear error before retry; retain exact source/version request and existing UI tokens/flows. Lock covers context read, persistence, POST and clear in one synchronous guarded try/finally."
+  },
+  "verified_facts": {
+    "red_failure_cases": 2,
+    "added_contract_tests": 23,
+    "frontend_suite_passed": 104,
+    "node": "24.19.0",
+    "lint": "zero warnings passed",
+    "typecheck": "passed",
+    "production_build": "passed",
+    "context_concurrency_red_cases": 1
+  },
+  "coverage": {
+    "all_frontend_source": {
+      "lines": {
+        "total": 749,
+        "covered": 601,
+        "skipped": 0,
+        "pct": 80.24
+      },
+      "statements": {
+        "total": 868,
+        "covered": 674,
+        "skipped": 0,
+        "pct": 77.64
+      },
+      "functions": {
+        "total": 251,
+        "covered": 183,
+        "skipped": 0,
+        "pct": 72.9
+      },
+      "branches": {
+        "total": 939,
+        "covered": 656,
+        "skipped": 0,
+        "pct": 69.86
+      }
+    },
+    "component": {
+      "lines": {
+        "total": 56,
+        "covered": 56,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 23,
+        "covered": 23,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 72,
+        "covered": 69,
+        "skipped": 0,
+        "pct": 95.83
+      },
+      "branches": {
+        "total": 83,
+        "covered": 80,
+        "skipped": 0,
+        "pct": 96.38
+      }
+    },
+    "all_applicable_100": false,
+    "gate_config_change": "None; no exclusions, dropped tests, private disabled-control invocation or weakened assertions."
+  },
+  "runtime_scope": "React DOM user controls with actual ApiClient and relevant hooks. Native HTTP/storage boundaries controlled; exact command retention/recovery and zero unexpected writes asserted. No fresh production browser, Feishu or model outcome is claimed.",
+  "engineering_judgment": "Local clear is a recovery operation. Do not dispatch an unrelated business mutation or discard intent after a storage error.",
+  "review": "Fresh all-13 PR audit has no unresolved threads; each issue retains its existing one PR and remains In Review. Exact new-head CI/reviews are checked after pushes and reported in the PR.",
+  "known_limits": [
+    "Whole-source project coverage remains below required 100%",
+    "Fresh actual DeepSeek complete generation/rewrite quality and cost acceptance pending",
+    "Production/deployed schema, ACL, timeout and service latency pending",
+    "Fresh visual inspection for these local recovery states pending; prior screenshot CDP timeout not hidden"
+  ],
+  "risks": {
+    "security": "No new credentials or external fixture writes; blocked persistence prevents untracked writes. This is not a full security audit.",
+    "regression": "User-visible storage recovery and exact request replay tested; backend contracts and layout tokens untouched."
+  },
+  "reusable_skill": {
+    "reused": [
+      "issue-pr-delivery",
+      "tdd-workflow",
+      "impeccable harden/craft-floor"
+    ],
+    "created_or_changed": false,
+    "assessment": "Existing issue ownership, bounded hardening and native boundary tests cover this workflow; no new abstraction warranted."
+  },
+  "completion": {
+    "local_recovery_event_verified": true,
+    "issue_done": false,
+    "goal_done": false,
+    "merge_ready_claim": false,
+    "context_concurrency_event_verified": true
+  },
+  "original_goal": "Generate high-quality source-bound chapter versions with Writer, deterministic verification, actionable Critic, conditional constrained Rewrite and final verification; retain every version and model provenance.",
+  "contract_cases": [
+    "Valid/malformed clear recovery",
+    "Selected chapter and exact frozen context",
+    "Missing brief and invalid chapter boundaries",
+    "Pending/running/awaiting approval prevent overlap",
+    "Completed/failed/blocked/cancelled allow regeneration",
+    "401/503 read guidance",
+    "Context conflict prevents command persistence",
+    "401 uncertain write retains original chapter across input changes and exact replay",
+    "Storage failure prevents untracked write",
+    "In-flight POST disables retry/clear/refresh",
+    "SSR privacy",
+    "Readable verified prose, structured Critic, evidence and source IDs",
+    "Manual refresh reads updated run without write",
+    "Stale source retains prose and regeneration guidance",
+    "Two deferred-context user clicks yield one GET and one exact POST"
+  ],
+  "test_setup_failures": [
+    "Before clear fix: 2 business failures, 17 other passes and 2 unhandled storage exceptions.",
+    "Before context fix: 1 failure reproduced two real context GETs. Targeted diagnostic selection skipped other cases only in that diagnostic command; final full suite ran every test.",
+    "Dependency merge and stash restore each conflicted in frontend/CLAUDE.md. Both StoryPlanning and ChapterGeneration contracts retained. Stash retained until verification."
+  ]
+}

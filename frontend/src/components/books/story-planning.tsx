@@ -64,12 +64,21 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
   const briefBusy = !!brief && !["completed", "failed", "blocked", "cancelled"].includes(brief.run.status);
   const unavailable = bibles.error instanceof ApiError && bibles.error.status === 503;
 
-  async function submit(command: PendingPlan) {
+  function clearPending() {
+    setError(null);
+    try { setSaved(key, null); }
+    catch (cause) {
+      setError(`Could not clear the saved planning request. ${visibleError(cause)} Check browser storage access and try again.`);
+    }
+  }
+
+  async function submit(request: PendingPlan | (() => Promise<PendingPlan>)) {
     if (busy.current) return;
     busy.current = true;
     setWorking(true);
     setError(null);
     try {
+      const command = typeof request === "function" ? await request() : request;
       setSaved(key, JSON.stringify(command));
       await api.post(command.path, command.body);
       setSaved(key, null);
@@ -81,11 +90,11 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
 
   async function startBible() {
     if (pendingRaw || working) return;
-    try {
+    await submit(async () => {
       const context = await api.get<BibleContext>(`/api/books/${encodeURIComponent(bookId)}/bible/context`);
-      await submit({ path: `/api/books/${encodeURIComponent(bookId)}/bibles`,
-        body: { ...context, feedback: feedback.trim() || context.feedback } });
-    } catch (cause) { setError(visibleError(cause)); }
+      return { path: `/api/books/${encodeURIComponent(bookId)}/bibles`,
+        body: { ...context, feedback: feedback.trim() || context.feedback } };
+    });
   }
 
   async function decide(action: "approve" | "revise" | "reject") {
@@ -100,12 +109,12 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
 
   async function startBrief() {
     if (!validChapter || pendingRaw || working) return;
-    try {
+    await submit(async () => {
       const context = await api.get<BriefContext>(
         `/api/books/${encodeURIComponent(bookId)}/chapters/${chapterNo}/brief/context`);
-      await submit({ path: `/api/books/${encodeURIComponent(bookId)}/chapters/${chapterNo}/briefs`,
-        body: { ...context, feedback: feedback.trim() } });
-    } catch (cause) { setError(visibleError(cause)); }
+      return { path: `/api/books/${encodeURIComponent(bookId)}/chapters/${chapterNo}/briefs`,
+        body: { ...context, feedback: feedback.trim() } };
+    });
   }
 
   if (unavailable) return <section className="surface p-5 text-sm text-muted-foreground" aria-label="Story planning">
@@ -120,14 +129,15 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
     </div>
     {bibles.loading && <p role="status" className="text-sm">Loading story planning…</p>}
     {bibles.error != null && <p role="alert" className="text-sm text-destructive">{visibleError(bibles.error)}</p>}
+    {working && !pendingRaw && <p role="status" className="text-sm">Preparing story planning…</p>}
     {pending && <div className="surface-soft space-y-2 p-4 text-sm" role="status">
-      <p>The previous outcome is unconfirmed. Retry sends the same Book, version and artifact IDs.</p>
+      <p>{working ? "Saving story planning… This may take a moment." : "The previous outcome is unconfirmed. Retry sends the same Book, version and artifact IDs."}</p>
       <Button variant="outline" disabled={working} onClick={() => void submit(pending)}>Retry the same request</Button>
-      <Button variant="ghost" disabled={working} onClick={() => setSaved(key, null)}>I checked the history</Button>
+      <Button variant="ghost" disabled={working} onClick={clearPending}>I checked the history</Button>
     </div>}
     {pendingRaw && !pending && <div className="surface-soft space-y-2 p-4 text-sm" role="alert">
       <p>Saved request is unreadable. Check the Book history before clearing it.</p>
-      <Button variant="outline" onClick={() => setSaved(key, null)}>I checked the history</Button>
+      <Button variant="outline" onClick={clearPending}>I checked the history</Button>
     </div>}
     {error && <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
     <div className="grid gap-5 lg:grid-cols-2">
