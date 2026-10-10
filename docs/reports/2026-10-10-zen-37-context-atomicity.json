@@ -1,0 +1,167 @@
+{
+  "date": "2026-10-10",
+  "issue": "ZEN-37",
+  "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/31",
+  "original_goal": "Opportunity/title/cover approve, reject and revise decisions must create exact ApprovalEvents and unblock the correct downstream immutable versions.",
+  "requirement_event": "Research and creative regeneration serialize source context preparation with the exact persisted command; decisions preserve editor, feedback, Artifact and gate version.",
+  "implementation": [
+    "Inherited verified ZEN-36 async command factory.",
+    "Research revision now resolves its source hash/version within that same parent lock.",
+    "Creative regeneration retains the ZEN-37 result-object contract, editor identity and revision_of/feedback.",
+    "Merged conflicts explicitly preserve approval paths, decisions and revised UI."
+  ],
+  "tests": {
+    "full_frontend_passed": 71,
+    "new_contract_file_cases": 25,
+    "owning_new_cases": 12,
+    "inherited_new_cases": 13,
+    "research_red": {
+      "context_GET_expected": 1,
+      "context_GET_observed": 2
+    },
+    "native_boundaries": [
+      "Actual HotspotsWorkbench/useResource/ApiClient/editor identity/approval and creative components.",
+      "Native fetch deferred responses, jsdom dialog platform methods and Storage persistence failure.",
+      "No direct private-handler invocation or core business component mocks."
+    ],
+    "cases": [
+      "Research approve/reject/revise with blank editor, blank revision note, exact gate/source/editor/trimmed feedback.",
+      "High-risk approval targets risk_gate and immutable Artifact.",
+      "Creative rejection/revision and title/cover regeneration retain exact source, version and feedback.",
+      "Discarded source/historical research prevents mutations.",
+      "409 decision clears only the new exact intent; uncertain retry retains original source."
+    ],
+    "logs": [
+      "/tmp/novelops-research-red.log",
+      "/tmp/novelops-approval-own-coverage.log",
+      "/tmp/novelops-approval-own-check.log"
+    ],
+    "quality_gates": "Node 24 all tests, zero-warning lint, typegen/TypeScript, production build passed."
+  },
+  "full_source_coverage": {
+    "lines": {
+      "total": 506,
+      "covered": 455,
+      "skipped": 0,
+      "pct": 89.92
+    },
+    "statements": {
+      "total": 560,
+      "covered": 494,
+      "skipped": 0,
+      "pct": 88.21
+    },
+    "functions": {
+      "total": 169,
+      "covered": 139,
+      "skipped": 0,
+      "pct": 82.24
+    },
+    "branches": {
+      "total": 544,
+      "covered": 491,
+      "skipped": 0,
+      "pct": 90.25
+    },
+    "branchesTrue": {
+      "total": 0,
+      "covered": 0,
+      "skipped": 0,
+      "pct": 100
+    }
+  },
+  "component_coverage": {
+    "/Users/zen/.codex/worktrees/issue-delivery/novelops-agent-harness/frontend/src/components/hotspots/creative-results.tsx": {
+      "lines": {
+        "total": 28,
+        "covered": 28,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 13,
+        "covered": 13,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 36,
+        "covered": 32,
+        "skipped": 0,
+        "pct": 88.88
+      },
+      "branches": {
+        "total": 83,
+        "covered": 74,
+        "skipped": 0,
+        "pct": 89.15
+      }
+    },
+    "/Users/zen/.codex/worktrees/issue-delivery/novelops-agent-harness/frontend/src/components/hotspots/research-results.tsx": {
+      "lines": {
+        "total": 39,
+        "covered": 37,
+        "skipped": 0,
+        "pct": 94.87
+      },
+      "functions": {
+        "total": 22,
+        "covered": 20,
+        "skipped": 0,
+        "pct": 90.9
+      },
+      "statements": {
+        "total": 50,
+        "covered": 47,
+        "skipped": 0,
+        "pct": 94
+      },
+      "branches": {
+        "total": 83,
+        "covered": 71,
+        "skipped": 0,
+        "pct": 85.54
+      }
+    },
+    "/Users/zen/.codex/worktrees/issue-delivery/novelops-agent-harness/frontend/src/components/hotspots/workbench.tsx": {
+      "lines": {
+        "total": 159,
+        "covered": 149,
+        "skipped": 0,
+        "pct": 93.71
+      },
+      "functions": {
+        "total": 57,
+        "covered": 50,
+        "skipped": 0,
+        "pct": 87.71
+      },
+      "statements": {
+        "total": 176,
+        "covered": 158,
+        "skipped": 0,
+        "pct": 89.77
+      },
+      "branches": {
+        "total": 165,
+        "covered": 143,
+        "skipped": 0,
+        "pct": 86.66
+      }
+    }
+  },
+  "failures_retained": [
+    "The first creative rejection test queried Editor name before real history finished loading. Changed to findByLabelText, retaining exact editor/Artifact/version/feedback assertions; all 25 cases then passed."
+  ],
+  "runtime": "Latest combined-stack production browser event verification remains pending at this commit; native component contracts do not prove actual Feishu ApprovalEvents or model quality.",
+  "requirement_event_achieved": false,
+  "coverage_100_verified": false,
+  "review_initial": "All 13 current heads matched remote, no unresolved threads. Reaudit after downstream delivery.",
+  "skill_assessment": "Reuse issue-pr-delivery and Impeccable harden concurrent/loading/error workflow; no new skill required.",
+  "remaining": [
+    "All-source 100% on every applicable metric.",
+    "Latest real DeepSeek/Feishu/deployed business acceptance.",
+    "Current-head descendant quality gates and browser acceptance."
+  ],
+  "status": "In Review; not merged or Done"
+}
