@@ -46,3 +46,7 @@
 复用现有 issue-pr-delivery、Impeccable、TDD 和 ego-browser 工作流；没有创建额外 Skill。主工作区及用户已有更改保持原样。
 
 [完整结构化证据、失败恢复和逐 Issue 判断](2026-10-10-creative-context-runtime.json)
+
+## 清理范围
+
+本轮两个任务专属服务及生产副本已移除，端口无监听，工作区依赖保留。清理 API 后，一个尚在途中的代理读取记录了 ECONNRESET；这是浏览器已移至空白页后的清理输出，保留于 JSON，全部业务断言在此之前通过。整体目标尚未完成，保留已授权空间 2/p1 为空白页以继续验收。

@@ -4106,5 +4106,13 @@
     "new_skill_created": false,
     "reason": "Existing issue delivery and native-boundary/runtime-evidence workflow already covers this repeated context-lock and active-modal verification pattern; no additional abstraction needed."
   },
-  "requirement_event_achieved": "The narrowly reported synthetic composed business events occurred; entire original issue/goal acceptance remains incomplete."
+  "requirement_event_achieved": "The narrowly reported synthetic composed business events occurred; entire original issue/goal acceptance remains incomplete.",
+  "cleanup": {
+    "browser": "Space2/p1 navigated to about:blank; native fetch probes removed and device override cleared. Whole goal remains active, so task.finish is not called.",
+    "owned_api": "Graceful shutdown complete; synthetic HTTP client and TemporaryDirectory cleanup executed.",
+    "owned_next": "Stopped with expected Ctrl+C exit130. One queued/in-flight proxy read logged ECONNRESET after API teardown; this occurred after browser moved to blank and after every behavior assertion. It is retained as teardown evidence, not hidden as a test pass.",
+    "ports": "18431 and18432 have no listening process.",
+    "production_copy": "Only verified task-owned /tmp/novelops-context-build removed; managed workspace node_modules preserved.",
+    "future_cleanup_order": "Stop the owned proxy before API after navigating blank to avoid a teardown-only reset log."
+  }
 }
