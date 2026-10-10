@@ -252,7 +252,9 @@ test("risk approval uses the risk gate and its exact immutable opportunity Artif
 test("rejected approval shows the cause and clears only the new exact decision intent", async () => {
   const store = fixture(); gate(store); store.rejectWrite(409); render(<HotspotsWorkbench />); const dialog = await open();
   fireEvent.change(await within(dialog).findByLabelText("Editor name"), { target: { value: "Editor Lin" } });
-  fireEvent.click(within(dialog).getByRole("button", { name: "Approve opportunity" })); await screen.findAllByText("Exact decision rejected");
+  const approval = within(dialog).getByRole("button", { name: "Approve opportunity" });
+  await waitFor(() => expect((approval as HTMLButtonElement).disabled).toBe(false));
+  fireEvent.click(approval); await within(dialog).findByText("Exact decision rejected");
   expect(store.commands).toHaveLength(1); expect(sessionStorage.getItem(storageKey)).toBeNull();
   expect((within(dialog).getByRole("button", { name: "Approve opportunity" }) as HTMLButtonElement).disabled).toBe(false);
 });
