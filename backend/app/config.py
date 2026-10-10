@@ -51,6 +51,9 @@ class Settings(BaseSettings):
     CREATIVE_ENABLED: bool = False
     BOOKS_ENABLED: bool = False
     STORY_PLANNING_ENABLED: bool = False
+    CHAPTER_LOOP_ENABLED: bool = False
+    CHAPTER_MAX_REWRITES: int = Field(default=1, ge=0, le=1)
+    CHAPTER_MAX_ESTIMATED_COST: float | None = Field(default=None, gt=0)
     OPENAI_API_KEY: str = ""
     DEEPSEEK_API_KEY: str = ""
     MODEL_ROUTES_JSON: str = "{}"
