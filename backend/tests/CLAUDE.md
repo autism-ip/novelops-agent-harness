@@ -2,6 +2,7 @@
 > L2 | 父级: ../CLAUDE.md
 
 成员清单
+test_harness_projection.py: 投影读取契约；无投影器不加载未使用步骤，有投影器保留当前类型、最新状态、取消兄弟步骤与投影失败后的无副作用重放恢复。
 __init__.py: pytest 包标记。
 conftest.py: 测试环境与 AsyncClient 夹具（pytest_asyncio.fixture），隔离环境变量，TYPE_CHECKING 导入 Settings。
 test_system_endpoints.py: 系统端点行为门禁，验证响应形状、占位状态与不泄密。
@@ -25,6 +26,8 @@ test_pipeline_api.py: Pipeline API 端点门禁，验证 POST 创建、GET 安�
 test_feishu_integration.py: 飞书集成门禁（需真实凭证，CI 跳过）。
 test_hotspot_ingestion.py: ZEN-33 子进程→adapter→调度器→Feishu transport→API 验收，覆盖批次重放、去重、超时与关闭采集后读取；不等于真实平台验收。
 test_hotspot_controls.py: ZEN-34 人工添加/丢弃鉴权、幂等与冲突、写入超时和重启恢复验收。
+test_research_workflow.py: ZEN-35 schema/风险分流、模型失败、版本审批、投影恢复、批次重放及 API 验收。
+test_research_kernel_contract.py: 动态审批、退修理由、永久失败与终态投影恢复契约。
 ui_fixture_app.py: 仅本机浏览器验收服务；复用真实 API/Harness 与合成 HTTP 存储，提供受鉴权保护的响应丢失/上游失败注入；不进入生产包。
 
 架构决策

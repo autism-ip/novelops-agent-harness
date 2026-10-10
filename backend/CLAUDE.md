@@ -2,6 +2,7 @@
 > L2 | 父级: ../CLAUDE.md
 
 成员清单
+app/harness.py: 单调度器和单写者状态机；投影先读取当前流程类型，仅存在投影器时才加载最新步骤，不缓存业务状态。
 README.md: 后端包说明与本地验证命令，包含当前覆盖率基线和运行限制。
 pyproject.toml: Python 项目元数据与依赖门禁；固定 Ruff/coverage/build 工具，配置 lint、87.82% 当前覆盖率基线下限和 app 包发现。
 .env.example: 本地环境变量样例，只放占位符，不承载真实密钥。
@@ -15,6 +16,8 @@ app/tools/: 外部工具集成层——OpenCLIRunner 子进程执行（runner.py
 app/tools/adapters/: 工具适配器子包——抖音热点适配器（douyin_hotspots.py），DouyinHotspotAdapter 封装命令组装与字段归一化，支持多字段别名容错。
 app/hotspots.py: ZEN-33 确定性抓取快照、去重、保留业务 ID/状态、按新采集时间更新与重启对账；不调用 LLM。
 app/hotspot_controls.py: ZEN-34 人工添加与丢弃命令；通过持久化工作流执行，稳定身份和状态冲突保护。
+app/research.py: ZEN-35 版本化 ResearchAgent、保守风险策略、精确版本审批与可恢复飞书分析投影。
+app/api/routes/research.py: 鉴权批量分析、历史、审批/拒绝/退修与 approved 消费契约。
 app/api/routes/hotspots.py: 鉴权抓取触发及热点列表/详情接口；命令只由后端配置。
 
 架构决策
