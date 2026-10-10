@@ -59,12 +59,21 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
   const runBusy = !!latest && !["completed", "failed", "blocked", "cancelled"].includes(latest.run.status);
   const unavailable = runs.error instanceof ApiError && runs.error.status === 503;
 
-  async function submit(command: PendingChapter) {
+  function clearPending() {
+    setError(null);
+    try { setSaved(key, null); }
+    catch (cause) {
+      setError(`Could not clear the saved chapter request. ${visibleError(cause)} Check browser storage access and try again.`);
+    }
+  }
+
+  async function submit(request: PendingChapter | (() => Promise<PendingChapter>)) {
     if (busy.current) return;
     busy.current = true;
     setWorking(true);
     setError(null);
     try {
+      const command = typeof request === "function" ? await request() : request;
       setSaved(key, JSON.stringify(command));
       await api.post(command.path, command.body);
       setSaved(key, null);
@@ -75,10 +84,10 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
 
   async function generate() {
     if (!validChapter || pendingRaw || working || !brief.data) return;
-    try {
+    await submit(async () => {
       const context = await api.get<ChapterContext>(`${root}/generation/context`);
-      await submit({ path: `${root}/generations`, body: context });
-    } catch (cause) { setError(visibleError(cause)); }
+      return { path: `${root}/generations`, body: context };
+    });
   }
 
   if (unavailable) return <section className="surface p-5 text-sm text-muted-foreground" aria-label="Chapter generation">
@@ -102,14 +111,15 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
     {validChapter && !brief.data && !(brief.loading) &&
       <p className="text-sm text-muted-foreground">Approve the StoryBible and generate a current chapter brief first.</p>}
     {runs.error != null && <p role="alert" className="text-sm text-destructive">{visibleError(runs.error)}</p>}
+    {working && !pendingRaw && <p role="status" className="text-sm">Preparing chapter generation…</p>}
     {pending && <div className="surface-soft space-y-2 p-4 text-sm" role="status">
-      <p>The last submission has an unknown outcome. Retry preserves the same Book, chapter, run version and source artifacts.</p>
+      <p>{working ? "Saving chapter generation… This may take a moment." : "The last submission has an unknown outcome. Retry preserves the same Book, chapter, run version and source artifacts."}</p>
       <div className="flex flex-wrap gap-2"><Button variant="outline" disabled={working} onClick={() => void submit(pending)}>Retry the same request</Button>
-        <Button variant="ghost" disabled={working} onClick={() => setSaved(key, null)}>I checked the history</Button></div>
+        <Button variant="ghost" disabled={working} onClick={clearPending}>I checked the history</Button></div>
     </div>}
     {pendingRaw && !pending && <div className="surface-soft space-y-2 p-4 text-sm" role="alert">
       <p>The saved request is unreadable. Check the chapter history before clearing it.</p>
-      <Button variant="outline" onClick={() => setSaved(key, null)}>I checked the history</Button>
+      <Button variant="outline" onClick={clearPending}>I checked the history</Button>
     </div>}
     {error && <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
     {latest && <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(17rem,1fr)]">
