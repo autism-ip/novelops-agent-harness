@@ -1,0 +1,522 @@
+{
+  "date": "2026-10-10",
+  "scope": "ZEN-38, ZEN-39, ZEN-40 local recovery/context atomicity; inherited ZEN-107 design; ZEN-41 provenance regression",
+  "original_goal": "Deliver one PR per issue toward real source-bound author/editor workflows, full applicable coverage and actual runtime acceptance. These local fixes alone do not finish the issue goals.",
+  "issues": [
+    {
+      "issue": "ZEN-38",
+      "pr": 32,
+      "branch": "codex/zen-38-book-bootstrap",
+      "head": "a9f0ad16726b",
+      "owning_tests": 57,
+      "added_contract_cases": 10
+    },
+    {
+      "issue": "ZEN-107",
+      "pr": 34,
+      "branch": "codex/zen-107-ios-design",
+      "head": "80f5be79dc6a",
+      "owning_tests": 58
+    },
+    {
+      "issue": "ZEN-39",
+      "pr": 35,
+      "branch": "codex/zen-39-story-planning",
+      "head": "db0d4623d1b6",
+      "owning_tests": 80,
+      "added_contract_cases": 21
+    },
+    {
+      "issue": "ZEN-40",
+      "pr": 36,
+      "branch": "codex/zen-40-chapter-loop",
+      "head": "476a5b18e487",
+      "owning_tests": 104,
+      "added_contract_cases": 23
+    },
+    {
+      "issue": "ZEN-41",
+      "pr": 37,
+      "branch": "codex/zen-41-chapter-review-desk",
+      "owning_tests": 142
+    }
+  ],
+  "dependency_order": [
+    32,
+    34,
+    35,
+    36,
+    37
+  ],
+  "requirements_and_events": [
+    {
+      "event": "After checking history, storage removal failure retains exact saved request, reports cause/recovery, permits clear after restoration, sends no unrelated business POST",
+      "implementation": "Catch user clear boundaries in BookBootstrap, StoryPlanning and ChapterGeneration",
+      "verification": "2 red clear cases per owning component; ReactDOM/native storage and actual ApiClient; fresh real browser proof for planning/generation on both viewport sizes",
+      "achieved_for_local_scope": true
+    },
+    {
+      "event": "Two rapid activations during context preparation produce one GET and one exact source-bound write",
+      "implementation": "Synchronous busy ref owns GET through persistence, POST and clear in one try/finally; distinct Preparing/Saving status",
+      "verification": "3 red deferred-native-HTTP DOM click cases; actual browser repeated Enter through production Next proxy and FastAPI/kernel; one 201 POST per context; fresh persisted reads no duplicates",
+      "achieved_for_local_scope": true
+    },
+    {
+      "event": "The read chapter version retains inspectable artifact identity across current/history/legacy selection",
+      "implementation": "Restore Chapter artifact in existing Sources disclosure using displayed artifact, show Unavailable if absent",
+      "verification": "Inherited generation behavioral test failed before fix; current/history/legacy assertions with real ReviewDesk hooks and fresh visible real artifact ID",
+      "achieved_for_local_scope": true
+    }
+  ],
+  "tests": {
+    "node": "24.19.0",
+    "all_frontend": 142,
+    "lint": "zero warnings passed",
+    "typecheck": "passed",
+    "production_build": "passed",
+    "coverage_command": "npm run test:coverage",
+    "quality_command": "npm run check",
+    "backend": "No backend source changed in this round; fresh GitHub backend quality gates checked per head, no fresh model quality claim"
+  },
+  "coverage": {
+    "all_frontend_source": {
+      "statements": {
+        "total": 1019,
+        "covered": 817,
+        "skipped": 0,
+        "pct": 80.17
+      },
+      "lines": {
+        "total": 863,
+        "covered": 714,
+        "skipped": 0,
+        "pct": 82.73
+      },
+      "functions": {
+        "total": 296,
+        "covered": 226,
+        "skipped": 0,
+        "pct": 76.35
+      },
+      "branches": {
+        "total": 1143,
+        "covered": 854,
+        "skipped": 0,
+        "pct": 74.71
+      }
+    },
+    "components": {
+      "book-bootstrap.tsx": {
+        "statements": {
+          "total": 42,
+          "covered": 40,
+          "skipped": 0,
+          "pct": 95.23
+        },
+        "lines": {
+          "total": 35,
+          "covered": 35,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 9,
+          "covered": 9,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branches": {
+          "total": 31,
+          "covered": 30,
+          "skipped": 0,
+          "pct": 96.77
+        }
+      },
+      "story-planning.tsx": {
+        "statements": {
+          "total": 93,
+          "covered": 88,
+          "skipped": 0,
+          "pct": 94.62
+        },
+        "lines": {
+          "total": 74,
+          "covered": 74,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 29,
+          "covered": 29,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branches": {
+          "total": 114,
+          "covered": 109,
+          "skipped": 0,
+          "pct": 95.61
+        }
+      },
+      "chapter-generation.tsx": {
+        "statements": {
+          "total": 71,
+          "covered": 66,
+          "skipped": 0,
+          "pct": 92.95
+        },
+        "lines": {
+          "total": 53,
+          "covered": 52,
+          "skipped": 0,
+          "pct": 98.11
+        },
+        "functions": {
+          "total": 22,
+          "covered": 20,
+          "skipped": 0,
+          "pct": 90.9
+        },
+        "branches": {
+          "total": 65,
+          "covered": 62,
+          "skipped": 0,
+          "pct": 95.38
+        }
+      },
+      "chapter-review-desk.tsx": {
+        "statements": {
+          "total": 117,
+          "covered": 110,
+          "skipped": 0,
+          "pct": 94.01
+        },
+        "lines": {
+          "total": 89,
+          "covered": 89,
+          "skipped": 0,
+          "pct": 100
+        },
+        "functions": {
+          "total": 41,
+          "covered": 41,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branches": {
+          "total": 168,
+          "covered": 162,
+          "skipped": 0,
+          "pct": 96.42
+        }
+      }
+    },
+    "all_applicable_100": false,
+    "configuration_changed": false,
+    "exclusions_or_skipped_test_source_added": false,
+    "assertions_weakened": false
+  },
+  "runtime": {
+    "scope": "Production Next.js build in immutable task-owned copy -> signed local session proxy -> real FastAPI/kernel/repositories; synthetic HTTP storage and model responses. Native storage/HTTP faults only at boundaries. No live Feishu or DeepSeek claim.",
+    "clear_recovery": {
+      "results": [
+        {
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          },
+          "width": 1280,
+          "posts": [],
+          "uncaught": [],
+          "states": [
+            {
+              "section": "Story planning",
+              "pending": "{\"path\":\"/api/books/BK-d4b640a4246b246701016294b86aac38/bibles\",\"body\":{\"book_id\":\"BK-d4b640a4246b246701016294b86aac38\",\"base_state_artifact_id\":\"AR-647e8f7ed1ca2616dfffa514c5c47f0c\",\"base_version\":2,\"version\":2,\"change_scope\":\"major\",\"feedback\":\"\"}}",
+              "error": "Could not clear the saved planning request. Browser storage temporarily unavailable Check browser storage access and try again.",
+              "button": {
+                "height": 44,
+                "width": 172.984375,
+                "focus": false
+              },
+              "style": {
+                "color": "rgb(180, 35, 50)",
+                "background": "oklab(0.503265 0.166535 0.0666135 / 0.1)",
+                "fontSize": "14px"
+              },
+              "spacing": {
+                "sectionPadding": "24px",
+                "buttonGap": "normal"
+              }
+            },
+            {
+              "section": "Chapter generation",
+              "pending": "{\"path\":\"/api/books/BK-d4b640a4246b246701016294b86aac38/chapters/2/generations\",\"body\":{\"book_id\":\"BK-d4b640a4246b246701016294b86aac38\",\"chapter_no\":2,\"version\":1,\"start_version_no\":1,\"state_artifact_id\":\"AR-647e8f7ed1ca2616dfffa514c5c47f0c\",\"state_version\":2,\"brief_artifact_id\":\"AR-e7d5f5ca0d4000f4410035a379bf3fd0\",\"brief_version\":1,\"source_version_id\":\"\",\"constraints\":{\"must_keep\":[],\"must_change\":[],\"do_not_change\":[]}}}",
+              "error": "Could not clear the saved chapter request. Browser storage temporarily unavailable Check browser storage access and try again.",
+              "button": {
+                "height": 44,
+                "width": 172.984375,
+                "focus": true
+              },
+              "style": {
+                "color": "rgb(180, 35, 50)",
+                "background": "oklab(0.503265 0.166535 0.0666135 / 0.1)",
+                "fontSize": "14px"
+              },
+              "spacing": {
+                "sectionPadding": "24px",
+                "buttonGap": "8px"
+              }
+            }
+          ],
+          "device": "desktop"
+        },
+        {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "width": 390,
+          "posts": [],
+          "uncaught": [],
+          "states": [
+            {
+              "section": "Story planning",
+              "pending": "{\"path\":\"/api/books/BK-d4b640a4246b246701016294b86aac38/bibles\",\"body\":{\"book_id\":\"BK-d4b640a4246b246701016294b86aac38\",\"base_state_artifact_id\":\"AR-647e8f7ed1ca2616dfffa514c5c47f0c\",\"base_version\":2,\"version\":2,\"change_scope\":\"major\",\"feedback\":\"\"}}",
+              "error": "Could not clear the saved planning request. Browser storage temporarily unavailable Check browser storage access and try again.",
+              "button": {
+                "height": 44,
+                "width": 172.984375,
+                "focus": false
+              },
+              "style": {
+                "color": "rgb(180, 35, 50)",
+                "background": "oklab(0.503265 0.166535 0.0666135 / 0.1)",
+                "fontSize": "14px"
+              },
+              "spacing": {
+                "sectionPadding": "20px",
+                "buttonGap": "normal"
+              }
+            },
+            {
+              "section": "Chapter generation",
+              "pending": "{\"path\":\"/api/books/BK-d4b640a4246b246701016294b86aac38/chapters/2/generations\",\"body\":{\"book_id\":\"BK-d4b640a4246b246701016294b86aac38\",\"chapter_no\":2,\"version\":1,\"start_version_no\":1,\"state_artifact_id\":\"AR-647e8f7ed1ca2616dfffa514c5c47f0c\",\"state_version\":2,\"brief_artifact_id\":\"AR-e7d5f5ca0d4000f4410035a379bf3fd0\",\"brief_version\":1,\"source_version_id\":\"\",\"constraints\":{\"must_keep\":[],\"must_change\":[],\"do_not_change\":[]}}}",
+              "error": "Could not clear the saved chapter request. Browser storage temporarily unavailable Check browser storage access and try again.",
+              "button": {
+                "height": 44,
+                "width": 172.984375,
+                "focus": true
+              },
+              "style": {
+                "color": "rgb(180, 35, 50)",
+                "background": "oklab(0.503265 0.166535 0.0666135 / 0.1)",
+                "fontSize": "14px"
+              },
+              "spacing": {
+                "sectionPadding": "20px",
+                "buttonGap": "8px"
+              }
+            }
+          ],
+          "device": "mobile"
+        }
+      ],
+      "recovered": {
+        "pending": [
+          null,
+          null
+        ],
+        "posts": [],
+        "uncaught": []
+      }
+    },
+    "context_concurrency": {
+      "results": [
+        {
+          "kind": "bible",
+          "prepared": {
+            "contexts": 1,
+            "disabled": true,
+            "progress": true,
+            "pending": null,
+            "viewport": 1280,
+            "overflow": false
+          },
+          "contexts": [
+            {
+              "book_id": "BK-d4b640a4246b246701016294b86aac38",
+              "base_state_artifact_id": "AR-647e8f7ed1ca2616dfffa514c5c47f0c",
+              "base_version": 2,
+              "version": 2,
+              "change_scope": "major",
+              "feedback": ""
+            }
+          ],
+          "writes": [
+            {
+              "path": "/api/books/BK-d4b640a4246b246701016294b86aac38/bibles",
+              "body": {
+                "book_id": "BK-d4b640a4246b246701016294b86aac38",
+                "base_state_artifact_id": "AR-647e8f7ed1ca2616dfffa514c5c47f0c",
+                "base_version": 2,
+                "version": 2,
+                "change_scope": "major",
+                "feedback": ""
+              },
+              "status": 201
+            }
+          ],
+          "pending": null,
+          "errors": []
+        },
+        {
+          "kind": "brief",
+          "prepared": {
+            "contexts": 1,
+            "disabled": true,
+            "progress": true,
+            "pending": null,
+            "viewport": 1280,
+            "overflow": false
+          },
+          "contexts": [
+            {
+              "book_id": "BK-d4b640a4246b246701016294b86aac38",
+              "chapter_no": 1,
+              "state_artifact_id": "AR-647e8f7ed1ca2616dfffa514c5c47f0c",
+              "state_version": 2,
+              "version": 2,
+              "feedback": ""
+            }
+          ],
+          "writes": [
+            {
+              "path": "/api/books/BK-d4b640a4246b246701016294b86aac38/chapters/1/briefs",
+              "body": {
+                "book_id": "BK-d4b640a4246b246701016294b86aac38",
+                "chapter_no": 1,
+                "state_artifact_id": "AR-647e8f7ed1ca2616dfffa514c5c47f0c",
+                "state_version": 2,
+                "version": 2,
+                "feedback": ""
+              },
+              "status": 201
+            }
+          ],
+          "pending": null,
+          "errors": []
+        },
+        {
+          "kind": "chapter",
+          "prepared": {
+            "contexts": 1,
+            "disabled": true,
+            "progress": true,
+            "pending": null,
+            "viewport": 390,
+            "overflow": false
+          },
+          "contexts": [
+            {
+              "book_id": "BK-d4b640a4246b246701016294b86aac38",
+              "chapter_no": 2,
+              "version": 1,
+              "start_version_no": 1,
+              "state_artifact_id": "AR-647e8f7ed1ca2616dfffa514c5c47f0c",
+              "state_version": 2,
+              "brief_artifact_id": "AR-e7d5f5ca0d4000f4410035a379bf3fd0",
+              "brief_version": 1,
+              "source_version_id": "",
+              "constraints": {
+                "must_keep": [],
+                "must_change": [],
+                "do_not_change": []
+              }
+            }
+          ],
+          "writes": [
+            {
+              "path": "/api/books/BK-d4b640a4246b246701016294b86aac38/chapters/2/generations",
+              "body": {
+                "book_id": "BK-d4b640a4246b246701016294b86aac38",
+                "chapter_no": 2,
+                "version": 1,
+                "start_version_no": 1,
+                "state_artifact_id": "AR-647e8f7ed1ca2616dfffa514c5c47f0c",
+                "state_version": 2,
+                "brief_artifact_id": "AR-e7d5f5ca0d4000f4410035a379bf3fd0",
+                "brief_version": 1,
+                "source_version_id": "",
+                "constraints": {
+                  "must_keep": [],
+                  "must_change": [],
+                  "do_not_change": []
+                }
+              },
+              "status": 201
+            }
+          ],
+          "pending": null,
+          "errors": []
+        }
+      ]
+    },
+    "fresh_read_summary": {
+      "canonical_state_version": 2,
+      "bible_v2_runs": 1,
+      "bible_status": "awaiting_approval",
+      "brief_v2_runs": 1,
+      "brief_status": "completed",
+      "chapter_2_versions": 1,
+      "chapter_status": "completed",
+      "canonical_state_not_changed_by_unapproved_bible": true
+    }
+  },
+  "failures_and_recovery": [
+    "frontend/CLAUDE.md dependency merge conflicts resolved by retaining each feature contract and existing review timeout/recovery description. Stash apply initially conflicted; source/tests restored and verified, stash retained.",
+    "Inherited generation source-ID test exposed omitted chapter Artifact ID in new ReviewDesk; fixed product, retained assertion.",
+    "Browser snapshot subtree root incorrectly used selector instead of ref; tool rejected observation after fixture setup. Observed existing state without repeating setup.",
+    "Browser semantic pointer control overlapped fixed header. Inspected state before recovery; no request sent.",
+    "Browser dblclick first activation locked the control; tool second activation timed out on disabled element. No forced disabled action used.",
+    "Held HTTP probe exceeded native timeout across rounds; temporary helper did not forward reject, producing AbortError in probe. Preserved failed attempt, confirmed zero writes, corrected abort propagation, reloaded same page.",
+    "Coordinate double-click did not hit control; actual state confirmed zero contexts/writes/errors. Successful runtime proof uses two actual Enter presses; DOM regressions separately use two actual public clicks.",
+    "Expected fixture hotspot title 1 was not on first page; observed actual title 31. Completed cover activity showed generic pipeline details; research activity supplies the nested cover/book UI."
+  ],
+  "review": {
+    "all_13_unresolved_at_initial_current_audit": 0,
+    "new_heads_final_ci": "pending final audit",
+    "no_automatic_resolution_or_issue_done": true
+  },
+  "engineering_judgment": [
+    "Read-only context is part of the command preparation transaction and must be protected before any async boundary.",
+    "Shown artifact identity belongs to the displayed version, not always the latest selection.",
+    "Native boundary probes demonstrate these user-observable recovery/atomicity events, not real model semantic quality or production ACL."
+  ],
+  "known_limits": [
+    "All project statement/line/function/branch coverage is still below 100%; no exclusion or weaker gate used.",
+    "Fresh actual DeepSeek generation/rewrite quality/cost and full selective approval events pending.",
+    "Deployment schema/ACL and execution timeout/latency acceptance pending.",
+    "Full issue original business completion remains open; all issues stay In Review."
+  ],
+  "risks": {
+    "security": "No credential exposure/new external fixture writes. Native browser fault injection scoped to task-owned local requests. Not a complete security audit.",
+    "regression": "Owning branch and combined branch independently verified; API contracts retained.",
+    "remaining": "Uncovered frontend/workbench/research/creative/book/page branches and backend paths need meaningful requirement assertions."
+  },
+  "reusable_skill": {
+    "reused": [
+      "issue-pr-delivery",
+      "tdd-workflow",
+      "impeccable harden/craft-floor",
+      "ego-browser"
+    ],
+    "new_skill": false,
+    "assessment": "Existing issue ownership and native-boundary contract workflow suffice. Probe helpers are task-specific and still had tool/runtime failures; do not canonize them as a new skill."
+  },
+  "completion": {
+    "local_requirement_events_verified": true,
+    "issue_done": false,
+    "goal_done": false,
+    "safe_merge_claim": false
+  }
+}

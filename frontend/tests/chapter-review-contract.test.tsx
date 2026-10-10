@@ -130,6 +130,7 @@ test("sources, quality checks and revision progress stay bound to the displayed 
   fireEvent.click(screen.getByText("Deterministic checks"));
   expect(screen.getByText("✓ exact sources")).toBeTruthy();
   fireEvent.click(screen.getByText("Sources, usage and trace"));
+  expect(screen.getByText("Chapter artifact").nextElementSibling?.textContent).toBe(artifact);
   expect(screen.getByText("150 input · 75 output")).toBeTruthy();
   expect(screen.getByText("0.02")).toBeTruthy();
   expect(screen.getByText("writer · fixture-writer · writer-v3 · 40 ms")).toBeTruthy();
@@ -139,6 +140,7 @@ test("sources, quality checks and revision progress stay bound to the displayed 
   fireEvent.click(screen.getByRole("button", { name: "v1 · candidate" }));
   expect(screen.getByText("The original gate scene remains in history.")).toBeTruthy();
   expect(screen.getByText("! forbidden literal")).toBeTruthy();
+  expect(screen.getByText("Chapter artifact").nextElementSibling?.textContent).toBe(completedReview().versions[1].artifact.artifact_id);
   expect(screen.getByText("AR-snapshot-v1")).toBeTruthy();
   expect(screen.getByText("AR-brief-v1")).toBeTruthy();
   expect(screen.queryByText(/This Critic report scored v1 before the rewrite/)).toBeNull();
@@ -161,6 +163,7 @@ test("absent usage and legacy artifact sources are shown as unavailable rather t
   expect(screen.getByText("The original gate scene remains in history.")).toBeTruthy();
   expect(screen.getByText("Legacy version: exact Artifact provenance is unavailable.")).toBeTruthy();
   expect(screen.getByText("The structured critique appears after a verified draft.")).toBeTruthy();
+  expect(screen.getByText("Chapter artifact").nextElementSibling?.textContent).toBe("Unavailable");
   expect(screen.getAllByText("Unavailable").length).toBeGreaterThanOrEqual(3);
 });
 

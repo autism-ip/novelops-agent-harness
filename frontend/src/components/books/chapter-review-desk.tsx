@@ -239,6 +239,7 @@ export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged }: {
         <p className="text-sm text-muted-foreground">Selected version sources and current run usage remain available here.</p>
         <details className="border-t pt-3 text-xs text-muted-foreground"><summary className="min-h-11 cursor-pointer font-medium">Sources, usage and trace</summary>
           <dl className="mt-2 space-y-1 break-all">
+            <div><dt>Chapter artifact</dt><dd>{shown?.artifact_id ?? "Unavailable"}</dd></div>
             <div><dt>Version snapshot</dt><dd>{shown?.source_refs[0] ?? "Unavailable"}</dd></div>
             <div><dt>Version brief</dt><dd>{shown?.source_refs[1] ?? "Unavailable"}</dd></div>
             <div><dt>Version source artifacts</dt><dd>{shown?.source_refs.join(" · ") ?? "Unavailable"}</dd></div>
