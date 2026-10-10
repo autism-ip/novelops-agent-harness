@@ -47,3 +47,6 @@ components.json  - shadcn CLI 配置（style: default, baseColor: neutral, cssVa
 ZEN-37 的研究退修和标题/封面反馈再生成均通过工作台异步请求工厂持有锁；保留编辑者、确切 Artifact/步骤/输出版本和原退修反馈。`creative-workbench-contract.test.tsx` 使用真实审批组件和原生 HTTP/Storage 边界，覆盖 risk/selection、拒绝、退修、来源失效、失败及重试。
 
 热点详情打开时，Preparing/Saving 状态必须放在实际 `<dialog>` 内；手机模态框会使外部内容 inert。没有详情时状态显示在工作台。回归断言按当前对话框定位，延迟 HTTP 在断言前完成清理。
+
+热点工作台原生请求存储读取失败时禁止新建与重试，显式重查后恢复；清理失败保留原始字节、显示原因并释放操作锁，API 拒绝与清理失败并列呈现。已提交请求只重放原身份，不能重新构造命令。回归见 `tests/hotspots-storage-contract.test.tsx`。
+
