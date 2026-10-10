@@ -15,7 +15,7 @@ function creative(kind: "titles" | "covers", selected = true): CreativeRun {
   const candidates = Array.from({ length: kind === "titles" ? 10 : 3 }, (_, index) => ({ artifact_id: id("AR", String(index + 1)), version: 2, model: "synthetic-model", prompt_version: "creative-v2", route: "creative-test", content: kind === "titles" ? { title: `Library title ${index + 1}`, hook: "A missing archive", selling_point: "Memory and mystery", click_score: 0.8, genre_fit_score: 0.9, risk_notes: "Synthetic fiction" } : { visual_direction: `Cover direction ${index + 1}`, style: "Minimal ink", main_elements: ["Library", "Key"], cover_prompt: "A library at dawn", negative_prompt: "No text" } }));
   return { run, kind, request: { source_run_id: kind === "titles" ? sourceRunId : titleRunId, source_artifact_id: id("AR", "a"), version: 2 }, current: true, decision: selected ? { choice_id: candidates[0].artifact_id, action: "approve" } : null, candidates };
 }
-function fixture(options: { titleSelected?: boolean; historical?: boolean; holdHistory?: boolean; researchRevision?: boolean } = {}) {
+function fixture(options: { titleSelected?: boolean; historical?: boolean; holdHistory?: boolean; researchRevision?: boolean; batchRejected?: boolean } = {}) {
   const title = creative("titles", options.titleSelected ?? true), cover = creative("covers");
   if (options.historical) title.current = false;
   const analysis: OpportunityAnalysis = { run: workflow(sourceRunId, "hotspot_research_v1"), request: { hotspot_id: row.hotspot_id, version: 1 }, source: { title: row.title }, current: true, approval_status: "approved", decisions: [], opportunity: { artifact_id: id("AR", "a"), model: "synthetic-model", prompt_version: "research-v1", route: "research-test", content: { summary: "The city forgets its books", core_emotions: ["Wonder"], hit_patterns: ["Lost memories"], genre_fit: ["Fantasy"], reader_promise: "Solve the archive mystery", novelization_directions: ["An apprentice archivist"] } }, risk: null };
@@ -35,6 +35,7 @@ function fixture(options: { titleSelected?: boolean; historical?: boolean; holdH
       if (writeStatus !== 200) return Response.json({ detail: "Exact decision rejected" }, { status: writeStatus });
       if (interrupt) { interrupt = false; throw new TypeError("Creative outcome unknown"); }
       if (holdWrites) return new Promise<Response>(resolve => writes.push(resolve));
+      if (path === "/api/analyses" && options.batchRejected) return Response.json({ runs: [], errors: [{ hotspot_id: row.hotspot_id, detail: "Hotspot discarded after context" }] }, { status: 201 });
       run.pipeline_type = path === "/api/analyses" ? "hotspot_research_v1" : path === "/api/creative/covers" ? "cover_plans_v1" : "title_candidates_v1";
       return Response.json(path === "/api/analyses" ? { runs: [run], errors: [] } : run);
     }
@@ -254,4 +255,17 @@ test("rejected approval shows the cause and clears only the new exact decision i
   fireEvent.click(within(dialog).getByRole("button", { name: "Approve opportunity" })); await screen.findAllByText("Exact decision rejected");
   expect(store.commands).toHaveLength(1); expect(sessionStorage.getItem(storageKey)).toBeNull();
   expect((within(dialog).getByRole("button", { name: "Approve opportunity" }) as HTMLButtonElement).disabled).toBe(false);
+});
+
+
+test("known HTTP 201 research item failure is visible inside the current mobile dialog", async () => {
+  vi.stubGlobal("matchMedia", () => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() }));
+  const store = fixture({ researchRevision: true, batchRejected: true }); render(<HotspotsWorkbench />); const dialog = await open();
+  fireEvent.click(await within(dialog).findByRole("button", { name: "Regenerate analysis from feedback" }));
+  await within(dialog).findByText(`${row.hotspot_id}: Hotspot discarded after context`);
+  await waitFor(() => expect(sessionStorage.getItem(storageKey)).toBeNull());
+  expect(store.commands).toHaveLength(1); expect(store.contexts).toHaveLength(1);
+  expect(store.commands[0]).toMatchObject({ path: "/api/analyses", body: { items: [{ hotspot_id: row.hotspot_id, version: 3, source_hash: "b".repeat(64), revision_of: sourceRunId, feedback: "Develop the archive mystery" }] } });
+  expect((within(dialog).getByRole("button", { name: "Regenerate analysis from feedback" }) as HTMLButtonElement).disabled).toBe(false);
+  expect(screen.queryByRole("button", { name: "Retry same request" })).toBeNull();
 });
