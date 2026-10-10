@@ -14,6 +14,8 @@ export function isDecisionPath(path: string): boolean {
   return /^\/api\/(?:analyses|creative\/runs)\/[\w-]+\/decision$/.test(path);
 }
 
+export type SubmitRequest = Pending | (() => Promise<Pending>);
+
 export function canClearRejected(status: number, retry: boolean): boolean {
   return !retry && [401, 404, 409, 422].includes(status);
 }
