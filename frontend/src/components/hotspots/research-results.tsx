@@ -3,7 +3,7 @@
 import type { OpportunityAnalysis } from "@/api/types";
 import { errorMessage, useResource } from "./use-resource";
 import { CreativeResults } from "./creative-results";
-import type { Pending } from "./state";
+import type { SubmitRequest } from "./state";
 
 const labels: Record<string, string> = {
   awaiting_risk_review: "Needs human risk review",
@@ -57,7 +57,7 @@ export function ResearchResult({ runId, revision }: { runId: string; revision: n
 
 export function ResearchHistory({ hotspotId, revision, submit, disabled, creative }: { hotspotId: string; revision: number;
   creative: boolean;
-  submit: (command: Pending) => Promise<boolean>; disabled: boolean }) {
+  submit: (command: SubmitRequest) => Promise<boolean>; disabled: boolean }) {
   const result = useResource<OpportunityAnalysis[]>(`/api/hotspots/${encodeURIComponent(hotspotId)}/analyses`, revision, 5000);
   return <section aria-label="Analysis history" className="space-y-3">
     <h3 className="font-semibold">Analysis history</h3>

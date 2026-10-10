@@ -9,6 +9,8 @@ export type Pending = {
   body: Record<string, unknown> & { request_key: string };
 };
 
+export type SubmitRequest = Pending | (() => Promise<Pending>);
+
 export function canClearRejected(status: number, retry: boolean): boolean {
   return !retry && [401, 404, 409, 422].includes(status);
 }
