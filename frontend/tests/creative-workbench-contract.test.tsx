@@ -75,7 +75,7 @@ for (const kind of ["titles", "covers"] as const) {
     const store = fixture(); store.holdContexts(); render(<HotspotsWorkbench />); const dialog = await open();
     const button = await within(dialog).findByRole("button", { name: kind === "titles" ? "Generate next title version" : "Generate next cover version" });
     fireEvent.click(button); fireEvent.click(button);
-    const contextCount = store.contexts.length, globalDisabled = (screen.getByRole("button", { name: "Add manually" }) as HTMLButtonElement).disabled, progress = screen.queryByText("Preparing request…");
+    const contextCount = store.contexts.length, globalDisabled = (screen.getByRole("button", { name: "Add manually" }) as HTMLButtonElement).disabled, progress = within(dialog).queryByText("Preparing request…");
     await store.finishContexts(); await waitFor(() => expect(sessionStorage.getItem(storageKey)).toBeNull());
     expect(contextCount).toBe(1); expect(globalDisabled).toBe(true); expect(progress).not.toBeNull(); expect(store.commands).toHaveLength(1);
     const command = store.commands[0]; expect(command.path).toBe(`/api/creative/${kind}`);
@@ -125,13 +125,15 @@ test("historical titles retain content and provenance without selection or cover
 test("the exact command stays saved and all creative actions stay disabled until POST completes", async () => {
   const store = fixture(); store.holdWrites(); render(<HotspotsWorkbench />); const dialog = await open();
   fireEvent.click(await within(dialog).findByRole("button", { name: "Generate next cover version" }));
-  await screen.findByText("Saving request…");
+  await waitFor(() => expect(store.commands).toHaveLength(1));
+  const progress = within(dialog).queryByText("Saving request…");
   expect(store.commands).toHaveLength(1); const saved = sessionStorage.getItem(storageKey);
   expect(saved).toBe(store.commands[0].saved); expect(saved).not.toBeNull();
   const titleButton = within(dialog).getByRole("button", { name: "Generate next title version" });
   expect((titleButton as HTMLButtonElement).disabled).toBe(true); fireEvent.click(titleButton);
   expect(store.contexts).toHaveLength(1); expect(store.commands).toHaveLength(1);
   await store.finishWrites(); await waitFor(() => expect(sessionStorage.getItem(storageKey)).toBeNull());
+  expect(progress).not.toBeNull();
   expect(screen.queryByText("Saving request…")).toBeNull();
 });
 
@@ -157,9 +159,9 @@ test("research revision owns the lock during context GET and submits one exact f
   const store = fixture({ researchRevision: true }); store.holdContexts(); render(<HotspotsWorkbench />); const dialog = await open();
   const button = await within(dialog).findByRole("button", { name: "Regenerate analysis from feedback" });
   fireEvent.click(button); fireEvent.click(button);
-  const count = store.contexts.length, disabled = (screen.getByRole("button", { name: "Add manually" }) as HTMLButtonElement).disabled;
+  const count = store.contexts.length, disabled = (screen.getByRole("button", { name: "Add manually" }) as HTMLButtonElement).disabled, progress = within(dialog).queryByText("Preparing request…");
   await store.finishContexts();
-  expect(count).toBe(1); expect(disabled).toBe(true); expect(store.commands).toHaveLength(1);
+  expect(count).toBe(1); expect(disabled).toBe(true); expect(progress).not.toBeNull(); expect(store.commands).toHaveLength(1);
   expect(store.commands[0]).toMatchObject({ path: "/api/analyses", body: { request_key: expect.any(String), items: [{ hotspot_id: row.hotspot_id,
     source_hash: "b".repeat(64), version: 3, revision_of: sourceRunId, feedback: "Develop the archive mystery" }] } });
   expect(JSON.parse(store.commands[0].saved!)).toEqual({ path: store.commands[0].path, body: store.commands[0].body });
