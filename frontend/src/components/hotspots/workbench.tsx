@@ -71,6 +71,7 @@ function Detail({
   disabled,
   analyze,
   creative,
+  books,
   submit,
   requestPhase,
   batchFeedback,
@@ -82,6 +83,7 @@ function Detail({
   disabled: boolean;
   analyze: boolean;
   creative: boolean;
+  books: boolean;
   submit: (command: SubmitRequest) => Promise<SubmitResult>;
   requestPhase: "preparing" | "saving" | null;
   batchFeedback: string | null;
@@ -120,7 +122,7 @@ function Detail({
         <div className="mt-6 space-y-5">
           <h3 className="text-lg font-medium break-words">{row.title}</h3>
           <StatusBadge status={row.status} />
-          {analyze && <ResearchHistory hotspotId={id} revision={revision} submit={submit} disabled={disabled} creative={creative} />}
+          {analyze && <ResearchHistory hotspotId={id} revision={revision} submit={submit} disabled={disabled} creative={creative} books={books} />}
           {sourceUrl && (
             <a
               className="text-sm underline"
@@ -733,6 +735,7 @@ export function HotspotsWorkbench() {
           disabled={disabled || !capabilities.data?.discard}
           analyze={!!capabilities.data?.analyze}
           creative={!!capabilities.data?.creative}
+          books={!!capabilities.data?.books}
           submit={submit}
           requestPhase={requestPhase}
           batchFeedback={batchFeedback.filter(item => item.hotspot_id === detailId).map(item => `${item.hotspot_id}: ${item.detail}`).join("; ") || null}

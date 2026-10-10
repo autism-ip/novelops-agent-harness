@@ -17,6 +17,7 @@ from app.feishu.repositories.pipeline_runs import PipelineRunsRepo
 from app.feishu.repositories.review_reports import ReviewReportsRepo
 from app.feishu.repositories.revision_tasks import RevisionTasksRepo
 from app.feishu.repositories.step_runs import StepRunsRepo
+from app.feishu.repositories.story_states import StoryStatesRepo
 from app.feishu.repositories.title_candidates import TitleCandidatesRepo
 
 __all__ = [
@@ -30,6 +31,7 @@ __all__ = [
     "TitleCandidatesRepo",
     "CoverPlansRepo",
     "BooksRepo",
+    "StoryStatesRepo",
     "ChapterBriefsRepo",
     "ChapterVersionsRepo",
     "ReviewReportsRepo",
