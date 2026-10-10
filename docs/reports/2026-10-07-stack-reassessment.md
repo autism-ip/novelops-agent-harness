@@ -187,3 +187,8 @@ Actual production Next → signed-session proxy → FastAPI/kernel/record reposi
 Two CDP screenshot timeouts prevent a new visual inspection claim. Original space/process handles were gone; user authorized a replacement space and local services. A mobile click after metrics change was intercepted; fresh DOM/snapshot inspection located the live button and normal ref click succeeded. A script helper error was repaired without replaying the already executed action. Browser space was closed once. Structured evidence and all limitations: [review recovery report](2026-10-10-review-recovery.json).
 
 Latest pre-push audit: all 13 open PRs have no unresolved threads or changed review/discussion bodies; ZEN-41 remains In Review. Exact-head CI after this delivery is pending until checked independently. Current full real-model flow, deployment/schema/ACL acceptance and project-wide 100% coverage remain open. Existing issue-pr-delivery, TDD, Impeccable and ego-browser skills reused; no new skill warranted. Impeccable detector ran once and returned []; DESIGN.md is newer than its sidecar, which can be refreshed separately with document.
+
+
+### Recovery source delivery CI
+
+Source/test delivery `ff0f02f082bd9fd214827c9676dfdecee595c8b1` passed both [PR CI 38012514692](https://github.com/autism-ip/novelops-agent-harness/actions/runs/38012514692) and [push CI 38012511074](https://github.com/autism-ip/novelops-agent-harness/actions/runs/38012511074), including every job and aggregate quality gate. This report-only follow-up preserves application/tests; its final head is checked separately in PR #37. No wider acceptance or Done claim follows from CI.

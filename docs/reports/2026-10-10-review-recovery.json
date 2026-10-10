@@ -197,7 +197,28 @@
   ],
   "review": {
     "audit": "All 13 PR review/comment bodies unchanged from initial current-round audit; zero unresolved threads. ZEN-41 remains In Review.",
-    "exact_head_ci": "Pending after new delivery push."
+    "exact_head_ci": {
+      "verified_source_delivery_head": "ff0f02f082bd9fd214827c9676dfdecee595c8b1",
+      "runs": [
+        {
+          "databaseId": 38012514692,
+          "event": "pull_request",
+          "headSha": "ff0f02f082bd9fd214827c9676dfdecee595c8b1",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38012514692"
+        },
+        {
+          "databaseId": 38012511074,
+          "event": "push",
+          "headSha": "ff0f02f082bd9fd214827c9676dfdecee595c8b1",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38012511074"
+        }
+      ],
+      "result": "Both full runs and aggregate gates SUCCESS; report-only follow-up head requires separate final check."
+    }
   },
   "verified_facts": [
     "11 added integration contracts and all 88 frontend tests pass",
