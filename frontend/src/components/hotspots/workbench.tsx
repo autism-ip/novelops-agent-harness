@@ -247,6 +247,8 @@ export function HotspotsWorkbench() {
     setError(null);
     setRequestPhase(typeof request === "function" ? "preparing" : "saving");
     let command: Pending | null = null;
+    let batchError: string | null = null;
+
     try {
       command = typeof request === "function" ? await request() : request;
       setRequestPhase("saving");
@@ -255,12 +257,14 @@ export function HotspotsWorkbench() {
         const batch = await api.post<{ runs: WorkflowRun[]; errors: { hotspot_id: string; detail: string }[] }>(command.path, command.body);
         setActiveRun(batch.runs[0]?.pipeline_run_id ?? null);
         setSelected([]);
-        if (batch.errors.length) setError(batch.errors.map(e => `${e.hotspot_id}: ${e.detail}`).join("; "));
+        batchError = batch.errors.map(e => `${e.hotspot_id}: ${e.detail}`).join("; ") || null;
+        if (batchError) setError(batchError);
       } else if (command.path.startsWith("/api/creative/")) {
         const payload: Record<string, unknown> = { ...command.body };
         delete payload.request_key;
         const response = await api.post<WorkflowRun>(command.path, payload);
         if (!command.path.endsWith("/decision")) setActiveRun(response.pipeline_run_id);
+
       } else {
         const run = await api.post<WorkflowRun>(command.path, command.body);
         setActiveRun(run.pipeline_run_id);
@@ -268,10 +272,10 @@ export function HotspotsWorkbench() {
       savePending(null);
       if (command.path === "/api/hotspots/manual") setManual(false);
       refresh();
-      return true;
+      return !batchError;
     } catch (cause) {
       // A rejected retry cannot disprove an earlier committed attempt.
-      let message = errorMessage(cause);
+      let message = `${batchError ? `${batchError} ` : ""}${errorMessage(cause)}`;
       if (
         cause instanceof ApiError &&
         canClearRejected(cause.status, retry) && command && command.path !== "/api/analyses"
