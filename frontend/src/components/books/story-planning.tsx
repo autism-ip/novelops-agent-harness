@@ -64,6 +64,14 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
   const briefBusy = !!brief && !["completed", "failed", "blocked", "cancelled"].includes(brief.run.status);
   const unavailable = bibles.error instanceof ApiError && bibles.error.status === 503;
 
+  function clearPending() {
+    setError(null);
+    try { setSaved(key, null); }
+    catch (cause) {
+      setError(`Could not clear the saved planning request. ${visibleError(cause)} Check browser storage access and try again.`);
+    }
+  }
+
   async function submit(command: PendingPlan) {
     if (busy.current) return;
     busy.current = true;
@@ -123,11 +131,11 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
     {pending && <div className="surface-soft space-y-2 p-4 text-sm" role="status">
       <p>The previous outcome is unconfirmed. Retry sends the same Book, version and artifact IDs.</p>
       <Button variant="outline" disabled={working} onClick={() => void submit(pending)}>Retry the same request</Button>
-      <Button variant="ghost" disabled={working} onClick={() => setSaved(key, null)}>I checked the history</Button>
+      <Button variant="ghost" disabled={working} onClick={clearPending}>I checked the history</Button>
     </div>}
     {pendingRaw && !pending && <div className="surface-soft space-y-2 p-4 text-sm" role="alert">
       <p>Saved request is unreadable. Check the Book history before clearing it.</p>
-      <Button variant="outline" onClick={() => setSaved(key, null)}>I checked the history</Button>
+      <Button variant="outline" onClick={clearPending}>I checked the history</Button>
     </div>}
     {error && <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
     <div className="grid gap-5 lg:grid-cols-2">
