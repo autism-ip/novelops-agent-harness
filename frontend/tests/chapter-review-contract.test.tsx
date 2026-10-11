@@ -223,8 +223,12 @@ test("expired write authentication preserves exact intent and can recover after 
 
 test("a blocked browser store retains an in-memory editor name but prevents untracked writes", async () => {
   const { transport, onChanged } = await open();
-  const prototype = Object.getPrototypeOf(sessionStorage);
-  vi.spyOn(prototype, "getItem").mockImplementation(() => { throw new Error("Storage is blocked"); });
+  const prototype = Storage.prototype;
+  const nativeGet = Storage.prototype.getItem;
+  vi.spyOn(prototype, "getItem").mockImplementation(function (this: Storage, name: string) {
+    if (name === "novelops.editor.name") throw new Error("Storage is blocked");
+    return nativeGet.call(this, name);
+  });
   vi.spyOn(prototype, "setItem").mockImplementation(() => { throw new Error("Storage is blocked"); });
   fireEvent.change(screen.getByLabelText("Editor identity"), { target: { value: "Memory editor" } });
   expect(screen.getByLabelText("Editor identity")).toHaveProperty("value", "Memory editor");
@@ -312,4 +316,84 @@ test("active runs poll until the selective gate, then approval unlocks final loc
   view.unmount();
   await act(async () => { await vi.advanceTimersByTimeAsync(1); });
   expect(vi.getTimerCount()).toBe(0);
+});
+
+function readBoundary() {
+  const nativeGet = Storage.prototype.getItem; let denied = true;
+  vi.spyOn(Storage.prototype, "getItem").mockImplementation(function (this: Storage, name: string) {
+    if (name === pendingKey && denied) throw new DOMException("Native read denied", "SecurityError");
+    return nativeGet.call(this, name);
+  });
+  return { allow: () => { denied = false; }, peek: () => nativeGet.call(sessionStorage, pendingKey) };
+}
+test.each([JSON.stringify(command), "{unreadable"])("unavailable review storage retains exact bytes and allows public recheck: %s", async bytes => {
+  sessionStorage.setItem("novelops.editor.name", "Mei"); sessionStorage.setItem(pendingKey, bytes);
+  const boundary = readBoundary(), transport = serve(completedReview()), onChanged = vi.fn();
+  render(<ChapterReviewDesk bookId={book} chapterNo={1} refresh={0} onChanged={onChanged} />);
+  await screen.findByLabelText("Editor identity"); await screen.findByText(/Cannot access saved review requests/);
+  for (const name of ["Approve", "Reject", "Lock final"]) expect((screen.getByRole("button", { name }) as HTMLButtonElement).disabled).toBe(true);
+  expect(boundary.peek()).toBe(bytes); expect(transport.mock.calls.filter(([,init]) => init.method === "POST")).toHaveLength(0);
+  boundary.allow(); fireEvent.click(screen.getByRole("button", { name: "Check review request storage" }));
+  if (bytes === JSON.stringify(command)) {
+    fireEvent.click(await screen.findByRole("button", { name: "Retry the same command" }));
+    await waitFor(() => expect(onChanged).toHaveBeenCalledOnce());
+    const writes=transport.mock.calls.filter(([,init]) => init.method === "POST");
+    expect(writes).toHaveLength(1); expect(writes[0][0]).toBe(command.path); expect(JSON.parse(String(writes[0][1].body))).toEqual(command.body);
+  } else {
+    await screen.findByText(/The saved review command is unreadable/); expect(boundary.peek()).toBe(bytes);
+    fireEvent.click(screen.getByRole("button", { name: "I checked the version history" }));
+    expect(onChanged).not.toHaveBeenCalled(); expect(transport.mock.calls.filter(([,init]) => init.method === "POST")).toHaveLength(0);
+  }
+  await waitFor(() => expect(sessionStorage.getItem(pendingKey)).toBeNull());
+});
+for (const name of ["Approve", "Reject", "Lock final", "Create revision and rewrite"]) {
+  test.each(["read denied", "intent changed"])(`%s after rendering prevents ${name} from replacing another exact review command`, async fault => {
+    sessionStorage.setItem("novelops.editor.name", "Mei"); const { transport, onChanged } = await open();
+    fireEvent.click(screen.getByText("Request a constrained revision")); fireEvent.change(screen.getByLabelText("Must change"), { target: { value: "Clarify the gate scene" } });
+    expect((screen.getByRole("button", { name }) as HTMLButtonElement).disabled).toBe(false);
+    sessionStorage.setItem(pendingKey, JSON.stringify(command)); const boundary = readBoundary(); if (fault === "intent changed") boundary.allow();
+    fireEvent.click(screen.getByRole("button", { name }));
+    await screen.findByText(fault === "read denied" ? /Review request storage is unavailable/ : /Saved review command changed during this operation/);
+    expect(boundary.peek()).toBe(JSON.stringify(command)); expect(onChanged).not.toHaveBeenCalled();
+    expect(transport.mock.calls.filter(([,init]) => init.method === "POST")).toHaveLength(0);
+    boundary.allow(); if (fault === "read denied") fireEvent.click(screen.getByRole("button", { name: "Check review request storage" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Retry the same command" }));
+    await waitFor(() => expect(onChanged).toHaveBeenCalledOnce());
+    const writes=transport.mock.calls.filter(([,init]) => init.method === "POST");
+    expect(writes).toHaveLength(1); expect(writes[0][0]).toBe(command.path); expect(JSON.parse(String(writes[0][1].body))).toEqual(command.body);
+  });
+}
+test.each(["read denied", "intent changed"])("confirmed review POST preserves inaccessible or superseded command: %s", async fault => {
+  sessionStorage.setItem(pendingKey, JSON.stringify(command)); const original = serve(completedReview()); let finish!: (response: Response) => void;
+  const transport = vi.fn((input: unknown, init: RequestInit) => init.method === "POST" ? new Promise<Response>(resolve => { finish = resolve; }) : original(input, init));
+  vi.stubGlobal("fetch", transport); const onChanged = vi.fn(); render(<ChapterReviewDesk bookId={book} chapterNo={1} refresh={0} onChanged={onChanged} />);
+  fireEvent.click(screen.getByRole("button", { name: "Retry the same command" }));
+  await waitFor(() => expect(transport.mock.calls.filter(([,init]) => init.method === "POST")).toHaveLength(1));
+  const bytes = fault === "intent changed" ? JSON.stringify({ ...command, body: { ...command.body, reason: "Different decision" } }) : JSON.stringify(command);
+  sessionStorage.setItem(pendingKey, bytes); const boundary = readBoundary(); if (fault === "intent changed") boundary.allow();
+  await act(async () => finish(Response.json({ saved: true })));
+  await screen.findByText(fault === "read denied" ? /Review request storage is unavailable/ : /Saved review command changed during this operation/);
+  expect(boundary.peek()).toBe(bytes); expect(onChanged).not.toHaveBeenCalled();
+  boundary.allow(); if (fault === "read denied") fireEvent.click(screen.getByRole("button", { name: "Check review request storage" }));
+  fireEvent.click(await screen.findByRole("button", { name: "I checked the version history" })); await waitFor(() => expect(sessionStorage.getItem(pendingKey)).toBeNull());
+  expect(transport.mock.calls.filter(([,init]) => init.method === "POST")).toHaveLength(1); expect(onChanged).not.toHaveBeenCalled();
+});
+test("a stale checked-version control cannot delete another saved review command", async () => {
+  sessionStorage.setItem(pendingKey, JSON.stringify(command)); const {transport,onChanged} = await open();
+  const bytes = JSON.stringify({ ...command, body: { ...command.body, reason: "Different decision" } }); sessionStorage.setItem(pendingKey, bytes);
+  fireEvent.click(screen.getByRole("button", { name: "I checked the version history" }));
+  await screen.findByText(/Saved review command changed during this operation/);
+  expect(sessionStorage.getItem(pendingKey)).toBe(bytes); expect(onChanged).not.toHaveBeenCalled();
+  expect(transport.mock.calls.filter(([,init]) => init.method === "POST")).toHaveLength(0);
+  fireEvent.click(screen.getByRole("button", { name: "I checked the version history" })); await waitFor(() => expect(sessionStorage.getItem(pendingKey)).toBeNull());
+});
+test("checked version history exposes native clearance failure without deleting the command", async () => {
+  sessionStorage.setItem(pendingKey, JSON.stringify(command)); const {transport,onChanged} = await open();
+  const remove = vi.spyOn(Storage.prototype, "removeItem").mockImplementation(() => { throw new DOMException("Native clear denied", "SecurityError"); });
+  fireEvent.click(screen.getByRole("button", { name: "I checked the version history" }));
+  await screen.findByText(/Could not clear the saved review command.*Native clear denied/);
+  expect(sessionStorage.getItem(pendingKey)).toBe(JSON.stringify(command)); expect(onChanged).not.toHaveBeenCalled();
+  expect(transport.mock.calls.filter(([,init]) => init.method === "POST")).toHaveLength(0);
+  remove.mockRestore(); fireEvent.click(screen.getByRole("button", { name: "I checked the version history" }));
+  await waitFor(() => expect(sessionStorage.getItem(pendingKey)).toBeNull());
 });

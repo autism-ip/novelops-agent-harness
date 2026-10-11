@@ -27,11 +27,12 @@ type ReviewState = { latest: ChapterRun | null; story_state?: Record<string, Rec
 // Live Feishu review reads and editorial writes exceeded the default ten seconds.
 const REVIEW_TIMEOUT_MS = 120_000;
 const EVENT = "novelops-chapter-review-request";
+const STORAGE_UNAVAILABLE = Symbol("review storage unavailable");
 function subscribe(callback: () => void) {
   window.addEventListener(EVENT, callback);
   return () => window.removeEventListener(EVENT, callback);
 }
-function saved(key: string) { try { return sessionStorage.getItem(key); } catch { return null; } }
+function saved(key: string) { try { return sessionStorage.getItem(key); } catch { return STORAGE_UNAVAILABLE; } }
 function setSaved(key: string, value: string | null) {
   try { if (value === null) sessionStorage.removeItem(key); else sessionStorage.setItem(key, value); }
   finally { window.dispatchEvent(new Event(EVENT)); }
@@ -53,7 +54,8 @@ export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged }: {
   const root = `/api/books/${encodeURIComponent(bookId)}/chapters/${chapterNo}`;
   const key = `novelops.chapter-review.pending.${bookId}.${chapterNo}`;
   const pendingRaw = useSyncExternalStore(subscribe, () => saved(key), () => null);
-  const pending = parsePendingReview(pendingRaw);
+  const storageUnavailable = pendingRaw === STORAGE_UNAVAILABLE;
+  const pending = parsePendingReview(storageUnavailable ? null : pendingRaw);
   const [revision, setRevision] = useState(0);
   const [working, setWorking] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -85,12 +87,25 @@ export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged }: {
   const locked = data?.versions.some(entry => entry.record.status === "final");
   const blocked = working || !!pendingRaw || !operator.trim() || !ready || !!locked;
 
+  function assertStorage(expected: typeof pendingRaw) {
+    const current = saved(key);
+    if (current === STORAGE_UNAVAILABLE || current !== expected) {
+      window.dispatchEvent(new Event(EVENT));
+      throw new Error(current === STORAGE_UNAVAILABLE
+        ? "Review request storage is unavailable. Restore access and check storage before continuing."
+        : "Saved review command changed during this operation. Check history before continuing with the saved request.");
+    }
+  }
+
   async function submit(command: PendingReview) {
-    if (busy.current) return;
+    if (busy.current || storageUnavailable) return;
     busy.current = true; setWorking(true); setError(null);
     try {
-      setSaved(key, JSON.stringify(command));
+      assertStorage(pendingRaw);
+      const ownedRaw = JSON.stringify(command);
+      setSaved(key, ownedRaw);
       await api.post(command.path, command.body, REVIEW_TIMEOUT_MS);
+      assertStorage(ownedRaw);
       setSaved(key, null);
       setRevision(value => value + 1);
       onChanged();
@@ -98,10 +113,11 @@ export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged }: {
     finally { busy.current = false; setWorking(false); }
   }
   function clearPending() {
+    if (busy.current) return;
     setError(null);
-    try { setSaved(key, null); }
+    try { assertStorage(pendingRaw); setSaved(key, null); }
     catch (cause) {
-      setError(`Could not clear the saved review command. ${visibleError(cause)} Check browser storage access and try again.`);
+      setError(`Could not clear the saved review command. ${cause instanceof DOMException ? cause.message : visibleError(cause)} Check browser storage access and try again.`);
     }
   }
   function target() {
@@ -265,9 +281,15 @@ export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged }: {
         onClick={() => void submit(pending)}>Retry the same command</Button>
         <Button variant="ghost" disabled={working} onClick={clearPending}>I checked the version history</Button></div>
     </div>}
-    {pendingRaw && !pending && <div className="surface-soft space-y-2 p-4 text-sm" role="alert">
+    {storageUnavailable && <div className="surface-soft space-y-2 p-4 text-sm" role="alert">
+      <p>Cannot access saved review requests. Restore browser storage access, then check again.</p>
+      <Button variant="outline" disabled={working} onClick={() => { setError(null); window.dispatchEvent(new Event(EVENT)); }}>
+        Check review request storage
+      </Button>
+    </div>}
+    {!storageUnavailable && pendingRaw && !pending && <div className="surface-soft space-y-2 p-4 text-sm" role="alert">
       <p>The saved review command is unreadable. Check the version history before clearing it.</p>
-      <Button variant="outline" onClick={clearPending}>I checked the version history</Button>
+      <Button variant="outline" disabled={working} onClick={clearPending}>I checked the version history</Button>
     </div>}
     {error && <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
   </div>;

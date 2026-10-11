@@ -71,3 +71,5 @@ ZEN-37 的研究退修和标题/封面反馈再生成均通过工作台异步请
 planning 请求读存储失败时使用独立不可用状态与公开重查。提交前、异步上下文后、POST 完成后检查保存字节的所有权；变化或不可读时保留原数据并提示，检查历史后的清理也使用相同校验。原生 DOMException 清理原因可见，操作中禁用清理。回归见 `tests/story-planning-contract.test.tsx`。
 
 chapter 请求读存储失败时使用独立不可用状态与公开重查。提交前、异步上下文后、POST 完成后检查保存字节的所有权；变化或不可读时保留原数据并提示，检查历史后的清理也使用相同校验。原生 DOMException 清理原因可见，操作中禁用清理。回归见 `tests/chapter-generation-contract.test.tsx`。
+
+review 请求读存储失败时使用独立不可用状态与公开重查。提交前、异步上下文后、POST 完成后检查保存字节的所有权；变化或不可读时保留原数据并提示，检查历史后的清理也使用相同校验。原生 DOMException 清理原因可见，操作中禁用清理。回归见 `tests/chapter-review-contract.test.tsx`。
