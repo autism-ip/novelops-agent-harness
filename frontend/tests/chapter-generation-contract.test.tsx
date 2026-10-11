@@ -270,3 +270,95 @@ test("the context phase prevents repeated generation clicks before a command exi
   expect(hadProgress).toBe(true);
   expect(transport.mock.calls.filter(([, init]) => init.method === "POST")).toHaveLength(1);
 });
+
+function readBoundary() {
+  const nativeGet = Storage.prototype.getItem;
+  let denied = true;
+  vi.spyOn(Storage.prototype, "getItem").mockImplementation(function (this: Storage, name: string) {
+    if (name === key && denied) throw new DOMException("Native read denied", "SecurityError");
+    return nativeGet.call(this, name);
+  });
+  return { allow: () => { denied = false; }, peek: () => nativeGet.call(sessionStorage, key) };
+}
+test.each([JSON.stringify(pending), "{unreadable"])("unavailable chapter storage preserves command bytes and rechecks publicly: %s", async bytes => {
+  sessionStorage.setItem(key, bytes); const boundary = readBoundary(), transport = serve();
+  render(<ChapterGeneration bookId={book} />);
+  await screen.findByText(/Cannot access saved chapter requests/);
+  expect((screen.getByRole("button", { name: "Generate chapter" }) as HTMLButtonElement).disabled).toBe(true);
+  expect(boundary.peek()).toBe(bytes); expect(writes(transport)).toHaveLength(0);
+  expect(transport.mock.calls.some(([path]) => String(path).endsWith("/generation/context"))).toBe(false);
+  boundary.allow(); fireEvent.click(screen.getByRole("button", { name: "Check chapter request storage" }));
+  if (bytes === JSON.stringify(pending)) {
+    fireEvent.click(await screen.findByRole("button", { name: "Retry the same request" }));
+    await waitFor(() => expect(sessionStorage.getItem(key)).toBeNull());
+    expect(writes(transport)).toHaveLength(1); expect(JSON.parse(String(writes(transport)[0][1].body))).toEqual(pending.body);
+    expect(transport.mock.calls.some(([path]) => String(path).endsWith("/generation/context"))).toBe(false);
+  } else {
+    await screen.findByText("The saved request is unreadable. Check the chapter history before clearing it."); expect(boundary.peek()).toBe(bytes);
+    fireEvent.click(screen.getByRole("button", { name: "I checked the history" }));
+    await waitFor(() => expect(sessionStorage.getItem(key)).toBeNull()); expect(writes(transport)).toHaveLength(0);
+  }
+});
+test.each(["read denied", "intent changed"])("%s after rendering blocks a new chapter action", async fault => {
+  const transport = await open(); sessionStorage.setItem(key, JSON.stringify(pending)); const boundary = readBoundary();
+  if (fault === "intent changed") boundary.allow();
+  fireEvent.click(screen.getByRole("button", { name: "Generate chapter" }));
+  await screen.findByText(fault === "read denied" ? /Chapter request storage is unavailable/ : /Saved chapter request changed during this operation/);
+  expect(boundary.peek()).toBe(JSON.stringify(pending)); expect(writes(transport)).toHaveLength(0);
+  expect(transport.mock.calls.some(([path]) => String(path).endsWith("/generation/context"))).toBe(false);
+  boundary.allow(); if (fault === "read denied") fireEvent.click(screen.getByRole("button", { name: "Check chapter request storage" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Retry the same request" }));
+  await waitFor(() => expect(sessionStorage.getItem(key)).toBeNull());
+  expect(writes(transport)).toHaveLength(1); expect(JSON.parse(String(writes(transport)[0][1].body))).toEqual(pending.body);
+});
+test.each(["read denied", "intent changed"])("%s during chapter context preparation prevents replacing a saved command", async fault => {
+  const original = serve(); let finish!: (response: Response) => void;
+  const transport = vi.fn((input: unknown, init: RequestInit) => String(input).endsWith("/generation/context") ?
+    new Promise<Response>(resolve => { finish = resolve; }) : original(input, init));
+  vi.stubGlobal("fetch", transport); render(<ChapterGeneration bookId={book} />);
+  await waitFor(() => expect((screen.getByRole("button", { name: "Generate chapter" }) as HTMLButtonElement).disabled).toBe(false));
+  fireEvent.click(screen.getByRole("button", { name: "Generate chapter" }));
+  await waitFor(() => expect(transport.mock.calls.filter(([path]) => String(path).endsWith("/generation/context"))).toHaveLength(1));
+  sessionStorage.setItem(key, JSON.stringify(pending)); const boundary = readBoundary(); if (fault === "intent changed") boundary.allow();
+  await act(async () => finish(Response.json({ ...context, version: 99 })));
+  await screen.findByText(fault === "read denied" ? /Chapter request storage is unavailable/ : /Saved chapter request changed during this operation/);
+  expect(boundary.peek()).toBe(JSON.stringify(pending)); expect(writes(transport)).toHaveLength(0);
+  boundary.allow(); if (fault === "read denied") fireEvent.click(screen.getByRole("button", { name: "Check chapter request storage" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Retry the same request" }));
+  await waitFor(() => expect(sessionStorage.getItem(key)).toBeNull());
+  expect(writes(transport)).toHaveLength(1); expect(JSON.parse(String(writes(transport)[0][1].body))).toEqual(pending.body);
+  expect(transport.mock.calls.filter(([path]) => String(path).endsWith("/generation/context"))).toHaveLength(1);
+});
+test.each(["read denied", "intent changed"])("confirmed chapter POST does not clear inaccessible or superseded intent: %s", async fault => {
+  sessionStorage.setItem(key, JSON.stringify(pending)); const original = serve(); let finish!: (response: Response) => void;
+  const transport = vi.fn((input: unknown, init: RequestInit) => init.method === "POST" ?
+    new Promise<Response>(resolve => { finish = resolve; }) : original(input, init));
+  vi.stubGlobal("fetch", transport); render(<ChapterGeneration bookId={book} />);
+  fireEvent.click(screen.getByRole("button", { name: "Retry the same request" }));
+  await waitFor(() => expect(writes(transport)).toHaveLength(1));
+  const bytes = fault === "intent changed" ? JSON.stringify({ ...pending, body: { ...pending.body, version: 99 } }) : JSON.stringify(pending);
+  sessionStorage.setItem(key, bytes); const boundary = readBoundary(); if (fault === "intent changed") boundary.allow();
+  await act(async () => finish(Response.json({ saved: true })));
+  await screen.findByText(fault === "read denied" ? /Chapter request storage is unavailable/ : /Saved chapter request changed during this operation/);
+  expect(boundary.peek()).toBe(bytes); expect(writes(transport)).toHaveLength(1);
+  boundary.allow(); if (fault === "read denied") fireEvent.click(screen.getByRole("button", { name: "Check chapter request storage" }));
+  fireEvent.click(await screen.findByRole("button", { name: "I checked the history" }));
+  await waitFor(() => expect(sessionStorage.getItem(key)).toBeNull()); expect(writes(transport)).toHaveLength(1);
+});
+test("a stale checked-history control cannot clear a different chapter request", async () => {
+  sessionStorage.setItem(key, JSON.stringify(pending)); const transport = await open();
+  const bytes = JSON.stringify({ ...pending, body: { ...pending.body, version: 99 } }); sessionStorage.setItem(key, bytes);
+  fireEvent.click(screen.getByRole("button", { name: "I checked the history" }));
+  await screen.findByText(/Saved chapter request changed during this operation/);
+  expect(sessionStorage.getItem(key)).toBe(bytes); expect(writes(transport)).toHaveLength(0);
+  fireEvent.click(screen.getByRole("button", { name: "I checked the history" })); await waitFor(() => expect(sessionStorage.getItem(key)).toBeNull());
+});
+test("checked chapter history keeps native clearance errors visible without altering bytes", async () => {
+  sessionStorage.setItem(key, JSON.stringify(pending)); const transport = await open();
+  const remove = vi.spyOn(Storage.prototype, "removeItem").mockImplementation(() => { throw new DOMException("Native clear denied", "SecurityError"); });
+  fireEvent.click(screen.getByRole("button", { name: "I checked the history" }));
+  await screen.findByText(/Could not clear the saved chapter request.*Native clear denied/);
+  expect(sessionStorage.getItem(key)).toBe(JSON.stringify(pending)); expect(writes(transport)).toHaveLength(0);
+  remove.mockRestore(); fireEvent.click(screen.getByRole("button", { name: "I checked the history" }));
+  await waitFor(() => expect(sessionStorage.getItem(key)).toBeNull());
+});

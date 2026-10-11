@@ -22,11 +22,12 @@ type ChapterContext = { book_id: string; chapter_no: number; version: number; st
   constraints: { must_keep: string[]; must_change: string[]; do_not_change: string[] } };
 
 const EVENT = "novelops-chapter-generation-request";
+const STORAGE_UNAVAILABLE = Symbol("chapter storage unavailable");
 function subscribe(callback: () => void) {
   window.addEventListener(EVENT, callback);
   return () => window.removeEventListener(EVENT, callback);
 }
-function saved(key: string) { try { return sessionStorage.getItem(key); } catch { return null; } }
+function saved(key: string) { try { return sessionStorage.getItem(key); } catch { return STORAGE_UNAVAILABLE; } }
 function setSaved(key: string, value: string | null) {
   try { if (value === null) sessionStorage.removeItem(key); else sessionStorage.setItem(key, value); }
   finally { window.dispatchEvent(new Event(EVENT)); }
@@ -51,7 +52,8 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
   const root = `/api/books/${encodeURIComponent(bookId)}/chapters/${chapterNo}`;
   const key = `novelops.chapter-generation.pending.${bookId}`;
   const pendingRaw = useSyncExternalStore(subscribe, () => saved(key), () => null);
-  const pending = parsePendingChapter(pendingRaw);
+  const storageUnavailable = pendingRaw === STORAGE_UNAVAILABLE;
+  const pending = parsePendingChapter(storageUnavailable ? null : pendingRaw);
   const runs = useResource<ChapterRun | null>(validChapter ? `${root}/generation/latest` : null,
     revision, 5000, pollWhileActive);
   const brief = useResource<Artifact>(validChapter ? `${root}/brief/eligible` : null, revision, 5000);
@@ -59,23 +61,38 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
   const runBusy = !!latest && !["completed", "failed", "blocked", "cancelled"].includes(latest.run.status);
   const unavailable = runs.error instanceof ApiError && runs.error.status === 503;
 
+  function assertStorage(expected: typeof pendingRaw) {
+    const current = saved(key);
+    if (current === STORAGE_UNAVAILABLE || current !== expected) {
+      window.dispatchEvent(new Event(EVENT));
+      throw new Error(current === STORAGE_UNAVAILABLE
+        ? "Chapter request storage is unavailable. Restore access and check storage before continuing."
+        : "Saved chapter request changed during this operation. Check history before continuing with the saved request.");
+    }
+  }
+
   function clearPending() {
+    if (busy.current) return;
     setError(null);
-    try { setSaved(key, null); }
+    try { assertStorage(pendingRaw); setSaved(key, null); }
     catch (cause) {
-      setError(`Could not clear the saved chapter request. ${visibleError(cause)} Check browser storage access and try again.`);
+      setError(`Could not clear the saved chapter request. ${cause instanceof DOMException ? cause.message : visibleError(cause)} Check browser storage access and try again.`);
     }
   }
 
   async function submit(request: PendingChapter | (() => Promise<PendingChapter>)) {
-    if (busy.current) return;
+    if (busy.current || storageUnavailable) return;
     busy.current = true;
     setWorking(true);
     setError(null);
     try {
+      assertStorage(pendingRaw);
       const command = typeof request === "function" ? await request() : request;
-      setSaved(key, JSON.stringify(command));
+      assertStorage(pendingRaw);
+      const ownedRaw = JSON.stringify(command);
+      setSaved(key, ownedRaw);
       await api.post(command.path, command.body);
+      assertStorage(ownedRaw);
       setSaved(key, null);
       setRevision(value => value + 1);
     } catch (cause) { setError(visibleError(cause)); }
@@ -117,9 +134,15 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
       <div className="flex flex-wrap gap-2"><Button variant="outline" disabled={working} onClick={() => void submit(pending)}>Retry the same request</Button>
         <Button variant="ghost" disabled={working} onClick={clearPending}>I checked the history</Button></div>
     </div>}
-    {pendingRaw && !pending && <div className="surface-soft space-y-2 p-4 text-sm" role="alert">
+    {storageUnavailable && <div className="surface-soft space-y-2 p-4 text-sm" role="alert">
+      <p>Cannot access saved chapter requests. Restore browser storage access, then check again.</p>
+      <Button variant="outline" disabled={working} onClick={() => { setError(null); window.dispatchEvent(new Event(EVENT)); }}>
+        Check chapter request storage
+      </Button>
+    </div>}
+    {!storageUnavailable && pendingRaw && !pending && <div className="surface-soft space-y-2 p-4 text-sm" role="alert">
       <p>The saved request is unreadable. Check the chapter history before clearing it.</p>
-      <Button variant="outline" onClick={clearPending}>I checked the history</Button>
+      <Button variant="outline" disabled={working} onClick={clearPending}>I checked the history</Button>
     </div>}
     {error && <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
     {latest && <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(17rem,1fr)]">
