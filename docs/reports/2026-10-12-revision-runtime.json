@@ -49677,6 +49677,1534 @@
             }
           ]
         }
+      },
+      {
+        "label": "scheduler-tick/PR-bba7eb94692ce00940722501c5e2afd3",
+        "seconds": 46.313,
+        "feishu_requests": 46,
+        "result": null
+      },
+      {
+        "label": "read-run/PR-bba7eb94692ce00940722501c5e2afd3",
+        "seconds": 2.295,
+        "feishu_requests": 2,
+        "result": {
+          "created_at": "2026-10-11T19:02:10.146982+00:00",
+          "definition_json": "{\"book_id\":\"\",\"source_hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"steps\":[{\"depends_on\":[],\"handler\":\"research.research\",\"input\":{\"configuration\":{\"prompts\":[\"8ca41be7227374bb1fe89afc94e8fb7984113e8476e61f50d0ea2982cee9a151\",\"3fe60b0c68530f774be4df772fb39b4a97b722dc474afa2bbddd9836c7df5c71\",\"ddc1b42f2f68f8243e9336b372956e34b6641055073c712868f50df6f495b71b\"],\"routes\":{\"research\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\",\"risk\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\"},\"selection_required\":true},\"prior_artifact\":null,\"request\":{\"feedback\":\"\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"revision_of\":\"\",\"source_hash\":\"0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4\",\"version\":1},\"source\":{\"captured_at\":\"2026-10-11T19:01:10.428897+00:00\",\"category\":\"synthetic-original-fantasy\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"source\":\"manual\",\"title\":\"合成验收 real-chain-cf7adc9d7f4a4af3aa3539225568c215：虚构海港钟楼的修钟人发现潮汐账本记录未来一天的失物，代价是每次找回物件必须交出自己的一个秘密。\",\"url\":\"\"}},\"kind\":\"agent\",\"requires_approval\":false,\"step_key\":\"research\"},{\"depends_on\":[\"research\"],\"handler\":\"research.risk\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"risk\"},{\"depends_on\":[\"risk\"],\"handler\":\"research.risk_gate\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"risk_gate\"},{\"depends_on\":[\"risk_gate\"],\"handler\":\"research.selection\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"selection\"},{\"depends_on\":[\"selection\"],\"handler\":\"research.commit\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"commit\"}],\"workflow_type\":\"hotspot_research_v1\"}",
+          "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+          "pipeline_type": "hotspot_research_v1",
+          "source_hotspot_id": "HS-8a07a41ca33ff7fa4d9813955120b47b",
+          "status": "awaiting_approval",
+          "updated_at": "2026-10-11T19:06:02.102121+00:00",
+          "steps": [
+            {
+              "finished_at": "2026-10-11T19:03:45.369427+00:00",
+              "handler": "research.research",
+              "input_json": "{\"configuration\":{\"prompts\":[\"8ca41be7227374bb1fe89afc94e8fb7984113e8476e61f50d0ea2982cee9a151\",\"3fe60b0c68530f774be4df772fb39b4a97b722dc474afa2bbddd9836c7df5c71\",\"ddc1b42f2f68f8243e9336b372956e34b6641055073c712868f50df6f495b71b\"],\"routes\":{\"research\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\",\"risk\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\"},\"selection_required\":true},\"prior_artifact\":null,\"request\":{\"feedback\":\"\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"revision_of\":\"\",\"source_hash\":\"0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4\",\"version\":1},\"source\":{\"captured_at\":\"2026-10-11T19:01:10.428897+00:00\",\"category\":\"synthetic-original-fantasy\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"source\":\"manual\",\"title\":\"合成验收 real-chain-cf7adc9d7f4a4af3aa3539225568c215：虚构海港钟楼的修钟人发现潮汐账本记录未来一天的失物，代价是每次找回物件必须交出自己的一个秘密。\",\"url\":\"\"}}",
+              "kind": "agent",
+              "output_json": "{\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\"]}",
+              "output_version": 1,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": false,
+              "retry_count": 0,
+              "started_at": "2026-10-11T19:03:04.549875+00:00",
+              "status": "success",
+              "step_key": "research",
+              "step_run_id": "SR-8ab9c92cbb9870a11c87670b9c8fe02c"
+            },
+            {
+              "depends_on": "research",
+              "finished_at": "2026-10-11T19:05:01.840716+00:00",
+              "handler": "research.risk",
+              "input_json": "{}",
+              "kind": "service",
+              "output_json": "{\"output_refs\":[\"AR-7082040ec60f72b0b3e29306d75d249f\"]}",
+              "output_version": 1,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": false,
+              "retry_count": 0,
+              "started_at": "2026-10-11T19:04:19.470369+00:00",
+              "status": "success",
+              "step_key": "risk",
+              "step_run_id": "SR-2b5e0b51a7f0984b1f8980ef0bda9c02"
+            },
+            {
+              "depends_on": "risk",
+              "finished_at": "2026-10-11T19:05:52.799245+00:00",
+              "handler": "research.risk_gate",
+              "input_json": "{}",
+              "kind": "service",
+              "output_json": "{\"analysis_version\":1,\"artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"content_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\",\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\",\"AR-7082040ec60f72b0b3e29306d75d249f\"],\"risk_artifact_id\":\"AR-7082040ec60f72b0b3e29306d75d249f\",\"risk_hash\":\"e3e49d280a18e59c370f57321ca7fddbb45cf6c04e8547ab00e5d64ecf737c2c\"}",
+              "output_version": 1,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": true,
+              "retry_count": 0,
+              "started_at": "2026-10-11T19:05:39.114978+00:00",
+              "status": "awaiting_approval",
+              "step_key": "risk_gate",
+              "step_run_id": "SR-6c74a55f0c800da0f15e33978224e890"
+            },
+            {
+              "depends_on": "risk_gate",
+              "handler": "research.selection",
+              "input_json": "{}",
+              "kind": "service",
+              "output_version": 0,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": false,
+              "retry_count": 0,
+              "status": "pending",
+              "step_key": "selection",
+              "step_run_id": "SR-db2a3e170d91359bbec4c95415e774ef"
+            },
+            {
+              "depends_on": "selection",
+              "handler": "research.commit",
+              "input_json": "{}",
+              "kind": "service",
+              "output_version": 0,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": false,
+              "retry_count": 0,
+              "status": "pending",
+              "step_key": "commit",
+              "step_run_id": "SR-2aaac059107c5375eb1667d8abd95ab1"
+            }
+          ]
+        }
+      },
+      {
+        "label": "human-gate/PR-bba7eb94692ce00940722501c5e2afd3",
+        "seconds": 8.67,
+        "feishu_requests": 11,
+        "result": {
+          "run": {
+            "created_at": "2026-10-11T19:02:10.146982+00:00",
+            "definition_json": "{\"book_id\":\"\",\"source_hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"steps\":[{\"depends_on\":[],\"handler\":\"research.research\",\"input\":{\"configuration\":{\"prompts\":[\"8ca41be7227374bb1fe89afc94e8fb7984113e8476e61f50d0ea2982cee9a151\",\"3fe60b0c68530f774be4df772fb39b4a97b722dc474afa2bbddd9836c7df5c71\",\"ddc1b42f2f68f8243e9336b372956e34b6641055073c712868f50df6f495b71b\"],\"routes\":{\"research\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\",\"risk\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\"},\"selection_required\":true},\"prior_artifact\":null,\"request\":{\"feedback\":\"\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"revision_of\":\"\",\"source_hash\":\"0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4\",\"version\":1},\"source\":{\"captured_at\":\"2026-10-11T19:01:10.428897+00:00\",\"category\":\"synthetic-original-fantasy\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"source\":\"manual\",\"title\":\"合成验收 real-chain-cf7adc9d7f4a4af3aa3539225568c215：虚构海港钟楼的修钟人发现潮汐账本记录未来一天的失物，代价是每次找回物件必须交出自己的一个秘密。\",\"url\":\"\"}},\"kind\":\"agent\",\"requires_approval\":false,\"step_key\":\"research\"},{\"depends_on\":[\"research\"],\"handler\":\"research.risk\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"risk\"},{\"depends_on\":[\"risk\"],\"handler\":\"research.risk_gate\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"risk_gate\"},{\"depends_on\":[\"risk_gate\"],\"handler\":\"research.selection\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"selection\"},{\"depends_on\":[\"selection\"],\"handler\":\"research.commit\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"commit\"}],\"workflow_type\":\"hotspot_research_v1\"}",
+            "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+            "pipeline_type": "hotspot_research_v1",
+            "source_hotspot_id": "HS-8a07a41ca33ff7fa4d9813955120b47b",
+            "status": "awaiting_approval",
+            "updated_at": "2026-10-11T19:06:02.102121+00:00",
+            "steps": [
+              {
+                "finished_at": "2026-10-11T19:03:45.369427+00:00",
+                "handler": "research.research",
+                "input_json": "{\"configuration\":{\"prompts\":[\"8ca41be7227374bb1fe89afc94e8fb7984113e8476e61f50d0ea2982cee9a151\",\"3fe60b0c68530f774be4df772fb39b4a97b722dc474afa2bbddd9836c7df5c71\",\"ddc1b42f2f68f8243e9336b372956e34b6641055073c712868f50df6f495b71b\"],\"routes\":{\"research\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\",\"risk\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\"},\"selection_required\":true},\"prior_artifact\":null,\"request\":{\"feedback\":\"\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"revision_of\":\"\",\"source_hash\":\"0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4\",\"version\":1},\"source\":{\"captured_at\":\"2026-10-11T19:01:10.428897+00:00\",\"category\":\"synthetic-original-fantasy\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"source\":\"manual\",\"title\":\"合成验收 real-chain-cf7adc9d7f4a4af3aa3539225568c215：虚构海港钟楼的修钟人发现潮汐账本记录未来一天的失物，代价是每次找回物件必须交出自己的一个秘密。\",\"url\":\"\"}}",
+                "kind": "agent",
+                "output_json": "{\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\"]}",
+                "output_version": 1,
+                "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+                "requires_approval": false,
+                "retry_count": 0,
+                "started_at": "2026-10-11T19:03:04.549875+00:00",
+                "status": "success",
+                "step_key": "research",
+                "step_run_id": "SR-8ab9c92cbb9870a11c87670b9c8fe02c"
+              },
+              {
+                "depends_on": "research",
+                "finished_at": "2026-10-11T19:05:01.840716+00:00",
+                "handler": "research.risk",
+                "input_json": "{}",
+                "kind": "service",
+                "output_json": "{\"output_refs\":[\"AR-7082040ec60f72b0b3e29306d75d249f\"]}",
+                "output_version": 1,
+                "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+                "requires_approval": false,
+                "retry_count": 0,
+                "started_at": "2026-10-11T19:04:19.470369+00:00",
+                "status": "success",
+                "step_key": "risk",
+                "step_run_id": "SR-2b5e0b51a7f0984b1f8980ef0bda9c02"
+              },
+              {
+                "depends_on": "risk",
+                "finished_at": "2026-10-11T19:05:52.799245+00:00",
+                "handler": "research.risk_gate",
+                "input_json": "{}",
+                "kind": "service",
+                "output_json": "{\"analysis_version\":1,\"artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"content_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\",\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\",\"AR-7082040ec60f72b0b3e29306d75d249f\"],\"risk_artifact_id\":\"AR-7082040ec60f72b0b3e29306d75d249f\",\"risk_hash\":\"e3e49d280a18e59c370f57321ca7fddbb45cf6c04e8547ab00e5d64ecf737c2c\"}",
+                "output_version": 1,
+                "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+                "requires_approval": true,
+                "retry_count": 0,
+                "started_at": "2026-10-11T19:05:39.114978+00:00",
+                "status": "awaiting_approval",
+                "step_key": "risk_gate",
+                "step_run_id": "SR-6c74a55f0c800da0f15e33978224e890"
+              },
+              {
+                "depends_on": "risk_gate",
+                "handler": "research.selection",
+                "input_json": "{}",
+                "kind": "service",
+                "output_version": 0,
+                "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+                "requires_approval": false,
+                "retry_count": 0,
+                "status": "pending",
+                "step_key": "selection",
+                "step_run_id": "SR-db2a3e170d91359bbec4c95415e774ef"
+              },
+              {
+                "depends_on": "selection",
+                "handler": "research.commit",
+                "input_json": "{}",
+                "kind": "service",
+                "output_version": 0,
+                "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+                "requires_approval": false,
+                "retry_count": 0,
+                "status": "pending",
+                "step_key": "commit",
+                "step_run_id": "SR-2aaac059107c5375eb1667d8abd95ab1"
+              }
+            ]
+          },
+          "request": {
+            "feedback": "",
+            "hotspot_id": "HS-8a07a41ca33ff7fa4d9813955120b47b",
+            "revision_of": "",
+            "source_hash": "0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4",
+            "version": 1
+          },
+          "source": {
+            "captured_at": "2026-10-11T19:01:10.428897+00:00",
+            "category": "synthetic-original-fantasy",
+            "hotspot_id": "HS-8a07a41ca33ff7fa4d9813955120b47b",
+            "source": "manual",
+            "title": "合成验收 real-chain-cf7adc9d7f4a4af3aa3539225568c215：虚构海港钟楼的修钟人发现潮汐账本记录未来一天的失物，代价是每次找回物件必须交出自己的一个秘密。",
+            "url": ""
+          },
+          "approval_status": "awaiting_risk_review",
+          "current": true,
+          "decisions": [],
+          "opportunity": {
+            "artifact_id": "AR-1989aadd179113d98852bb68f7f3a22c",
+            "logical_id": "research/HS-8a07a41ca33ff7fa4d9813955120b47b/opportunity",
+            "version": 1,
+            "artifact_type": "opportunity",
+            "content": {
+              "core_emotions": [
+                "好奇与窥视欲：账本预告的失物究竟是什么、属于谁",
+                "代价焦虑：每次行动都要暴露一个秘密，读者跟着紧张地权衡值不值得",
+                "道德两难：找回他人的物品是否值得牺牲自己的隐私与自我形象",
+                "被看穿的羞耻与脆弱感：秘密被逐步抽走、自我边界被侵蚀",
+                "隐秘的掌控快感：掌握他人命运的预知能力带来的诱惑",
+                "孤独与依赖：主角与账本之间逐渐扭曲的共生关系"
+              ],
+              "genre_fit": [
+                "都市奇幻/软奇幻",
+                "超自然悬疑",
+                "治愈系与致郁系并存的'失物招领'题材",
+                "单元剧+主线的连载网文结构",
+                "轻推理与社会派都市故事（通过失物折射人际关系）"
+              ],
+              "hit_patterns": [
+                "预知/清单式超自然道具：每天固定出现新的条目，形成可期待的连载节奏",
+                "等价交换机制：明确、可量化、逐步加码的代价，制造持续的紧张感",
+                "秘密作为货币：把抽象隐私变成可消耗资源，天然适合制造角色间张力",
+                "单元案件+主线谜题：每件失物是独立小故事，同时拼出账本由来与主角过去",
+                "规则解谜：读者会主动推演规则的漏洞与豁免条件，形成讨论热度",
+                "倒计时结构：账本只提前一天，紧迫感与翻页驱动强",
+                "反转钩子：账本本身可能才是最终的失物，或主角的秘密被他人握在手里"
+              ],
+              "novelization_directions": [
+                "主角设定为海港钟楼的年轻修钟人，家族三代看守钟楼，账本从祖父留下的钟摆暗格里出现，暗示家族与账本的旧约。",
+                "首卷用五到六个单元失物建立规则：账本每日黎明浮现一行字，写明失物特征与'最后出现的地点'，找回后必须对账本低语一个从未告诉任何人的秘密，秘密被'收取'时主角会短暂失忆般感到某个部分被抽离。",
+                "设计代价升级：先是无关紧要的小秘密，随后账本开始索要主角最不愿触碰的记忆，读者逐渐发现账本索取的是'让主角成为他自己'的那些事。",
+                "反派或对照组设定为上一任修钟人，他把自己的秘密全部交出去后变成空壳，成为海港传说中的'无名守钟人'，作为主角未来的镜像。",
+                "海港钟楼设定为潮汐与时间交汇点，账本随潮汐涨落更新，涨潮时字迹浮现，退潮时字迹消失，暗示账本与海的关系及更大代价的存在。",
+                "单元故事可涵盖：渔民的婚戒、失忆老人的车票、走私者的货单、孩子弄丢的宠物哨，用每件失物映射不同人物的情感，让找回行动本身改变主角对秘密的定义。",
+                "中段转折：主角发现某条失物记录指向自己丢失的东西——母亲留下的怀表，为找回它他必须交出最核心的秘密，从而揭示母亲失踪与钟楼、账本的关联。",
+                "终局方向一（悲剧）：主角交尽秘密，成为新的守钟人，账本传给下一个修钟人，形成循环。",
+                "终局方向二（反抗）：主角找到规则的漏洞——把自己的秘密主动讲给一个活人听，让秘密不再是'秘密'，账本无法收取，从而打破契约，但代价是必须永远失去这个倾听者或让他一起背负。",
+                "叙事视角建议用第一人称限知，强化秘密被抽走时的心理描写；每章结尾留下短钩子（下一条记录或一个突然显现的旧秘密）。",
+                "整体世界观可扩展为'代价型超自然道具'系列，账本只是海港众多'契约物'之一，为后续续作留出空间。"
+              ],
+              "reader_promise": "每一章都给出一个可被解决的失物任务，让读者获得'物归原主'的阶段性满足；同时以逐步加码的秘密代价制造持续升级的紧张与情感投入，最终让读者追问：当一个人用尽所有秘密之后，他还剩下什么？",
+              "risk": {
+                "confidence": 0.9,
+                "flags": [
+                  "无真实人物指涉，全部为虚构设定，不构成诽谤或隐私风险",
+                  "无涉及未成年人的敏感或剥削内容",
+                  "无直接复制受版权保护的具体作品表达，属原创意象组合"
+                ],
+                "level": "low",
+                "reasons": [
+                  "来源为合成虚构题材，不含真实人物、真实机构或可识别个人信息，因此隐私与诽谤风险低。",
+                  "'预感失物+秘密代价'属于常见奇幻母题的一般性组合，本提案以自创人物、自创海港钟楼设定展开，未借用任何特定作品的独特表达。",
+                  "方案中不涉及对现实群体的贬损性刻画，也未涉及未成年人或剥削性内容。",
+                  "创作提示已区分虚构与现实，不主张对现实事件的验证或断言。"
+                ],
+                "uncertainties": [
+                  "若后续在正文中直接引用某部已有作品的独特设定或措辞，可能触发版权风险，需要在创作阶段具体核查。",
+                  "若将'交出秘密'机制与现实中的隐私侵犯案例直接对应，可能引发读者对现实事件的联想，建议保持虚构的抽象化处理。",
+                  "来源标注为'synthetic-original-fantasy'，无法据此核验其是否与某个既有作品高度相似，最终相似性需在成稿后自查。"
+                ]
+              },
+              "summary": "虚构海港钟楼的修钟人意外获得一本潮汐账本，账本逐日提前记录未来一天即将发生的失物，而每找回一件东西的代价，是向账本交出自己的一个秘密。这是一个以'预知失物'为钩子、以'秘密作为货币'为核心代价机制的超自然悬疑/都市奇幻设定，适合写成结构清晰、单元式案件与主线交织的连载小说。"
+            },
+            "content_hash": "0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f",
+            "source_refs": [
+              "HS-8a07a41ca33ff7fa4d9813955120b47b@0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4"
+            ],
+            "run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+            "step_id": "SR-8ab9c92cbb9870a11c87670b9c8fe02c",
+            "chapter_id": "",
+            "workflow_version": "hotspot_research_v1",
+            "prompt_version": "research-v1",
+            "prompt_hash": "8ca41be7227374bb1fe89afc94e8fb7984113e8476e61f50d0ea2982cee9a151",
+            "route": "research",
+            "route_hash": "1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc",
+            "provider": "deepseek",
+            "model": "deepseek-flash",
+            "creator": "semantic-runtime",
+            "input_hash": "c5a3df2b74290377928c1f974cac1a48fb7a96a590a2745913bfde17b3b4e17d",
+            "created_at": "2026-10-11T19:03:37.364558+00:00"
+          },
+          "risk": {
+            "artifact_id": "AR-7082040ec60f72b0b3e29306d75d249f",
+            "logical_id": "research/HS-8a07a41ca33ff7fa4d9813955120b47b/risk",
+            "version": 1,
+            "artifact_type": "risk",
+            "content": {
+              "assessments": [
+                {
+                  "confidence": 0.9,
+                  "flags": [
+                    "无真实人物指涉，全部为虚构设定，不构成诽谤或隐私风险",
+                    "无涉及未成年人的敏感或剥削内容",
+                    "无直接复制受版权保护的具体作品表达，属原创意象组合"
+                  ],
+                  "level": "low",
+                  "reasons": [
+                    "来源为合成虚构题材，不含真实人物、真实机构或可识别个人信息，因此隐私与诽谤风险低。",
+                    "'预感失物+秘密代价'属于常见奇幻母题的一般性组合，本提案以自创人物、自创海港钟楼设定展开，未借用任何特定作品的独特表达。",
+                    "方案中不涉及对现实群体的贬损性刻画，也未涉及未成年人或剥削性内容。",
+                    "创作提示已区分虚构与现实，不主张对现实事件的验证或断言。"
+                  ],
+                  "uncertainties": [
+                    "若后续在正文中直接引用某部已有作品的独特设定或措辞，可能触发版权风险，需要在创作阶段具体核查。",
+                    "若将'交出秘密'机制与现实中的隐私侵犯案例直接对应，可能引发读者对现实事件的联想，建议保持虚构的抽象化处理。",
+                    "来源标注为'synthetic-original-fantasy'，无法据此核验其是否与某个既有作品高度相似，最终相似性需在成稿后自查。"
+                  ]
+                },
+                {
+                  "confidence": 0.62,
+                  "flags": [
+                    "Rule flags indicate missing_source_url and sensitive_subject: the source URL is empty, so provenance of the premise cannot be independently checked.",
+                    "The concept relies on a general 'supernatural object with escalating secret-cost' premise; because specific expression is not yet fixed, copyright similarity risk is unresolved rather than ruled out.",
+                    "The 'secret as currency' mechanic thematically touches on privacy violation and coerced disclosure; if later written as an allegory of real surveillance or real privacy abuses, it could create unintended real-world associations.",
+                    "The proposal includes family backstory (grandfather, mother's disappearance) and a character turned into an 'empty shell'; if mapped onto identifiable real people or real family histories, privacy or defamation concerns could arise.",
+                    "Minors are largely absent; however, the unit-story list includes a child's lost pet whistle, so any expansion involving children and emotional manipulation or exploitation should be handled carefully.",
+                    "Factual uncertainty is inherent: the proposal asserts no real events, but the manual/synthetic source and absent URL mean external verification is not possible."
+                  ],
+                  "level": "medium",
+                  "reasons": [
+                    "All named characters, settings (海港钟楼), and props are fictional, so direct defamation or real-person privacy harm is unlikely on the face of the proposal.",
+                    "The core mechanic is a general fantasy trope combination, but copyright protects specific expression; no specific copyrighted text is quoted here, so direct infringement is not established.",
+                    "Privacy themes are fictionalized through a supernatural ledger rather than describing real individuals' private data, which lowers but does not eliminate thematic privacy risk.",
+                    "The proposal explicitly avoids identifiable real persons, institutions, or minors in exploitative contexts, supporting a lower risk level.",
+                    "The missing source URL and 'synthetic-original-fantasy' category prevent confirming whether the premise resembles an existing published work, so a residual similarity risk remains.",
+                    "The sensitive_subject rule flag suggests caution; the subject matter of secrets, memory loss, and self-erasure can be emotionally intense and may require content handling if adapted."
+                  ],
+                  "uncertainties": [
+                    "Cannot verify whether the 'tide ledger that records tomorrow's lost items' premise closely resembles an existing copyrighted work without the source URL or a similarity search.",
+                    "Unclear whether later drafts will use real-world privacy incidents, identifiable persons, or specific family histories, which would raise privacy or defamation risk.",
+                    "The proposal does not specify how child characters or child-related unit stories will be handled; if a minor becomes a main subject of manipulation or exploitation, the risk profile changes.",
+                    "No legal review or editorial review is indicated; factual and legal certainty is therefore limited to the proposal text itself.",
+                    "The rule flag 'sensitive_subject' is not explained in the provided data, so the exact sensitivity concern remains ambiguous."
+                  ]
+                }
+              ],
+              "level": "uncertain",
+              "opportunity_hash": "0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f",
+              "opportunity_id": "AR-1989aadd179113d98852bb68f7f3a22c",
+              "requires_review": true,
+              "rule_flags": [
+                "missing_source_url",
+                "sensitive_subject"
+              ]
+            },
+            "content_hash": "e3e49d280a18e59c370f57321ca7fddbb45cf6c04e8547ab00e5d64ecf737c2c",
+            "source_refs": [
+              "AR-1989aadd179113d98852bb68f7f3a22c",
+              "AR-48110b8a35ca731c048e6d1b39bd1fd5"
+            ],
+            "run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+            "step_id": "SR-2b5e0b51a7f0984b1f8980ef0bda9c02",
+            "chapter_id": "",
+            "workflow_version": "hotspot_research_v1",
+            "prompt_version": "risk-policy-v1",
+            "prompt_hash": "ddc1b42f2f68f8243e9336b372956e34b6641055073c712868f50df6f495b71b",
+            "route": "deterministic-risk-policy",
+            "route_hash": "",
+            "provider": "deterministic",
+            "model": "risk-policy-v1",
+            "creator": "risk-policy",
+            "input_hash": "42979ea8d722f9cf9461309ceeb6aa315afd3364cabcf3231a51fd20ab497822",
+            "created_at": "2026-10-11T19:04:57.508336+00:00"
+          }
+        }
+      },
+      {
+        "label": "exact-human-decision/PR-bba7eb94692ce00940722501c5e2afd3",
+        "seconds": 45.811,
+        "feishu_requests": 48,
+        "result": {
+          "depends_on": "risk",
+          "finished_at": "2026-10-11T19:05:52.799245+00:00",
+          "handler": "research.risk_gate",
+          "input_json": "{}",
+          "kind": "service",
+          "output_json": "{\"analysis_version\":1,\"artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"content_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\",\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\",\"AR-7082040ec60f72b0b3e29306d75d249f\"],\"risk_artifact_id\":\"AR-7082040ec60f72b0b3e29306d75d249f\",\"risk_hash\":\"e3e49d280a18e59c370f57321ca7fddbb45cf6c04e8547ab00e5d64ecf737c2c\"}",
+          "output_version": 1,
+          "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+          "requires_approval": true,
+          "retry_count": 0,
+          "started_at": "2026-10-11T19:05:39.114978+00:00",
+          "status": "success",
+          "step_key": "risk_gate",
+          "step_run_id": "SR-6c74a55f0c800da0f15e33978224e890"
+        }
+      },
+      {
+        "label": "read-run/PR-bba7eb94692ce00940722501c5e2afd3",
+        "seconds": 1.96,
+        "feishu_requests": 2,
+        "result": {
+          "created_at": "2026-10-11T19:02:10.146982+00:00",
+          "definition_json": "{\"book_id\":\"\",\"source_hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"steps\":[{\"depends_on\":[],\"handler\":\"research.research\",\"input\":{\"configuration\":{\"prompts\":[\"8ca41be7227374bb1fe89afc94e8fb7984113e8476e61f50d0ea2982cee9a151\",\"3fe60b0c68530f774be4df772fb39b4a97b722dc474afa2bbddd9836c7df5c71\",\"ddc1b42f2f68f8243e9336b372956e34b6641055073c712868f50df6f495b71b\"],\"routes\":{\"research\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\",\"risk\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\"},\"selection_required\":true},\"prior_artifact\":null,\"request\":{\"feedback\":\"\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"revision_of\":\"\",\"source_hash\":\"0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4\",\"version\":1},\"source\":{\"captured_at\":\"2026-10-11T19:01:10.428897+00:00\",\"category\":\"synthetic-original-fantasy\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"source\":\"manual\",\"title\":\"合成验收 real-chain-cf7adc9d7f4a4af3aa3539225568c215：虚构海港钟楼的修钟人发现潮汐账本记录未来一天的失物，代价是每次找回物件必须交出自己的一个秘密。\",\"url\":\"\"}},\"kind\":\"agent\",\"requires_approval\":false,\"step_key\":\"research\"},{\"depends_on\":[\"research\"],\"handler\":\"research.risk\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"risk\"},{\"depends_on\":[\"risk\"],\"handler\":\"research.risk_gate\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"risk_gate\"},{\"depends_on\":[\"risk_gate\"],\"handler\":\"research.selection\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"selection\"},{\"depends_on\":[\"selection\"],\"handler\":\"research.commit\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"commit\"}],\"workflow_type\":\"hotspot_research_v1\"}",
+          "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+          "pipeline_type": "hotspot_research_v1",
+          "source_hotspot_id": "HS-8a07a41ca33ff7fa4d9813955120b47b",
+          "status": "running",
+          "updated_at": "2026-10-11T19:06:57.959123+00:00",
+          "steps": [
+            {
+              "finished_at": "2026-10-11T19:03:45.369427+00:00",
+              "handler": "research.research",
+              "input_json": "{\"configuration\":{\"prompts\":[\"8ca41be7227374bb1fe89afc94e8fb7984113e8476e61f50d0ea2982cee9a151\",\"3fe60b0c68530f774be4df772fb39b4a97b722dc474afa2bbddd9836c7df5c71\",\"ddc1b42f2f68f8243e9336b372956e34b6641055073c712868f50df6f495b71b\"],\"routes\":{\"research\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\",\"risk\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\"},\"selection_required\":true},\"prior_artifact\":null,\"request\":{\"feedback\":\"\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"revision_of\":\"\",\"source_hash\":\"0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4\",\"version\":1},\"source\":{\"captured_at\":\"2026-10-11T19:01:10.428897+00:00\",\"category\":\"synthetic-original-fantasy\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"source\":\"manual\",\"title\":\"合成验收 real-chain-cf7adc9d7f4a4af3aa3539225568c215：虚构海港钟楼的修钟人发现潮汐账本记录未来一天的失物，代价是每次找回物件必须交出自己的一个秘密。\",\"url\":\"\"}}",
+              "kind": "agent",
+              "output_json": "{\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\"]}",
+              "output_version": 1,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": false,
+              "retry_count": 0,
+              "started_at": "2026-10-11T19:03:04.549875+00:00",
+              "status": "success",
+              "step_key": "research",
+              "step_run_id": "SR-8ab9c92cbb9870a11c87670b9c8fe02c"
+            },
+            {
+              "depends_on": "research",
+              "finished_at": "2026-10-11T19:05:01.840716+00:00",
+              "handler": "research.risk",
+              "input_json": "{}",
+              "kind": "service",
+              "output_json": "{\"output_refs\":[\"AR-7082040ec60f72b0b3e29306d75d249f\"]}",
+              "output_version": 1,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": false,
+              "retry_count": 0,
+              "started_at": "2026-10-11T19:04:19.470369+00:00",
+              "status": "success",
+              "step_key": "risk",
+              "step_run_id": "SR-2b5e0b51a7f0984b1f8980ef0bda9c02"
+            },
+            {
+              "depends_on": "risk",
+              "finished_at": "2026-10-11T19:05:52.799245+00:00",
+              "handler": "research.risk_gate",
+              "input_json": "{}",
+              "kind": "service",
+              "output_json": "{\"analysis_version\":1,\"artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"content_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\",\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\",\"AR-7082040ec60f72b0b3e29306d75d249f\"],\"risk_artifact_id\":\"AR-7082040ec60f72b0b3e29306d75d249f\",\"risk_hash\":\"e3e49d280a18e59c370f57321ca7fddbb45cf6c04e8547ab00e5d64ecf737c2c\"}",
+              "output_version": 1,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": true,
+              "retry_count": 0,
+              "started_at": "2026-10-11T19:05:39.114978+00:00",
+              "status": "success",
+              "step_key": "risk_gate",
+              "step_run_id": "SR-6c74a55f0c800da0f15e33978224e890"
+            },
+            {
+              "depends_on": "risk_gate",
+              "handler": "research.selection",
+              "input_json": "{}",
+              "kind": "service",
+              "output_version": 0,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": false,
+              "retry_count": 0,
+              "status": "pending",
+              "step_key": "selection",
+              "step_run_id": "SR-db2a3e170d91359bbec4c95415e774ef"
+            },
+            {
+              "depends_on": "selection",
+              "handler": "research.commit",
+              "input_json": "{}",
+              "kind": "service",
+              "output_version": 0,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": false,
+              "retry_count": 0,
+              "status": "pending",
+              "step_key": "commit",
+              "step_run_id": "SR-2aaac059107c5375eb1667d8abd95ab1"
+            }
+          ]
+        }
+      },
+      {
+        "label": "scheduler-tick/PR-bba7eb94692ce00940722501c5e2afd3",
+        "seconds": 45.676,
+        "feishu_requests": 45,
+        "result": null
+      },
+      {
+        "label": "read-run/PR-bba7eb94692ce00940722501c5e2afd3",
+        "seconds": 1.848,
+        "feishu_requests": 2,
+        "result": {
+          "created_at": "2026-10-11T19:02:10.146982+00:00",
+          "definition_json": "{\"book_id\":\"\",\"source_hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"steps\":[{\"depends_on\":[],\"handler\":\"research.research\",\"input\":{\"configuration\":{\"prompts\":[\"8ca41be7227374bb1fe89afc94e8fb7984113e8476e61f50d0ea2982cee9a151\",\"3fe60b0c68530f774be4df772fb39b4a97b722dc474afa2bbddd9836c7df5c71\",\"ddc1b42f2f68f8243e9336b372956e34b6641055073c712868f50df6f495b71b\"],\"routes\":{\"research\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\",\"risk\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\"},\"selection_required\":true},\"prior_artifact\":null,\"request\":{\"feedback\":\"\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"revision_of\":\"\",\"source_hash\":\"0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4\",\"version\":1},\"source\":{\"captured_at\":\"2026-10-11T19:01:10.428897+00:00\",\"category\":\"synthetic-original-fantasy\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"source\":\"manual\",\"title\":\"合成验收 real-chain-cf7adc9d7f4a4af3aa3539225568c215：虚构海港钟楼的修钟人发现潮汐账本记录未来一天的失物，代价是每次找回物件必须交出自己的一个秘密。\",\"url\":\"\"}},\"kind\":\"agent\",\"requires_approval\":false,\"step_key\":\"research\"},{\"depends_on\":[\"research\"],\"handler\":\"research.risk\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"risk\"},{\"depends_on\":[\"risk\"],\"handler\":\"research.risk_gate\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"risk_gate\"},{\"depends_on\":[\"risk_gate\"],\"handler\":\"research.selection\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"selection\"},{\"depends_on\":[\"selection\"],\"handler\":\"research.commit\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"commit\"}],\"workflow_type\":\"hotspot_research_v1\"}",
+          "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+          "pipeline_type": "hotspot_research_v1",
+          "source_hotspot_id": "HS-8a07a41ca33ff7fa4d9813955120b47b",
+          "status": "awaiting_approval",
+          "updated_at": "2026-10-11T19:07:45.897999+00:00",
+          "steps": [
+            {
+              "finished_at": "2026-10-11T19:03:45.369427+00:00",
+              "handler": "research.research",
+              "input_json": "{\"configuration\":{\"prompts\":[\"8ca41be7227374bb1fe89afc94e8fb7984113e8476e61f50d0ea2982cee9a151\",\"3fe60b0c68530f774be4df772fb39b4a97b722dc474afa2bbddd9836c7df5c71\",\"ddc1b42f2f68f8243e9336b372956e34b6641055073c712868f50df6f495b71b\"],\"routes\":{\"research\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\",\"risk\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\"},\"selection_required\":true},\"prior_artifact\":null,\"request\":{\"feedback\":\"\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"revision_of\":\"\",\"source_hash\":\"0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4\",\"version\":1},\"source\":{\"captured_at\":\"2026-10-11T19:01:10.428897+00:00\",\"category\":\"synthetic-original-fantasy\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"source\":\"manual\",\"title\":\"合成验收 real-chain-cf7adc9d7f4a4af3aa3539225568c215：虚构海港钟楼的修钟人发现潮汐账本记录未来一天的失物，代价是每次找回物件必须交出自己的一个秘密。\",\"url\":\"\"}}",
+              "kind": "agent",
+              "output_json": "{\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\"]}",
+              "output_version": 1,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": false,
+              "retry_count": 0,
+              "started_at": "2026-10-11T19:03:04.549875+00:00",
+              "status": "success",
+              "step_key": "research",
+              "step_run_id": "SR-8ab9c92cbb9870a11c87670b9c8fe02c"
+            },
+            {
+              "depends_on": "research",
+              "finished_at": "2026-10-11T19:05:01.840716+00:00",
+              "handler": "research.risk",
+              "input_json": "{}",
+              "kind": "service",
+              "output_json": "{\"output_refs\":[\"AR-7082040ec60f72b0b3e29306d75d249f\"]}",
+              "output_version": 1,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": false,
+              "retry_count": 0,
+              "started_at": "2026-10-11T19:04:19.470369+00:00",
+              "status": "success",
+              "step_key": "risk",
+              "step_run_id": "SR-2b5e0b51a7f0984b1f8980ef0bda9c02"
+            },
+            {
+              "depends_on": "risk",
+              "finished_at": "2026-10-11T19:05:52.799245+00:00",
+              "handler": "research.risk_gate",
+              "input_json": "{}",
+              "kind": "service",
+              "output_json": "{\"analysis_version\":1,\"artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"content_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\",\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\",\"AR-7082040ec60f72b0b3e29306d75d249f\"],\"risk_artifact_id\":\"AR-7082040ec60f72b0b3e29306d75d249f\",\"risk_hash\":\"e3e49d280a18e59c370f57321ca7fddbb45cf6c04e8547ab00e5d64ecf737c2c\"}",
+              "output_version": 1,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": true,
+              "retry_count": 0,
+              "started_at": "2026-10-11T19:05:39.114978+00:00",
+              "status": "success",
+              "step_key": "risk_gate",
+              "step_run_id": "SR-6c74a55f0c800da0f15e33978224e890"
+            },
+            {
+              "depends_on": "risk_gate",
+              "finished_at": "2026-10-11T19:07:37.191021+00:00",
+              "handler": "research.selection",
+              "input_json": "{}",
+              "kind": "service",
+              "output_json": "{\"analysis_version\":1,\"artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"content_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\",\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\",\"AR-7082040ec60f72b0b3e29306d75d249f\"],\"risk_artifact_id\":\"AR-7082040ec60f72b0b3e29306d75d249f\",\"risk_hash\":\"e3e49d280a18e59c370f57321ca7fddbb45cf6c04e8547ab00e5d64ecf737c2c\"}",
+              "output_version": 1,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": true,
+              "retry_count": 0,
+              "started_at": "2026-10-11T19:07:24.104149+00:00",
+              "status": "awaiting_approval",
+              "step_key": "selection",
+              "step_run_id": "SR-db2a3e170d91359bbec4c95415e774ef"
+            },
+            {
+              "depends_on": "selection",
+              "handler": "research.commit",
+              "input_json": "{}",
+              "kind": "service",
+              "output_version": 0,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": false,
+              "retry_count": 0,
+              "status": "pending",
+              "step_key": "commit",
+              "step_run_id": "SR-2aaac059107c5375eb1667d8abd95ab1"
+            }
+          ]
+        }
+      },
+      {
+        "label": "human-gate/PR-bba7eb94692ce00940722501c5e2afd3",
+        "seconds": 8.793,
+        "feishu_requests": 11,
+        "result": {
+          "run": {
+            "created_at": "2026-10-11T19:02:10.146982+00:00",
+            "definition_json": "{\"book_id\":\"\",\"source_hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"steps\":[{\"depends_on\":[],\"handler\":\"research.research\",\"input\":{\"configuration\":{\"prompts\":[\"8ca41be7227374bb1fe89afc94e8fb7984113e8476e61f50d0ea2982cee9a151\",\"3fe60b0c68530f774be4df772fb39b4a97b722dc474afa2bbddd9836c7df5c71\",\"ddc1b42f2f68f8243e9336b372956e34b6641055073c712868f50df6f495b71b\"],\"routes\":{\"research\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\",\"risk\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\"},\"selection_required\":true},\"prior_artifact\":null,\"request\":{\"feedback\":\"\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"revision_of\":\"\",\"source_hash\":\"0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4\",\"version\":1},\"source\":{\"captured_at\":\"2026-10-11T19:01:10.428897+00:00\",\"category\":\"synthetic-original-fantasy\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"source\":\"manual\",\"title\":\"合成验收 real-chain-cf7adc9d7f4a4af3aa3539225568c215：虚构海港钟楼的修钟人发现潮汐账本记录未来一天的失物，代价是每次找回物件必须交出自己的一个秘密。\",\"url\":\"\"}},\"kind\":\"agent\",\"requires_approval\":false,\"step_key\":\"research\"},{\"depends_on\":[\"research\"],\"handler\":\"research.risk\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"risk\"},{\"depends_on\":[\"risk\"],\"handler\":\"research.risk_gate\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"risk_gate\"},{\"depends_on\":[\"risk_gate\"],\"handler\":\"research.selection\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"selection\"},{\"depends_on\":[\"selection\"],\"handler\":\"research.commit\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"commit\"}],\"workflow_type\":\"hotspot_research_v1\"}",
+            "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+            "pipeline_type": "hotspot_research_v1",
+            "source_hotspot_id": "HS-8a07a41ca33ff7fa4d9813955120b47b",
+            "status": "awaiting_approval",
+            "updated_at": "2026-10-11T19:07:45.897999+00:00",
+            "steps": [
+              {
+                "finished_at": "2026-10-11T19:03:45.369427+00:00",
+                "handler": "research.research",
+                "input_json": "{\"configuration\":{\"prompts\":[\"8ca41be7227374bb1fe89afc94e8fb7984113e8476e61f50d0ea2982cee9a151\",\"3fe60b0c68530f774be4df772fb39b4a97b722dc474afa2bbddd9836c7df5c71\",\"ddc1b42f2f68f8243e9336b372956e34b6641055073c712868f50df6f495b71b\"],\"routes\":{\"research\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\",\"risk\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\"},\"selection_required\":true},\"prior_artifact\":null,\"request\":{\"feedback\":\"\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"revision_of\":\"\",\"source_hash\":\"0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4\",\"version\":1},\"source\":{\"captured_at\":\"2026-10-11T19:01:10.428897+00:00\",\"category\":\"synthetic-original-fantasy\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"source\":\"manual\",\"title\":\"合成验收 real-chain-cf7adc9d7f4a4af3aa3539225568c215：虚构海港钟楼的修钟人发现潮汐账本记录未来一天的失物，代价是每次找回物件必须交出自己的一个秘密。\",\"url\":\"\"}}",
+                "kind": "agent",
+                "output_json": "{\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\"]}",
+                "output_version": 1,
+                "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+                "requires_approval": false,
+                "retry_count": 0,
+                "started_at": "2026-10-11T19:03:04.549875+00:00",
+                "status": "success",
+                "step_key": "research",
+                "step_run_id": "SR-8ab9c92cbb9870a11c87670b9c8fe02c"
+              },
+              {
+                "depends_on": "research",
+                "finished_at": "2026-10-11T19:05:01.840716+00:00",
+                "handler": "research.risk",
+                "input_json": "{}",
+                "kind": "service",
+                "output_json": "{\"output_refs\":[\"AR-7082040ec60f72b0b3e29306d75d249f\"]}",
+                "output_version": 1,
+                "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+                "requires_approval": false,
+                "retry_count": 0,
+                "started_at": "2026-10-11T19:04:19.470369+00:00",
+                "status": "success",
+                "step_key": "risk",
+                "step_run_id": "SR-2b5e0b51a7f0984b1f8980ef0bda9c02"
+              },
+              {
+                "depends_on": "risk",
+                "finished_at": "2026-10-11T19:05:52.799245+00:00",
+                "handler": "research.risk_gate",
+                "input_json": "{}",
+                "kind": "service",
+                "output_json": "{\"analysis_version\":1,\"artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"content_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\",\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\",\"AR-7082040ec60f72b0b3e29306d75d249f\"],\"risk_artifact_id\":\"AR-7082040ec60f72b0b3e29306d75d249f\",\"risk_hash\":\"e3e49d280a18e59c370f57321ca7fddbb45cf6c04e8547ab00e5d64ecf737c2c\"}",
+                "output_version": 1,
+                "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+                "requires_approval": true,
+                "retry_count": 0,
+                "started_at": "2026-10-11T19:05:39.114978+00:00",
+                "status": "success",
+                "step_key": "risk_gate",
+                "step_run_id": "SR-6c74a55f0c800da0f15e33978224e890"
+              },
+              {
+                "depends_on": "risk_gate",
+                "finished_at": "2026-10-11T19:07:37.191021+00:00",
+                "handler": "research.selection",
+                "input_json": "{}",
+                "kind": "service",
+                "output_json": "{\"analysis_version\":1,\"artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"content_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\",\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\",\"AR-7082040ec60f72b0b3e29306d75d249f\"],\"risk_artifact_id\":\"AR-7082040ec60f72b0b3e29306d75d249f\",\"risk_hash\":\"e3e49d280a18e59c370f57321ca7fddbb45cf6c04e8547ab00e5d64ecf737c2c\"}",
+                "output_version": 1,
+                "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+                "requires_approval": true,
+                "retry_count": 0,
+                "started_at": "2026-10-11T19:07:24.104149+00:00",
+                "status": "awaiting_approval",
+                "step_key": "selection",
+                "step_run_id": "SR-db2a3e170d91359bbec4c95415e774ef"
+              },
+              {
+                "depends_on": "selection",
+                "handler": "research.commit",
+                "input_json": "{}",
+                "kind": "service",
+                "output_version": 0,
+                "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+                "requires_approval": false,
+                "retry_count": 0,
+                "status": "pending",
+                "step_key": "commit",
+                "step_run_id": "SR-2aaac059107c5375eb1667d8abd95ab1"
+              }
+            ]
+          },
+          "request": {
+            "feedback": "",
+            "hotspot_id": "HS-8a07a41ca33ff7fa4d9813955120b47b",
+            "revision_of": "",
+            "source_hash": "0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4",
+            "version": 1
+          },
+          "source": {
+            "captured_at": "2026-10-11T19:01:10.428897+00:00",
+            "category": "synthetic-original-fantasy",
+            "hotspot_id": "HS-8a07a41ca33ff7fa4d9813955120b47b",
+            "source": "manual",
+            "title": "合成验收 real-chain-cf7adc9d7f4a4af3aa3539225568c215：虚构海港钟楼的修钟人发现潮汐账本记录未来一天的失物，代价是每次找回物件必须交出自己的一个秘密。",
+            "url": ""
+          },
+          "approval_status": "awaiting_selection",
+          "current": true,
+          "decisions": [
+            {
+              "action": "approve",
+              "approval_id": "AP-355d0c85fd6716289a521fd0c31a5cb9",
+              "created_at": "2026-10-11T19:06:47.746711+00:00",
+              "operator": "synthetic-real-editor",
+              "reason": "Original synthetic fiction; exact artifact reviewed for acceptance",
+              "target_id": "SR-6c74a55f0c800da0f15e33978224e890",
+              "target_type": "step_run",
+              "target_version": 1
+            }
+          ],
+          "opportunity": {
+            "artifact_id": "AR-1989aadd179113d98852bb68f7f3a22c",
+            "logical_id": "research/HS-8a07a41ca33ff7fa4d9813955120b47b/opportunity",
+            "version": 1,
+            "artifact_type": "opportunity",
+            "content": {
+              "core_emotions": [
+                "好奇与窥视欲：账本预告的失物究竟是什么、属于谁",
+                "代价焦虑：每次行动都要暴露一个秘密，读者跟着紧张地权衡值不值得",
+                "道德两难：找回他人的物品是否值得牺牲自己的隐私与自我形象",
+                "被看穿的羞耻与脆弱感：秘密被逐步抽走、自我边界被侵蚀",
+                "隐秘的掌控快感：掌握他人命运的预知能力带来的诱惑",
+                "孤独与依赖：主角与账本之间逐渐扭曲的共生关系"
+              ],
+              "genre_fit": [
+                "都市奇幻/软奇幻",
+                "超自然悬疑",
+                "治愈系与致郁系并存的'失物招领'题材",
+                "单元剧+主线的连载网文结构",
+                "轻推理与社会派都市故事（通过失物折射人际关系）"
+              ],
+              "hit_patterns": [
+                "预知/清单式超自然道具：每天固定出现新的条目，形成可期待的连载节奏",
+                "等价交换机制：明确、可量化、逐步加码的代价，制造持续的紧张感",
+                "秘密作为货币：把抽象隐私变成可消耗资源，天然适合制造角色间张力",
+                "单元案件+主线谜题：每件失物是独立小故事，同时拼出账本由来与主角过去",
+                "规则解谜：读者会主动推演规则的漏洞与豁免条件，形成讨论热度",
+                "倒计时结构：账本只提前一天，紧迫感与翻页驱动强",
+                "反转钩子：账本本身可能才是最终的失物，或主角的秘密被他人握在手里"
+              ],
+              "novelization_directions": [
+                "主角设定为海港钟楼的年轻修钟人，家族三代看守钟楼，账本从祖父留下的钟摆暗格里出现，暗示家族与账本的旧约。",
+                "首卷用五到六个单元失物建立规则：账本每日黎明浮现一行字，写明失物特征与'最后出现的地点'，找回后必须对账本低语一个从未告诉任何人的秘密，秘密被'收取'时主角会短暂失忆般感到某个部分被抽离。",
+                "设计代价升级：先是无关紧要的小秘密，随后账本开始索要主角最不愿触碰的记忆，读者逐渐发现账本索取的是'让主角成为他自己'的那些事。",
+                "反派或对照组设定为上一任修钟人，他把自己的秘密全部交出去后变成空壳，成为海港传说中的'无名守钟人'，作为主角未来的镜像。",
+                "海港钟楼设定为潮汐与时间交汇点，账本随潮汐涨落更新，涨潮时字迹浮现，退潮时字迹消失，暗示账本与海的关系及更大代价的存在。",
+                "单元故事可涵盖：渔民的婚戒、失忆老人的车票、走私者的货单、孩子弄丢的宠物哨，用每件失物映射不同人物的情感，让找回行动本身改变主角对秘密的定义。",
+                "中段转折：主角发现某条失物记录指向自己丢失的东西——母亲留下的怀表，为找回它他必须交出最核心的秘密，从而揭示母亲失踪与钟楼、账本的关联。",
+                "终局方向一（悲剧）：主角交尽秘密，成为新的守钟人，账本传给下一个修钟人，形成循环。",
+                "终局方向二（反抗）：主角找到规则的漏洞——把自己的秘密主动讲给一个活人听，让秘密不再是'秘密'，账本无法收取，从而打破契约，但代价是必须永远失去这个倾听者或让他一起背负。",
+                "叙事视角建议用第一人称限知，强化秘密被抽走时的心理描写；每章结尾留下短钩子（下一条记录或一个突然显现的旧秘密）。",
+                "整体世界观可扩展为'代价型超自然道具'系列，账本只是海港众多'契约物'之一，为后续续作留出空间。"
+              ],
+              "reader_promise": "每一章都给出一个可被解决的失物任务，让读者获得'物归原主'的阶段性满足；同时以逐步加码的秘密代价制造持续升级的紧张与情感投入，最终让读者追问：当一个人用尽所有秘密之后，他还剩下什么？",
+              "risk": {
+                "confidence": 0.9,
+                "flags": [
+                  "无真实人物指涉，全部为虚构设定，不构成诽谤或隐私风险",
+                  "无涉及未成年人的敏感或剥削内容",
+                  "无直接复制受版权保护的具体作品表达，属原创意象组合"
+                ],
+                "level": "low",
+                "reasons": [
+                  "来源为合成虚构题材，不含真实人物、真实机构或可识别个人信息，因此隐私与诽谤风险低。",
+                  "'预感失物+秘密代价'属于常见奇幻母题的一般性组合，本提案以自创人物、自创海港钟楼设定展开，未借用任何特定作品的独特表达。",
+                  "方案中不涉及对现实群体的贬损性刻画，也未涉及未成年人或剥削性内容。",
+                  "创作提示已区分虚构与现实，不主张对现实事件的验证或断言。"
+                ],
+                "uncertainties": [
+                  "若后续在正文中直接引用某部已有作品的独特设定或措辞，可能触发版权风险，需要在创作阶段具体核查。",
+                  "若将'交出秘密'机制与现实中的隐私侵犯案例直接对应，可能引发读者对现实事件的联想，建议保持虚构的抽象化处理。",
+                  "来源标注为'synthetic-original-fantasy'，无法据此核验其是否与某个既有作品高度相似，最终相似性需在成稿后自查。"
+                ]
+              },
+              "summary": "虚构海港钟楼的修钟人意外获得一本潮汐账本，账本逐日提前记录未来一天即将发生的失物，而每找回一件东西的代价，是向账本交出自己的一个秘密。这是一个以'预知失物'为钩子、以'秘密作为货币'为核心代价机制的超自然悬疑/都市奇幻设定，适合写成结构清晰、单元式案件与主线交织的连载小说。"
+            },
+            "content_hash": "0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f",
+            "source_refs": [
+              "HS-8a07a41ca33ff7fa4d9813955120b47b@0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4"
+            ],
+            "run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+            "step_id": "SR-8ab9c92cbb9870a11c87670b9c8fe02c",
+            "chapter_id": "",
+            "workflow_version": "hotspot_research_v1",
+            "prompt_version": "research-v1",
+            "prompt_hash": "8ca41be7227374bb1fe89afc94e8fb7984113e8476e61f50d0ea2982cee9a151",
+            "route": "research",
+            "route_hash": "1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc",
+            "provider": "deepseek",
+            "model": "deepseek-flash",
+            "creator": "semantic-runtime",
+            "input_hash": "c5a3df2b74290377928c1f974cac1a48fb7a96a590a2745913bfde17b3b4e17d",
+            "created_at": "2026-10-11T19:03:37.364558+00:00"
+          },
+          "risk": {
+            "artifact_id": "AR-7082040ec60f72b0b3e29306d75d249f",
+            "logical_id": "research/HS-8a07a41ca33ff7fa4d9813955120b47b/risk",
+            "version": 1,
+            "artifact_type": "risk",
+            "content": {
+              "assessments": [
+                {
+                  "confidence": 0.9,
+                  "flags": [
+                    "无真实人物指涉，全部为虚构设定，不构成诽谤或隐私风险",
+                    "无涉及未成年人的敏感或剥削内容",
+                    "无直接复制受版权保护的具体作品表达，属原创意象组合"
+                  ],
+                  "level": "low",
+                  "reasons": [
+                    "来源为合成虚构题材，不含真实人物、真实机构或可识别个人信息，因此隐私与诽谤风险低。",
+                    "'预感失物+秘密代价'属于常见奇幻母题的一般性组合，本提案以自创人物、自创海港钟楼设定展开，未借用任何特定作品的独特表达。",
+                    "方案中不涉及对现实群体的贬损性刻画，也未涉及未成年人或剥削性内容。",
+                    "创作提示已区分虚构与现实，不主张对现实事件的验证或断言。"
+                  ],
+                  "uncertainties": [
+                    "若后续在正文中直接引用某部已有作品的独特设定或措辞，可能触发版权风险，需要在创作阶段具体核查。",
+                    "若将'交出秘密'机制与现实中的隐私侵犯案例直接对应，可能引发读者对现实事件的联想，建议保持虚构的抽象化处理。",
+                    "来源标注为'synthetic-original-fantasy'，无法据此核验其是否与某个既有作品高度相似，最终相似性需在成稿后自查。"
+                  ]
+                },
+                {
+                  "confidence": 0.62,
+                  "flags": [
+                    "Rule flags indicate missing_source_url and sensitive_subject: the source URL is empty, so provenance of the premise cannot be independently checked.",
+                    "The concept relies on a general 'supernatural object with escalating secret-cost' premise; because specific expression is not yet fixed, copyright similarity risk is unresolved rather than ruled out.",
+                    "The 'secret as currency' mechanic thematically touches on privacy violation and coerced disclosure; if later written as an allegory of real surveillance or real privacy abuses, it could create unintended real-world associations.",
+                    "The proposal includes family backstory (grandfather, mother's disappearance) and a character turned into an 'empty shell'; if mapped onto identifiable real people or real family histories, privacy or defamation concerns could arise.",
+                    "Minors are largely absent; however, the unit-story list includes a child's lost pet whistle, so any expansion involving children and emotional manipulation or exploitation should be handled carefully.",
+                    "Factual uncertainty is inherent: the proposal asserts no real events, but the manual/synthetic source and absent URL mean external verification is not possible."
+                  ],
+                  "level": "medium",
+                  "reasons": [
+                    "All named characters, settings (海港钟楼), and props are fictional, so direct defamation or real-person privacy harm is unlikely on the face of the proposal.",
+                    "The core mechanic is a general fantasy trope combination, but copyright protects specific expression; no specific copyrighted text is quoted here, so direct infringement is not established.",
+                    "Privacy themes are fictionalized through a supernatural ledger rather than describing real individuals' private data, which lowers but does not eliminate thematic privacy risk.",
+                    "The proposal explicitly avoids identifiable real persons, institutions, or minors in exploitative contexts, supporting a lower risk level.",
+                    "The missing source URL and 'synthetic-original-fantasy' category prevent confirming whether the premise resembles an existing published work, so a residual similarity risk remains.",
+                    "The sensitive_subject rule flag suggests caution; the subject matter of secrets, memory loss, and self-erasure can be emotionally intense and may require content handling if adapted."
+                  ],
+                  "uncertainties": [
+                    "Cannot verify whether the 'tide ledger that records tomorrow's lost items' premise closely resembles an existing copyrighted work without the source URL or a similarity search.",
+                    "Unclear whether later drafts will use real-world privacy incidents, identifiable persons, or specific family histories, which would raise privacy or defamation risk.",
+                    "The proposal does not specify how child characters or child-related unit stories will be handled; if a minor becomes a main subject of manipulation or exploitation, the risk profile changes.",
+                    "No legal review or editorial review is indicated; factual and legal certainty is therefore limited to the proposal text itself.",
+                    "The rule flag 'sensitive_subject' is not explained in the provided data, so the exact sensitivity concern remains ambiguous."
+                  ]
+                }
+              ],
+              "level": "uncertain",
+              "opportunity_hash": "0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f",
+              "opportunity_id": "AR-1989aadd179113d98852bb68f7f3a22c",
+              "requires_review": true,
+              "rule_flags": [
+                "missing_source_url",
+                "sensitive_subject"
+              ]
+            },
+            "content_hash": "e3e49d280a18e59c370f57321ca7fddbb45cf6c04e8547ab00e5d64ecf737c2c",
+            "source_refs": [
+              "AR-1989aadd179113d98852bb68f7f3a22c",
+              "AR-48110b8a35ca731c048e6d1b39bd1fd5"
+            ],
+            "run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+            "step_id": "SR-2b5e0b51a7f0984b1f8980ef0bda9c02",
+            "chapter_id": "",
+            "workflow_version": "hotspot_research_v1",
+            "prompt_version": "risk-policy-v1",
+            "prompt_hash": "ddc1b42f2f68f8243e9336b372956e34b6641055073c712868f50df6f495b71b",
+            "route": "deterministic-risk-policy",
+            "route_hash": "",
+            "provider": "deterministic",
+            "model": "risk-policy-v1",
+            "creator": "risk-policy",
+            "input_hash": "42979ea8d722f9cf9461309ceeb6aa315afd3364cabcf3231a51fd20ab497822",
+            "created_at": "2026-10-11T19:04:57.508336+00:00"
+          }
+        }
+      },
+      {
+        "label": "exact-human-decision/PR-bba7eb94692ce00940722501c5e2afd3",
+        "seconds": 44.847,
+        "feishu_requests": 48,
+        "result": {
+          "depends_on": "risk_gate",
+          "finished_at": "2026-10-11T19:07:37.191021+00:00",
+          "handler": "research.selection",
+          "input_json": "{}",
+          "kind": "service",
+          "output_json": "{\"analysis_version\":1,\"artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"content_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\",\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\",\"AR-7082040ec60f72b0b3e29306d75d249f\"],\"risk_artifact_id\":\"AR-7082040ec60f72b0b3e29306d75d249f\",\"risk_hash\":\"e3e49d280a18e59c370f57321ca7fddbb45cf6c04e8547ab00e5d64ecf737c2c\"}",
+          "output_version": 1,
+          "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+          "requires_approval": true,
+          "retry_count": 0,
+          "started_at": "2026-10-11T19:07:24.104149+00:00",
+          "status": "success",
+          "step_key": "selection",
+          "step_run_id": "SR-db2a3e170d91359bbec4c95415e774ef"
+        }
+      },
+      {
+        "label": "read-run/PR-bba7eb94692ce00940722501c5e2afd3",
+        "seconds": 1.741,
+        "feishu_requests": 2,
+        "result": {
+          "created_at": "2026-10-11T19:02:10.146982+00:00",
+          "definition_json": "{\"book_id\":\"\",\"source_hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"steps\":[{\"depends_on\":[],\"handler\":\"research.research\",\"input\":{\"configuration\":{\"prompts\":[\"8ca41be7227374bb1fe89afc94e8fb7984113e8476e61f50d0ea2982cee9a151\",\"3fe60b0c68530f774be4df772fb39b4a97b722dc474afa2bbddd9836c7df5c71\",\"ddc1b42f2f68f8243e9336b372956e34b6641055073c712868f50df6f495b71b\"],\"routes\":{\"research\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\",\"risk\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\"},\"selection_required\":true},\"prior_artifact\":null,\"request\":{\"feedback\":\"\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"revision_of\":\"\",\"source_hash\":\"0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4\",\"version\":1},\"source\":{\"captured_at\":\"2026-10-11T19:01:10.428897+00:00\",\"category\":\"synthetic-original-fantasy\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"source\":\"manual\",\"title\":\"合成验收 real-chain-cf7adc9d7f4a4af3aa3539225568c215：虚构海港钟楼的修钟人发现潮汐账本记录未来一天的失物，代价是每次找回物件必须交出自己的一个秘密。\",\"url\":\"\"}},\"kind\":\"agent\",\"requires_approval\":false,\"step_key\":\"research\"},{\"depends_on\":[\"research\"],\"handler\":\"research.risk\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"risk\"},{\"depends_on\":[\"risk\"],\"handler\":\"research.risk_gate\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"risk_gate\"},{\"depends_on\":[\"risk_gate\"],\"handler\":\"research.selection\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"selection\"},{\"depends_on\":[\"selection\"],\"handler\":\"research.commit\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"commit\"}],\"workflow_type\":\"hotspot_research_v1\"}",
+          "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+          "pipeline_type": "hotspot_research_v1",
+          "source_hotspot_id": "HS-8a07a41ca33ff7fa4d9813955120b47b",
+          "status": "running",
+          "updated_at": "2026-10-11T19:08:41.360936+00:00",
+          "steps": [
+            {
+              "finished_at": "2026-10-11T19:03:45.369427+00:00",
+              "handler": "research.research",
+              "input_json": "{\"configuration\":{\"prompts\":[\"8ca41be7227374bb1fe89afc94e8fb7984113e8476e61f50d0ea2982cee9a151\",\"3fe60b0c68530f774be4df772fb39b4a97b722dc474afa2bbddd9836c7df5c71\",\"ddc1b42f2f68f8243e9336b372956e34b6641055073c712868f50df6f495b71b\"],\"routes\":{\"research\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\",\"risk\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\"},\"selection_required\":true},\"prior_artifact\":null,\"request\":{\"feedback\":\"\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"revision_of\":\"\",\"source_hash\":\"0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4\",\"version\":1},\"source\":{\"captured_at\":\"2026-10-11T19:01:10.428897+00:00\",\"category\":\"synthetic-original-fantasy\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"source\":\"manual\",\"title\":\"合成验收 real-chain-cf7adc9d7f4a4af3aa3539225568c215：虚构海港钟楼的修钟人发现潮汐账本记录未来一天的失物，代价是每次找回物件必须交出自己的一个秘密。\",\"url\":\"\"}}",
+              "kind": "agent",
+              "output_json": "{\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\"]}",
+              "output_version": 1,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": false,
+              "retry_count": 0,
+              "started_at": "2026-10-11T19:03:04.549875+00:00",
+              "status": "success",
+              "step_key": "research",
+              "step_run_id": "SR-8ab9c92cbb9870a11c87670b9c8fe02c"
+            },
+            {
+              "depends_on": "research",
+              "finished_at": "2026-10-11T19:05:01.840716+00:00",
+              "handler": "research.risk",
+              "input_json": "{}",
+              "kind": "service",
+              "output_json": "{\"output_refs\":[\"AR-7082040ec60f72b0b3e29306d75d249f\"]}",
+              "output_version": 1,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": false,
+              "retry_count": 0,
+              "started_at": "2026-10-11T19:04:19.470369+00:00",
+              "status": "success",
+              "step_key": "risk",
+              "step_run_id": "SR-2b5e0b51a7f0984b1f8980ef0bda9c02"
+            },
+            {
+              "depends_on": "risk",
+              "finished_at": "2026-10-11T19:05:52.799245+00:00",
+              "handler": "research.risk_gate",
+              "input_json": "{}",
+              "kind": "service",
+              "output_json": "{\"analysis_version\":1,\"artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"content_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\",\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\",\"AR-7082040ec60f72b0b3e29306d75d249f\"],\"risk_artifact_id\":\"AR-7082040ec60f72b0b3e29306d75d249f\",\"risk_hash\":\"e3e49d280a18e59c370f57321ca7fddbb45cf6c04e8547ab00e5d64ecf737c2c\"}",
+              "output_version": 1,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": true,
+              "retry_count": 0,
+              "started_at": "2026-10-11T19:05:39.114978+00:00",
+              "status": "success",
+              "step_key": "risk_gate",
+              "step_run_id": "SR-6c74a55f0c800da0f15e33978224e890"
+            },
+            {
+              "depends_on": "risk_gate",
+              "finished_at": "2026-10-11T19:07:37.191021+00:00",
+              "handler": "research.selection",
+              "input_json": "{}",
+              "kind": "service",
+              "output_json": "{\"analysis_version\":1,\"artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"content_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\",\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\",\"AR-7082040ec60f72b0b3e29306d75d249f\"],\"risk_artifact_id\":\"AR-7082040ec60f72b0b3e29306d75d249f\",\"risk_hash\":\"e3e49d280a18e59c370f57321ca7fddbb45cf6c04e8547ab00e5d64ecf737c2c\"}",
+              "output_version": 1,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": true,
+              "retry_count": 0,
+              "started_at": "2026-10-11T19:07:24.104149+00:00",
+              "status": "success",
+              "step_key": "selection",
+              "step_run_id": "SR-db2a3e170d91359bbec4c95415e774ef"
+            },
+            {
+              "depends_on": "selection",
+              "handler": "research.commit",
+              "input_json": "{}",
+              "kind": "service",
+              "output_version": 0,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": false,
+              "retry_count": 0,
+              "status": "pending",
+              "step_key": "commit",
+              "step_run_id": "SR-2aaac059107c5375eb1667d8abd95ab1"
+            }
+          ]
+        }
+      },
+      {
+        "label": "scheduler-tick/PR-bba7eb94692ce00940722501c5e2afd3",
+        "seconds": 48.688,
+        "feishu_requests": 47,
+        "result": null
+      },
+      {
+        "label": "read-run/PR-bba7eb94692ce00940722501c5e2afd3",
+        "seconds": 1.989,
+        "feishu_requests": 2,
+        "result": {
+          "created_at": "2026-10-11T19:02:10.146982+00:00",
+          "definition_json": "{\"book_id\":\"\",\"source_hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"steps\":[{\"depends_on\":[],\"handler\":\"research.research\",\"input\":{\"configuration\":{\"prompts\":[\"8ca41be7227374bb1fe89afc94e8fb7984113e8476e61f50d0ea2982cee9a151\",\"3fe60b0c68530f774be4df772fb39b4a97b722dc474afa2bbddd9836c7df5c71\",\"ddc1b42f2f68f8243e9336b372956e34b6641055073c712868f50df6f495b71b\"],\"routes\":{\"research\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\",\"risk\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\"},\"selection_required\":true},\"prior_artifact\":null,\"request\":{\"feedback\":\"\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"revision_of\":\"\",\"source_hash\":\"0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4\",\"version\":1},\"source\":{\"captured_at\":\"2026-10-11T19:01:10.428897+00:00\",\"category\":\"synthetic-original-fantasy\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"source\":\"manual\",\"title\":\"合成验收 real-chain-cf7adc9d7f4a4af3aa3539225568c215：虚构海港钟楼的修钟人发现潮汐账本记录未来一天的失物，代价是每次找回物件必须交出自己的一个秘密。\",\"url\":\"\"}},\"kind\":\"agent\",\"requires_approval\":false,\"step_key\":\"research\"},{\"depends_on\":[\"research\"],\"handler\":\"research.risk\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"risk\"},{\"depends_on\":[\"risk\"],\"handler\":\"research.risk_gate\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"risk_gate\"},{\"depends_on\":[\"risk_gate\"],\"handler\":\"research.selection\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"selection\"},{\"depends_on\":[\"selection\"],\"handler\":\"research.commit\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"commit\"}],\"workflow_type\":\"hotspot_research_v1\"}",
+          "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+          "pipeline_type": "hotspot_research_v1",
+          "source_hotspot_id": "HS-8a07a41ca33ff7fa4d9813955120b47b",
+          "status": "completed",
+          "updated_at": "2026-10-11T19:09:28.891223+00:00",
+          "steps": [
+            {
+              "finished_at": "2026-10-11T19:03:45.369427+00:00",
+              "handler": "research.research",
+              "input_json": "{\"configuration\":{\"prompts\":[\"8ca41be7227374bb1fe89afc94e8fb7984113e8476e61f50d0ea2982cee9a151\",\"3fe60b0c68530f774be4df772fb39b4a97b722dc474afa2bbddd9836c7df5c71\",\"ddc1b42f2f68f8243e9336b372956e34b6641055073c712868f50df6f495b71b\"],\"routes\":{\"research\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\",\"risk\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\"},\"selection_required\":true},\"prior_artifact\":null,\"request\":{\"feedback\":\"\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"revision_of\":\"\",\"source_hash\":\"0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4\",\"version\":1},\"source\":{\"captured_at\":\"2026-10-11T19:01:10.428897+00:00\",\"category\":\"synthetic-original-fantasy\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"source\":\"manual\",\"title\":\"合成验收 real-chain-cf7adc9d7f4a4af3aa3539225568c215：虚构海港钟楼的修钟人发现潮汐账本记录未来一天的失物，代价是每次找回物件必须交出自己的一个秘密。\",\"url\":\"\"}}",
+              "kind": "agent",
+              "output_json": "{\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\"]}",
+              "output_version": 1,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": false,
+              "retry_count": 0,
+              "started_at": "2026-10-11T19:03:04.549875+00:00",
+              "status": "success",
+              "step_key": "research",
+              "step_run_id": "SR-8ab9c92cbb9870a11c87670b9c8fe02c"
+            },
+            {
+              "depends_on": "research",
+              "finished_at": "2026-10-11T19:05:01.840716+00:00",
+              "handler": "research.risk",
+              "input_json": "{}",
+              "kind": "service",
+              "output_json": "{\"output_refs\":[\"AR-7082040ec60f72b0b3e29306d75d249f\"]}",
+              "output_version": 1,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": false,
+              "retry_count": 0,
+              "started_at": "2026-10-11T19:04:19.470369+00:00",
+              "status": "success",
+              "step_key": "risk",
+              "step_run_id": "SR-2b5e0b51a7f0984b1f8980ef0bda9c02"
+            },
+            {
+              "depends_on": "risk",
+              "finished_at": "2026-10-11T19:05:52.799245+00:00",
+              "handler": "research.risk_gate",
+              "input_json": "{}",
+              "kind": "service",
+              "output_json": "{\"analysis_version\":1,\"artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"content_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\",\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\",\"AR-7082040ec60f72b0b3e29306d75d249f\"],\"risk_artifact_id\":\"AR-7082040ec60f72b0b3e29306d75d249f\",\"risk_hash\":\"e3e49d280a18e59c370f57321ca7fddbb45cf6c04e8547ab00e5d64ecf737c2c\"}",
+              "output_version": 1,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": true,
+              "retry_count": 0,
+              "started_at": "2026-10-11T19:05:39.114978+00:00",
+              "status": "success",
+              "step_key": "risk_gate",
+              "step_run_id": "SR-6c74a55f0c800da0f15e33978224e890"
+            },
+            {
+              "depends_on": "risk_gate",
+              "finished_at": "2026-10-11T19:07:37.191021+00:00",
+              "handler": "research.selection",
+              "input_json": "{}",
+              "kind": "service",
+              "output_json": "{\"analysis_version\":1,\"artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"content_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\",\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\",\"AR-7082040ec60f72b0b3e29306d75d249f\"],\"risk_artifact_id\":\"AR-7082040ec60f72b0b3e29306d75d249f\",\"risk_hash\":\"e3e49d280a18e59c370f57321ca7fddbb45cf6c04e8547ab00e5d64ecf737c2c\"}",
+              "output_version": 1,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": true,
+              "retry_count": 0,
+              "started_at": "2026-10-11T19:07:24.104149+00:00",
+              "status": "success",
+              "step_key": "selection",
+              "step_run_id": "SR-db2a3e170d91359bbec4c95415e774ef"
+            },
+            {
+              "depends_on": "selection",
+              "finished_at": "2026-10-11T19:09:20.228211+00:00",
+              "handler": "research.commit",
+              "input_json": "{}",
+              "kind": "service",
+              "output_json": "{\"analysis_version\":1,\"artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"content_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\",\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\",\"AR-7082040ec60f72b0b3e29306d75d249f\"],\"risk_artifact_id\":\"AR-7082040ec60f72b0b3e29306d75d249f\",\"risk_hash\":\"e3e49d280a18e59c370f57321ca7fddbb45cf6c04e8547ab00e5d64ecf737c2c\"}",
+              "output_version": 1,
+              "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+              "requires_approval": false,
+              "retry_count": 0,
+              "started_at": "2026-10-11T19:09:06.976676+00:00",
+              "status": "success",
+              "step_key": "commit",
+              "step_run_id": "SR-2aaac059107c5375eb1667d8abd95ab1"
+            }
+          ]
+        }
+      },
+      {
+        "label": "completed/PR-bba7eb94692ce00940722501c5e2afd3",
+        "seconds": 8.877,
+        "feishu_requests": 11,
+        "result": {
+          "run": {
+            "created_at": "2026-10-11T19:02:10.146982+00:00",
+            "definition_json": "{\"book_id\":\"\",\"source_hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"steps\":[{\"depends_on\":[],\"handler\":\"research.research\",\"input\":{\"configuration\":{\"prompts\":[\"8ca41be7227374bb1fe89afc94e8fb7984113e8476e61f50d0ea2982cee9a151\",\"3fe60b0c68530f774be4df772fb39b4a97b722dc474afa2bbddd9836c7df5c71\",\"ddc1b42f2f68f8243e9336b372956e34b6641055073c712868f50df6f495b71b\"],\"routes\":{\"research\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\",\"risk\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\"},\"selection_required\":true},\"prior_artifact\":null,\"request\":{\"feedback\":\"\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"revision_of\":\"\",\"source_hash\":\"0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4\",\"version\":1},\"source\":{\"captured_at\":\"2026-10-11T19:01:10.428897+00:00\",\"category\":\"synthetic-original-fantasy\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"source\":\"manual\",\"title\":\"合成验收 real-chain-cf7adc9d7f4a4af3aa3539225568c215：虚构海港钟楼的修钟人发现潮汐账本记录未来一天的失物，代价是每次找回物件必须交出自己的一个秘密。\",\"url\":\"\"}},\"kind\":\"agent\",\"requires_approval\":false,\"step_key\":\"research\"},{\"depends_on\":[\"research\"],\"handler\":\"research.risk\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"risk\"},{\"depends_on\":[\"risk\"],\"handler\":\"research.risk_gate\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"risk_gate\"},{\"depends_on\":[\"risk_gate\"],\"handler\":\"research.selection\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"selection\"},{\"depends_on\":[\"selection\"],\"handler\":\"research.commit\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"commit\"}],\"workflow_type\":\"hotspot_research_v1\"}",
+            "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+            "pipeline_type": "hotspot_research_v1",
+            "source_hotspot_id": "HS-8a07a41ca33ff7fa4d9813955120b47b",
+            "status": "completed",
+            "updated_at": "2026-10-11T19:09:28.891223+00:00",
+            "steps": [
+              {
+                "finished_at": "2026-10-11T19:03:45.369427+00:00",
+                "handler": "research.research",
+                "input_json": "{\"configuration\":{\"prompts\":[\"8ca41be7227374bb1fe89afc94e8fb7984113e8476e61f50d0ea2982cee9a151\",\"3fe60b0c68530f774be4df772fb39b4a97b722dc474afa2bbddd9836c7df5c71\",\"ddc1b42f2f68f8243e9336b372956e34b6641055073c712868f50df6f495b71b\"],\"routes\":{\"research\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\",\"risk\":\"1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc\"},\"selection_required\":true},\"prior_artifact\":null,\"request\":{\"feedback\":\"\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"revision_of\":\"\",\"source_hash\":\"0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4\",\"version\":1},\"source\":{\"captured_at\":\"2026-10-11T19:01:10.428897+00:00\",\"category\":\"synthetic-original-fantasy\",\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"source\":\"manual\",\"title\":\"合成验收 real-chain-cf7adc9d7f4a4af3aa3539225568c215：虚构海港钟楼的修钟人发现潮汐账本记录未来一天的失物，代价是每次找回物件必须交出自己的一个秘密。\",\"url\":\"\"}}",
+                "kind": "agent",
+                "output_json": "{\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\"]}",
+                "output_version": 1,
+                "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+                "requires_approval": false,
+                "retry_count": 0,
+                "started_at": "2026-10-11T19:03:04.549875+00:00",
+                "status": "success",
+                "step_key": "research",
+                "step_run_id": "SR-8ab9c92cbb9870a11c87670b9c8fe02c"
+              },
+              {
+                "depends_on": "research",
+                "finished_at": "2026-10-11T19:05:01.840716+00:00",
+                "handler": "research.risk",
+                "input_json": "{}",
+                "kind": "service",
+                "output_json": "{\"output_refs\":[\"AR-7082040ec60f72b0b3e29306d75d249f\"]}",
+                "output_version": 1,
+                "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+                "requires_approval": false,
+                "retry_count": 0,
+                "started_at": "2026-10-11T19:04:19.470369+00:00",
+                "status": "success",
+                "step_key": "risk",
+                "step_run_id": "SR-2b5e0b51a7f0984b1f8980ef0bda9c02"
+              },
+              {
+                "depends_on": "risk",
+                "finished_at": "2026-10-11T19:05:52.799245+00:00",
+                "handler": "research.risk_gate",
+                "input_json": "{}",
+                "kind": "service",
+                "output_json": "{\"analysis_version\":1,\"artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"content_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\",\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\",\"AR-7082040ec60f72b0b3e29306d75d249f\"],\"risk_artifact_id\":\"AR-7082040ec60f72b0b3e29306d75d249f\",\"risk_hash\":\"e3e49d280a18e59c370f57321ca7fddbb45cf6c04e8547ab00e5d64ecf737c2c\"}",
+                "output_version": 1,
+                "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+                "requires_approval": true,
+                "retry_count": 0,
+                "started_at": "2026-10-11T19:05:39.114978+00:00",
+                "status": "success",
+                "step_key": "risk_gate",
+                "step_run_id": "SR-6c74a55f0c800da0f15e33978224e890"
+              },
+              {
+                "depends_on": "risk_gate",
+                "finished_at": "2026-10-11T19:07:37.191021+00:00",
+                "handler": "research.selection",
+                "input_json": "{}",
+                "kind": "service",
+                "output_json": "{\"analysis_version\":1,\"artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"content_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\",\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\",\"AR-7082040ec60f72b0b3e29306d75d249f\"],\"risk_artifact_id\":\"AR-7082040ec60f72b0b3e29306d75d249f\",\"risk_hash\":\"e3e49d280a18e59c370f57321ca7fddbb45cf6c04e8547ab00e5d64ecf737c2c\"}",
+                "output_version": 1,
+                "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+                "requires_approval": true,
+                "retry_count": 0,
+                "started_at": "2026-10-11T19:07:24.104149+00:00",
+                "status": "success",
+                "step_key": "selection",
+                "step_run_id": "SR-db2a3e170d91359bbec4c95415e774ef"
+              },
+              {
+                "depends_on": "selection",
+                "finished_at": "2026-10-11T19:09:20.228211+00:00",
+                "handler": "research.commit",
+                "input_json": "{}",
+                "kind": "service",
+                "output_json": "{\"analysis_version\":1,\"artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"content_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\",\"output_refs\":[\"AR-1989aadd179113d98852bb68f7f3a22c\",\"AR-7082040ec60f72b0b3e29306d75d249f\"],\"risk_artifact_id\":\"AR-7082040ec60f72b0b3e29306d75d249f\",\"risk_hash\":\"e3e49d280a18e59c370f57321ca7fddbb45cf6c04e8547ab00e5d64ecf737c2c\"}",
+                "output_version": 1,
+                "pipeline_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+                "requires_approval": false,
+                "retry_count": 0,
+                "started_at": "2026-10-11T19:09:06.976676+00:00",
+                "status": "success",
+                "step_key": "commit",
+                "step_run_id": "SR-2aaac059107c5375eb1667d8abd95ab1"
+              }
+            ]
+          },
+          "request": {
+            "feedback": "",
+            "hotspot_id": "HS-8a07a41ca33ff7fa4d9813955120b47b",
+            "revision_of": "",
+            "source_hash": "0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4",
+            "version": 1
+          },
+          "source": {
+            "captured_at": "2026-10-11T19:01:10.428897+00:00",
+            "category": "synthetic-original-fantasy",
+            "hotspot_id": "HS-8a07a41ca33ff7fa4d9813955120b47b",
+            "source": "manual",
+            "title": "合成验收 real-chain-cf7adc9d7f4a4af3aa3539225568c215：虚构海港钟楼的修钟人发现潮汐账本记录未来一天的失物，代价是每次找回物件必须交出自己的一个秘密。",
+            "url": ""
+          },
+          "approval_status": "approved",
+          "current": true,
+          "decisions": [
+            {
+              "action": "approve",
+              "approval_id": "AP-355d0c85fd6716289a521fd0c31a5cb9",
+              "created_at": "2026-10-11T19:06:47.746711+00:00",
+              "operator": "synthetic-real-editor",
+              "reason": "Original synthetic fiction; exact artifact reviewed for acceptance",
+              "target_id": "SR-6c74a55f0c800da0f15e33978224e890",
+              "target_type": "step_run",
+              "target_version": 1
+            },
+            {
+              "action": "approve",
+              "approval_id": "AP-a3dae5b05ceecb49fe6604f20d6c31c7",
+              "created_at": "2026-10-11T19:08:31.827124+00:00",
+              "operator": "synthetic-real-editor",
+              "reason": "Original synthetic fiction; exact artifact reviewed for acceptance",
+              "target_id": "SR-db2a3e170d91359bbec4c95415e774ef",
+              "target_type": "step_run",
+              "target_version": 1
+            }
+          ],
+          "opportunity": {
+            "artifact_id": "AR-1989aadd179113d98852bb68f7f3a22c",
+            "logical_id": "research/HS-8a07a41ca33ff7fa4d9813955120b47b/opportunity",
+            "version": 1,
+            "artifact_type": "opportunity",
+            "content": {
+              "core_emotions": [
+                "好奇与窥视欲：账本预告的失物究竟是什么、属于谁",
+                "代价焦虑：每次行动都要暴露一个秘密，读者跟着紧张地权衡值不值得",
+                "道德两难：找回他人的物品是否值得牺牲自己的隐私与自我形象",
+                "被看穿的羞耻与脆弱感：秘密被逐步抽走、自我边界被侵蚀",
+                "隐秘的掌控快感：掌握他人命运的预知能力带来的诱惑",
+                "孤独与依赖：主角与账本之间逐渐扭曲的共生关系"
+              ],
+              "genre_fit": [
+                "都市奇幻/软奇幻",
+                "超自然悬疑",
+                "治愈系与致郁系并存的'失物招领'题材",
+                "单元剧+主线的连载网文结构",
+                "轻推理与社会派都市故事（通过失物折射人际关系）"
+              ],
+              "hit_patterns": [
+                "预知/清单式超自然道具：每天固定出现新的条目，形成可期待的连载节奏",
+                "等价交换机制：明确、可量化、逐步加码的代价，制造持续的紧张感",
+                "秘密作为货币：把抽象隐私变成可消耗资源，天然适合制造角色间张力",
+                "单元案件+主线谜题：每件失物是独立小故事，同时拼出账本由来与主角过去",
+                "规则解谜：读者会主动推演规则的漏洞与豁免条件，形成讨论热度",
+                "倒计时结构：账本只提前一天，紧迫感与翻页驱动强",
+                "反转钩子：账本本身可能才是最终的失物，或主角的秘密被他人握在手里"
+              ],
+              "novelization_directions": [
+                "主角设定为海港钟楼的年轻修钟人，家族三代看守钟楼，账本从祖父留下的钟摆暗格里出现，暗示家族与账本的旧约。",
+                "首卷用五到六个单元失物建立规则：账本每日黎明浮现一行字，写明失物特征与'最后出现的地点'，找回后必须对账本低语一个从未告诉任何人的秘密，秘密被'收取'时主角会短暂失忆般感到某个部分被抽离。",
+                "设计代价升级：先是无关紧要的小秘密，随后账本开始索要主角最不愿触碰的记忆，读者逐渐发现账本索取的是'让主角成为他自己'的那些事。",
+                "反派或对照组设定为上一任修钟人，他把自己的秘密全部交出去后变成空壳，成为海港传说中的'无名守钟人'，作为主角未来的镜像。",
+                "海港钟楼设定为潮汐与时间交汇点，账本随潮汐涨落更新，涨潮时字迹浮现，退潮时字迹消失，暗示账本与海的关系及更大代价的存在。",
+                "单元故事可涵盖：渔民的婚戒、失忆老人的车票、走私者的货单、孩子弄丢的宠物哨，用每件失物映射不同人物的情感，让找回行动本身改变主角对秘密的定义。",
+                "中段转折：主角发现某条失物记录指向自己丢失的东西——母亲留下的怀表，为找回它他必须交出最核心的秘密，从而揭示母亲失踪与钟楼、账本的关联。",
+                "终局方向一（悲剧）：主角交尽秘密，成为新的守钟人，账本传给下一个修钟人，形成循环。",
+                "终局方向二（反抗）：主角找到规则的漏洞——把自己的秘密主动讲给一个活人听，让秘密不再是'秘密'，账本无法收取，从而打破契约，但代价是必须永远失去这个倾听者或让他一起背负。",
+                "叙事视角建议用第一人称限知，强化秘密被抽走时的心理描写；每章结尾留下短钩子（下一条记录或一个突然显现的旧秘密）。",
+                "整体世界观可扩展为'代价型超自然道具'系列，账本只是海港众多'契约物'之一，为后续续作留出空间。"
+              ],
+              "reader_promise": "每一章都给出一个可被解决的失物任务，让读者获得'物归原主'的阶段性满足；同时以逐步加码的秘密代价制造持续升级的紧张与情感投入，最终让读者追问：当一个人用尽所有秘密之后，他还剩下什么？",
+              "risk": {
+                "confidence": 0.9,
+                "flags": [
+                  "无真实人物指涉，全部为虚构设定，不构成诽谤或隐私风险",
+                  "无涉及未成年人的敏感或剥削内容",
+                  "无直接复制受版权保护的具体作品表达，属原创意象组合"
+                ],
+                "level": "low",
+                "reasons": [
+                  "来源为合成虚构题材，不含真实人物、真实机构或可识别个人信息，因此隐私与诽谤风险低。",
+                  "'预感失物+秘密代价'属于常见奇幻母题的一般性组合，本提案以自创人物、自创海港钟楼设定展开，未借用任何特定作品的独特表达。",
+                  "方案中不涉及对现实群体的贬损性刻画，也未涉及未成年人或剥削性内容。",
+                  "创作提示已区分虚构与现实，不主张对现实事件的验证或断言。"
+                ],
+                "uncertainties": [
+                  "若后续在正文中直接引用某部已有作品的独特设定或措辞，可能触发版权风险，需要在创作阶段具体核查。",
+                  "若将'交出秘密'机制与现实中的隐私侵犯案例直接对应，可能引发读者对现实事件的联想，建议保持虚构的抽象化处理。",
+                  "来源标注为'synthetic-original-fantasy'，无法据此核验其是否与某个既有作品高度相似，最终相似性需在成稿后自查。"
+                ]
+              },
+              "summary": "虚构海港钟楼的修钟人意外获得一本潮汐账本，账本逐日提前记录未来一天即将发生的失物，而每找回一件东西的代价，是向账本交出自己的一个秘密。这是一个以'预知失物'为钩子、以'秘密作为货币'为核心代价机制的超自然悬疑/都市奇幻设定，适合写成结构清晰、单元式案件与主线交织的连载小说。"
+            },
+            "content_hash": "0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f",
+            "source_refs": [
+              "HS-8a07a41ca33ff7fa4d9813955120b47b@0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4"
+            ],
+            "run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+            "step_id": "SR-8ab9c92cbb9870a11c87670b9c8fe02c",
+            "chapter_id": "",
+            "workflow_version": "hotspot_research_v1",
+            "prompt_version": "research-v1",
+            "prompt_hash": "8ca41be7227374bb1fe89afc94e8fb7984113e8476e61f50d0ea2982cee9a151",
+            "route": "research",
+            "route_hash": "1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc",
+            "provider": "deepseek",
+            "model": "deepseek-flash",
+            "creator": "semantic-runtime",
+            "input_hash": "c5a3df2b74290377928c1f974cac1a48fb7a96a590a2745913bfde17b3b4e17d",
+            "created_at": "2026-10-11T19:03:37.364558+00:00"
+          },
+          "risk": {
+            "artifact_id": "AR-7082040ec60f72b0b3e29306d75d249f",
+            "logical_id": "research/HS-8a07a41ca33ff7fa4d9813955120b47b/risk",
+            "version": 1,
+            "artifact_type": "risk",
+            "content": {
+              "assessments": [
+                {
+                  "confidence": 0.9,
+                  "flags": [
+                    "无真实人物指涉，全部为虚构设定，不构成诽谤或隐私风险",
+                    "无涉及未成年人的敏感或剥削内容",
+                    "无直接复制受版权保护的具体作品表达，属原创意象组合"
+                  ],
+                  "level": "low",
+                  "reasons": [
+                    "来源为合成虚构题材，不含真实人物、真实机构或可识别个人信息，因此隐私与诽谤风险低。",
+                    "'预感失物+秘密代价'属于常见奇幻母题的一般性组合，本提案以自创人物、自创海港钟楼设定展开，未借用任何特定作品的独特表达。",
+                    "方案中不涉及对现实群体的贬损性刻画，也未涉及未成年人或剥削性内容。",
+                    "创作提示已区分虚构与现实，不主张对现实事件的验证或断言。"
+                  ],
+                  "uncertainties": [
+                    "若后续在正文中直接引用某部已有作品的独特设定或措辞，可能触发版权风险，需要在创作阶段具体核查。",
+                    "若将'交出秘密'机制与现实中的隐私侵犯案例直接对应，可能引发读者对现实事件的联想，建议保持虚构的抽象化处理。",
+                    "来源标注为'synthetic-original-fantasy'，无法据此核验其是否与某个既有作品高度相似，最终相似性需在成稿后自查。"
+                  ]
+                },
+                {
+                  "confidence": 0.62,
+                  "flags": [
+                    "Rule flags indicate missing_source_url and sensitive_subject: the source URL is empty, so provenance of the premise cannot be independently checked.",
+                    "The concept relies on a general 'supernatural object with escalating secret-cost' premise; because specific expression is not yet fixed, copyright similarity risk is unresolved rather than ruled out.",
+                    "The 'secret as currency' mechanic thematically touches on privacy violation and coerced disclosure; if later written as an allegory of real surveillance or real privacy abuses, it could create unintended real-world associations.",
+                    "The proposal includes family backstory (grandfather, mother's disappearance) and a character turned into an 'empty shell'; if mapped onto identifiable real people or real family histories, privacy or defamation concerns could arise.",
+                    "Minors are largely absent; however, the unit-story list includes a child's lost pet whistle, so any expansion involving children and emotional manipulation or exploitation should be handled carefully.",
+                    "Factual uncertainty is inherent: the proposal asserts no real events, but the manual/synthetic source and absent URL mean external verification is not possible."
+                  ],
+                  "level": "medium",
+                  "reasons": [
+                    "All named characters, settings (海港钟楼), and props are fictional, so direct defamation or real-person privacy harm is unlikely on the face of the proposal.",
+                    "The core mechanic is a general fantasy trope combination, but copyright protects specific expression; no specific copyrighted text is quoted here, so direct infringement is not established.",
+                    "Privacy themes are fictionalized through a supernatural ledger rather than describing real individuals' private data, which lowers but does not eliminate thematic privacy risk.",
+                    "The proposal explicitly avoids identifiable real persons, institutions, or minors in exploitative contexts, supporting a lower risk level.",
+                    "The missing source URL and 'synthetic-original-fantasy' category prevent confirming whether the premise resembles an existing published work, so a residual similarity risk remains.",
+                    "The sensitive_subject rule flag suggests caution; the subject matter of secrets, memory loss, and self-erasure can be emotionally intense and may require content handling if adapted."
+                  ],
+                  "uncertainties": [
+                    "Cannot verify whether the 'tide ledger that records tomorrow's lost items' premise closely resembles an existing copyrighted work without the source URL or a similarity search.",
+                    "Unclear whether later drafts will use real-world privacy incidents, identifiable persons, or specific family histories, which would raise privacy or defamation risk.",
+                    "The proposal does not specify how child characters or child-related unit stories will be handled; if a minor becomes a main subject of manipulation or exploitation, the risk profile changes.",
+                    "No legal review or editorial review is indicated; factual and legal certainty is therefore limited to the proposal text itself.",
+                    "The rule flag 'sensitive_subject' is not explained in the provided data, so the exact sensitivity concern remains ambiguous."
+                  ]
+                }
+              ],
+              "level": "uncertain",
+              "opportunity_hash": "0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f",
+              "opportunity_id": "AR-1989aadd179113d98852bb68f7f3a22c",
+              "requires_review": true,
+              "rule_flags": [
+                "missing_source_url",
+                "sensitive_subject"
+              ]
+            },
+            "content_hash": "e3e49d280a18e59c370f57321ca7fddbb45cf6c04e8547ab00e5d64ecf737c2c",
+            "source_refs": [
+              "AR-1989aadd179113d98852bb68f7f3a22c",
+              "AR-48110b8a35ca731c048e6d1b39bd1fd5"
+            ],
+            "run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+            "step_id": "SR-2b5e0b51a7f0984b1f8980ef0bda9c02",
+            "chapter_id": "",
+            "workflow_version": "hotspot_research_v1",
+            "prompt_version": "risk-policy-v1",
+            "prompt_hash": "ddc1b42f2f68f8243e9336b372956e34b6641055073c712868f50df6f495b71b",
+            "route": "deterministic-risk-policy",
+            "route_hash": "",
+            "provider": "deterministic",
+            "model": "risk-policy-v1",
+            "creator": "risk-policy",
+            "input_hash": "42979ea8d722f9cf9461309ceeb6aa315afd3364cabcf3231a51fd20ab497822",
+            "created_at": "2026-10-11T19:04:57.508336+00:00"
+          }
+        }
+      },
+      {
+        "label": "titles-context",
+        "seconds": 13.472,
+        "feishu_requests": 16,
+        "result": {
+          "kind": "titles",
+          "source_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+          "source_artifact_id": "AR-1989aadd179113d98852bb68f7f3a22c",
+          "next_version": 1
+        }
+      },
+      {
+        "label": "titles-enqueue",
+        "seconds": 44.735,
+        "feishu_requests": 44,
+        "result": {
+          "created_at": "2026-10-11T19:10:37.950474+00:00",
+          "definition_json": "{\"book_id\":\"\",\"source_hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"steps\":[{\"depends_on\":[],\"handler\":\"titles.generate\",\"input\":{\"analysis_run_id\":\"PR-bba7eb94692ce00940722501c5e2afd3\",\"config\":{\"prompt\":\"5b4c6cfe7907ee53a41d0928ce1e5b8a6680d8ee0c3203518ce4fe84ebfb0663\",\"route\":\"d8ded13f321e5e9fbccb783063d3f7d44ffac7237126388cc6c3df1e07ecf979\"},\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"kind\":\"titles\",\"prior_ids\":[],\"request\":{\"feedback\":\"中文原创；沿用虚构海港、钟楼修钟人和秘密换失物的因果规则。\",\"revision_of\":\"\",\"source_artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"source_run_id\":\"PR-bba7eb94692ce00940722501c5e2afd3\",\"version\":1},\"source_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\"},\"kind\":\"agent\",\"requires_approval\":false,\"step_key\":\"generate\"},{\"depends_on\":[\"generate\"],\"handler\":\"titles.project\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"project\"},{\"depends_on\":[\"project\"],\"handler\":\"titles.select\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"select\"}],\"workflow_type\":\"title_candidates_v1\"}",
+          "pipeline_run_id": "PR-9dce69155a501c10800e273adaa41f14",
+          "pipeline_type": "title_candidates_v1",
+          "source_hotspot_id": "HS-8a07a41ca33ff7fa4d9813955120b47b",
+          "status": "pending",
+          "updated_at": "2026-10-11T19:10:55.265193+00:00"
+        }
+      },
+      {
+        "label": "read-run/PR-9dce69155a501c10800e273adaa41f14",
+        "seconds": 2.413,
+        "feishu_requests": 2,
+        "result": {
+          "created_at": "2026-10-11T19:10:37.950474+00:00",
+          "definition_json": "{\"book_id\":\"\",\"source_hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"steps\":[{\"depends_on\":[],\"handler\":\"titles.generate\",\"input\":{\"analysis_run_id\":\"PR-bba7eb94692ce00940722501c5e2afd3\",\"config\":{\"prompt\":\"5b4c6cfe7907ee53a41d0928ce1e5b8a6680d8ee0c3203518ce4fe84ebfb0663\",\"route\":\"d8ded13f321e5e9fbccb783063d3f7d44ffac7237126388cc6c3df1e07ecf979\"},\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"kind\":\"titles\",\"prior_ids\":[],\"request\":{\"feedback\":\"中文原创；沿用虚构海港、钟楼修钟人和秘密换失物的因果规则。\",\"revision_of\":\"\",\"source_artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"source_run_id\":\"PR-bba7eb94692ce00940722501c5e2afd3\",\"version\":1},\"source_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\"},\"kind\":\"agent\",\"requires_approval\":false,\"step_key\":\"generate\"},{\"depends_on\":[\"generate\"],\"handler\":\"titles.project\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"project\"},{\"depends_on\":[\"project\"],\"handler\":\"titles.select\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"select\"}],\"workflow_type\":\"title_candidates_v1\"}",
+          "pipeline_run_id": "PR-9dce69155a501c10800e273adaa41f14",
+          "pipeline_type": "title_candidates_v1",
+          "source_hotspot_id": "HS-8a07a41ca33ff7fa4d9813955120b47b",
+          "status": "pending",
+          "updated_at": "2026-10-11T19:10:55.265193+00:00",
+          "steps": [
+            {
+              "handler": "titles.generate",
+              "input_json": "{\"analysis_run_id\":\"PR-bba7eb94692ce00940722501c5e2afd3\",\"config\":{\"prompt\":\"5b4c6cfe7907ee53a41d0928ce1e5b8a6680d8ee0c3203518ce4fe84ebfb0663\",\"route\":\"d8ded13f321e5e9fbccb783063d3f7d44ffac7237126388cc6c3df1e07ecf979\"},\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"kind\":\"titles\",\"prior_ids\":[],\"request\":{\"feedback\":\"中文原创；沿用虚构海港、钟楼修钟人和秘密换失物的因果规则。\",\"revision_of\":\"\",\"source_artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"source_run_id\":\"PR-bba7eb94692ce00940722501c5e2afd3\",\"version\":1},\"source_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\"}",
+              "kind": "agent",
+              "output_version": 0,
+              "pipeline_run_id": "PR-9dce69155a501c10800e273adaa41f14",
+              "requires_approval": false,
+              "retry_count": 0,
+              "status": "pending",
+              "step_key": "generate",
+              "step_run_id": "SR-b025b9c93fc0cbc4830ee8603ac5bf2c"
+            },
+            {
+              "depends_on": "generate",
+              "handler": "titles.project",
+              "input_json": "{}",
+              "kind": "service",
+              "output_version": 0,
+              "pipeline_run_id": "PR-9dce69155a501c10800e273adaa41f14",
+              "requires_approval": false,
+              "retry_count": 0,
+              "status": "pending",
+              "step_key": "project",
+              "step_run_id": "SR-6b28ca6472ade4f2e06ee28f081013db"
+            },
+            {
+              "depends_on": "project",
+              "handler": "titles.select",
+              "input_json": "{}",
+              "kind": "service",
+              "output_version": 0,
+              "pipeline_run_id": "PR-9dce69155a501c10800e273adaa41f14",
+              "requires_approval": false,
+              "retry_count": 0,
+              "status": "pending",
+              "step_key": "select",
+              "step_run_id": "SR-23594fff70da18283826a65e13279f8d"
+            }
+          ]
+        }
+      },
+      {
+        "label": "scheduler-tick/PR-9dce69155a501c10800e273adaa41f14",
+        "seconds": 116.054,
+        "feishu_requests": 104,
+        "result": null
+      },
+      {
+        "label": "read-run/PR-9dce69155a501c10800e273adaa41f14",
+        "seconds": 1.659,
+        "feishu_requests": 2,
+        "result": {
+          "created_at": "2026-10-11T19:10:37.950474+00:00",
+          "definition_json": "{\"book_id\":\"\",\"source_hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"steps\":[{\"depends_on\":[],\"handler\":\"titles.generate\",\"input\":{\"analysis_run_id\":\"PR-bba7eb94692ce00940722501c5e2afd3\",\"config\":{\"prompt\":\"5b4c6cfe7907ee53a41d0928ce1e5b8a6680d8ee0c3203518ce4fe84ebfb0663\",\"route\":\"d8ded13f321e5e9fbccb783063d3f7d44ffac7237126388cc6c3df1e07ecf979\"},\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"kind\":\"titles\",\"prior_ids\":[],\"request\":{\"feedback\":\"中文原创；沿用虚构海港、钟楼修钟人和秘密换失物的因果规则。\",\"revision_of\":\"\",\"source_artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"source_run_id\":\"PR-bba7eb94692ce00940722501c5e2afd3\",\"version\":1},\"source_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\"},\"kind\":\"agent\",\"requires_approval\":false,\"step_key\":\"generate\"},{\"depends_on\":[\"generate\"],\"handler\":\"titles.project\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"project\"},{\"depends_on\":[\"project\"],\"handler\":\"titles.select\",\"input\":{},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"select\"}],\"workflow_type\":\"title_candidates_v1\"}",
+          "pipeline_run_id": "PR-9dce69155a501c10800e273adaa41f14",
+          "pipeline_type": "title_candidates_v1",
+          "source_hotspot_id": "HS-8a07a41ca33ff7fa4d9813955120b47b",
+          "status": "running",
+          "updated_at": "2026-10-11T19:12:35.733704+00:00",
+          "steps": [
+            {
+              "finished_at": "2026-10-11T19:12:27.035200+00:00",
+              "handler": "titles.generate",
+              "input_json": "{\"analysis_run_id\":\"PR-bba7eb94692ce00940722501c5e2afd3\",\"config\":{\"prompt\":\"5b4c6cfe7907ee53a41d0928ce1e5b8a6680d8ee0c3203518ce4fe84ebfb0663\",\"route\":\"d8ded13f321e5e9fbccb783063d3f7d44ffac7237126388cc6c3df1e07ecf979\"},\"hotspot_id\":\"HS-8a07a41ca33ff7fa4d9813955120b47b\",\"kind\":\"titles\",\"prior_ids\":[],\"request\":{\"feedback\":\"中文原创；沿用虚构海港、钟楼修钟人和秘密换失物的因果规则。\",\"revision_of\":\"\",\"source_artifact_id\":\"AR-1989aadd179113d98852bb68f7f3a22c\",\"source_run_id\":\"PR-bba7eb94692ce00940722501c5e2afd3\",\"version\":1},\"source_hash\":\"0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f\"}",
+              "kind": "agent",
+              "output_json": "{\"output_refs\":[\"AR-fd5bef293b6486ded2d13ca97b437749\"]}",
+              "output_version": 1,
+              "pipeline_run_id": "PR-9dce69155a501c10800e273adaa41f14",
+              "requires_approval": false,
+              "retry_count": 0,
+              "started_at": "2026-10-11T19:11:07.803599+00:00",
+              "status": "success",
+              "step_key": "generate",
+              "step_run_id": "SR-b025b9c93fc0cbc4830ee8603ac5bf2c"
+            },
+            {
+              "depends_on": "generate",
+              "handler": "titles.project",
+              "input_json": "{}",
+              "kind": "service",
+              "output_version": 0,
+              "pipeline_run_id": "PR-9dce69155a501c10800e273adaa41f14",
+              "requires_approval": false,
+              "retry_count": 0,
+              "status": "pending",
+              "step_key": "project",
+              "step_run_id": "SR-6b28ca6472ade4f2e06ee28f081013db"
+            },
+            {
+              "depends_on": "project",
+              "handler": "titles.select",
+              "input_json": "{}",
+              "kind": "service",
+              "output_version": 0,
+              "pipeline_run_id": "PR-9dce69155a501c10800e273adaa41f14",
+              "requires_approval": false,
+              "retry_count": 0,
+              "status": "pending",
+              "step_key": "select",
+              "step_run_id": "SR-23594fff70da18283826a65e13279f8d"
+            }
+          ]
+        }
       }
     ],
     "attempted_ids": [
@@ -49751,6 +51279,102 @@
       [
         "artifacts",
         "AR-7082040ec60f72b0b3e29306d75d249f"
+      ],
+      [
+        "traces",
+        "TR-a728144a49984674a69f4d179a275a2b"
+      ],
+      [
+        "approval_events",
+        "AP-355d0c85fd6716289a521fd0c31a5cb9"
+      ],
+      [
+        "traces",
+        "TR-99105433da9147d999bed4557264ea43"
+      ],
+      [
+        "approval_events",
+        "AP-a3dae5b05ceecb49fe6604f20d6c31c7"
+      ],
+      [
+        "traces",
+        "TR-35ad433f1d7347729aaf4b535ca5ebbf"
+      ],
+      [
+        "pipeline_runs",
+        "PR-9dce69155a501c10800e273adaa41f14"
+      ],
+      [
+        "step_runs",
+        "SR-b025b9c93fc0cbc4830ee8603ac5bf2c"
+      ],
+      [
+        "step_runs",
+        "SR-6b28ca6472ade4f2e06ee28f081013db"
+      ],
+      [
+        "step_runs",
+        "SR-23594fff70da18283826a65e13279f8d"
+      ],
+      [
+        "traces",
+        "TR-fbc9c58fbcaf443c915767f06b701f58"
+      ],
+      [
+        "traces",
+        "TR-81a6eb70ee654480866cac596c7fdfa2"
+      ],
+      [
+        "artifacts",
+        "AR-fd5bef293b6486ded2d13ca97b437749"
+      ],
+      [
+        "traces",
+        "TR-37c5103763664e38adc16dc0b2d0d6db"
+      ],
+      [
+        "artifacts",
+        "AR-a4025264d4fd69dbe0583880e5eb6196"
+      ],
+      [
+        "artifacts",
+        "AR-4be46615257ab1f614409a6c2b6ea990"
+      ],
+      [
+        "artifacts",
+        "AR-33cd2c72055263a8335a27714741f0f8"
+      ],
+      [
+        "artifacts",
+        "AR-bb5194706a5edc56074bee291dddb77e"
+      ],
+      [
+        "artifacts",
+        "AR-1f9346e5b2766221d72739e16c0b9022"
+      ],
+      [
+        "artifacts",
+        "AR-3d73aa283061d76bbebf891c1f29b8f7"
+      ],
+      [
+        "artifacts",
+        "AR-dc6e2e55de657f0fabce2e86fcaa0273"
+      ],
+      [
+        "artifacts",
+        "AR-46cc73974bd905567c920c7051f86f97"
+      ],
+      [
+        "artifacts",
+        "AR-51d8659cac697f222ef704c4bd7ec68d"
+      ],
+      [
+        "artifacts",
+        "AR-b4e087b30085d3121adde3163d6a9e63"
+      ],
+      [
+        "artifacts",
+        "AR-42205101bf5c00a24516a74342cddb5e"
       ]
     ],
     "status": "running",
@@ -49770,6 +51394,14 @@
         },
         "max_tokens": 2048,
         "started_at": 1791745476.964588
+      },
+      {
+        "model": "deepseek-flash",
+        "thinking": {
+          "type": "disabled"
+        },
+        "max_tokens": 4096,
+        "started_at": 1791745917.949214
       }
     ],
     "configuration_delta": {
@@ -49870,6 +51502,352 @@
       }
     },
     "hotspot_id": "HS-8a07a41ca33ff7fa4d9813955120b47b",
-    "research_run_id": "PR-bba7eb94692ce00940722501c5e2afd3"
+    "research_run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+    "titles_run_id": "PR-9dce69155a501c10800e273adaa41f14"
+  },
+  "independent_model_observation": {
+    "acceptance_id": "real-chain-cf7adc9d7f4a4af3aa3539225568c215",
+    "model_traces": [
+      {
+        "attempt": 0,
+        "call_id": "CALL-56cd3b33d12346f988e052e143ea4de1",
+        "chapter_id": "",
+        "cost_status": "unavailable",
+        "created_at": "2026-10-11T19:03:16.840661+00:00",
+        "estimated_cost": null,
+        "failure_class": null,
+        "finished_at": "2026-10-11T19:03:42.812730+00:00",
+        "input_refs": [
+          "HS-8a07a41ca33ff7fa4d9813955120b47b@0a8bf01f754bf2df6074b9e5e89c19ba82b3a16880c538864f16cf6cfdb591d4"
+        ],
+        "input_tokens": 774,
+        "kind": "model",
+        "latency_ms": 10920.461,
+        "model": "deepseek-flash",
+        "output_hash": "0bc9cd425248dc2b6c54e9b1cf5bea5b416fda68bbf795dc0bae0edeb91e0f1f",
+        "output_refs": [
+          "AR-1989aadd179113d98852bb68f7f3a22c"
+        ],
+        "output_tokens": 1352,
+        "prompt_hash": "8ca41be7227374bb1fe89afc94e8fb7984113e8476e61f50d0ea2982cee9a151",
+        "prompt_version": "research-v1",
+        "provider": "deepseek",
+        "request_hash": "a6c39b2bc0afa0397dace47a7fd9dc6559a383630c4dd0dcb017c5ab69640605",
+        "route": "research",
+        "route_config": {
+          "deepseek_thinking": "disabled",
+          "input_cost_per_million": null,
+          "max_output_tokens": 2048,
+          "max_retries": 0,
+          "model": "deepseek-flash",
+          "output_cost_per_million": null,
+          "provider": "deepseek",
+          "timeout": 25.0
+        },
+        "route_hash": "1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc",
+        "run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+        "status": "success",
+        "step_id": "SR-8ab9c92cbb9870a11c87670b9c8fe02c",
+        "trace_id": "TR-637ac050fdd744068c794ccedaedda16",
+        "workflow_version": "hotspot_research_v1"
+      },
+      {
+        "attempt": 0,
+        "call_id": "CALL-558e4bf49ac04003b362243e2c02e1e4",
+        "chapter_id": "",
+        "cost_status": "unavailable",
+        "created_at": "2026-10-11T19:04:32.788396+00:00",
+        "estimated_cost": null,
+        "failure_class": null,
+        "finished_at": "2026-10-11T19:04:53.762324+00:00",
+        "input_refs": [
+          "AR-1989aadd179113d98852bb68f7f3a22c"
+        ],
+        "input_tokens": 1657,
+        "kind": "model",
+        "latency_ms": 5423.613,
+        "model": "deepseek-flash",
+        "output_hash": "a566d5aa175e8ef0fd367a9809320b99f8a39120265a015b2eec73f4aeee415b",
+        "output_refs": [
+          "AR-48110b8a35ca731c048e6d1b39bd1fd5"
+        ],
+        "output_tokens": 611,
+        "prompt_hash": "3fe60b0c68530f774be4df772fb39b4a97b722dc474afa2bbddd9836c7df5c71",
+        "prompt_version": "risk-review-v1",
+        "provider": "deepseek",
+        "request_hash": "8d030febd09e55e8356c1559d4635a1d04bc8009b8aa70abd69fd2e55c9576ad",
+        "route": "risk",
+        "route_config": {
+          "deepseek_thinking": "disabled",
+          "input_cost_per_million": null,
+          "max_output_tokens": 2048,
+          "max_retries": 0,
+          "model": "deepseek-flash",
+          "output_cost_per_million": null,
+          "provider": "deepseek",
+          "timeout": 25.0
+        },
+        "route_hash": "1fa93cbcb06b8d781d945a15ef920b72ca36bebfc9652223f3233c3d628db6dc",
+        "run_id": "PR-bba7eb94692ce00940722501c5e2afd3",
+        "status": "success",
+        "step_id": "SR-2b5e0b51a7f0984b1f8980ef0bda9c02",
+        "trace_id": "TR-36f9090b42ef407f8fe446d27fd1a4c4",
+        "workflow_version": "hotspot_research_v1"
+      }
+    ],
+    "read_only": true
+  },
+  "current_pr37_ci": {
+    "id": 38166563801,
+    "name": "CI",
+    "node_id": "WFR_kwLOSrVLTM8AAAAI4ueL2Q",
+    "head_branch": "codex/zen-41-chapter-review-desk",
+    "head_sha": "0d9671821f47183283aefe64f1e12dcbc8033192",
+    "path": ".github/workflows/backend-gates.yml",
+    "display_title": "docs(ZEN-41): record production storage repair and real timeout evidence",
+    "run_number": 919,
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success",
+    "workflow_id": 286680668,
+    "check_suite_id": 103404944320,
+    "check_suite_node_id": "CS_kwDOSrVLTM8AAAAYE2o7wA",
+    "url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/actions/runs/38166563801",
+    "html_url": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38166563801",
+    "pull_requests": [
+      {
+        "url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/pulls/37",
+        "id": 4672939252,
+        "number": 37,
+        "head": {
+          "ref": "codex/zen-41-chapter-review-desk",
+          "sha": "0d9671821f47183283aefe64f1e12dcbc8033192",
+          "repo": {
+            "id": 1253395276,
+            "url": "https://api.github.com/repos/autism-ip/novelops-agent-harness",
+            "name": "novelops-agent-harness"
+          }
+        },
+        "base": {
+          "ref": "codex/zen-40-chapter-loop",
+          "sha": "6d09aee8fcca6478f90db86e445ae73970cf48ce",
+          "repo": {
+            "id": 1253395276,
+            "url": "https://api.github.com/repos/autism-ip/novelops-agent-harness",
+            "name": "novelops-agent-harness"
+          }
+        }
+      }
+    ],
+    "created_at": "2026-10-11T19:05:49Z",
+    "updated_at": "2026-10-11T19:08:46Z",
+    "actor": {
+      "login": "autism-ip",
+      "id": 142089698,
+      "node_id": "U_kgDOCHgd4g",
+      "avatar_url": "https://avatars.githubusercontent.com/u/142089698?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/autism-ip",
+      "html_url": "https://github.com/autism-ip",
+      "followers_url": "https://api.github.com/users/autism-ip/followers",
+      "following_url": "https://api.github.com/users/autism-ip/following{/other_user}",
+      "gists_url": "https://api.github.com/users/autism-ip/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/autism-ip/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/autism-ip/subscriptions",
+      "organizations_url": "https://api.github.com/users/autism-ip/orgs",
+      "repos_url": "https://api.github.com/users/autism-ip/repos",
+      "events_url": "https://api.github.com/users/autism-ip/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/autism-ip/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "run_attempt": 1,
+    "referenced_workflows": [],
+    "run_started_at": "2026-10-11T19:05:49Z",
+    "triggering_actor": {
+      "login": "autism-ip",
+      "id": 142089698,
+      "node_id": "U_kgDOCHgd4g",
+      "avatar_url": "https://avatars.githubusercontent.com/u/142089698?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/autism-ip",
+      "html_url": "https://github.com/autism-ip",
+      "followers_url": "https://api.github.com/users/autism-ip/followers",
+      "following_url": "https://api.github.com/users/autism-ip/following{/other_user}",
+      "gists_url": "https://api.github.com/users/autism-ip/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/autism-ip/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/autism-ip/subscriptions",
+      "organizations_url": "https://api.github.com/users/autism-ip/orgs",
+      "repos_url": "https://api.github.com/users/autism-ip/repos",
+      "events_url": "https://api.github.com/users/autism-ip/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/autism-ip/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "jobs_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/actions/runs/38166563801/jobs",
+    "logs_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/actions/runs/38166563801/logs",
+    "check_suite_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/check-suites/103404944320",
+    "artifacts_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/actions/runs/38166563801/artifacts",
+    "cancel_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/actions/runs/38166563801/cancel",
+    "rerun_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/actions/runs/38166563801/rerun",
+    "previous_attempt_url": null,
+    "workflow_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/actions/workflows/286680668",
+    "head_commit": {
+      "id": "0d9671821f47183283aefe64f1e12dcbc8033192",
+      "tree_id": "761d202e7a0d3a253124a38ea5d8ddaf7e450475",
+      "message": "docs(ZEN-41): record production storage repair and real timeout evidence",
+      "timestamp": "2026-10-11T19:05:40Z",
+      "author": {
+        "name": "autism-ip",
+        "email": "y1327514070@gmail.com"
+      },
+      "committer": {
+        "name": "autism-ip",
+        "email": "y1327514070@gmail.com"
+      }
+    },
+    "repository": {
+      "id": 1253395276,
+      "node_id": "R_kgDOSrVLTA",
+      "name": "novelops-agent-harness",
+      "full_name": "autism-ip/novelops-agent-harness",
+      "private": false,
+      "owner": {
+        "login": "autism-ip",
+        "id": 142089698,
+        "node_id": "U_kgDOCHgd4g",
+        "avatar_url": "https://avatars.githubusercontent.com/u/142089698?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/autism-ip",
+        "html_url": "https://github.com/autism-ip",
+        "followers_url": "https://api.github.com/users/autism-ip/followers",
+        "following_url": "https://api.github.com/users/autism-ip/following{/other_user}",
+        "gists_url": "https://api.github.com/users/autism-ip/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/autism-ip/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/autism-ip/subscriptions",
+        "organizations_url": "https://api.github.com/users/autism-ip/orgs",
+        "repos_url": "https://api.github.com/users/autism-ip/repos",
+        "events_url": "https://api.github.com/users/autism-ip/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/autism-ip/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "html_url": "https://github.com/autism-ip/novelops-agent-harness",
+      "description": null,
+      "fork": false,
+      "url": "https://api.github.com/repos/autism-ip/novelops-agent-harness",
+      "forks_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/forks",
+      "keys_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/keys{/key_id}",
+      "collaborators_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/collaborators{/collaborator}",
+      "teams_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/teams",
+      "hooks_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/hooks",
+      "issue_events_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/issues/events{/number}",
+      "events_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/events",
+      "assignees_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/assignees{/user}",
+      "branches_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/branches{/branch}",
+      "tags_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/tags",
+      "blobs_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/git/blobs{/sha}",
+      "git_tags_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/git/tags{/sha}",
+      "git_refs_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/git/refs{/sha}",
+      "trees_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/git/trees{/sha}",
+      "statuses_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/statuses/{sha}",
+      "languages_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/languages",
+      "stargazers_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/stargazers",
+      "contributors_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/contributors",
+      "subscribers_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/subscribers",
+      "subscription_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/subscription",
+      "commits_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/commits{/sha}",
+      "git_commits_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/git/commits{/sha}",
+      "comments_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/comments{/number}",
+      "issue_comment_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/issues/comments{/number}",
+      "contents_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/contents/{+path}",
+      "compare_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/compare/{base}...{head}",
+      "merges_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/merges",
+      "archive_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/{archive_format}{/ref}",
+      "downloads_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/downloads",
+      "issues_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/issues{/number}",
+      "pulls_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/pulls{/number}",
+      "milestones_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/milestones{/number}",
+      "notifications_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/notifications{?since,all,participating}",
+      "labels_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/labels{/name}",
+      "releases_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/releases{/id}",
+      "deployments_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/deployments"
+    },
+    "head_repository": {
+      "id": 1253395276,
+      "node_id": "R_kgDOSrVLTA",
+      "name": "novelops-agent-harness",
+      "full_name": "autism-ip/novelops-agent-harness",
+      "private": false,
+      "owner": {
+        "login": "autism-ip",
+        "id": 142089698,
+        "node_id": "U_kgDOCHgd4g",
+        "avatar_url": "https://avatars.githubusercontent.com/u/142089698?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/autism-ip",
+        "html_url": "https://github.com/autism-ip",
+        "followers_url": "https://api.github.com/users/autism-ip/followers",
+        "following_url": "https://api.github.com/users/autism-ip/following{/other_user}",
+        "gists_url": "https://api.github.com/users/autism-ip/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/autism-ip/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/autism-ip/subscriptions",
+        "organizations_url": "https://api.github.com/users/autism-ip/orgs",
+        "repos_url": "https://api.github.com/users/autism-ip/repos",
+        "events_url": "https://api.github.com/users/autism-ip/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/autism-ip/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "html_url": "https://github.com/autism-ip/novelops-agent-harness",
+      "description": null,
+      "fork": false,
+      "url": "https://api.github.com/repos/autism-ip/novelops-agent-harness",
+      "forks_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/forks",
+      "keys_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/keys{/key_id}",
+      "collaborators_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/collaborators{/collaborator}",
+      "teams_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/teams",
+      "hooks_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/hooks",
+      "issue_events_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/issues/events{/number}",
+      "events_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/events",
+      "assignees_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/assignees{/user}",
+      "branches_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/branches{/branch}",
+      "tags_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/tags",
+      "blobs_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/git/blobs{/sha}",
+      "git_tags_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/git/tags{/sha}",
+      "git_refs_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/git/refs{/sha}",
+      "trees_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/git/trees{/sha}",
+      "statuses_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/statuses/{sha}",
+      "languages_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/languages",
+      "stargazers_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/stargazers",
+      "contributors_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/contributors",
+      "subscribers_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/subscribers",
+      "subscription_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/subscription",
+      "commits_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/commits{/sha}",
+      "git_commits_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/git/commits{/sha}",
+      "comments_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/comments{/number}",
+      "issue_comment_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/issues/comments{/number}",
+      "contents_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/contents/{+path}",
+      "compare_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/compare/{base}...{head}",
+      "merges_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/merges",
+      "archive_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/{archive_format}{/ref}",
+      "downloads_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/downloads",
+      "issues_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/issues{/number}",
+      "pulls_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/pulls{/number}",
+      "milestones_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/milestones{/number}",
+      "notifications_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/notifications{?since,all,participating}",
+      "labels_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/labels{/name}",
+      "releases_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/releases{/id}",
+      "deployments_url": "https://api.github.com/repos/autism-ip/novelops-agent-harness/deployments"
+    }
+  },
+  "dotenv_only_production_preflight": {
+    "result": "FEISHU_APP_TOKEN is required when HARNESS_ENABLED=true",
+    "mutations": 0,
+    "meaning": "Settings dotenv configuration alone does not populate TableMap process environment"
   }
 }

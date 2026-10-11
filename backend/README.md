@@ -30,7 +30,8 @@ When `STORY_PLANNING_ENABLED=true`, configure `BOOKS_ENABLED=true` and the
 canonical StoryState patch, snapshot, and ChapterBrief contracts.
 
 When `CHAPTER_LOOP_ENABLED=true`, also configure `STORY_PLANNING_ENABLED=true`,
-the ChapterVersions table with the additive fields in `docs/feishu-schema.md`,
+the ChapterVersions and RevisionTasks tables with the additive fields in
+`docs/feishu-schema.md`,
 and `writer`, `critic`, and `rewrite` model routes. `CHAPTER_MAX_REWRITES` is 0 or
 1. Optional `CHAPTER_MAX_ESTIMATED_COST` fails the run closed if token usage or
 route prices are unavailable. See [`docs/chapter-loop.md`](../docs/chapter-loop.md)
@@ -40,7 +41,7 @@ The ZEN-41 review desk optionally holds the first
 `CHAPTER_REVIEW_FIRST_N` chapters or a chapter with any Critic dimension at or
 below `CHAPTER_REVIEW_SCORE_THRESHOLD` for an exact editor decision. Both
 default to 0, so ordinary validated chapters proceed to review automatically.
-Configure the additive RevisionTasks fields in `docs/feishu-schema.md` before
-using editor-directed revision. See
+RevisionTasks is required whenever the chapter loop is enabled: the review desk
+reads revision history even when no revision has been requested. See
 [`docs/chapter-review.md`](../docs/chapter-review.md) for the decision and
 retry contract.
