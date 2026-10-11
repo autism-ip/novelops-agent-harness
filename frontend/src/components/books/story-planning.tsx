@@ -19,12 +19,13 @@ type BriefContext = { book_id: string; chapter_no: number; state_artifact_id: st
   state_version: number; version: number; feedback: string };
 
 const EVENT = "novelops-story-planning-request";
+const STORAGE_UNAVAILABLE = Symbol("planning storage unavailable");
 function subscribe(callback: () => void) {
   window.addEventListener(EVENT, callback);
   return () => window.removeEventListener(EVENT, callback);
 }
 function saved(key: string) {
-  try { return sessionStorage.getItem(key); } catch { return null; }
+  try { return sessionStorage.getItem(key); } catch { return STORAGE_UNAVAILABLE; }
 }
 function setSaved(key: string, value: string | null) {
   try {
@@ -44,7 +45,8 @@ function textValue(value: unknown) {
 export function StoryPlanning({ bookId, approvedBible }: { bookId: string; approvedBible: boolean }) {
   const key = `novelops.story-planning.pending.${bookId}`;
   const pendingRaw = useSyncExternalStore(subscribe, () => saved(key), () => null);
-  const pending = parsePendingPlan(pendingRaw);
+  const storageUnavailable = pendingRaw === STORAGE_UNAVAILABLE;
+  const pending = parsePendingPlan(storageUnavailable ? null : pendingRaw);
   const [revision, setRevision] = useState(0);
   const [working, setWorking] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,23 +66,38 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
   const briefBusy = !!brief && !["completed", "failed", "blocked", "cancelled"].includes(brief.run.status);
   const unavailable = bibles.error instanceof ApiError && bibles.error.status === 503;
 
+  function assertStorage(expected: typeof pendingRaw) {
+    const current = saved(key);
+    if (current === STORAGE_UNAVAILABLE || current !== expected) {
+      window.dispatchEvent(new Event(EVENT));
+      throw new Error(current === STORAGE_UNAVAILABLE
+        ? "Planning request storage is unavailable. Restore access and check storage before continuing."
+        : "Saved planning request changed during this operation. Check history before continuing with the saved request.");
+    }
+  }
+
   function clearPending() {
+    if (busy.current) return;
     setError(null);
-    try { setSaved(key, null); }
+    try { assertStorage(pendingRaw); setSaved(key, null); }
     catch (cause) {
-      setError(`Could not clear the saved planning request. ${visibleError(cause)} Check browser storage access and try again.`);
+      setError(`Could not clear the saved planning request. ${cause instanceof DOMException ? cause.message : visibleError(cause)} Check browser storage access and try again.`);
     }
   }
 
   async function submit(request: PendingPlan | (() => Promise<PendingPlan>)) {
-    if (busy.current) return;
+    if (busy.current || storageUnavailable) return;
     busy.current = true;
     setWorking(true);
     setError(null);
     try {
+      assertStorage(pendingRaw);
       const command = typeof request === "function" ? await request() : request;
-      setSaved(key, JSON.stringify(command));
+      assertStorage(pendingRaw);
+      const ownedRaw = JSON.stringify(command);
+      setSaved(key, ownedRaw);
       await api.post(command.path, command.body);
+      assertStorage(ownedRaw);
       setSaved(key, null);
       setRevision(value => value + 1);
       if (!(command.path.endsWith("/decision") && command.body.action === "revise")) setFeedback("");
@@ -135,9 +152,15 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
       <Button variant="outline" disabled={working} onClick={() => void submit(pending)}>Retry the same request</Button>
       <Button variant="ghost" disabled={working} onClick={clearPending}>I checked the history</Button>
     </div>}
-    {pendingRaw && !pending && <div className="surface-soft space-y-2 p-4 text-sm" role="alert">
+    {storageUnavailable && <div className="surface-soft space-y-2 p-4 text-sm" role="alert">
+      <p>Cannot access saved planning requests. Restore browser storage access, then check again.</p>
+      <Button variant="outline" disabled={working} onClick={() => { setError(null); window.dispatchEvent(new Event(EVENT)); }}>
+        Check planning request storage
+      </Button>
+    </div>}
+    {!storageUnavailable && pendingRaw && !pending && <div className="surface-soft space-y-2 p-4 text-sm" role="alert">
       <p>Saved request is unreadable. Check the Book history before clearing it.</p>
-      <Button variant="outline" onClick={clearPending}>I checked the history</Button>
+      <Button variant="outline" disabled={working} onClick={clearPending}>I checked the history</Button>
     </div>}
     {error && <p role="alert" className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
     <div className="grid gap-5 lg:grid-cols-2">
