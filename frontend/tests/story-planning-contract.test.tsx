@@ -244,3 +244,95 @@ test.each(["bible", "brief"] as const)("the %s context phase blocks repeated pla
   expect(posts).toHaveLength(1);
   expect(JSON.parse(String(posts[0][1].body))).toEqual(data);
 });
+
+function readBoundary() {
+  const nativeGet = Storage.prototype.getItem;
+  let denied = true;
+  vi.spyOn(Storage.prototype, "getItem").mockImplementation(function (this: Storage, name: string) {
+    if (name === key && denied) throw new DOMException("Native read denied", "SecurityError");
+    return nativeGet.call(this, name);
+  });
+  return { allow: () => { denied = false; }, peek: () => nativeGet.call(sessionStorage, key) };
+}
+test.each([JSON.stringify(pending), "{unreadable"])("unavailable planning storage preserves command bytes and rechecks publicly: %s", async bytes => {
+  sessionStorage.setItem(key, bytes); const boundary = readBoundary(), transport = serve();
+  render(<StoryPlanning bookId={book} approvedBible={false} />);
+  await screen.findByText(/Cannot access saved planning requests/);
+  expect((screen.getByRole("button", { name: "Generate StoryBible" }) as HTMLButtonElement).disabled).toBe(true);
+  expect(boundary.peek()).toBe(bytes); expect(writes(transport)).toHaveLength(0);
+  expect(transport.mock.calls.some(([path]) => String(path).endsWith("/bible/context"))).toBe(false);
+  boundary.allow(); fireEvent.click(screen.getByRole("button", { name: "Check planning request storage" }));
+  if (bytes === JSON.stringify(pending)) {
+    fireEvent.click(await screen.findByRole("button", { name: "Retry the same request" }));
+    await waitFor(() => expect(sessionStorage.getItem(key)).toBeNull());
+    expect(writes(transport)).toHaveLength(1); expect(JSON.parse(String(writes(transport)[0][1].body))).toEqual(pending.body);
+    expect(transport.mock.calls.some(([path]) => String(path).endsWith("/bible/context"))).toBe(false);
+  } else {
+    await screen.findByText(/Saved request is unreadable/); expect(boundary.peek()).toBe(bytes);
+    fireEvent.click(screen.getByRole("button", { name: "I checked the history" }));
+    await waitFor(() => expect(sessionStorage.getItem(key)).toBeNull()); expect(writes(transport)).toHaveLength(0);
+  }
+});
+test.each(["read denied", "intent changed"])("%s after rendering blocks a new planning action", async fault => {
+  const transport = await open(); sessionStorage.setItem(key, JSON.stringify(pending)); const boundary = readBoundary();
+  if (fault === "intent changed") boundary.allow();
+  fireEvent.click(screen.getByRole("button", { name: "Generate StoryBible" }));
+  await screen.findByText(fault === "read denied" ? /Planning request storage is unavailable/ : /Saved planning request changed during this operation/);
+  expect(boundary.peek()).toBe(JSON.stringify(pending)); expect(writes(transport)).toHaveLength(0);
+  expect(transport.mock.calls.some(([path]) => String(path).endsWith("/bible/context"))).toBe(false);
+  boundary.allow(); if (fault === "read denied") fireEvent.click(screen.getByRole("button", { name: "Check planning request storage" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Retry the same request" }));
+  await waitFor(() => expect(sessionStorage.getItem(key)).toBeNull());
+  expect(writes(transport)).toHaveLength(1); expect(JSON.parse(String(writes(transport)[0][1].body))).toEqual(pending.body);
+});
+test.each(["read denied", "intent changed"])("%s during planning context preparation prevents replacing a saved command", async fault => {
+  const original = serve(); let finish!: (response: Response) => void;
+  const transport = vi.fn((input: unknown, init: RequestInit) => String(input).endsWith("/bible/context") ?
+    new Promise<Response>(resolve => { finish = resolve; }) : original(input, init));
+  vi.stubGlobal("fetch", transport); render(<StoryPlanning bookId={book} approvedBible={false} />);
+  await waitFor(() => expect((screen.getByRole("button", { name: "Generate StoryBible" }) as HTMLButtonElement).disabled).toBe(false));
+  fireEvent.click(screen.getByRole("button", { name: "Generate StoryBible" }));
+  await waitFor(() => expect(transport.mock.calls.filter(([path]) => String(path).endsWith("/bible/context"))).toHaveLength(1));
+  sessionStorage.setItem(key, JSON.stringify(pending)); const boundary = readBoundary(); if (fault === "intent changed") boundary.allow();
+  await act(async () => finish(Response.json({ ...bibleContext, version: 99 })));
+  await screen.findByText(fault === "read denied" ? /Planning request storage is unavailable/ : /Saved planning request changed during this operation/);
+  expect(boundary.peek()).toBe(JSON.stringify(pending)); expect(writes(transport)).toHaveLength(0);
+  boundary.allow(); if (fault === "read denied") fireEvent.click(screen.getByRole("button", { name: "Check planning request storage" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Retry the same request" }));
+  await waitFor(() => expect(sessionStorage.getItem(key)).toBeNull());
+  expect(writes(transport)).toHaveLength(1); expect(JSON.parse(String(writes(transport)[0][1].body))).toEqual(pending.body);
+  expect(transport.mock.calls.filter(([path]) => String(path).endsWith("/bible/context"))).toHaveLength(1);
+});
+test.each(["read denied", "intent changed"])("confirmed planning POST does not clear inaccessible or superseded intent: %s", async fault => {
+  sessionStorage.setItem(key, JSON.stringify(pending)); const original = serve(); let finish!: (response: Response) => void;
+  const transport = vi.fn((input: unknown, init: RequestInit) => init.method === "POST" ?
+    new Promise<Response>(resolve => { finish = resolve; }) : original(input, init));
+  vi.stubGlobal("fetch", transport); render(<StoryPlanning bookId={book} approvedBible={false} />);
+  fireEvent.click(screen.getByRole("button", { name: "Retry the same request" }));
+  await waitFor(() => expect(writes(transport)).toHaveLength(1));
+  const bytes = fault === "intent changed" ? JSON.stringify({ ...pending, body: { ...pending.body, version: 99 } }) : JSON.stringify(pending);
+  sessionStorage.setItem(key, bytes); const boundary = readBoundary(); if (fault === "intent changed") boundary.allow();
+  await act(async () => finish(Response.json({ saved: true })));
+  await screen.findByText(fault === "read denied" ? /Planning request storage is unavailable/ : /Saved planning request changed during this operation/);
+  expect(boundary.peek()).toBe(bytes); expect(writes(transport)).toHaveLength(1);
+  boundary.allow(); if (fault === "read denied") fireEvent.click(screen.getByRole("button", { name: "Check planning request storage" }));
+  fireEvent.click(await screen.findByRole("button", { name: "I checked the history" }));
+  await waitFor(() => expect(sessionStorage.getItem(key)).toBeNull()); expect(writes(transport)).toHaveLength(1);
+});
+test("a stale checked-history control cannot clear a different planning request", async () => {
+  sessionStorage.setItem(key, JSON.stringify(pending)); const transport = await open();
+  const bytes = JSON.stringify({ ...pending, body: { ...pending.body, version: 99 } }); sessionStorage.setItem(key, bytes);
+  fireEvent.click(screen.getByRole("button", { name: "I checked the history" }));
+  await screen.findByText(/Saved planning request changed during this operation/);
+  expect(sessionStorage.getItem(key)).toBe(bytes); expect(writes(transport)).toHaveLength(0);
+  fireEvent.click(screen.getByRole("button", { name: "I checked the history" })); await waitFor(() => expect(sessionStorage.getItem(key)).toBeNull());
+});
+test("checked planning history keeps native clearance errors visible without altering bytes", async () => {
+  sessionStorage.setItem(key, JSON.stringify(pending)); const transport = await open();
+  const remove = vi.spyOn(Storage.prototype, "removeItem").mockImplementation(() => { throw new DOMException("Native clear denied", "SecurityError"); });
+  fireEvent.click(screen.getByRole("button", { name: "I checked the history" }));
+  await screen.findByText(/Could not clear the saved planning request.*Native clear denied/);
+  expect(sessionStorage.getItem(key)).toBe(JSON.stringify(pending)); expect(writes(transport)).toHaveLength(0);
+  remove.mockRestore(); fireEvent.click(screen.getByRole("button", { name: "I checked the history" }));
+  await waitFor(() => expect(sessionStorage.getItem(key)).toBeNull());
+});

@@ -154,3 +154,87 @@ test("disabled creation and server rendering do not send or leak a tab-local com
   expect(transport).not.toHaveBeenCalled();
   expect(sessionStorage.getItem(key)).toBe(JSON.stringify(context));
 });
+
+function readBoundary() {
+  const nativeGet = Storage.prototype.getItem;
+  let denied = true;
+  vi.spyOn(Storage.prototype, "getItem").mockImplementation(function (this: Storage, name: string) {
+    if (name === key && denied) throw new DOMException("Native read denied", "SecurityError");
+    return nativeGet.call(this, name);
+  });
+  return { allow: () => { denied = false; }, deny: () => { denied = true; }, peek: () => nativeGet.call(sessionStorage, key) };
+}
+for (const saved of [JSON.stringify(context), "{unreadable"]) {
+  test(`unavailable book storage preserves saved bytes until a public recheck: ${saved.startsWith("{unreadable") ? "malformed" : "valid"}`, async () => {
+    sessionStorage.setItem(key, saved); const boundary = readBoundary(), transport = serve();
+    render(<BookBootstrap coverRunId={coverRun} disabled={false} />);
+    await screen.findByText(/Cannot access saved book requests/);
+    expect((screen.getByRole("button", { name: "Create book" }) as HTMLButtonElement).disabled).toBe(true);
+    expect(boundary.peek()).toBe(saved); expect(transport).not.toHaveBeenCalled();
+    boundary.allow(); fireEvent.click(screen.getByRole("button", { name: "Check book request storage" }));
+    if (saved === JSON.stringify(context)) {
+      fireEvent.click(await screen.findByRole("button", { name: "Retry the same book request" }));
+      await screen.findByRole("link", { name: "Open book workspace" });
+      expect(transport).toHaveBeenCalledOnce(); expect(transport.mock.calls[0][1].method).toBe("POST");
+      expect(JSON.parse(String(transport.mock.calls[0][1].body))).toEqual(context);
+    } else {
+      await screen.findByText(/Saved book request is unreadable/);
+      expect(boundary.peek()).toBe(saved); expect(transport).not.toHaveBeenCalled();
+      fireEvent.click(screen.getByRole("button", { name: "I checked the Books list" }));
+      expect(boundary.peek()).toBeNull();
+    }
+  });
+}
+
+test("read failure after render blocks creation and preserves the newly saved exact request", async () => {
+  const transport = serve(); render(<BookBootstrap coverRunId={coverRun} disabled={false} />);
+  sessionStorage.setItem(key, JSON.stringify(context)); const boundary = readBoundary();
+  fireEvent.click(screen.getByRole("button", { name: "Create book" }));
+  await screen.findByText(/Cannot access saved book requests/);
+  expect(transport).not.toHaveBeenCalled(); expect(boundary.peek()).toBe(JSON.stringify(context));
+  boundary.allow(); fireEvent.click(screen.getByRole("button", { name: "Check book request storage" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Retry the same book request" }));
+  await screen.findByRole("link", { name: "Open book workspace" });
+  expect(transport).toHaveBeenCalledOnce(); expect(JSON.parse(String(transport.mock.calls[0][1].body))).toEqual(context);
+});
+
+for (const during of ["read denied", "intent changed"]) {
+  test(`${during} during context preparation prevents replacing another saved book request`, async () => {
+    let finish!: (response: Response) => void;
+    const transport = vi.fn((_input: unknown, init: RequestInit) => init.method === "POST" ? Promise.resolve(Response.json({ book: { book_id: bookId } })) : new Promise<Response>(resolve => { finish = resolve; }));
+    vi.stubGlobal("fetch", transport); render(<BookBootstrap coverRunId={coverRun} disabled={false} />);
+    fireEvent.click(screen.getByRole("button", { name: "Create book" }));
+    await waitFor(() => expect(transport).toHaveBeenCalledOnce());
+    sessionStorage.setItem(key, JSON.stringify(context)); const boundary = readBoundary();
+    if (during === "intent changed") boundary.allow();
+    await act(async () => finish(Response.json({ ...context, book_id: `BK-${"6".repeat(32)}` })));
+    await screen.findByText(during === "read denied" ? /Book request storage is unavailable/ : /Saved book request changed during this operation/);
+    expect(boundary.peek()).toBe(JSON.stringify(context)); expect(transport.mock.calls.filter(([, init]) => init.method === "POST")).toHaveLength(0);
+    boundary.allow(); if (during === "read denied") fireEvent.click(screen.getByRole("button", { name: "Check book request storage" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Retry the same book request" }));
+    await screen.findByRole("link", { name: "Open book workspace" });
+    expect(transport).toHaveBeenCalledTimes(2); expect(JSON.parse(String(transport.mock.calls[1][1].body))).toEqual(context);
+  });
+}
+
+test("confirmed book completion cannot clear a different intent saved while the POST was pending", async () => {
+  sessionStorage.setItem(key, JSON.stringify(context)); let finish!: (response: Response) => void;
+  const transport = vi.fn(() => new Promise<Response>(resolve => { finish = resolve; })); vi.stubGlobal("fetch", transport);
+  render(<BookBootstrap coverRunId={coverRun} disabled={false} />); fireEvent.click(screen.getByRole("button", { name: "Retry the same book request" }));
+  await waitFor(() => expect(transport).toHaveBeenCalledOnce());
+  const newer = JSON.stringify({ ...context, book_id: `BK-${"7".repeat(32)}` }); sessionStorage.setItem(key, newer);
+  await act(async () => finish(Response.json({ book: { book_id: bookId } })));
+  await screen.findByText(/Saved book request changed during this operation/);
+  expect(sessionStorage.getItem(key)).toBe(newer); expect(transport).toHaveBeenCalledOnce(); expect(screen.queryByRole("link", { name: "Open book workspace" })).toBeNull();
+});
+
+test("a checked Books list can release valid uncertain intent and preserves native clear failures", async () => {
+  sessionStorage.setItem(key, JSON.stringify(context)); const transport = serve(); render(<BookBootstrap coverRunId={coverRun} disabled={false} />);
+  const remove = vi.spyOn(Storage.prototype, "removeItem").mockImplementation(() => { throw new DOMException("Native clear denied", "SecurityError"); });
+  fireEvent.click(screen.getByRole("button", { name: "I checked the Books list" }));
+  await screen.findByText(/Could not clear the saved book request.*Native clear denied/);
+  expect(sessionStorage.getItem(key)).toBe(JSON.stringify(context)); expect(transport).not.toHaveBeenCalled();
+  remove.mockRestore(); fireEvent.click(screen.getByRole("button", { name: "I checked the Books list" }));
+  await waitFor(() => expect(sessionStorage.getItem(key)).toBeNull());
+  expect((screen.getByRole("button", { name: "Create book" }) as HTMLButtonElement).disabled).toBe(false);
+});
