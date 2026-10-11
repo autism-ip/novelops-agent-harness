@@ -6,6 +6,7 @@ app/harness.py: 单调度器和单写者状态机；投影先读取当前流程�
 README.md: 后端包说明与本地验证命令，包含当前覆盖率基线和运行限制。
 pyproject.toml: Python 项目元数据与依赖门禁；固定 Ruff/coverage/build 工具，配置 lint、87.82% 当前覆盖率基线下限和 app 包发现。
 .env.example: 本地环境变量样例，只放占位符，不承载真实密钥。
+app/runtime.py: 生产服务装配；启用章节闭环时同时配置 ChapterVersions 与 RevisionTasks，缺少表 ID 时启动失败，避免审稿和退修运行时缺失仓库。
 app/: FastAPI 应用实现 — 工厂函数、配置、中间件、路由。
 tests/: 行为级 pytest 门禁，验证 ZEN-28 验收契约而非仅验证进程可启动。
 app/api/: FastAPI 路由层——中间件守卫（deps.py）、端点注册（routes/__init__.py）、健康探活（routes/health.py）、管线端点（routes/pipelines.py）。

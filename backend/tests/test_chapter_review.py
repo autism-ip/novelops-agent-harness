@@ -510,3 +510,46 @@ def test_editorial_round_trip_keeps_sources_and_bounded_remote_reads(chapter):
         assert all(counts[name] <= budgets[name] for name in budgets), counts
     finally:
         client.event_hooks['request'].remove(calls.append)
+
+
+@pytest.mark.parametrize('configured', [False, True])
+def test_production_chapter_review_requires_revision_storage(monkeypatch, tmp_path, configured):
+    """A deployed desk must read revision history through the configured Base table."""
+    import httpx
+    from app.runtime import build_runtime
+    from tests.feishu_transport import FeishuTransport
+
+    names = ('pipeline_runs', 'step_runs', 'approval_events', 'hotspots', 'artifacts',
+             'traces', 'hotspot_analyses', 'title_candidates', 'cover_plans', 'books',
+             'story_states', 'chapter_versions')
+    for name in names:
+        monkeypatch.setenv('FEISHU_TABLE_ID_' + name.upper(), name)
+    monkeypatch.setenv('FEISHU_APP_TOKEN', 'synthetic-base')
+    monkeypatch.delenv('FEISHU_TABLE_ID_REVISION_TASKS', raising=False)
+    if configured:
+        monkeypatch.setenv('FEISHU_TABLE_ID_REVISION_TASKS', 'physical-revision-table')
+    settings = Settings(_env_file=None, BACKEND_API_KEY='test', FEISHU_APP_ID='fixture',
+        FEISHU_APP_SECRET='fixture', HARNESS_JOURNAL_DIR=str(tmp_path),
+        HOTSPOTS_ENABLED=True, GENERATION_ENABLED=True, RESEARCH_ENABLED=True,
+        CREATIVE_ENABLED=True, BOOKS_ENABLED=True, STORY_PLANNING_ENABLED=True,
+        CHAPTER_LOOP_ENABLED=True, MODEL_ROUTES_JSON=json.dumps({
+            name: {'provider': 'deepseek', 'model': 'configured'} for name in (
+                'research', 'risk', 'titles', 'covers', 'story_architect', 'chapter_planner',
+                'writer', 'critic', 'rewrite')}))
+    if not configured:
+        with pytest.raises(ValueError, match='FEISHU_TABLE_ID_REVISION_TASKS'):
+            kernel, client = build_runtime(settings)
+            kernel.model_router.close()
+            client._http.close()
+        return
+    kernel, client = build_runtime(settings)
+    transport = FeishuTransport()
+    client._http.close()
+    client._http = httpx.Client(transport=httpx.MockTransport(transport))
+    try:
+        assert kernel.storage.list('revision_tasks', target_id='synthetic-book/1') == []
+        assert transport.calls[-1].url.path.endswith('/tables/physical-revision-table/records')
+        assert transport.calls[-1].url.params['filter'] == 'CurrentValue.[target_id] = "synthetic-book/1"'
+    finally:
+        kernel.model_router.close()
+        client._http.close()
