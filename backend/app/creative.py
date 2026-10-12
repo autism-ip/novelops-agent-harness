@@ -245,8 +245,13 @@ class CreativeService:
     def candidates(self, kind, manifest):
         req = manifest["request"]
         count = len(self.batch(kind, manifest)["content"]["candidates" if kind == "titles" else "directions"])
-        return [self.kernel.artifacts.get(stable_id("AR-", f'{kind}/{req["source_run_id"]}/item-{i}/{req["version"]}'))
-                for i in range(count)]
+        ids = [stable_id("AR-", f'{kind}/{req["source_run_id"]}/item-{i}/{req["version"]}')
+               for i in range(count)]
+        items = self.kernel.artifacts.get_many(ids)
+        missing = next((artifact_id for artifact_id in ids if artifact_id not in items), None)
+        if missing is not None:
+            raise MissingRecord(missing)
+        return [items[artifact_id] for artifact_id in ids]
 
     def generate(self, step):
         _, kind, manifest = self.prepare(step)
@@ -297,9 +302,9 @@ class CreativeService:
 
     def select(self, step):
         _, kind, manifest = self.prepare(step)
+        ids = [item["artifact_id"] for item in self.candidates(kind, manifest)]
         return StepResult({"source_artifact_id": manifest["request"]["source_artifact_id"],
-            "candidate_ids": [item["artifact_id"] for item in self.candidates(kind, manifest)],
-            "output_refs": [item["artifact_id"] for item in self.candidates(kind, manifest)]}, True)
+            "candidate_ids": ids, "output_refs": ids}, True)
 
     def guard(self, step, action, choice_id=""):
         run = self.kernel.get(step["pipeline_run_id"])

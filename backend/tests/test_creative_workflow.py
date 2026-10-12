@@ -327,3 +327,81 @@ def test_creative_production_wiring_requires_research_routes_and_tables(monkeypa
     finally:
         kernel.model_router.close()
         client._http.close()
+
+
+def expanded_titles(count):
+    base = titles()['candidates'][0]
+    return {'candidates': [{**base, 'title': f'The Garden of Star {i}'} for i in range(count)]}
+
+
+def test_twenty_titles_and_five_covers_meet_minimum_quantity_contract(creative):
+    kernel, provider, source_run = creative
+    provider.outputs.append(expanded_titles(20))
+    title_run = enqueue(kernel, 'titles', source_run)
+    settle(kernel)
+    state = kernel.creative.read(title_run['pipeline_run_id'])
+    assert len(state['candidates']) == 20
+    assert len(kernel.storage.list('title_candidates')) == 20
+    choose(kernel, title_run['pipeline_run_id'], 19)
+    base = covers()['directions'][0]
+    provider.outputs.append({'directions': [{**base, 'visual_direction': f'Magical garden angle {i}'} for i in range(5)]})
+    cover_run = enqueue(kernel, 'covers', title_run['pipeline_run_id'])
+    settle(kernel)
+    state = kernel.creative.read(cover_run['pipeline_run_id'])
+    assert len(state['candidates']) == 5
+    choose(kernel, cover_run['pipeline_run_id'], 4)
+    assert kernel.creative.selected('covers', cover_run['pipeline_run_id'])['artifact_id'] == state['candidates'][4]['artifact_id']
+    assert len(kernel.storage.list('cover_plans')) == 5
+    assert provider.calls == ['research', 'titles', 'covers']
+
+
+@pytest.mark.parametrize('count', [10, 20])
+def test_candidate_reads_batch_exact_ids_preserve_order_and_are_read_only(creative, count):
+    kernel, provider, source_run = creative
+    provider.outputs.append(expanded_titles(count))
+    run = enqueue(kernel, 'titles', source_run)
+    settle(kernel)
+    expected = kernel.creative.read(run['pipeline_run_id'])['candidates']
+    kind, manifest = kernel.creative.manifest(kernel.get(run['pipeline_run_id']))
+    requests = []
+    client = kernel.storage._repos['artifacts']._client
+    client._http.event_hooks['request'].append(requests.append)
+    actual = kernel.creative.candidates(kind, manifest)
+    assert actual == expected
+    assert len(requests) == 2  # One batch artifact + one native search for all candidate IDs.
+    assert all(request.method == 'POST' and request.url.path.endswith('/records/search') for request in requests)
+    conditions = json.loads(requests[-1].content)['filter']['conditions']
+    assert [item['value'][0] for item in conditions] == [item['artifact_id'] for item in expected]
+    assert all(item['field_name'] == 'artifact_id' and item['operator'] == 'is' for item in conditions)
+
+
+@pytest.mark.parametrize('fault', ['missing', 'tampered'])
+def test_candidate_batch_reads_fail_closed_and_recheck_after_remote_change(creative, fault):
+    from app.generation import ArtifactIntegrityError
+    from app.storage import MissingRecord
+
+    kernel, _, source_run = creative
+    run = enqueue(kernel, 'titles', source_run)
+    settle(kernel)
+    expected = kernel.creative.read(run['pipeline_run_id'])['candidates']
+    kind, manifest = kernel.creative.manifest(kernel.get(run['pipeline_run_id']))
+    assert kernel.creative.candidates(kind, manifest) == expected
+    victim = expected[-1]['artifact_id']
+    if fault == 'missing':
+        kernel.storage.delete('artifacts', victim)
+        failure = MissingRecord
+    else:
+        row = kernel.storage.get('artifacts', victim)
+        payload = json.loads(row['payload_json'])
+        payload['content']['title'] = 'Altered after the first read'
+        kernel.storage.update('artifacts', victim, {'payload_json': json.dumps(payload)})
+        failure = ArtifactIntegrityError
+    before = kernel.storage.list('approval_events')
+    with pytest.raises(failure):
+        kernel.creative.candidates(kind, manifest)
+    assert kernel.storage.list('approval_events') == before
+    if fault == 'missing':
+        assert kernel.creative.read(run['pipeline_run_id'])['candidates'] == []
+    else:
+        with pytest.raises(ArtifactIntegrityError):
+            kernel.creative.read(run['pipeline_run_id'])
