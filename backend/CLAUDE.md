@@ -18,7 +18,7 @@ app/tools/adapters/: 工具适配器子包——抖音热点适配器（douyin_h
 app/hotspots.py: ZEN-33 确定性抓取快照、去重、保留业务 ID/状态、按新采集时间更新与重启对账；不调用 LLM。
 app/hotspot_controls.py: ZEN-34 人工添加与丢弃命令；通过持久化工作流执行，稳定身份和状态冲突保护。
 app/research.py: ZEN-35 版本化 ResearchAgent、保守风险策略、精确版本审批与可恢复飞书分析投影。
-app/creative.py: ZEN-36 标题候选与封面方向生成、逐项 Artifacts、版本选择与飞书投影。
+app/creative.py: ZEN-36 标题候选与封面方向生成、逐项 Artifacts、版本选择与飞书投影；候选按业务 ID 批量重新读取，保留顺序与完整性校验，缺失时不返回部分集合，选择步骤复用本次同一组 ID。
 app/books.py: ZEN-38 Book bootstrap 与 canonical StoryState；ready 重放兼容后续状态版本。
 app/story_planning.py: ZEN-39 StoryBible 人工审批与确定性状态补丁、不可变 StoryContextSnapshot、版本化 ChapterBrief；资格检查仅展开最新版本，历史列表保留完整读取。
 app/chapter_loop.py: ZEN-40 精确源章节闭环；ZEN-41 选择性人审、版本化审阅命令、先持久化再解关卡的 RevisionTask 恢复和最终锁定；审稿响应按业务 ID 批量校验产物并复用本次版本行，决策和刷新重新读取；审批重放将飞书省略的可选空备注按空字符串比较，其他身份和非空备注冲突保持拒绝。
