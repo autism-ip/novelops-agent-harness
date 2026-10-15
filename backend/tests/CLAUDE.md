@@ -28,7 +28,7 @@ test_hotspot_ingestion.py: ZEN-33 子进程→adapter→调度器→Feishu trans
 test_hotspot_controls.py: ZEN-34 人工添加/丢弃鉴权、幂等与冲突、写入超时和重启恢复验收。
 test_research_workflow.py: ZEN-35 schema/风险分流、模型失败、版本审批、投影恢复、批次重放及 API 验收。
 test_research_kernel_contract.py: 动态审批、退修理由、永久失败与终态投影恢复契约。
-test_creative_workflow.py: ZEN-36 十至二十标题/三至五封面、模型输出验证、精确选择、版本及失败契约；批量只读查询、候选顺序、跨请求篡改/缺失拒绝契约。
+test_creative_workflow.py: ZEN-36 十至二十标题/三至五封面、模型输出验证、精确选择、版本及失败契约；批量只读查询、候选顺序、跨请求篡改/缺失拒绝契约；部分投影失败后同一选择重放补齐且不重复审批事件或模型调用。
 ui_fixture_app.py: 仅本机浏览器验收服务；复用真实 API/Harness 与合成 HTTP 存储，提供受鉴权保护的响应丢失/上游失败注入；不进入生产包。
 test_story_history_contract.py: ZEN-39 产品历史 API 的鉴权空历史零生成，以及故事升级后新旧 Bible/Brief 来源、顺序、资格和不可变快照的 HTTP 验收。
 test_story_planning.py: ZEN-39 API 与 Harness 门禁，覆盖人工审批、状态版本、不可变快照、brief 资格、历史读取数量上限、禁止回退旧提纲和中断恢复。
