@@ -127,3 +127,33 @@ def test_corrupted_ready_state_is_not_exposed_as_canonical(creative):
     kernel.storage.update("story_states", state_id, {"source_refs_json": "[\"AR-wrong\"]"})
     with pytest.raises(AmbiguousWrite, match="provenance"):
         kernel.books.context_provider.get(context["book_id"])
+
+
+def test_bootstrap_context_reuses_verified_sources_with_bounded_fresh_reads(creative):
+    kernel, provider, analysis_run = creative
+    title_run, cover_run = selected_cover(kernel, analysis_run)
+    kernel.books = BookService(kernel)
+    expected_cover = kernel.creative.selected('covers', cover_run)
+    expected_title = kernel.creative.selected('titles', title_run)
+    expected_opportunity = kernel.research.approved(analysis_run)
+    transport = kernel.storage._repos['artifacts']._client._http._transport.handler
+    calls = list(provider.calls)
+    api = TestClient(create_app(Settings(BACKEND_API_KEY='test'), kernel=kernel))
+    headers = {'x-api-key': 'test'}
+    transport.calls.clear()
+    response = api.get(f'/api/books/bootstrap-context/{cover_run}', headers=headers)
+    assert response.status_code == 200
+    result = response.json()
+    assert result['cover_run_id'] == cover_run
+    assert result['cover_artifact_id'] == expected_cover['artifact_id']
+    assert result['title_artifact_id'] == expected_title['artifact_id']
+    assert result['opportunity_artifact_id'] == expected_opportunity['artifact_id']
+    assert len(transport.calls) <= 51
+    assert all(request.method == 'GET' or request.method == 'POST'
+               and request.url.path.endswith('/records/search') for request in transport.calls)
+    assert provider.calls == calls and kernel.storage.list('books') == []
+    kernel.storage.update('hotspots', 'HS-test', {'status': 'discarded'})
+    rejected = api.get(f'/api/books/bootstrap-context/{cover_run}', headers=headers)
+    assert rejected.status_code == 409
+    assert provider.calls == calls and kernel.storage.list('books') == []
+    api.close()
