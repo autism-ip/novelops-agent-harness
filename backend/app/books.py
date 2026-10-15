@@ -79,18 +79,16 @@ class BookService:
     def source(self, cover_run_id: str) -> dict:
         """Resolve every currently approved link, ending at the selected cover."""
         with self.kernel.writer:
-            cover = self.kernel.creative.selected("covers", cover_run_id)
-            cover_run = self.kernel.creative.read(cover_run_id)
+            cover_run, cover = self.kernel.creative.selected_state("covers", cover_run_id)
             title_run_id = cover_run["request"]["source_run_id"]
-            title = self.kernel.creative.selected("titles", title_run_id)
+            title_run, title = self.kernel.creative.selected_state("titles", title_run_id)
             if cover_run["request"]["source_artifact_id"] != title["artifact_id"]:
                 raise TransitionConflict("Cover no longer belongs to selected title")
-            title_run = self.kernel.creative.read(title_run_id)
             analysis_run_id = title_run["request"]["source_run_id"]
-            opportunity = self.kernel.research.approved(analysis_run_id)
+            analysis = self.kernel.research.approved_state(analysis_run_id)
+            opportunity = analysis["opportunity"]
             if title_run["request"]["source_artifact_id"] != opportunity["artifact_id"]:
                 raise TransitionConflict("Title no longer belongs to approved opportunity")
-            analysis = self.kernel.research.get(analysis_run_id)
             return {"cover_run_id": cover_run_id, "cover": cover, "title": title,
                 "opportunity": opportunity, "analysis": analysis}
 
