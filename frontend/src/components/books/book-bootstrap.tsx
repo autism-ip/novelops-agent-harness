@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { errorMessage } from "@/components/hotspots/use-resource";
 import { parsePendingBook, type BootstrapContext } from "./state";
 
+// Source verification and Feishu writes can exceed the generic ten-second read budget.
+const BOOK_REQUEST_TIMEOUT_MS = 120_000;
+
 const EVENT = "novelops-book-request";
 const STORAGE_UNAVAILABLE = Symbol("book storage unavailable");
 function subscribe(callback: () => void) {
@@ -57,13 +60,13 @@ export function BookBootstrap({ coverRunId, disabled }: { coverRunId: string; di
     try {
       assertStorage(pendingRaw);
       const context = retry && pending ? pending :
-        await api.get<BootstrapContext>(`/api/books/bootstrap-context/${encodeURIComponent(coverRunId)}`);
+        await api.get<BootstrapContext>(`/api/books/bootstrap-context/${encodeURIComponent(coverRunId)}`, BOOK_REQUEST_TIMEOUT_MS);
       if (context.cover_run_id !== coverRunId) throw new Error("Cover selection changed. Refresh before creating a book.");
       assertStorage(pendingRaw);
       const ownedRaw = JSON.stringify(context);
       sessionStorage.setItem(key, ownedRaw);
       window.dispatchEvent(new Event(EVENT));
-      const result = await api.post<{ book: { book_id: string } }>("/api/books", context);
+      const result = await api.post<{ book: { book_id: string } }>("/api/books", context, BOOK_REQUEST_TIMEOUT_MS);
       assertStorage(ownedRaw);
       sessionStorage.removeItem(key);
       window.dispatchEvent(new Event(EVENT));
