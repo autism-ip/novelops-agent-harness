@@ -350,14 +350,19 @@ class CreativeService:
                 choice_id=artifact_id if action == "approve" else "")
 
     def selected(self, kind, run_id):
-        state = self.read(run_id)
-        if state["kind"] != kind or state["run"]["status"] != "completed" or not state["current"] or not state["decision"]:
-            raise TransitionConflict("Creative source is not a current selected version")
-        choice = state["decision"].get("choice_id", "")
-        for item in state["candidates"]:
-            if item["artifact_id"] == choice:
-                return item
-        raise TransitionConflict("Selected candidate has no immutable artifact")
+        return self.selected_state(kind, run_id)[1]
+
+    def selected_state(self, kind, run_id):
+        """Return one freshly validated view and its exact immutable selection."""
+        with self.kernel.writer:
+            state = self.read(run_id)
+            if state["kind"] != kind or state["run"]["status"] != "completed" or not state["current"] or not state["decision"]:
+                raise TransitionConflict("Creative source is not a current selected version")
+            choice = state["decision"].get("choice_id", "")
+            for item in state["candidates"]:
+                if item["artifact_id"] == choice:
+                    return state, item
+            raise TransitionConflict("Selected candidate has no immutable artifact")
 
     def project(self, run):
         state = self.read(run["pipeline_run_id"])
