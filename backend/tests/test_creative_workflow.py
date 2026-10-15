@@ -405,3 +405,61 @@ def test_candidate_batch_reads_fail_closed_and_recheck_after_remote_change(creat
     else:
         with pytest.raises(ArtifactIntegrityError):
             kernel.creative.read(run['pipeline_run_id'])
+
+
+def test_exact_selection_replay_finishes_partial_projection_without_rebilling(creative):
+    """An HTTP failure after the decision commits must not require a new choice."""
+    import httpx
+
+    kernel, provider, source_run = creative
+    run = enqueue(kernel, 'titles', source_run)
+    settle(kernel)
+    view = kernel.creative.read(run['pipeline_run_id'])
+    gate = next(step for step in view['run']['steps'] if step['step_key'] == 'select')
+    command = {'step_id': gate['step_run_id'], 'artifact_id': view['candidates'][1]['artifact_id'],
+               'expected_version': gate['output_version'], 'action': 'approve',
+               'operator': 'editor', 'reason': 'Reviewed exact original candidate'}
+    client = kernel.storage._repos['title_candidates']._client
+    remote = client._http._transport.handler
+    mutations = []
+    failed = False
+
+    def external_fault(request):
+        nonlocal failed
+        if request.method == 'PUT' and '/tables/title_candidates/records/' in request.url.path:
+            mutations.append(request)
+            if len(mutations) == 3 and not failed:
+                failed = True
+                return httpx.Response(500, json={'code': 500, 'msg': 'Injected projection transport failure'})
+        return remote(request)
+
+    client._http.close()
+    client._http = httpx.Client(transport=httpx.MockTransport(external_fault))
+    paid_calls = list(provider.calls)
+    immutable = view['candidates']
+    api = TestClient(create_app(Settings(BACKEND_API_KEY='test'), kernel=kernel))
+    path = f"/api/creative/runs/{run['pipeline_run_id']}/decision"
+    headers = {'x-api-key': 'test'}
+    response = api.post(path, headers=headers, json=command)
+    assert response.status_code == 503
+    assert response.json() == {'detail': 'AmbiguousWrite', 'reconciliation_required': True}
+    committed = kernel.creative.read(run['pipeline_run_id'])
+    assert committed['run']['status'] == 'completed'
+    assert committed['decision']['choice_id'] == command['artifact_id']
+    assert committed['decision']['operator'] == command['operator']
+    assert committed['decision']['reason'] == command['reason']
+    rows = kernel.storage.list('title_candidates', pipeline_run_id=run['pipeline_run_id'])
+    assert sum(row['approval_status'] == 'approved' for row in rows) == 1
+    assert any(row['approval_status'] == 'pending' for row in rows)
+    decisions = kernel.storage.list('approval_events')
+    assert api.post(path, headers=headers, json={**command, 'artifact_id': view['candidates'][2]['artifact_id']}).status_code == 409
+    replay = api.post(path, headers=headers, json=command)
+    assert replay.status_code == 200
+    rows = kernel.storage.list('title_candidates', pipeline_run_id=run['pipeline_run_id'])
+    assert sum(row['approval_status'] == 'approved' for row in rows) == 1
+    assert sum(row['approval_status'] == 'rejected' for row in rows) == 9
+    assert next(row for row in rows if row['approval_status'] == 'approved')['artifact_id'] == command['artifact_id']
+    assert kernel.storage.list('approval_events') == decisions
+    assert kernel.creative.read(run['pipeline_run_id'])['candidates'] == immutable
+    assert provider.calls == paid_calls
+    api.close()
