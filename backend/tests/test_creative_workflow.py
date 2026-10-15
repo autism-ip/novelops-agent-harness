@@ -463,3 +463,22 @@ def test_exact_selection_replay_finishes_partial_projection_without_rebilling(cr
     assert kernel.creative.read(run['pipeline_run_id'])['candidates'] == immutable
     assert provider.calls == paid_calls
     api.close()
+
+
+def test_selected_state_reuses_verified_view_and_rechecks_current_source(creative):
+    kernel, _, source_run = creative
+    run = enqueue(kernel, 'titles', source_run)
+    settle(kernel)
+    with pytest.raises(TransitionConflict):
+        kernel.creative.selected_state('titles', run['pipeline_run_id'])
+    chosen = choose(kernel, run['pipeline_run_id'], 2)
+    state, selected = kernel.creative.selected_state('titles', run['pipeline_run_id'])
+    assert state == kernel.creative.read(run['pipeline_run_id'])
+    assert selected['artifact_id'] == chosen['artifact_id']
+    assert selected == kernel.creative.selected('titles', run['pipeline_run_id'])
+    assert state['decision']['choice_id'] == selected['artifact_id']
+    with pytest.raises(TransitionConflict):
+        kernel.creative.selected_state('covers', run['pipeline_run_id'])
+    kernel.storage.update('hotspots', 'HS-test', {'status': 'discarded'})
+    with pytest.raises(TransitionConflict):
+        kernel.creative.selected_state('titles', run['pipeline_run_id'])

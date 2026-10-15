@@ -308,18 +308,15 @@ class ResearchService:
         with self.kernel.writer:
             run = self.kernel.get(run_id)
             manifest = self.manifest(run)
-            artifacts = {}
-            for kind in ("opportunity", "risk"):
-                try:
-                    artifacts[kind] = self.artifact(manifest, kind)
-                except MissingRecord:
-                    artifacts[kind] = None
-            decisions = []
-            for step in run["steps"]:
-                aid = stable_id("AP-", step["step_run_id"] + "/" + str(step.get("output_version", 0)))
-                event = self.kernel.storage.get("approval_events", aid)
-                if event:
-                    decisions.append(event)
+            request = manifest["request"]
+            ids = {kind: stable_id("AR-", f'research/{request["hotspot_id"]}/{kind}/{request["version"]}')
+                   for kind in ("opportunity", "risk")}
+            loaded = self.kernel.artifacts.get_many(list(ids.values()))
+            artifacts = {kind: loaded.get(artifact_id) for kind, artifact_id in ids.items()}
+            approval_ids = [stable_id("AP-", step["step_run_id"] + "/" + str(step.get("output_version", 0)))
+                            for step in run["steps"]]
+            events = self.kernel.storage.get_many("approval_events", approval_ids)
+            decisions = [events[approval_id] for approval_id in approval_ids if approval_id in events]
             status = run["status"]
             if any(d["action"] == "revise" for d in decisions):
                 status = "revision_requested"
@@ -351,13 +348,17 @@ class ResearchService:
             return self.kernel.decide(target["step_run_id"], action, expected_version, operator, reason=reason)
 
     def approved(self, run_id):
+        return self.approved_state(run_id)["opportunity"]
+
+    def approved_state(self, run_id):
+        """Return the complete fresh view after the same approval/source checks."""
         with self.kernel.writer:
             analysis = self.get(run_id)
             if analysis["approval_status"] != "approved":
                 raise TransitionConflict("Opportunity is not approved")
             self.live(analysis["run"], self.manifest(analysis["run"]))
             self.binding(self.manifest(analysis["run"]))
-            return analysis["opportunity"]
+            return analysis
 
     def project(self, run):
         analysis = self.get(run["pipeline_run_id"])

@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 
 from app.config import Settings
 from app.generation import ArtifactStore, Completion, ModelFailure, ModelRouter, Route, SemanticRuntime, TraceRecorder
-from app.harness import HarnessKernel, TransitionConflict
+from app.harness import HarnessKernel, TransitionConflict, stable_id
 from app.main import create_app
 from app.research import ResearchService
 from tests.feishu_transport import make_storage
@@ -378,3 +378,72 @@ def test_research_production_wiring_requires_dependencies_and_both_routes(monkey
     finally:
         kernel.model_router.close()
         client._http.close()
+
+
+@pytest.mark.parametrize('phase', ['pending', 'opportunity_only', 'selection', 'approved'])
+def test_research_view_batches_reads_without_losing_partial_results_or_gate_order(research, phase):
+    kernel, _, transport = research
+    run = enqueue(kernel)
+    run_id = run['pipeline_run_id']
+    if phase == 'opportunity_only':
+        kernel.tick()
+    elif phase in {'selection', 'approved'}:
+        settle(kernel)
+    if phase == 'approved':
+        view = kernel.research.get(run_id)
+        gate = next(step for step in view['run']['steps'] if step['step_key'] == 'selection')
+        kernel.research.decide(run_id, artifact_id=view['opportunity']['artifact_id'],
+            step_id=gate['step_run_id'], action='approve', expected_version=gate['output_version'], operator='editor')
+        settle(kernel)
+    expected = kernel.research.get(run_id)
+    transport.calls.clear()
+    actual = kernel.research.get(run_id)
+    assert actual == expected
+    assert len(transport.calls) == 6
+    assert all(request.method == 'GET' or request.method == 'POST'
+               and request.url.path.endswith('/records/search') for request in transport.calls)
+    artifact_queries = [request for request in transport.calls
+                        if '/tables/artifacts/records/search' in request.url.path]
+    decision_queries = [request for request in transport.calls
+                        if '/tables/approval_events/records/search' in request.url.path]
+    assert len(artifact_queries) == len(decision_queries) == 1
+    assert len(json.loads(artifact_queries[0].content)['filter']['conditions']) == 2
+    expected_ids = [stable_id('AP-', step['step_run_id'] + '/' + str(step.get('output_version', 0)))
+                    for step in actual['run']['steps']]
+    assert [condition['value'][0] for condition in json.loads(decision_queries[0].content)['filter']['conditions']] == expected_ids
+    if phase == 'pending':
+        assert actual['opportunity'] is None and actual['risk'] is None and actual['decisions'] == []
+    elif phase == 'opportunity_only':
+        assert actual['opportunity']['content'] == opportunity() and actual['risk'] is None
+    elif phase == 'selection':
+        assert actual['approval_status'] == 'awaiting_selection' and actual['decisions'] == []
+    else:
+        assert actual['approval_status'] == 'approved'
+        assert [decision['target_id'] for decision in actual['decisions']] == [gate['step_run_id']]
+    kernel.storage.update('hotspots', 'HS-test', {'status': 'discarded'})
+    refreshed = kernel.research.get(run_id)
+    assert refreshed['current'] is False
+    assert refreshed['opportunity'] == actual['opportunity']
+    assert refreshed['risk'] == actual['risk']
+
+
+def test_approved_state_returns_verified_full_view_and_rechecks_source(research):
+    kernel, _, _ = research
+    run = enqueue(kernel)
+    settle(kernel)
+    run_id = run['pipeline_run_id']
+    with pytest.raises(TransitionConflict, match='not approved'):
+        kernel.research.approved_state(run_id)
+    view = kernel.research.get(run_id)
+    gate = next(step for step in view['run']['steps'] if step['step_key'] == 'selection')
+    kernel.research.decide(run_id, artifact_id=view['opportunity']['artifact_id'],
+        step_id=gate['step_run_id'], action='approve', expected_version=gate['output_version'], operator='editor')
+    settle(kernel)
+    state = kernel.research.approved_state(run_id)
+    assert state == kernel.research.get(run_id)
+    assert state['approval_status'] == 'approved' and state['current'] is True
+    assert state['opportunity'] == kernel.research.approved(run_id)
+    assert state['source']['hotspot_id'] == 'HS-test'
+    kernel.storage.update('hotspots', 'HS-test', {'status': 'discarded'})
+    with pytest.raises(TransitionConflict):
+        kernel.research.approved_state(run_id)
