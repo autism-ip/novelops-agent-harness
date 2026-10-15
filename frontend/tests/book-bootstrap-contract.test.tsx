@@ -10,7 +10,7 @@ const context = { book_id: bookId, cover_run_id: coverRun,
   cover_artifact_id: `AR-${"3".repeat(32)}`, title_artifact_id: `AR-${"4".repeat(32)}`,
   opportunity_artifact_id: `AR-${"5".repeat(32)}` };
 
-afterEach(() => { cleanup(); vi.restoreAllMocks(); sessionStorage.clear(); vi.unstubAllGlobals(); });
+afterEach(() => { cleanup(); vi.useRealTimers(); vi.restoreAllMocks(); sessionStorage.clear(); vi.unstubAllGlobals(); });
 
 function serve() {
   const transport = vi.fn((...[, init]: [unknown, RequestInit]) => Promise.resolve(
@@ -237,4 +237,52 @@ test("a checked Books list can release valid uncertain intent and preserves nati
   remove.mockRestore(); fireEvent.click(screen.getByRole("button", { name: "I checked the Books list" }));
   await waitFor(() => expect(sessionStorage.getItem(key)).toBeNull());
   expect((screen.getByRole("button", { name: "Create book" }) as HTMLButtonElement).disabled).toBe(false);
+});
+
+
+function delayedResponse(value: unknown, delay: number, signal?: AbortSignal | null) {
+  return new Promise<Response>((resolve, reject) => {
+    const timer = setTimeout(() => resolve(Response.json(value)), delay);
+    signal?.addEventListener("abort", () => {
+      clearTimeout(timer);
+      reject(new DOMException("Request deadline", "AbortError"));
+    }, { once: true });
+  });
+}
+
+test("slow verified source and book writes finish without abandoning the frozen command", async () => {
+  vi.useFakeTimers();
+  const transport = vi.fn((...[, init]: [unknown, RequestInit]) =>
+    delayedResponse(init.method === "POST" ? { book: { book_id: bookId } } : context,
+      init.method === "POST" ? 119_000 : 23_000, init.signal));
+  vi.stubGlobal("fetch", transport);
+  render(<BookBootstrap coverRunId={coverRun} disabled={false} />);
+  fireEvent.click(screen.getByRole("button", { name: "Create book" }));
+  await act(async () => { await vi.advanceTimersByTimeAsync(10_001); });
+  expect(screen.queryByRole("alert")).toBeNull();
+  expect((screen.getByRole("button", { name: "Checking selection…" }) as HTMLButtonElement).disabled).toBe(true);
+  await act(async () => { await vi.advanceTimersByTimeAsync(13_000); });
+  expect(sessionStorage.getItem(key)).toBe(JSON.stringify(context));
+  expect(transport).toHaveBeenCalledTimes(2);
+  await act(async () => { await vi.advanceTimersByTimeAsync(118_999); });
+  expect(screen.getByRole("link", { name: "Open book workspace" }).getAttribute("href")).toBe(`/books/${bookId}`);
+  expect(transport).toHaveBeenCalledTimes(2);
+  expect(sessionStorage.getItem(key)).toBeNull();
+});
+
+test("the bounded book deadline retains the exact request and requires an explicit retry", async () => {
+  vi.useFakeTimers();
+  sessionStorage.setItem(key, JSON.stringify(context));
+  const transport = vi.fn((...[, init]: [unknown, RequestInit]) => delayedResponse({}, 121_000, init.signal));
+  vi.stubGlobal("fetch", transport);
+  render(<BookBootstrap coverRunId={coverRun} disabled={false} />);
+  fireEvent.click(screen.getByRole("button", { name: "Retry the same book request" }));
+  await act(async () => { await vi.advanceTimersByTimeAsync(119_999); });
+  expect(screen.queryByRole("alert")).toBeNull();
+  await act(async () => { await vi.advanceTimersByTimeAsync(2); });
+  expect(screen.getByRole("alert").textContent).toMatch(/Request timed out/);
+  expect(sessionStorage.getItem(key)).toBe(JSON.stringify(context));
+  expect((screen.getByRole("button", { name: "Retry the same book request" }) as HTMLButtonElement).disabled).toBe(false);
+  expect(transport).toHaveBeenCalledOnce();
+  expect(transport.mock.calls[0][1].body).toBe(JSON.stringify(context));
 });
