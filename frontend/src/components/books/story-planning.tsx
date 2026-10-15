@@ -18,6 +18,8 @@ type BibleContext = { book_id: string; base_state_artifact_id: string; base_vers
 type BriefContext = { book_id: string; chapter_no: number; state_artifact_id: string;
   state_version: number; version: number; feedback: string };
 
+const PLANNING_TIMEOUT_MS = 120_000;
+
 const EVENT = "novelops-story-planning-request";
 const STORAGE_UNAVAILABLE = Symbol("planning storage unavailable");
 function subscribe(callback: () => void) {
@@ -56,9 +58,9 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
   const { operator, update: setOperator } = useEditorIdentity();
   const chapterNo = Number(chapter);
   const validChapter = Number.isSafeInteger(chapterNo) && chapterNo >= 1 && chapterNo <= 10000;
-  const bibles = useResource<PlanningRun[]>(`/api/books/${encodeURIComponent(bookId)}/bibles`, revision, 5000);
+  const bibles = useResource<PlanningRun[]>(`/api/books/${encodeURIComponent(bookId)}/bibles`, revision, 5000, undefined, PLANNING_TIMEOUT_MS);
   const briefs = useResource<PlanningRun[]>(validChapter ?
-    `/api/books/${encodeURIComponent(bookId)}/chapters/${chapterNo}/briefs` : null, revision, 5000);
+    `/api/books/${encodeURIComponent(bookId)}/chapters/${chapterNo}/briefs` : null, revision, 5000, undefined, PLANNING_TIMEOUT_MS);
   const bible = bibles.data?.[0];
   const brief = briefs.data?.[0];
   const gate = bible?.run.steps.find(step => step.step_key === "review" && step.status === "awaiting_approval");
@@ -96,7 +98,7 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
       assertStorage(pendingRaw);
       const ownedRaw = JSON.stringify(command);
       setSaved(key, ownedRaw);
-      await api.post(command.path, command.body);
+      await api.post(command.path, command.body, PLANNING_TIMEOUT_MS);
       assertStorage(ownedRaw);
       setSaved(key, null);
       setRevision(value => value + 1);
@@ -108,7 +110,7 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
   async function startBible() {
     if (pendingRaw || working) return;
     await submit(async () => {
-      const context = await api.get<BibleContext>(`/api/books/${encodeURIComponent(bookId)}/bible/context`);
+      const context = await api.get<BibleContext>(`/api/books/${encodeURIComponent(bookId)}/bible/context`, PLANNING_TIMEOUT_MS);
       return { path: `/api/books/${encodeURIComponent(bookId)}/bibles`,
         body: { ...context, feedback: feedback.trim() || context.feedback } };
     });
@@ -128,7 +130,7 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
     if (!validChapter || pendingRaw || working) return;
     await submit(async () => {
       const context = await api.get<BriefContext>(
-        `/api/books/${encodeURIComponent(bookId)}/chapters/${chapterNo}/brief/context`);
+        `/api/books/${encodeURIComponent(bookId)}/chapters/${chapterNo}/brief/context`, PLANNING_TIMEOUT_MS);
       return { path: `/api/books/${encodeURIComponent(bookId)}/chapters/${chapterNo}/briefs`,
         body: { ...context, feedback: feedback.trim() } };
     });

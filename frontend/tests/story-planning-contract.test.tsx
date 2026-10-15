@@ -19,7 +19,7 @@ const gate = { run: { pipeline_run_id: run, status: "awaiting_approval", steps: 
     premise: "A shared garden", protagonist: ["Mira", "Ren"], power_rules: { limit: "Shared care" } } },
   current: true, eligible: false, snapshot_artifact_id: "AR-bible-snapshot" };
 
-afterEach(() => { cleanup(); vi.restoreAllMocks(); sessionStorage.clear(); vi.unstubAllGlobals(); });
+afterEach(() => { cleanup(); vi.useRealTimers(); vi.restoreAllMocks(); sessionStorage.clear(); vi.unstubAllGlobals(); });
 
 function serve(bibles: unknown[] = [], briefs: unknown[] = [], approved = false) {
   const transport = vi.fn((input: unknown, init: RequestInit) => {
@@ -335,4 +335,53 @@ test("checked planning history keeps native clearance errors visible without alt
   expect(sessionStorage.getItem(key)).toBe(JSON.stringify(pending)); expect(writes(transport)).toHaveLength(0);
   remove.mockRestore(); fireEvent.click(screen.getByRole("button", { name: "I checked the history" }));
   await waitFor(() => expect(sessionStorage.getItem(key)).toBeNull());
+});
+
+
+function delayedPlanning(value: unknown, delay: number, signal?: AbortSignal | null) {
+  return new Promise<Response>((resolve, reject) => {
+    const timer = setTimeout(() => resolve(Response.json(value)), delay);
+    signal?.addEventListener("abort", () => { clearTimeout(timer); reject(new DOMException("Deadline", "AbortError")); }, { once: true });
+  });
+}
+
+test("planning history waits for a slow response without queuing overlapping reads", async () => {
+  vi.useFakeTimers();
+  const transport = vi.fn((...[, init]: [unknown, RequestInit]) => delayedPlanning([], 25_000, init.signal));
+  vi.stubGlobal("fetch", transport);
+  render(<StoryPlanning bookId={book} approvedBible={false} />);
+  await act(async () => { await vi.advanceTimersByTimeAsync(24_999); });
+  expect(screen.queryByRole("alert")).toBeNull();
+  expect(transport).toHaveBeenCalledTimes(2);
+  expect(screen.getByText("Loading story planning…")).toBeTruthy();
+  await act(async () => { await vi.advanceTimersByTimeAsync(1); });
+  expect(screen.queryByText("Loading story planning…")).toBeNull();
+  await act(async () => { await vi.advanceTimersByTimeAsync(4_999); });
+  expect(transport).toHaveBeenCalledTimes(2);
+  await act(async () => { await vi.advanceTimersByTimeAsync(1); });
+  expect(transport).toHaveBeenCalledTimes(4);
+});
+
+test("slow planning context and durable enqueue preserve their original source and version", async () => {
+  vi.useFakeTimers();
+  const transport = vi.fn((input: unknown, init: RequestInit) => {
+    if (init.method === "POST") return delayedPlanning({ saved: true }, 50_000, init.signal);
+    if (String(input).endsWith("/bible/context")) return delayedPlanning(bibleContext, 23_000, init.signal);
+    return Promise.resolve(Response.json([]));
+  });
+  vi.stubGlobal("fetch", transport);
+  render(<StoryPlanning bookId={book} approvedBible={false} />);
+  await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+  fireEvent.click(screen.getByRole("button", { name: "Generate StoryBible" }));
+  await act(async () => { await vi.advanceTimersByTimeAsync(23_000); });
+  expect(screen.queryByRole("alert")).toBeNull();
+  expect(JSON.parse(sessionStorage.getItem(key)!)).toEqual(pending);
+  expect(writes(transport)).toHaveLength(1);
+  await act(async () => { await vi.advanceTimersByTimeAsync(49_999); });
+  expect(sessionStorage.getItem(key)).toBe(JSON.stringify(pending));
+  expect(screen.queryByRole("alert")).toBeNull();
+  await act(async () => { await vi.advanceTimersByTimeAsync(1); });
+  expect(sessionStorage.getItem(key)).toBeNull();
+  expect(writes(transport)).toHaveLength(1);
+  expect(writes(transport)[0][1].body).toBe(JSON.stringify(bibleContext));
 });
