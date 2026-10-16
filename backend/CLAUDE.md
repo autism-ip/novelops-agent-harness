@@ -42,3 +42,5 @@ chapter-planner-v3 区分给作者的规划说明与下游章节正文风格，�
 SemanticRuntime 可由内部调用方显式选择已验证的顶层字符串指令字段，作为来源 JSON 后的最后 user 消息；输入哈希同时绑定字段选择，缺省路径消息/哈希保持，嵌套来源不能被提升为指令。
 
 StoryBible v3 / ChapterPlanner v4 显式选择 editor_instruction 为来源JSON后的最后user消息；系统规范仍居上位，输入哈希绑定选择器，公共API不新增内部字段。
+
+Settings统一读取.env、.env.local及进程覆盖后的Base和表ID；runtime向TableMapConfig显式传递已解析配置，禁止运行时混用别的进程环境。旧TableMapConfig无映射调用仍保留环境接口，显式映射防御性复制且缺失值保持fail-fast。
