@@ -42,3 +42,5 @@ test_story_planning.py: ZEN-39 API 与 Harness 门禁，覆盖人工审批、状
 规划编辑指令 HTTP 回归：初始Bible、重大变更、Brief均覆盖未鉴权401、伪造内部字段422且零run/调用、原样feedback映射、不可变来源及人工设定门；模型语义服从另由真实验收核实。
 
 test_eval_cli_contract.py: 实际 CLI/router/provider 的 16 项行为用例；仅控制出站 HTTP，验证参数、fixture 边界、失败分类、约束检测、资源关闭、用量隔离与报告不泄露凭据/正文。
+
+规划合同冻结回归覆盖 Bible/Brief：排队后提示词版本变化须 blocked，零模型调用、冻结定义不变、无新增生成产物与规范变更，精确请求重放不创建新任务。
