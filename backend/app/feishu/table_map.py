@@ -272,15 +272,15 @@ FLOAT_FIELD_NAMES = frozenset({"writability_score"})
 
 
 class TableMapConfig:
-    """Runtime config: app token + table-ID resolution.
+    """Base/table configuration resolved by the application settings boundary.
 
-    Table IDs are resolved in priority order:
-      1. Environment variable ``FEISHU_TABLE_ID_<UPPER_SNAKE>``.
-      2. Fallback: the logical name itself (placeholder until deploy-time wiring).
+    An explicit table map is copied and authoritative, including missing values.
+    Callers omitting it retain the legacy process-environment lookup contract.
     """
 
-    def __init__(self, app_token: str | None = None) -> None:
-        self.app_token: str = app_token or os.environ.get("FEISHU_APP_TOKEN", "")
+    def __init__(self, app_token: str | None = None, table_ids: dict[str, str] | None = None) -> None:
+        self.app_token: str = app_token if app_token is not None else os.environ.get("FEISHU_APP_TOKEN", "")
+        self._table_ids = dict(table_ids) if table_ids is not None else None
 
     # --- table-ID resolution ---------------------------------------------------
 
@@ -291,7 +291,7 @@ class TableMapConfig:
         ``FEISHU_TABLE_ID_<NAME_UPPER>`` is not set.
         """
         env_key = f"FEISHU_TABLE_ID_{name.upper()}"
-        value = os.environ.get(env_key)
+        value = os.environ.get(env_key) if self._table_ids is None else self._table_ids.get(name)
         if not value:
             raise ValueError(
                 f"Missing environment variable {env_key} for table '{name}'"
