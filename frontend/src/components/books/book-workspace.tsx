@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { useResource, errorMessage } from "@/components/hotspots/use-resource";
 import { StoryPlanning } from "./story-planning";
 
@@ -52,10 +54,14 @@ function summary(value: unknown): string {
 }
 
 export function BookDetail({ bookId }: { bookId: string }) {
-  const result = useResource<BookView>(`/api/books/${encodeURIComponent(bookId)}`, 0, 5000);
+  const [revision, setRevision] = useState(0);
+  const result = useResource<BookView>(`/api/books/${encodeURIComponent(bookId)}`, revision, 60_000, undefined, 120_000);
   const view = result.data;
   return <div className="page-shell app-reveal space-y-6">
-    <Link href="/books" className="text-sm text-muted-foreground hover:text-foreground">← All books</Link>
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <Link href="/books" className="text-sm text-muted-foreground hover:text-foreground">← All books</Link>
+      <Button variant="outline" disabled={result.loading} onClick={() => setRevision(value => value + 1)}>Refresh book</Button>
+    </div>
     {result.loading && <p role="status">Loading book and StoryState…</p>}
     {result.error != null && <p role="alert">{errorMessage(result.error)}</p>}
     {view && <>
