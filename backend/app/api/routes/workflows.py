@@ -34,13 +34,17 @@ class WorkflowBody(BaseModel):
 
 
 class DecisionBody(BaseModel):
-    action: Literal["approve", "reject"]
+    action: Literal["approve", "reject", "revise"]
     expected_version: int = Field(ge=1)
     operator: str = Field(min_length=1)
+    reason: str = Field(default="", max_length=4000)
 
 
 @router.post("", status_code=201)
 def create(body: WorkflowBody, kernel=Depends(get_kernel)):
+    if (body.request_key.startswith("research:") or body.workflow_type.startswith("hotspot_research") or
+        any(s.handler.startswith("research.") for s in body.steps)):
+        raise HTTPException(422, "Use the versioned analysis endpoint for research workflows")
     return kernel.create(body.request_key, body.workflow_type,
                          [s.model_dump() for s in body.steps],
                          book_id=body.book_id, source_hotspot_id=body.source_hotspot_id)
@@ -63,4 +67,4 @@ def cancel(run_id: str, kernel=Depends(get_kernel)):
 
 @router.post("/steps/{step_id}/decision")
 def decision(step_id: str, body: DecisionBody, kernel=Depends(get_kernel)):
-    return kernel.decide(step_id, body.action, body.expected_version, body.operator)
+    return kernel.decide(step_id, body.action, body.expected_version, body.operator, reason=body.reason)

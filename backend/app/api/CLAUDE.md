@@ -8,6 +8,7 @@ middleware.py: APIKeyMiddleware，基于 app.state.settings 鉴权，公开路�
 routes/: 路由注册表与端点实现。
 
 routes/ 成员
+research.py: ZEN-35 研究 context、批量触发、历史与精确步骤/产物审批接口。
 __init__.py: api_router 注册中心，挂载 system_router 和 pipelines_router。
 system.py: GET /system/health（探活）、GET /system/status（版本+运行态）、GET /system/config（配置快照）。
 pipelines.py: POST /pipelines（创建流水线）、GET /pipelines/{id}（流水线状态+步骤）、GET /pipelines/{id}/steps（步骤列表）。依赖 PipelineEngine + FeishuBitable repos。
