@@ -21,7 +21,7 @@ function run(status: string) {
       estimated_cost: null, latency_ms: null, retries: 0 } };
 }
 
-afterEach(() => { cleanup(); vi.restoreAllMocks(); sessionStorage.clear(); vi.unstubAllGlobals(); });
+afterEach(() => { cleanup(); vi.useRealTimers(); vi.restoreAllMocks(); sessionStorage.clear(); vi.unstubAllGlobals(); });
 
 function response(input: unknown, init: RequestInit, latest: ReturnType<typeof run> | null = null, hasBrief = true) {
   const path = String(input);
@@ -361,4 +361,54 @@ test("checked chapter history keeps native clearance errors visible without alte
   expect(sessionStorage.getItem(key)).toBe(JSON.stringify(pending)); expect(writes(transport)).toHaveLength(0);
   remove.mockRestore(); fireEvent.click(screen.getByRole("button", { name: "I checked the history" }));
   await waitFor(() => expect(sessionStorage.getItem(key)).toBeNull());
+});
+
+
+function delayedChapter(value: unknown, delay: number, signal?: AbortSignal | null) {
+  return new Promise<Response>((resolve, reject) => {
+    const timer = setTimeout(() => resolve(Response.json(value)), delay);
+    signal?.addEventListener("abort", () => { clearTimeout(timer); reject(new DOMException("Deadline", "AbortError")); }, { once: true });
+  });
+}
+
+test("a slow generation read completes before the next poll begins", async () => {
+  vi.useFakeTimers();
+  const active = run("running");
+  const transport = vi.fn((input: unknown, init: RequestInit) => String(input).endsWith("/generation/latest")
+    ? delayedChapter(active, 25_000, init.signal) : Promise.resolve(response(input, init)));
+  vi.stubGlobal("fetch", transport);
+  render(<ChapterGeneration bookId={book} />);
+  await act(async () => { await vi.advanceTimersByTimeAsync(24_999); });
+  expect(screen.queryByRole("alert")).toBeNull();
+  expect(transport.mock.calls.filter(([url]) => String(url).endsWith("/generation/latest"))).toHaveLength(1);
+  await act(async () => { await vi.advanceTimersByTimeAsync(1); });
+  expect((screen.getByRole("button", { name: "Regenerate chapter" }) as HTMLButtonElement).disabled).toBe(true);
+  await act(async () => { await vi.advanceTimersByTimeAsync(4_999); });
+  expect(transport.mock.calls.filter(([url]) => String(url).endsWith("/generation/latest"))).toHaveLength(1);
+  await act(async () => { await vi.advanceTimersByTimeAsync(1); });
+  expect(transport.mock.calls.filter(([url]) => String(url).endsWith("/generation/latest"))).toHaveLength(2);
+});
+
+test("slow generation context and enqueue keep exact source IDs and send only one command", async () => {
+  vi.useFakeTimers();
+  const transport = vi.fn((input: unknown, init: RequestInit) => {
+    if (init.method === "POST") return delayedChapter({ pipeline_run_id: `PR-${"4".repeat(32)}` }, 40_000, init.signal);
+    if (String(input).endsWith("/generation/context")) return delayedChapter(context, 25_000, init.signal);
+    return Promise.resolve(response(input, init));
+  });
+  vi.stubGlobal("fetch", transport);
+  render(<ChapterGeneration bookId={book} />);
+  await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+  fireEvent.click(screen.getByRole("button", { name: "Generate chapter" }));
+  await act(async () => { await vi.advanceTimersByTimeAsync(25_000); });
+  expect(screen.queryByRole("alert")).toBeNull();
+  expect(sessionStorage.getItem(key)).toBe(JSON.stringify(pending));
+  expect(writes(transport)).toHaveLength(1);
+  await act(async () => { await vi.advanceTimersByTimeAsync(39_999); });
+  expect(sessionStorage.getItem(key)).toBe(JSON.stringify(pending));
+  expect(screen.queryByRole("alert")).toBeNull();
+  await act(async () => { await vi.advanceTimersByTimeAsync(1); });
+  expect(sessionStorage.getItem(key)).toBeNull();
+  expect(writes(transport)).toHaveLength(1);
+  expect(writes(transport)[0][1].body).toBe(JSON.stringify(context));
 });

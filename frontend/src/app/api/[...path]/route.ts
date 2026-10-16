@@ -8,7 +8,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/session";
 
-// Keep the server proxy budget aligned with the bounded chapter review read.
+// Align bounded Feishu reads, idempotent writes and chapter review with the client budget.
 export const maxDuration = 120;
 
 const BACKEND_URL = process.env.BACKEND_API_URL || "http://localhost:8000";

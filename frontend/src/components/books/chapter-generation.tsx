@@ -19,6 +19,8 @@ type ChapterContext = { book_id: string; chapter_no: number; version: number; st
   source_version_id: string;
   constraints: { must_keep: string[]; must_change: string[]; do_not_change: string[] } };
 
+const GENERATION_TIMEOUT_MS = 120_000;
+
 const EVENT = "novelops-chapter-generation-request";
 const STORAGE_UNAVAILABLE = Symbol("chapter storage unavailable");
 function subscribe(callback: () => void) {
@@ -53,8 +55,8 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
   const storageUnavailable = pendingRaw === STORAGE_UNAVAILABLE;
   const pending = parsePendingChapter(storageUnavailable ? null : pendingRaw);
   const runs = useResource<ChapterRun | null>(validChapter ? `${root}/generation/latest` : null,
-    revision, 5000, pollWhileActive);
-  const brief = useResource<Artifact>(validChapter ? `${root}/brief/eligible` : null, revision, 5000);
+    revision, 5000, pollWhileActive, GENERATION_TIMEOUT_MS);
+  const brief = useResource<Artifact>(validChapter ? `${root}/brief/eligible` : null, revision, 5000, undefined, GENERATION_TIMEOUT_MS);
   const latest = runs.data;
   const runBusy = !!latest && !["completed", "failed", "blocked", "cancelled"].includes(latest.run.status);
   const finalLocked = latest?.versions.some(row => row.status === "final") ?? false;
@@ -90,7 +92,7 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
       assertStorage(pendingRaw);
       const ownedRaw = JSON.stringify(command);
       setSaved(key, ownedRaw);
-      await api.post(command.path, command.body);
+      await api.post(command.path, command.body, GENERATION_TIMEOUT_MS);
       assertStorage(ownedRaw);
       setSaved(key, null);
       setRevision(value => value + 1);
@@ -101,7 +103,7 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
   async function generate() {
     if (!validChapter || pendingRaw || working || !brief.data) return;
     await submit(async () => {
-      const context = await api.get<ChapterContext>(`${root}/generation/context`);
+      const context = await api.get<ChapterContext>(`${root}/generation/context`, GENERATION_TIMEOUT_MS);
       return { path: `${root}/generations`, body: context };
     });
   }
