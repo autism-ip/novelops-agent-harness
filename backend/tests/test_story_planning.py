@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 
 from app.books import BookService
 from app.config import Settings
-from app.generation import Route
+from app.generation import Prompt, Route
 from app.harness import TransitionConflict
 from app.main import create_app
 from app.runtime import build_runtime
@@ -324,3 +324,40 @@ def test_authenticated_editor_instruction_is_separate_from_immutable_source_data
             assert view["run"]["status"] == "awaiting_approval"
     finally:
         api.close()
+
+
+@pytest.mark.parametrize("kind", ["bible", "brief"])
+def test_queued_planning_never_adopts_a_new_prompt_contract(planning, monkeypatch, kind):
+    import app.story_planning as module
+    kernel, provider, book_id, _ = planning
+    approve_bible(kernel, provider, book_id)
+    canonical = kernel.books.read(book_id)["state"]
+    before_calls = len(provider.calls)
+    if kind == "brief":
+        request = kernel.story_planning.brief_context(book_id, 1)
+        enqueue = kernel.story_planning.enqueue_brief
+        prompt_name = "BRIEF_PROMPT"
+    else:
+        request = kernel.story_planning.bible_context(book_id)
+        enqueue = kernel.story_planning.enqueue_bible
+        prompt_name = "BIBLE_PROMPT"
+    request["feedback"] = "Use third-person planning; preserve first-person chapter prose."
+    run = enqueue(request)
+    # Brief context/enqueue legitimately freezes a StoryContextSnapshot first.
+    before_artifacts = kernel.storage.list("artifacts")
+    frozen = kernel.get(run["pipeline_run_id"])["definition_json"]
+    current = getattr(module, prompt_name)
+    monkeypatch.setattr(module, prompt_name,
+        Prompt(version=current.version + "-new-contract", template=current.template))
+    settle(kernel, 1)
+    stopped = kernel.get(run["pipeline_run_id"])
+    assert stopped["status"] == "blocked"
+    generate = next(step for step in stopped["steps"] if step["step_key"] == "generate")
+    assert generate["status"] == "blocked" and "reconciliation required" in generate["error_message"]
+    assert all(step["status"] == "cancelled" for step in stopped["steps"] if step != generate)
+    assert stopped["definition_json"] == frozen
+    assert len(provider.calls) == before_calls
+    assert kernel.storage.list("artifacts") == before_artifacts
+    assert kernel.books.read(book_id)["state"] == canonical
+    assert enqueue(request)["pipeline_run_id"] == run["pipeline_run_id"]
+    assert len(provider.calls) == before_calls
