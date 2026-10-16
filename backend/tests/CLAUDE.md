@@ -39,3 +39,5 @@ ui_fixture_app.py: 仅本机浏览器验收服务；复用真实 API/Harness 与
 test_eval_cli_contract.py: 实际 CLI/router/provider 的 16 项行为用例；仅控制出站 HTTP，验证参数、fixture 边界、失败分类、约束检测、资源关闭、用量隔离与报告不泄露凭据/正文。
 
 test_model_instructions.py: 两家 provider 的显式用户指令、空指令、来源不变、请求/输入哈希、渲染选择器重放冲突及非法字段零调用的8项边界门禁。
+
+test_consumption_api.py: 机会 approved 与标题/封面 selected 的 HTTP 消费边界；鉴权、缺失/未选拒绝、精确产物、跨请求丢弃/篡改拒绝，重复只读不调用模型。5项用例使用实际API/kernel/存储适配器及受控HTTP，不包含服务lifespan或真实模型质量。

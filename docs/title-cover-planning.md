@@ -82,3 +82,7 @@ does not prove live model quality, provider token pricing, app credentials,
 Base v3 compatibility or Feishu production quotas. PR #23 remains the storage
 dependency gate; title/cover model quality still needs representative human
 review before deployment.
+
+### Downstream HTTP consumption regression
+
+The authenticated approved-analysis and selected-title/cover endpoints are exercised through actual API, kernel and repositories. Unapproved choices fail, selected immutable artifacts are returned exactly, and fresh reads reject discarded sources or hash-tampered content without returning partial data or invoking a model. Controlled HTTP tests establish endpoint behavior, not deployment or real-model quality. Existing safe ArtifactIntegrityError responses use 422. Scheduler lifespan is verified separately.
