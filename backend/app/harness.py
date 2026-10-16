@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import threading
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
@@ -94,6 +95,7 @@ class HarnessKernel:
         self._process_lock = None
         self.last_error = None
         self.last_tick = None
+        self.telemetry = None
         self._metrics_lock = threading.Lock()
         self._observed = {"pipeline_runs": {}, "step_runs": {}}
         self._counts = {"active_pipeline_runs": 0, "pending_steps": 0, "failed_steps": 0}
@@ -246,6 +248,14 @@ class HarnessKernel:
                     return
                 self._transition("pipeline_runs", run_id, "running", updated_at=now())
                 self._transition("step_runs", sid, "running", started_at=now())
+                trace_id = None
+                started = time.monotonic()
+                if self.telemetry:
+                    trace_id = self.telemetry.start({"kind": step.get("kind", "service"),
+                        "run_id": run_id, "step_id": sid, "handler": step["handler"],
+                        "chapter_id": json.loads(step["input_json"]).get("chapter_id", ""),
+                        "attempt": step.get("retry_count", 0), "correlation_id": sid})
+                failure_class = None
                 try:
                     result = self.handlers[step["handler"]]({**step, "input": json.loads(step["input_json"])})
                     if result is None:
@@ -255,10 +265,13 @@ class HarnessKernel:
                     except (TypeError, ValueError, OverflowError, RecursionError) as exc:
                         raise InvalidHandlerOutput() from exc
                 except InvalidHandlerOutput:
+                    failure_class = "InvalidHandlerOutput"
                     self._transition("step_runs", sid, "blocked", error_message="InvalidHandlerOutput: reconciliation required")
                 except AmbiguousWrite:
+                    failure_class = "AmbiguousWrite"
                     self._transition("step_runs", sid, "blocked", error_message="AmbiguousWrite: reconciliation required")
                 except Exception as exc:
+                    failure_class = type(exc).__name__
                     retries = step.get("retry_count", 0)
                     self._transition("step_runs", sid, "pending" if retries < self.max_retries else "failed",
                         retry_count=retries + 1, error_message=type(exc).__name__ + ": handler failed")
@@ -269,6 +282,10 @@ class HarnessKernel:
                         "awaiting_approval" if step.get("requires_approval") else "success",
                         output_json=output_json, output_version=step.get("output_version", 0) + 1,
                         finished_at=now(), error_message="")
+                if trace_id:
+                    self.telemetry.finish(trace_id, status="failed" if failure_class else "success",
+                        failure_class=failure_class, latency_ms=round((time.monotonic()-started)*1000,3),
+                        output_refs=result.get("output_refs", []) if not failure_class and isinstance(result, dict) else [])
                 self._refresh_parent(run_id)
                 return
 

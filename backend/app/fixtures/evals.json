@@ -1,0 +1,8 @@
+[
+  {"id":"hotspot-analysis","kind":"opportunity","input":{"hotspot":"小镇旧书店重新营业","source_refs":["hotspot@1"]},"expected":{"must_include":["旧书店"]},"baseline":{"summary":"旧书店","risk_level":"low"},"candidate":{"summary":"旧书店连接三代人的秘密","genres":["都市"],"risk_level":"low"}},
+  {"id":"story-bible","kind":"story_bible","input":{"hero":"林舟","age":19},"expected":{"facts":{"hero_age":"19"}},"baseline":{"premise":"寻找失踪父亲","facts":{"hero_age":"21"}},"candidate":{"premise":"寻找失踪父亲","facts":{"hero_age":"19"}}},
+  {"id":"chapter-plan","kind":"chapter_brief","input":{"goal":"找到书店钥匙","facts":{"key_owner":"祖母"}},"expected":{"facts":{"key_owner":"祖母"}},"baseline":{"goal":"找到书店钥匙","facts":{}},"candidate":{"goal":"找到书店钥匙","facts":{"key_owner":"祖母"}}},
+  {"id":"chapter-generation","kind":"chapter","input":{"hero":"林舟","facts":{"hero_age":"19"}},"expected":{"facts":{"hero_age":"19"},"must_include":["林舟"]},"baseline":{"content":"林舟推开店门。","facts":{"hero_age":"20"}},"candidate":{"content":"林舟推开店门，十九岁的生日礼物仍在口袋里。","facts":{"hero_age":"19"}}},
+  {"id":"continuity","kind":"continuity","input":{"canonical":"主角十九岁","draft":"主角二十岁"},"expected":{"violations":["age_mismatch"]},"baseline":{"violations":[]},"candidate":{"violations":["age_mismatch"]}},
+  {"id":"rewrite","kind":"rewrite","input":{"draft":"林舟仿佛命运的齿轮开始转动","must_keep":["林舟"],"must_remove":["命运的齿轮"]},"expected":{"must_include":["林舟"],"must_exclude":["命运的齿轮"]},"baseline":{"content":"命运的齿轮开始转动。"},"candidate":{"content":"林舟停在门前，把信塞回衣袋。"}}
+]

@@ -17,7 +17,7 @@ from app.feishu.table_map import FIELD_MAPS, TABLE_NAMES, TableMapConfig
 # ============================================================
 
 
-EXPECTED_TABLE_COUNT = 16
+EXPECTED_TABLE_COUNT = 18
 
 
 class TestTableNames:
@@ -32,7 +32,7 @@ class TestTableNames:
             "step_runs", "hotspots", "hotspot_analyses", "title_candidates",
             "cover_plans", "books", "chapter_briefs", "chapter_versions",
             "review_reports", "revision_tasks", "agent_team_snapshots",
-            "approval_events",
+            "approval_events", "artifacts", "traces",
         }
         assert set(TABLE_NAMES.keys()) == expected
 
