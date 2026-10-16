@@ -47,3 +47,5 @@ SemanticRuntime 可由内部调用方显式选择已验证的顶层字符串指�
 StoryBible v3 / ChapterPlanner v4 显式选择 editor_instruction 为来源JSON后的最后user消息；系统规范仍居上位，输入哈希绑定选择器，公共API不新增内部字段。
 
 Settings统一读取.env、.env.local及进程覆盖后的Base和表ID；runtime向TableMapConfig显式传递已解析配置，禁止运行时混用别的进程环境。旧TableMapConfig无映射调用仍保留环境接口，显式映射防御性复制且缺失值保持fail-fast。
+
+Writer v4 / Critic v4 / Rewrite v5 使用最后user消息中的显式章纲与原始编辑约束，模型建议独立且从属；实际动作、时间转换和完成结果不得由意图代替，Critic须对照实际文本提供依据。仅输入渲染变更，API和输出schema保持。
