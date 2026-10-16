@@ -1,0 +1,1864 @@
+{
+  "status": "incomplete",
+  "requirement_event_achieved": false,
+  "original_scope_preserved": true,
+  "scope": "13 original issues and their existing PRs; no issue marked Done, no PR merged or deployed",
+  "changes": [
+    {
+      "issue": "ZEN-39",
+      "pr": 35,
+      "initial_contract_commit": "be223cac",
+      "description": "Distinguish author-facing plan person/sentence limits from downstream canonical prose style; queued Bible/brief prompt changes block without provider calls or state mutation.",
+      "actual_result": "Native brief v5 still failed. Prompt-only change was insufficient."
+    },
+    {
+      "issue": "ZEN-106",
+      "pr": 25,
+      "commit": "7abb175a",
+      "description": "Internal opt-in instruction_field selects a top-level validated string; full input remains JSON and the nonempty exact instruction becomes final user message. Input hash binds field selection; default path unchanged.",
+      "evidence": "8 new TDD cases across two real provider adapters with controlled HTTP, plus full owner branch 370 passed; no live-quality claim from these tests."
+    },
+    {
+      "issue": "ZEN-36",
+      "pr": 30,
+      "description": "5 endpoint cases verify approved/selected consumption authentication, exact artifacts, no model calls on reads, and fresh rejection after source discard or hash tampering.",
+      "scope": "Actual API/kernel/repositories with controlled Feishu/model fixtures; no scheduler lifespan or live-model quality claim."
+    }
+  ],
+  "real_failed_v5": {
+    "source_commit": "b4bcb6383cbfa82d8d1c3b8973ce0f9aa7e2fd20",
+    "native_workflow": "completed",
+    "native_eligible": true,
+    "probe_status": "failed",
+    "reason": "Payoff four sentences and first-person drafted fields despite unchanged third-person max-three-sentence requirement.",
+    "calls": 1,
+    "retained_rows": 214,
+    "snapshot_failures": [],
+    "writer_calls": 0,
+    "approval_calls": 0,
+    "final_lock_calls": 0
+  },
+  "bounded_diagnostic": {
+    "source_commit": "b4bcb6383cbfa82d8d1c3b8973ce0f9aa7e2fd20",
+    "original_native_run": "PR-0e2e5cf881042ce608bf43d8fe6acf1d",
+    "purpose": "Evaluate one structural message variant before changing production orchestration",
+    "official_message_contract": "https://api-docs.deepseek.com/api/create-chat-completion/",
+    "original_request_hash": "1dd241797ebff384171dcce9137b53494e1cb148127f177a3d26e6cf767d1111",
+    "diagnostic_request_hash": "430f5ea00fae18969d39adbbff89fa04a8b6159feac704b2160ec91f05e9f40e",
+    "change": "Append the identical authorized editor_instruction as a final user message, after unchanged source JSON",
+    "prompt_version_unchanged": "chapter-planner-v3",
+    "prompt_hash_unchanged": "bc97406931263c96aeaf90c6ca77be3a2df0e24fc67bcf919726426445ffca13",
+    "route_unchanged": {
+      "provider": "deepseek",
+      "model": "deepseek-flash",
+      "max_retries": 0,
+      "timeout": 25.0,
+      "max_output_tokens": 2048,
+      "deepseek_thinking": "disabled",
+      "input_cost_per_million": 0.3,
+      "output_cost_per_million": 1.2
+    },
+    "route_hash_unchanged": "1a63ce13003efbb39c4595d3c8a93792b722d8d50ce5cd439ec9935564ddebd0",
+    "schema_unchanged": {
+      "additionalProperties": false,
+      "properties": {
+        "opening_hook": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Opening Hook",
+          "type": "string"
+        },
+        "scene_goal": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Scene Goal",
+          "type": "string"
+        },
+        "conflict": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Conflict",
+          "type": "string"
+        },
+        "payoff": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Payoff",
+          "type": "string"
+        },
+        "ending_hook": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Ending Hook",
+          "type": "string"
+        }
+      },
+      "required": [
+        "opening_hook",
+        "scene_goal",
+        "conflict",
+        "payoff",
+        "ending_hook"
+      ],
+      "title": "BriefDraft",
+      "type": "object"
+    },
+    "editor_feedback_unchanged": true,
+    "feishu_requests": 0,
+    "workflow_writes": 0,
+    "max_calls": 1,
+    "calls": 1,
+    "status": "awaiting_independent_diagnostic_review",
+    "response": {
+      "model": "deepseek-flash",
+      "finish_reason": "stop",
+      "input_tokens": 4869,
+      "output_tokens": 391,
+      "content": "{\n  \"opening_hook\": \"黎明前，钟楼铜钟无风自鸣，修钟人在钟摆暗格发现一本皮面账本，潮水正从纸页间渗出。一行湿字浮现：玳瑁发簪，簪头缺一角，最后出现地点南码头第三栈桥下，归还期限今日黄昏。\",\n  \"scene_goal\": \"修钟人须在黄昏前凭普通记忆赶到南码头第三栈桥，从退潮泥滩中寻回缺角玳瑁发簪，归还给李阿顺；随后回钟楼，主动对账本低语一个秘密，弄清账本要什么、代价是什么。\",\n  \"conflict\": \"李阿顺跪在泥水里反复追问亡妻阿娣在哪，修钟人知道阿娣当年淹死在栈桥下，却因不擅表达而沉默；他须靠普通记忆在退潮泥滩找到发簪，同时面对是否说出真相的内心挣扎。账本只记录失物，不干预他对老人说真话或撒谎。\",\n  \"payoff\": \"修钟人将发簪放入李阿顺掌心，未说出阿娣的下落。回到钟楼，他主动对账本低语七岁偷祖父怀表换糖、埋糖纸于锅炉房后并撒谎的秘密；眩晕中那段记忆与情感被抽离。秘密被收取后，主角永久失去该秘密事件本身及相关情感联结，不再知道自己曾偷表换糖或撒谎。\",\n  \"ending_hook\": \"账本上的水痕逆着纸纹爬行。今日字迹退尽后，唯有一行重新渗出：一枚铜钥匙，齿纹特殊，最后出现地点钟楼地下旧锅炉房。祖父遗嘱里写明，那把锅炉房的钥匙早就丢了。\"\n}"
+    },
+    "strict_schema_passed": true,
+    "sentence_counts": {
+      "opening_hook": 2,
+      "scene_goal": 1,
+      "conflict": 2,
+      "payoff": 3,
+      "ending_hook": 3
+    },
+    "checks": {
+      "sentence_limits": true,
+      "no_first_person_clause_starts": true,
+      "canonical_exact_sentence": true,
+      "exact_ending_start": true,
+      "character_name": true
+    },
+    "elapsed_seconds": 2.685
+  },
+  "diagnostic_independent_review": {
+    "diagnostic_report_sha256": "eb67e12da04836e9527ee697dc2e9d9a22baa2db712743107db8ba8e28aaba9b",
+    "independent_review": "passed",
+    "verified": [
+      "All five fields describe third-person planned actions",
+      "Sentence counts 2,1,2,3,3",
+      "Exact memory loss rule and ending sentence preserved",
+      "Li Ashun/Adi identity and return-before-payment order preserved",
+      "Ledger remains in tower; ordinary memory finds the hairpin; ledger gives only lost-item entries",
+      "No rule punishes truth/lie to the elder; no added power or cost exception"
+    ],
+    "business_workflow_completed": false,
+    "scope": "one bounded structural-message diagnostic, no Feishu or workflow writes",
+    "limitation": "Single observed response does not guarantee future compliance"
+  },
+  "native_v6": {
+    "result": "failed",
+    "source_commit": "5a08c22f49797fd4a900527212bb2d1fd72d8762",
+    "retained_rows": 222,
+    "snapshot_failures": [],
+    "sentence_counts": {
+      "opening_hook": 3,
+      "scene_goal": 3,
+      "conflict": 3,
+      "payoff": 5,
+      "ending_hook": 2
+    },
+    "independent_review": {
+      "source_commit": "5a08c22f49797fd4a900527212bb2d1fd72d8762",
+      "runtime_report_sha256": "ed0ecf4825c343549dec851737f33dc639120969dfc1f06005aa0cb2046d64f6",
+      "run_id": "PR-3db1966ba7495f78f9675a2e5f099a17",
+      "native_status": "completed",
+      "independent_review": "failed",
+      "passed": [
+        "Third-person subject now used across fields",
+        "Exact memory loss and ending sentences retained",
+        "Correct character identity and canonical transaction order"
+      ],
+      "failed": [
+        "Payoff five sentences exceeds unchanged maximum of three",
+        "Conflict causality is unclear: ledger non-interference does not itself prevent telling the truth"
+      ],
+      "writer_allowed": false,
+      "retained_synthetic_rows": 222,
+      "snapshot_failures": []
+    }
+  },
+  "coverage_100_percent": false,
+  "coverage_configuration_changed": false,
+  "assertions_weakened": false,
+  "test_setup_corrections": [
+    "Freeze test originally captured baseline before intentional StoryContextSnapshot creation; corrected to measure after enqueue, keeping the zero-new-artifact assertion for contract upgrade.",
+    "New foundation fixture imported explicitly to remain visible in complete suite collection; focused pass alone was insufficient.",
+    "Endpoint test initially started scheduler lifespan through TestClient context and mixed scheduler reads into endpoint counters. It now exercises endpoint scope with explicit client close, leaving startup/lifespan pending.",
+    "Expected artifact-corruption status corrected from an assumed 503 to the existing documented safe ArtifactIntegrityError/ValueError 422 mapping; exact safe error body and rejection remain asserted."
+  ],
+  "security_review": {
+    "public_api_contract": "unchanged; selector is an internal option, client-forged internal fields remain rejected",
+    "source_promotion": "only explicit top-level validated string selected, never nested narrative source text",
+    "instruction_role": "user, system canonical/scope rules unchanged",
+    "secrets": "runtime reads local env internally; no credential payload published",
+    "retention": "authorized synthetic checkpoint preserved; no cleanup claim"
+  },
+  "pending": [
+    "Native chapter generation currently running, then constrained rewrite and independent review",
+    "Real constrained rewrite and independent selective human approval/final lock",
+    "Routine automatic pass",
+    "Production startup/lifespan, ACL/schema wiring and polling/latency budgets",
+    "All applicable statement/line/function/branch metrics at100%",
+    "Latest review/CI and full issue-by-issue completion audit"
+  ],
+  "skill_reuse": "Existing issue-pr-delivery and security-review applied; no extra skill abstraction needed for one opt-in API. Existing reusable constraint/diagnostic rules remain applicable.",
+  "captured_at_utc": "2026-10-16T10:38:58.619860+00:00",
+  "native_v7": {
+    "source_commit": "5a08c22f49797fd4a900527212bb2d1fd72d8762",
+    "run_id": "PR-5257a9efae8b4768708a813cba7380cd",
+    "result": "awaiting_independent_brief_review",
+    "native_status": "completed",
+    "sentence_counts": {
+      "opening_hook": 2,
+      "scene_goal": 2,
+      "conflict": 3,
+      "payoff": 3,
+      "ending_hook": 2
+    },
+    "comparison": {
+      "prior_source_commit": "5a08c22f49797fd4a900527212bb2d1fd72d8762",
+      "prior_run": "PR-3db1966ba7495f78f9675a2e5f099a17",
+      "editorial_feedback_unchanged": false,
+      "original_requirements_retained_verbatim": true,
+      "change": "Append explicit three-sentence payoff allocation and clarify character-choice causality; no assertion, route or schema relaxation"
+    },
+    "retained_rows": 230,
+    "snapshot_failures": [],
+    "independent_review": {
+      "source_commit": "5a08c22f49797fd4a900527212bb2d1fd72d8762",
+      "runtime_report_sha256": "346efb9ca26720f824fd445be05b96482293b9730328c38fec1e49e963975927",
+      "run_id": "PR-5257a9efae8b4768708a813cba7380cd",
+      "native_status": "completed",
+      "independent_review": "passed",
+      "writer_allowed": true,
+      "passed": [
+        "Third-person author-facing planning in all five fields",
+        "Sentence counts obey the unchanged maximum of three; payoff exactly three",
+        "Exact permanent secret-event and emotional-memory loss sentence retained",
+        "Exact ending starts with the original full-stop sentence",
+        "Correct Li Ashun/Adi identity, clock tower, third jetty, notched tortoiseshell hairpin and boiler-room key",
+        "Item is returned before active whispered payment; ledger stays in tower and supplies only item records; ordinary memory used for search",
+        "Conflict causality now comes from character hesitation, not ledger control of truth or lies",
+        "No post-payment first-person memory of the paid secret is required; downstream first-person prose contract unchanged",
+        "Original three ChapterVersion artifacts unchanged"
+      ],
+      "scope": "Independently reviewed real brief v7 only; no chapter generation, approval or lock yet",
+      "retained_synthetic_rows": 230,
+      "snapshot_failures": []
+    },
+    "content": {
+      "bible_artifact_id": "AR-16dbe7ef66d6211e0979a14b8e4d861e",
+      "book_id": "BK-612ff5ad0bfaaed202baf9fe0acf390f",
+      "chapter_no": 1,
+      "conflict": "李阿顺跪在泥水里刨找亡妻阿娣的遗物，反复追问阿娣在哪。主人公知道阿娣当年就淹死在这栈桥下，却因自己不习惯表达情感、害怕揭开旧痛而说不出话。账本不干预他的选择，他只能自己决定是否开口。",
+      "ending_hook": "账本上的水痕逆着纸纹爬行。水痕重新渗出一行：一枚铜钥匙，齿纹特殊，最后出现地点钟楼地下旧锅炉房。",
+      "opening_hook": "黎明钟声未落，主人公在钟楼钟摆的暗格里发现那本皮面账本，纸页间洇着潮气。一行湿字浮现：玳瑁发簪，簪头缺一角，最后出现地点南码头第三栈桥下，归还期限今日黄昏。",
+      "payoff": "主人公把发簪放回李阿顺掌心，随后回到钟楼。他低头主动向账本低语七岁那年偷祖父怀表换糖并撒谎的秘密；话音落下，他感到短暂眩晕，像有海水灌入耳膜。秘密被收取后，主角永久失去该秘密事件本身及相关情感联结，不再知道自己曾偷表换糖或撒谎。",
+      "scene_goal": "主人公须在黄昏前赶到南码头第三栈桥，凭普通记忆在退潮泥滩中寻回那枚缺角玳瑁发簪，归还给李阿顺。然后回钟楼，本人主动对账本低语并支付第一个秘密；账本留在钟楼，只提供失物条目，不识人、不读心，也不干预他对李阿顺说真话或撒谎。",
+      "snapshot_artifact_id": "AR-e793a7b5574691d50f1cff4fd9401adf",
+      "state_artifact_id": "AR-b5c49b683b56ff4c3404bba4157b1799",
+      "state_hash": "12931888163bae0ecc25c66f4e5db16373622a96922ab912cf9df5eb00555d06",
+      "state_version": 2
+    }
+  },
+  "chapter_progress_at_capture": {
+    "source_commit": "5a08c22f49797fd4a900527212bb2d1fd72d8762",
+    "status": "running",
+    "chapter_run_id": "PR-ee8690e6fdf80fb6c7b258f3da4c56ad",
+    "failure": null,
+    "model_calls_at_capture": 1,
+    "meaning": "Specific owned process running; not proof of critique/rewrite/human approval/final lock completion."
+  },
+  "branch_verification": [
+    {
+      "pr": 25,
+      "branch": "codex/zen-106-model-artifacts",
+      "head": "7abb175a00406d47d34db9758b7be399e32cc300",
+      "status": "pushed",
+      "test_result": "================ 370 passed, 10 deselected, 1 warning in 3.54s =================",
+      "coverage": {
+        "covered_lines": 1902,
+        "num_statements": 1988,
+        "covered_branches": 435,
+        "num_branches": 490,
+        "excluded_lines": 11
+      },
+      "ruff": "All checks passed!"
+    },
+    {
+      "pr": 27,
+      "branch": "codex/zen-33-hotspot-ingestion",
+      "before": "541f8b6847dc6dc201517f4f34c75d3b1dbcc46b",
+      "base": "codex/zen-106-model-artifacts",
+      "status": "pushed",
+      "head": "a05266fefe2a4e606a15c121b7766e30f974feb5",
+      "test_result": "================ 399 passed, 10 deselected, 1 warning in 6.17s =================",
+      "coverage": {
+        "covered_lines": 2107,
+        "num_statements": 2202,
+        "covered_branches": 503,
+        "num_branches": 566,
+        "excluded_lines": 11
+      },
+      "ruff": "All checks passed!"
+    },
+    {
+      "pr": 28,
+      "branch": "codex/zen-34-hotspots-page",
+      "before": "7307ac3715f8d63c9036cb710f38aa8249e9a1f9",
+      "base": "codex/zen-33-hotspot-ingestion",
+      "status": "pushed",
+      "head": "201f2b83e39e1c943e866f63d92010bb0ef13a4f",
+      "test_result": "================ 408 passed, 10 deselected, 1 warning in 6.80s =================",
+      "coverage": {
+        "covered_lines": 2176,
+        "num_statements": 2273,
+        "covered_branches": 511,
+        "num_branches": 576,
+        "excluded_lines": 11
+      },
+      "ruff": "All checks passed!"
+    },
+    {
+      "pr": 29,
+      "branch": "codex/zen-35-opportunity-research",
+      "before": "ab7f4ba9ff9e466b44ab35a4a4bf7fb0e837b38d",
+      "base": "codex/zen-34-hotspots-page",
+      "status": "pushed",
+      "head": "abc82d9dcbb44da07cc09a1dcc0457d43793c269",
+      "test_result": "================ 448 passed, 10 deselected, 1 warning in 10.53s ================",
+      "coverage": {
+        "covered_lines": 2550,
+        "num_statements": 2661,
+        "covered_branches": 599,
+        "num_branches": 676,
+        "excluded_lines": 11
+      },
+      "ruff": "All checks passed!"
+    },
+    {
+      "pr": 30,
+      "branch": "codex/zen-36-title-cover",
+      "before": "d6021e13368c00d0dfc9ee06bb43a77739367569",
+      "base": "codex/zen-35-opportunity-research",
+      "status": "pushed",
+      "head": "32b626ac5213ed1d1ee72baa8eadfc59bfb455ed",
+      "test_result": "================ 476 passed, 10 deselected, 1 warning in 19.43s ================",
+      "coverage": {
+        "covered_lines": 2881,
+        "num_statements": 3003,
+        "covered_branches": 673,
+        "num_branches": 760,
+        "excluded_lines": 11
+      },
+      "ruff": "All checks passed!"
+    },
+    {
+      "pr": 31,
+      "branch": "codex/zen-37-approval-ui",
+      "before": "9a4c125088191de62af3611c22621c51e8c8376a",
+      "base": "codex/zen-36-title-cover",
+      "status": "pushed",
+      "head": "b21089e206a37117fb665cdbd2d2876f1d798b5f",
+      "test_result": "================ 476 passed, 10 deselected, 1 warning in 19.75s ================",
+      "coverage": {
+        "covered_lines": 2881,
+        "num_statements": 3003,
+        "covered_branches": 673,
+        "num_branches": 760,
+        "excluded_lines": 11
+      },
+      "ruff": "All checks passed!"
+    },
+    {
+      "pr": 32,
+      "branch": "codex/zen-38-book-bootstrap",
+      "before": "394f1f5cb35871f5cdd483e19577ad692e4ffb3f",
+      "base": "codex/zen-37-approval-ui",
+      "status": "pushed",
+      "head": "5d6ebe56618f3f044dc43548e9fa684e87546bdf",
+      "test_result": "================ 484 passed, 10 deselected, 1 warning in 22.44s ================",
+      "coverage": {
+        "covered_lines": 3030,
+        "num_statements": 3171,
+        "covered_branches": 701,
+        "num_branches": 802,
+        "excluded_lines": 11
+      },
+      "ruff": "All checks passed!"
+    },
+    {
+      "pr": 34,
+      "branch": "codex/zen-107-ios-design",
+      "before": "2bd061165247b08bfa99451debfafaf96e8432ed",
+      "base": "codex/zen-38-book-bootstrap",
+      "status": "pushed",
+      "head": "c169e6f51970103a689381793fef518070621034",
+      "test_result": "================ 484 passed, 10 deselected, 1 warning in 22.15s ================",
+      "coverage": {
+        "covered_lines": 3030,
+        "num_statements": 3171,
+        "covered_branches": 701,
+        "num_branches": 802,
+        "excluded_lines": 11
+      },
+      "ruff": "All checks passed!"
+    },
+    {
+      "pr": 35,
+      "branch": "codex/zen-39-story-planning",
+      "before": "be223cac9d18270b14f732286b35b999b9b7c299",
+      "base": "codex/zen-107-ios-design",
+      "status": "pushed",
+      "doc_conflicts_preserved_both": [
+        "backend/CLAUDE.md",
+        "backend/tests/CLAUDE.md"
+      ],
+      "head": "0060b1831c4783606e0a99f061fc1886f7948db4",
+      "test_result": "================ 500 passed, 10 deselected, 1 warning in 32.30s ================",
+      "coverage": {
+        "covered_lines": 3378,
+        "num_statements": 3554,
+        "covered_branches": 758,
+        "num_branches": 884,
+        "excluded_lines": 11
+      },
+      "ruff": "All checks passed!"
+    },
+    {
+      "pr": 36,
+      "branch": "codex/zen-40-chapter-loop",
+      "before": "6104837c6d44ce64041b88ba3280afc6084abb63",
+      "base": "codex/zen-39-story-planning",
+      "status": "pushed",
+      "head": "625b8db52e40176e9edb799959cb76ee89db2136",
+      "test_result": "================ 521 passed, 10 deselected, 1 warning in 47.14s ================",
+      "coverage": {
+        "covered_lines": 3818,
+        "num_statements": 4053,
+        "covered_branches": 852,
+        "num_branches": 1024,
+        "excluded_lines": 11
+      },
+      "ruff": "All checks passed!"
+    },
+    {
+      "pr": 37,
+      "branch": "codex/zen-41-chapter-review-desk",
+      "before": "b4bcb6383cbfa82d8d1c3b8973ce0f9aa7e2fd20",
+      "base": "codex/zen-40-chapter-loop",
+      "status": "pushed",
+      "head": "5a08c22f49797fd4a900527212bb2d1fd72d8762",
+      "test_result": "=========== 544 passed, 10 deselected, 1 warning in 63.32s (0:01:03) ===========",
+      "coverage": {
+        "covered_lines": 4027,
+        "num_statements": 4272,
+        "covered_branches": 937,
+        "num_branches": 1130,
+        "excluded_lines": 11
+      },
+      "ruff": "All checks passed!"
+    }
+  ],
+  "coverage": {
+    "source_commit": "5a08c22f49797fd4a900527212bb2d1fd72d8762",
+    "offline_tests_passed": 544,
+    "live_tests_deselected": 10,
+    "statement_line": {
+      "covered": 4027,
+      "total": 4272,
+      "percent": 94.26498127340824
+    },
+    "branch": {
+      "covered": 937,
+      "total": 1130,
+      "percent": 82.92035398230088
+    },
+    "raw_function": {
+      "entered": 409,
+      "total": 421,
+      "percent": 97.14964370546318,
+      "missing": [
+        {
+          "file": "api/deps.py",
+          "name": "get_settings",
+          "line": 8,
+          "source_position": [
+            10,
+            10,
+            11,
+            18
+          ]
+        },
+        {
+          "file": "api/routes/health.py",
+          "name": "health",
+          "line": 8,
+          "source_position": [
+            11,
+            11,
+            12,
+            20
+          ]
+        },
+        {
+          "file": "api/routes/health.py",
+          "name": "status",
+          "line": 14,
+          "source_position": [
+            18,
+            18,
+            19,
+            26
+          ]
+        },
+        {
+          "file": "feishu/repositories/story_states.py",
+          "name": "StoryStatesRepo.find_by_book",
+          "line": 13,
+          "source_position": [
+            14,
+            14,
+            15,
+            19
+          ]
+        },
+        {
+          "file": "generation.py",
+          "name": "ModelProvider.complete",
+          "line": 99,
+          "source_position": [
+            99,
+            99,
+            74,
+            77
+          ]
+        },
+        {
+          "file": "pipeline/worker.py",
+          "name": "WorkerLoop._resolve_record_id",
+          "line": 75,
+          "source_position": [
+            77,
+            77,
+            17,
+            21
+          ]
+        },
+        {
+          "file": "storage.py",
+          "name": "StorageProvider.get",
+          "line": 32,
+          "source_position": [
+            32,
+            32,
+            67,
+            70
+          ]
+        },
+        {
+          "file": "storage.py",
+          "name": "StorageProvider.get_many",
+          "line": 33,
+          "source_position": [
+            33,
+            33,
+            83,
+            86
+          ]
+        },
+        {
+          "file": "storage.py",
+          "name": "StorageProvider.list",
+          "line": 34,
+          "source_position": [
+            34,
+            34,
+            76,
+            79
+          ]
+        },
+        {
+          "file": "storage.py",
+          "name": "StorageProvider.ensure",
+          "line": 35,
+          "source_position": [
+            35,
+            35,
+            89,
+            92
+          ]
+        },
+        {
+          "file": "storage.py",
+          "name": "StorageProvider.update",
+          "line": 36,
+          "source_position": [
+            36,
+            36,
+            77,
+            80
+          ]
+        },
+        {
+          "file": "storage.py",
+          "name": "StorageProvider.delete",
+          "line": 37,
+          "source_position": [
+            37,
+            37,
+            63,
+            66
+          ]
+        }
+      ],
+      "scope": "every app Python source including unimported modules and Protocol declarations; module/class bodies and compiler-generated comprehensions are not source functions"
+    },
+    "lambda": {
+      "entered": 11,
+      "total": 11
+    },
+    "default_excluded_lines": 11,
+    "new_exclusions": 0,
+    "coverage_gate_lowered": false,
+    "all_100_percent": false
+  },
+  "review_ci_snapshot": [
+    {
+      "pr": 23,
+      "head": "6f29fba5014486f3fd41676f6e12d884b27d39f1",
+      "unresolved_threads": 0,
+      "contexts": {
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "MTA"
+        },
+        "nodes": [
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/37811107825/job/113427868404",
+            "startedAt": "2026-10-08T16:44:10Z"
+          },
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/37811098997/job/113427842174",
+            "startedAt": "2026-10-08T16:44:07Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/37811107825/job/113427868552",
+            "startedAt": "2026-10-08T16:44:10Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/37811098997/job/113427841864",
+            "startedAt": "2026-10-08T16:44:07Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/37811107825/job/113427868152",
+            "startedAt": "2026-10-08T16:44:10Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/37811098997/job/113427842294",
+            "startedAt": "2026-10-08T16:44:07Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/37811107825/job/113427868504",
+            "startedAt": "2026-10-08T16:44:10Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/37811098997/job/113427842053",
+            "startedAt": "2026-10-08T16:44:07Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/37811107825/job/113428301575",
+            "startedAt": "2026-10-08T16:45:09Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/37811098997/job/113428142285",
+            "startedAt": "2026-10-08T16:44:46Z"
+          }
+        ]
+      }
+    },
+    {
+      "pr": 24,
+      "head": "5bb91c642dff5f11c76bbef641249d7d5eaac7d0",
+      "unresolved_threads": 0,
+      "contexts": {
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "MTA"
+        },
+        "nodes": [
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/37811705818/job/113429942501",
+            "startedAt": "2026-10-08T16:48:53Z"
+          },
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/37811698830/job/113429912522",
+            "startedAt": "2026-10-08T16:48:49Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/37811705818/job/113429942617",
+            "startedAt": "2026-10-08T16:48:53Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/37811698830/job/113429912952",
+            "startedAt": "2026-10-08T16:48:49Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/37811705818/job/113429942145",
+            "startedAt": "2026-10-08T16:48:53Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/37811698830/job/113429913172",
+            "startedAt": "2026-10-08T16:48:49Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/37811705818/job/113429942562",
+            "startedAt": "2026-10-08T16:48:53Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/37811698830/job/113429912934",
+            "startedAt": "2026-10-08T16:48:49Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/37811705818/job/113430220046",
+            "startedAt": "2026-10-08T16:49:31Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/37811698830/job/113430154418",
+            "startedAt": "2026-10-08T16:49:22Z"
+          }
+        ]
+      }
+    },
+    {
+      "pr": 25,
+      "head": "7abb175a00406d47d34db9758b7be399e32cc300",
+      "unresolved_threads": 0,
+      "contexts": {
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "MTA"
+        },
+        "nodes": [
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886165709/job/116924308799",
+            "startedAt": "2026-10-16T10:16:48Z"
+          },
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886158506/job/116924285205",
+            "startedAt": "2026-10-16T10:16:45Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886165709/job/116924308882",
+            "startedAt": "2026-10-16T10:16:49Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886158506/job/116924285591",
+            "startedAt": "2026-10-16T10:16:45Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886165709/job/116924308737",
+            "startedAt": "2026-10-16T10:16:48Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886158506/job/116924285436",
+            "startedAt": "2026-10-16T10:16:44Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886165709/job/116924308547",
+            "startedAt": "2026-10-16T10:16:48Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886158506/job/116924285444",
+            "startedAt": "2026-10-16T10:16:45Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886165709/job/116924594781",
+            "startedAt": "2026-10-16T10:17:35Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886158506/job/116924523035",
+            "startedAt": "2026-10-16T10:17:23Z"
+          }
+        ]
+      }
+    },
+    {
+      "pr": 27,
+      "head": "a05266fefe2a4e606a15c121b7766e30f974feb5",
+      "unresolved_threads": 0,
+      "contexts": {
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "MTI"
+        },
+        "nodes": [
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886326822/job/116924844774",
+            "startedAt": "2026-10-16T10:18:17Z"
+          },
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886319432/job/116924821728",
+            "startedAt": "2026-10-16T10:18:13Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886326822/job/116924844948",
+            "startedAt": "2026-10-16T10:18:17Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886319432/job/116924821422",
+            "startedAt": "2026-10-16T10:18:13Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886326822/job/116924845348",
+            "startedAt": "2026-10-16T10:18:17Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886319432/job/116924821971",
+            "startedAt": "2026-10-16T10:18:13Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886326822/job/116924844772",
+            "startedAt": "2026-10-16T10:18:17Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886319432/job/116924821876",
+            "startedAt": "2026-10-16T10:18:13Z"
+          },
+          {
+            "name": "Public OpenCLI adapter contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886326822/job/116924844917",
+            "startedAt": "2026-10-16T10:18:17Z"
+          },
+          {
+            "name": "Public OpenCLI adapter contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886319432/job/116924821661",
+            "startedAt": "2026-10-16T10:18:12Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886326822/job/116925060888",
+            "startedAt": "2026-10-16T10:18:53Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886319432/job/116925114750",
+            "startedAt": "2026-10-16T10:19:02Z"
+          }
+        ]
+      }
+    },
+    {
+      "pr": 28,
+      "head": "201f2b83e39e1c943e866f63d92010bb0ef13a4f",
+      "unresolved_threads": 0,
+      "contexts": {
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "MTI"
+        },
+        "nodes": [
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886345405/job/116924905027",
+            "startedAt": "2026-10-16T10:18:27Z"
+          },
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886338406/job/116924881534",
+            "startedAt": "2026-10-16T10:18:23Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886345405/job/116924905288",
+            "startedAt": "2026-10-16T10:18:27Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886338406/job/116924881937",
+            "startedAt": "2026-10-16T10:18:23Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886345405/job/116924905456",
+            "startedAt": "2026-10-16T10:18:27Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886338406/job/116924882024",
+            "startedAt": "2026-10-16T10:18:23Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886345405/job/116924905341",
+            "startedAt": "2026-10-16T10:18:27Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886338406/job/116924881881",
+            "startedAt": "2026-10-16T10:18:23Z"
+          },
+          {
+            "name": "Public OpenCLI adapter contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886345405/job/116924905593",
+            "startedAt": "2026-10-16T10:18:27Z"
+          },
+          {
+            "name": "Public OpenCLI adapter contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886338406/job/116924881896",
+            "startedAt": "2026-10-16T10:18:23Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886345405/job/116925195819",
+            "startedAt": "2026-10-16T10:19:15Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886338406/job/116925197180",
+            "startedAt": "2026-10-16T10:19:15Z"
+          }
+        ]
+      }
+    },
+    {
+      "pr": 29,
+      "head": "abc82d9dcbb44da07cc09a1dcc0457d43793c269",
+      "unresolved_threads": 0,
+      "contexts": {
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "MTI"
+        },
+        "nodes": [
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886375355/job/116925004033",
+            "startedAt": "2026-10-16T10:18:43Z"
+          },
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886367015/job/116924976680",
+            "startedAt": "2026-10-16T10:18:39Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886375355/job/116925004253",
+            "startedAt": "2026-10-16T10:18:43Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886367015/job/116924976650",
+            "startedAt": "2026-10-16T10:18:39Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886375355/job/116925003983",
+            "startedAt": "2026-10-16T10:18:43Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886367015/job/116924976594",
+            "startedAt": "2026-10-16T10:18:39Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886375355/job/116925004168",
+            "startedAt": "2026-10-16T10:18:43Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886367015/job/116924976352",
+            "startedAt": "2026-10-16T10:18:38Z"
+          },
+          {
+            "name": "Public OpenCLI adapter contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886375355/job/116925004720",
+            "startedAt": "2026-10-16T10:18:44Z"
+          },
+          {
+            "name": "Public OpenCLI adapter contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886367015/job/116924976645",
+            "startedAt": "2026-10-16T10:18:39Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886375355/job/116925342159",
+            "startedAt": "2026-10-16T10:19:39Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886367015/job/116925356989",
+            "startedAt": "2026-10-16T10:19:42Z"
+          }
+        ]
+      }
+    },
+    {
+      "pr": 30,
+      "head": "32b626ac5213ed1d1ee72baa8eadfc59bfb455ed",
+      "unresolved_threads": 0,
+      "contexts": {
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "MTI"
+        },
+        "nodes": [
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886416816/job/116925140953",
+            "startedAt": "2026-10-16T10:19:06Z"
+          },
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886408438/job/116925114228",
+            "startedAt": "2026-10-16T10:19:02Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886416816/job/116925141317",
+            "startedAt": "2026-10-16T10:19:06Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886408438/job/116925114369",
+            "startedAt": "2026-10-16T10:19:02Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886416816/job/116925141311",
+            "startedAt": "2026-10-16T10:19:06Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886408438/job/116925114191",
+            "startedAt": "2026-10-16T10:19:02Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886416816/job/116925141518",
+            "startedAt": "2026-10-16T10:19:07Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886408438/job/116925113963",
+            "startedAt": "2026-10-16T10:19:02Z"
+          },
+          {
+            "name": "Public OpenCLI adapter contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886416816/job/116925141330",
+            "startedAt": "2026-10-16T10:19:06Z"
+          },
+          {
+            "name": "Public OpenCLI adapter contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886408438/job/116925114188",
+            "startedAt": "2026-10-16T10:19:01Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886416816/job/116925598682",
+            "startedAt": "2026-10-16T10:20:22Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886408438/job/116925549489",
+            "startedAt": "2026-10-16T10:20:14Z"
+          }
+        ]
+      }
+    },
+    {
+      "pr": 31,
+      "head": "b21089e206a37117fb665cdbd2d2876f1d798b5f",
+      "unresolved_threads": 0,
+      "contexts": {
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "MTI"
+        },
+        "nodes": [
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886458579/job/116925281467",
+            "startedAt": "2026-10-16T10:19:29Z"
+          },
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886451265/job/116925257740",
+            "startedAt": "2026-10-16T10:19:25Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886458579/job/116925281154",
+            "startedAt": "2026-10-16T10:19:29Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886451265/job/116925257886",
+            "startedAt": "2026-10-16T10:19:25Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886458579/job/116925281564",
+            "startedAt": "2026-10-16T10:19:29Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886451265/job/116925257695",
+            "startedAt": "2026-10-16T10:19:25Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886458579/job/116925281460",
+            "startedAt": "2026-10-16T10:19:29Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886451265/job/116925257859",
+            "startedAt": "2026-10-16T10:19:25Z"
+          },
+          {
+            "name": "Public OpenCLI adapter contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886458579/job/116925281398",
+            "startedAt": "2026-10-16T10:19:29Z"
+          },
+          {
+            "name": "Public OpenCLI adapter contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886451265/job/116925257478",
+            "startedAt": "2026-10-16T10:19:25Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886458579/job/116925732196",
+            "startedAt": "2026-10-16T10:20:43Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886451265/job/116925702195",
+            "startedAt": "2026-10-16T10:20:39Z"
+          }
+        ]
+      }
+    },
+    {
+      "pr": 32,
+      "head": "5d6ebe56618f3f044dc43548e9fa684e87546bdf",
+      "unresolved_threads": 0,
+      "contexts": {
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "MTI"
+        },
+        "nodes": [
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886504672/job/116925433448",
+            "startedAt": "2026-10-16T10:19:55Z"
+          },
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886497574/job/116925409004",
+            "startedAt": "2026-10-16T10:19:51Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886504672/job/116925433403",
+            "startedAt": "2026-10-16T10:19:55Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886497574/job/116925409245",
+            "startedAt": "2026-10-16T10:19:51Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886504672/job/116925433460",
+            "startedAt": "2026-10-16T10:19:55Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886497574/job/116925409350",
+            "startedAt": "2026-10-16T10:19:51Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886504672/job/116925433180",
+            "startedAt": "2026-10-16T10:19:55Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886497574/job/116925409331",
+            "startedAt": "2026-10-16T10:19:51Z"
+          },
+          {
+            "name": "Public OpenCLI adapter contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886504672/job/116925433573",
+            "startedAt": "2026-10-16T10:19:55Z"
+          },
+          {
+            "name": "Public OpenCLI adapter contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886497574/job/116925409278",
+            "startedAt": "2026-10-16T10:19:51Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886504672/job/116925933889",
+            "startedAt": "2026-10-16T10:21:17Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886497574/job/116925928014",
+            "startedAt": "2026-10-16T10:21:16Z"
+          }
+        ]
+      }
+    },
+    {
+      "pr": 34,
+      "head": "c169e6f51970103a689381793fef518070621034",
+      "unresolved_threads": 0,
+      "contexts": {
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "MTI"
+        },
+        "nodes": [
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886553578/job/116925591978",
+            "startedAt": "2026-10-16T10:20:21Z"
+          },
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886547285/job/116925572076",
+            "startedAt": "2026-10-16T10:20:18Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886553578/job/116925591659",
+            "startedAt": "2026-10-16T10:20:21Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886547285/job/116925571966",
+            "startedAt": "2026-10-16T10:20:18Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886553578/job/116925591918",
+            "startedAt": "2026-10-16T10:20:21Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886547285/job/116925572182",
+            "startedAt": "2026-10-16T10:20:18Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886553578/job/116925591963",
+            "startedAt": "2026-10-16T10:20:21Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886547285/job/116925571597",
+            "startedAt": "2026-10-16T10:20:17Z"
+          },
+          {
+            "name": "Public OpenCLI adapter contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886553578/job/116925591784",
+            "startedAt": "2026-10-16T10:20:20Z"
+          },
+          {
+            "name": "Public OpenCLI adapter contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886547285/job/116925572153",
+            "startedAt": "2026-10-16T10:20:18Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886553578/job/116926106094",
+            "startedAt": "2026-10-16T10:21:45Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886547285/job/116926132847",
+            "startedAt": "2026-10-16T10:21:49Z"
+          }
+        ]
+      }
+    },
+    {
+      "pr": 35,
+      "head": "0060b1831c4783606e0a99f061fc1886f7948db4",
+      "unresolved_threads": 0,
+      "contexts": {
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "MTI"
+        },
+        "nodes": [
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886622321/job/116925813249",
+            "startedAt": "2026-10-16T10:20:57Z"
+          },
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886616531/job/116925794412",
+            "startedAt": "2026-10-16T10:20:53Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886622321/job/116925813413",
+            "startedAt": "2026-10-16T10:20:57Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886616531/job/116925794678",
+            "startedAt": "2026-10-16T10:20:54Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886622321/job/116925813737",
+            "startedAt": "2026-10-16T10:20:57Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886616531/job/116925794143",
+            "startedAt": "2026-10-16T10:20:53Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886622321/job/116925813447",
+            "startedAt": "2026-10-16T10:20:57Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886616531/job/116925794431",
+            "startedAt": "2026-10-16T10:20:54Z"
+          },
+          {
+            "name": "Public OpenCLI adapter contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886622321/job/116925813600",
+            "startedAt": "2026-10-16T10:20:57Z"
+          },
+          {
+            "name": "Public OpenCLI adapter contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886616531/job/116925794327",
+            "startedAt": "2026-10-16T10:20:53Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886622321/job/116926259051",
+            "startedAt": "2026-10-16T10:22:10Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886616531/job/116926336096",
+            "startedAt": "2026-10-16T10:22:22Z"
+          }
+        ]
+      }
+    },
+    {
+      "pr": 36,
+      "head": "625b8db52e40176e9edb799959cb76ee89db2136",
+      "unresolved_threads": 0,
+      "contexts": {
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "MTI"
+        },
+        "nodes": [
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886716431/job/116926126317",
+            "startedAt": "2026-10-16T10:21:48Z"
+          },
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886709844/job/116926104823",
+            "startedAt": "2026-10-16T10:21:45Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886716431/job/116926126659",
+            "startedAt": "2026-10-16T10:21:48Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886709844/job/116926104561",
+            "startedAt": "2026-10-16T10:21:45Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886716431/job/116926126193",
+            "startedAt": "2026-10-16T10:21:48Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886709844/job/116926104892",
+            "startedAt": "2026-10-16T10:21:45Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886716431/job/116926126356",
+            "startedAt": "2026-10-16T10:21:49Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886709844/job/116926104852",
+            "startedAt": "2026-10-16T10:21:45Z"
+          },
+          {
+            "name": "Public OpenCLI adapter contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886716431/job/116926125924",
+            "startedAt": "2026-10-16T10:21:48Z"
+          },
+          {
+            "name": "Public OpenCLI adapter contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886709844/job/116926105049",
+            "startedAt": "2026-10-16T10:21:45Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886716431/job/116927061160",
+            "startedAt": "2026-10-16T10:24:22Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886709844/job/116926605651",
+            "startedAt": "2026-10-16T10:23:07Z"
+          }
+        ]
+      }
+    },
+    {
+      "pr": 37,
+      "head": "5a08c22f49797fd4a900527212bb2d1fd72d8762",
+      "unresolved_threads": 0,
+      "contexts": {
+        "pageInfo": {
+          "hasNextPage": false,
+          "endCursor": "MTI"
+        },
+        "nodes": [
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886839781/job/116926534780",
+            "startedAt": "2026-10-16T10:22:56Z"
+          },
+          {
+            "name": "Workflow lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886833441/job/116926514800",
+            "startedAt": "2026-10-16T10:22:52Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886839781/job/116926534981",
+            "startedAt": "2026-10-16T10:22:56Z"
+          },
+          {
+            "name": "Backend lint",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886833441/job/116926513849",
+            "startedAt": "2026-10-16T10:22:52Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886839781/job/116926534995",
+            "startedAt": "2026-10-16T10:22:56Z"
+          },
+          {
+            "name": "ZEN-28 behavior contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886833441/job/116926514033",
+            "startedAt": "2026-10-16T10:22:52Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886839781/job/116926534639",
+            "startedAt": "2026-10-16T10:22:55Z"
+          },
+          {
+            "name": "Frontend lint, types and build",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886833441/job/116926514349",
+            "startedAt": "2026-10-16T10:22:52Z"
+          },
+          {
+            "name": "Public OpenCLI adapter contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886839781/job/116926535272",
+            "startedAt": "2026-10-16T10:22:56Z"
+          },
+          {
+            "name": "Public OpenCLI adapter contract",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886833441/job/116926514056",
+            "startedAt": "2026-10-16T10:22:52Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886839781/job/116927577445",
+            "startedAt": "2026-10-16T10:25:46Z"
+          },
+          {
+            "name": "CI quality gate",
+            "status": "COMPLETED",
+            "conclusion": "SUCCESS",
+            "detailsUrl": "https://github.com/autism-ip/novelops-agent-harness/actions/runs/38886833441/job/116927180889",
+            "startedAt": "2026-10-16T10:24:41Z"
+          }
+        ]
+      }
+    }
+  ],
+  "new_verified_startup_defect": {
+    "owner_issue": "ZEN-104",
+    "owner_pr": 24,
+    "reproduction": "/tmp/test_novelops_runtime_dotenv_tables.py",
+    "source_commit": "5a08c22f49797fd4a900527212bb2d1fd72d8762",
+    "cases_failed": 2,
+    "fact": "Settings reads .env.local credentials, but build_runtime creates TableMapConfig using only process environment. File-only app token/table IDs do not reach runtime.",
+    "observed_errors": [
+      "FEISHU_APP_TOKEN is required when HARNESS_ENABLED=true",
+      "Missing environment variable FEISHU_TABLE_ID_STEP_RUNS for table step_runs"
+    ],
+    "network_calls": "None; constructor/configuration reproduction with synthetic credentials only",
+    "status": "Unfixed; upcoming source correction required. Previous live probes explicitly set process environment and did not prove normal dotenv startup."
+  }
+}
