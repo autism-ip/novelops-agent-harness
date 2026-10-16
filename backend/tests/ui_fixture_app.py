@@ -64,7 +64,7 @@ def create_fixture_app():
                     "ending_hook": "The first flower speaks"}
                 return Completion(json.dumps(content), route.model, 100, 50)
             if route.model in {"fixture-writer", "fixture-rewrite"}:
-                inputs = json.loads(messages[-1]["content"])
+                inputs = json.loads(messages[1]["content"])
                 snapshot = inputs["snapshot"]
                 content = {"chapter_no": snapshot["chapter_no"],
                     "snapshot_artifact_id": inputs["snapshot_artifact_id"],
