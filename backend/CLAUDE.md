@@ -36,3 +36,5 @@ app/api/routes/hotspots.py: 鉴权抓取触发及热点列表/详情接口；命
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 
 规划模型输入将鉴权请求的 feedback 映射为独立 editor_instruction；StoryBible 同时携带 initial/major 范围，仍由精确版本人工审批生效。提纲以规范快照规则为上位约束，修复旧提纲冲突。API 的 feedback 字段保持原契约，客户端不能伪造内部输入字段，来源中的同名文本只是数据。
+
+app/evals.py: 离线对比及有界真实 provider 评估 CLI；非空数组 fixture 验证先于客户端创建，输出失败类别与用量未知状态，不把传输测试当作真实模型质量证据。

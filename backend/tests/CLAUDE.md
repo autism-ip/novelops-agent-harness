@@ -41,3 +41,5 @@ test_chapter_loop.py: ZEN-40 章节生成、结构化 Critic、条件改写、�
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 
 规划编辑指令 HTTP 回归：初始Bible、重大变更、Brief均覆盖未鉴权401、伪造内部字段422且零run/调用、原样feedback映射、不可变来源及人工设定门；模型语义服从另由真实验收核实。
+
+test_eval_cli_contract.py: 实际 CLI/router/provider 的 16 项行为用例；仅控制出站 HTTP，验证参数、fixture 边界、失败分类、约束检测、资源关闭、用量隔离与报告不泄露凭据/正文。
