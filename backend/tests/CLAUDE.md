@@ -35,3 +35,5 @@ ui_fixture_app.py: 仅本机浏览器验收服务；复用真实 API/Harness 与
 测试以 BDD 验收行为为中心：状态值必须精确、密钥不得回显、鉴权必须先于路由缺失返回。门禁允许当前实现缺失时失败；它的职责是定义合格线，而不是替实现兜底。CI 显式排除 integration，保留全部离线断言，要求 app 语句覆盖率至少当前基线 87.82%，上传 coverage XML 与 JUnit 报告；Ruff 同时检查测试代码。不得为过门禁降低覆盖率下限、删除或弱化断言、增加应用代码排除项。
 
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+
+test_eval_cli_contract.py: 实际 CLI/router/provider 的 16 项行为用例；仅控制出站 HTTP，验证参数、fixture 边界、失败分类、约束检测、资源关闭、用量隔离与报告不泄露凭据/正文。
