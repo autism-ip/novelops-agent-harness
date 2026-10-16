@@ -9,7 +9,8 @@ from app.storage import FeishuStorageProvider
 
 
 def build_runtime(settings):
-    config = TableMapConfig()
+    config = TableMapConfig(app_token=settings.FEISHU_APP_TOKEN,
+        table_ids={name: getattr(settings, "FEISHU_TABLE_ID_" + name.upper()) for name in FIELD_MAPS})
     if not config.app_token:
         raise ValueError("FEISHU_APP_TOKEN is required when HARNESS_ENABLED=true")
     client = FeishuClient(settings.FEISHU_APP_ID, settings.FEISHU_APP_SECRET)
