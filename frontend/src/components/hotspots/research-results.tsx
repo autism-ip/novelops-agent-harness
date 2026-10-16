@@ -118,8 +118,8 @@ function AnalysisActions({ analysis, submit, disabled }: { analysis: Opportunity
   </section>;
 }
 
-export function ResearchHistory({ hotspotId, revision, submit, disabled, creative }: { hotspotId: string; revision: number;
-  creative: boolean;
+export function ResearchHistory({ hotspotId, revision, submit, disabled, creative, books }: { hotspotId: string; revision: number;
+  creative: boolean; books: boolean;
   submit: (command: SubmitRequest) => Promise<SubmitResult>; disabled: boolean }) {
   const result = useResource<OpportunityAnalysis[]>(`/api/hotspots/${encodeURIComponent(hotspotId)}/analyses`, revision, 5000);
   return <section aria-label="Analysis history" className="space-y-3">
@@ -131,7 +131,7 @@ export function ResearchHistory({ hotspotId, revision, submit, disabled, creativ
       <AnalysisCard analysis={analysis} />
       <AnalysisActions analysis={analysis} submit={submit} disabled={disabled} />
       {creative && analysis.current && analysis.approval_status === "approved" &&
-        <CreativeResults kind="titles" sourceRunId={analysis.run.pipeline_run_id} revision={revision} submit={submit} disabled={disabled} />}
+        <CreativeResults kind="titles" sourceRunId={analysis.run.pipeline_run_id} revision={revision} submit={submit} disabled={disabled} books={books} />}
     </div>)}
   </section>;
 }

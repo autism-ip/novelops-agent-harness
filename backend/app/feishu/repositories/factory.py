@@ -1,7 +1,7 @@
 """
-[INPUT]: 依赖 app.feishu.client.FeishuClient、app.feishu.table_map.TableMapConfig，以及 16 个具体 Repo 类
+[INPUT]: 依赖 app.feishu.client.FeishuClient、app.feishu.table_map.TableMapConfig，以及 legacy 与 StoryStates Repo 类
 [OUTPUT]: 对外提供 create_repositories 工厂函数
-[POS]: repositories 包的组装工厂，一次性创建全部 16 个 repository 实例
+[POS]: repositories 包的组装工厂，一次性创建 legacy 与 StoryStates repository 实例
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
 
@@ -24,6 +24,7 @@ from app.feishu.repositories.pipeline_runs import PipelineRunsRepo
 from app.feishu.repositories.review_reports import ReviewReportsRepo
 from app.feishu.repositories.revision_tasks import RevisionTasksRepo
 from app.feishu.repositories.step_runs import StepRunsRepo
+from app.feishu.repositories.story_states import StoryStatesRepo
 from app.feishu.repositories.title_candidates import TitleCandidatesRepo
 from app.feishu.table_map import TableMapConfig
 
@@ -43,6 +44,7 @@ _REPO_CLASSES: dict[str, type[BaseRepository]] = {
     "title_candidates":     TitleCandidatesRepo,
     "cover_plans":          CoverPlansRepo,
     "books":                BooksRepo,
+    "story_states":         StoryStatesRepo,
     "chapter_briefs":       ChapterBriefsRepo,
     "chapter_versions":     ChapterVersionsRepo,
     "review_reports":       ReviewReportsRepo,
@@ -61,7 +63,7 @@ def create_repositories(
     client: FeishuClient,
     config: TableMapConfig,
 ) -> dict[str, BaseRepository]:
-    """Create all 16 repository instances keyed by table name.
+    """Create the legacy repositories plus canonical StoryStates keyed by table name.
 
     Args:
         client: Authenticated Feishu HTTP client.

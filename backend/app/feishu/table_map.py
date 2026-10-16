@@ -1,7 +1,7 @@
 """
 [INPUT]: 依赖 os.environ 的 FEISHU_APP_TOKEN 与 FEISHU_TABLE_ID_* 覆盖变量
 [OUTPUT]: 对外提供 TABLE_NAMES、FIELD_MAPS、TableMapConfig
-[POS]: feishu 的配置中枢，被 repo 层与 pipeline 层消费，定义全部 16 张表的名称与字段映射
+[POS]: feishu 的配置中枢，被 repo 层与 pipeline 层消费，定义 legacy 与 v0.2 表的名称及字段映射
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
 
@@ -24,6 +24,7 @@ TABLE_NAMES: dict[str, str] = {
     "title_candidates":     "TitleCandidates",
     "cover_plans":          "CoverPlans",
     "books":                "Books",
+    "story_states":         "StoryStates",
     "chapter_briefs":       "ChapterBriefs",
     "chapter_versions":     "ChapterVersions",
     "review_reports":       "ReviewReports",
@@ -172,6 +173,15 @@ FIELD_MAPS: dict[str, dict[str, str]] = {
         "mini_bible": "mini_bible",
         "created_at": "created_at",
     },
+    "story_states": {
+        "story_state_id": "story_state_id",
+        "book_id": "book_id",
+        "version": "version",
+        "artifact_id": "artifact_id",
+        "content_hash": "content_hash",
+        "source_refs_json": "source_refs_json",
+        "created_at": "created_at",
+    },
     "chapter_briefs": {
         "brief_id":        "brief_id",
         "book_id":         "book_id",
@@ -252,6 +262,8 @@ FIELD_MAPS["step_runs"].update({field: field for field in (
 FIELD_MAPS["approval_events"].update({"target_version": "target_version", "reason": "reason", "choice_id": "choice_id"})
 FIELD_MAPS["hotspot_analyses"].update({field: field for field in (
     "version", "pipeline_run_id", "source_hash", "artifact_id", "risk_artifact_id")})
+FIELD_MAPS["books"].update({field: field for field in (
+    "bootstrap_hash", "source_refs_json", "story_state_id", "story_state_version", "story_state_hash")})
 for _name in ("title_candidates", "cover_plans"):
     FIELD_MAPS[_name].update({field: field for field in (
         "artifact_id", "version", "pipeline_run_id", "source_artifact_id")})
