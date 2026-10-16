@@ -14,7 +14,8 @@ def build_runtime(settings):
         raise ValueError("RESEARCH_ENABLED requires GENERATION_ENABLED and HOTSPOTS_ENABLED or OPENCLI_ENABLED")
     if settings.CREATIVE_ENABLED and not settings.RESEARCH_ENABLED:
         raise ValueError("CREATIVE_ENABLED requires RESEARCH_ENABLED")
-    config = TableMapConfig()
+    config = TableMapConfig(app_token=settings.FEISHU_APP_TOKEN,
+        table_ids={name: getattr(settings, "FEISHU_TABLE_ID_" + name.upper()) for name in FIELD_MAPS})
     if not config.app_token:
         raise ValueError("FEISHU_APP_TOKEN is required when HARNESS_ENABLED=true")
     client = FeishuClient(settings.FEISHU_APP_ID, settings.FEISHU_APP_SECRET)
