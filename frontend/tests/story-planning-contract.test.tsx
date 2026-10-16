@@ -347,7 +347,7 @@ function delayedPlanning(value: unknown, delay: number, signal?: AbortSignal | n
 
 test("planning history waits for a slow response without queuing overlapping reads", async () => {
   vi.useFakeTimers();
-  const transport = vi.fn((...[, init]: [unknown, RequestInit]) => delayedPlanning([], 25_000, init.signal));
+  const transport = vi.fn((...[, init]: [unknown, RequestInit]) => delayedPlanning([{ ...gate, run: { ...gate.run, status: "running" } }], 25_000, init.signal));
   vi.stubGlobal("fetch", transport);
   render(<StoryPlanning bookId={book} approvedBible={false} />);
   await act(async () => { await vi.advanceTimersByTimeAsync(24_999); });
@@ -384,4 +384,15 @@ test("slow planning context and durable enqueue preserve their original source a
   expect(sessionStorage.getItem(key)).toBeNull();
   expect(writes(transport)).toHaveLength(1);
   expect(writes(transport)[0][1].body).toBe(JSON.stringify(bibleContext));
+});
+
+test.each(["empty", "completed", "failed", "blocked", "cancelled", "awaiting_approval"])("stable planning histories stop idle polling: %s", async status => {
+  vi.useFakeTimers();
+  const rows = status === "empty" ? [] : [{ ...gate, run: { ...gate.run, status } }];
+  const transport = serve(rows, rows);
+  render(<StoryPlanning bookId={book} approvedBible />);
+  await act(async () => { await vi.advanceTimersByTimeAsync(30_000); });
+  expect(transport.mock.calls.filter(([url]) => String(url).endsWith("/bibles"))).toHaveLength(1);
+  expect(transport.mock.calls.filter(([url]) => String(url).endsWith("/briefs"))).toHaveLength(1);
+  expect(writes(transport)).toHaveLength(0);
 });

@@ -44,6 +44,10 @@ function textValue(value: unknown) {
   return typeof value === "string" ? value : JSON.stringify(value);
 }
 
+function pollWhileActive(history: PlanningRun[]) {
+  return history.some(item => ["creating", "pending", "running"].includes(item.run.status));
+}
+
 export function StoryPlanning({ bookId, approvedBible }: { bookId: string; approvedBible: boolean }) {
   const key = `novelops.story-planning.pending.${bookId}`;
   const pendingRaw = useSyncExternalStore(subscribe, () => saved(key), () => null);
@@ -58,9 +62,9 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
   const { operator, update: setOperator } = useEditorIdentity();
   const chapterNo = Number(chapter);
   const validChapter = Number.isSafeInteger(chapterNo) && chapterNo >= 1 && chapterNo <= 10000;
-  const bibles = useResource<PlanningRun[]>(`/api/books/${encodeURIComponent(bookId)}/bibles`, revision, 5000, undefined, PLANNING_TIMEOUT_MS);
+  const bibles = useResource<PlanningRun[]>(`/api/books/${encodeURIComponent(bookId)}/bibles`, revision, 5000, pollWhileActive, PLANNING_TIMEOUT_MS);
   const briefs = useResource<PlanningRun[]>(validChapter ?
-    `/api/books/${encodeURIComponent(bookId)}/chapters/${chapterNo}/briefs` : null, revision, 5000, undefined, PLANNING_TIMEOUT_MS);
+    `/api/books/${encodeURIComponent(bookId)}/chapters/${chapterNo}/briefs` : null, revision, 5000, pollWhileActive, PLANNING_TIMEOUT_MS);
   const bible = bibles.data?.[0];
   const brief = briefs.data?.[0];
   const gate = bible?.run.steps.find(step => step.step_key === "review" && step.status === "awaiting_approval");
