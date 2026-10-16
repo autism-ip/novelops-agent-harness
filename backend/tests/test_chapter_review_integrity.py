@@ -155,3 +155,61 @@ def test_final_lock_replay_is_read_only_and_binds_editor_and_artifact(chapter):
         assert kernel.storage.get("chapter_versions", command["version_id"]) == first.json()
     finally:
         api.close()
+
+
+@pytest.mark.parametrize("fault,endpoint,expected_status,detail", [
+    ("missing_projection", "/review/decision", 409, "ChapterVersion projection changed"),
+    ("changed_projection", "/review/decision", 409, "ChapterVersion projection changed"),
+    ("unfinished_run", "/review/decision", 409, "Chapter run is not ready for editorial review"),
+    ("stale_decision_gate", "/review/decision", 409, "Stale chapter review gate version"),
+    ("stale_revision_gate", "/review/revision", 409, "Stale chapter review gate version"),
+    ("no_change_request", "/review/revision", 422, "Revision needs an explicit must_change constraint"),
+    ("rejected_source", "/review/revision", 409, "Only a current review ChapterVersion can be revised"),
+    ("unstarted_chapter", "/final-lock", 409, "Latest chapter run is not completed"),
+    ("changed_verifier", "/final-lock", 409, "ChapterVersion is not ready for final lock"),
+    ("wrong_final_version", "/final-lock", 409, "Final lock must name the current verified ChapterVersion"),
+])
+def test_editorial_preconditions_fail_before_durable_command(chapter, fault, endpoint, expected_status, detail):
+    kernel, provider, book_id = chapter
+    view = pass_run(kernel, provider, book_id)
+    command = target(view)
+    chapter_no = 1
+    if fault == "missing_projection":
+        kernel.storage.delete("chapter_versions", command["version_id"])
+    elif fault == "changed_projection":
+        kernel.storage.update("chapter_versions", command["version_id"], {"artifact_id": "AR-other"})
+    elif fault == "unfinished_run":
+        gate = next(s for s in view["run"]["steps"] if s["step_key"] == "final_verify")
+        kernel.storage.update("step_runs", gate["step_run_id"], {"status": "failed"})
+        kernel.storage.update("pipeline_runs", command["run_id"], {"status": "failed"})
+    elif fault.startswith("stale_"):
+        command["expected_gate_version"] = 99
+    elif fault == "rejected_source":
+        rejected = kernel.chapter_loop.decide_review(book_id, 1, **command, action="reject")
+        assert rejected["version"]["status"] == "rejected"
+    elif fault == "unstarted_chapter":
+        chapter_no = 2
+    elif fault == "changed_verifier":
+        kernel.storage.update("chapter_versions", command["version_id"], {"verifier_artifact_id": "AR-other"})
+    elif fault == "wrong_final_version":
+        command["version_no"] = 99
+    if endpoint == "/review/decision":
+        command["action"] = "approve"
+    elif endpoint == "/review/revision":
+        command["constraints"] = {"must_change": [] if fault == "no_change_request" else ["Sharper dialogue"]}
+    else:
+        command.pop("run_id")
+    transport = kernel.storage._repos["artifacts"]._client._http._transport.handler
+    offset, model_calls = len(transport.calls), list(provider.calls)
+    api = api_for(kernel)
+    try:
+        result = api.post(f"/api/books/{book_id}/chapters/{chapter_no}" + endpoint,
+                          headers={"x-api-key": "test"}, json=command)
+        assert result.status_code == expected_status, result.text
+        assert result.json() == {"detail": detail}
+        assert_read_only(transport, offset)
+        assert provider.calls == model_calls
+        assert kernel.storage.list("revision_tasks", book_id=book_id) == []
+        assert kernel.artifacts.get(view["selected"]["artifact_id"]) == view["selected"]
+    finally:
+        api.close()
