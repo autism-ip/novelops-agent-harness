@@ -310,6 +310,8 @@ def test_authenticated_editor_instruction_is_separate_from_immutable_source_data
         view = kernel.story_planning.read(run["pipeline_run_id"])
         supplied = json.loads(provider.messages[-1][1]["content"])
         assert supplied.get("editor_instruction") == feedback
+        assert len(provider.messages[-1]) == 3
+        assert provider.messages[-1][-1] == {"role": "user", "content": feedback}
         assert "feedback" not in supplied
         assert view["request"]["feedback"] == feedback
         assert len(provider.calls) == before_calls + 1

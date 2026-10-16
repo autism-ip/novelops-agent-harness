@@ -40,3 +40,7 @@ app/api/routes/hotspots.py: 鉴权抓取触发及热点列表/详情接口；命
 app/evals.py: 离线对比及有界真实 provider 评估 CLI；非空数组 fixture 验证先于客户端创建，输出失败类别与用量未知状态，不把传输测试当作真实模型质量证据。
 
 chapter-planner-v3 区分给作者的规划说明与下游章节正文风格，遵从编辑指定的视角、句数和原句标点；真实语义仍须独立验收。
+
+SemanticRuntime 可由内部调用方显式选择已验证的顶层字符串指令字段，作为来源 JSON 后的最后 user 消息；输入哈希同时绑定字段选择，缺省路径消息/哈希保持，嵌套来源不能被提升为指令。
+
+StoryBible v3 / ChapterPlanner v4 显式选择 editor_instruction 为来源JSON后的最后user消息；系统规范仍居上位，输入哈希绑定选择器，公共API不新增内部字段。
