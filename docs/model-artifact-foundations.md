@@ -137,3 +137,7 @@ backend application's Feishu credentials, verified same-version replay and
 readback, then deleted only the two probe rows. See the linked report for table
 IDs, usage and cleanup evidence. Full Book/Harness approval and production
 deployment remain untested.
+
+### Evaluation CLI input and failure contract
+
+`python -m app.evals` requires a non-empty JSON array of fixtures before constructing a live provider. Empty arrays and non-array containers fail with an argparse error and no client or model call. Provider/model/key combinations are validated before client creation. Live evaluation keeps strict schema, truncation, malformed response, timeout and rate-limit failure classes; unknown usage/cost remains unknown. The owned HTTP client closes after both success and failure. Offline and HTTP-controlled tests prove evaluator behavior, not real model quality or deployment readiness.
