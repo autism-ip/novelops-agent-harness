@@ -82,3 +82,21 @@ def test_revision_reason_and_guard_are_part_of_shared_decision_contract(runtime)
     assert events[0]['reason'] == 'Use a fictional setting'
     with pytest.raises(TransitionConflict):
         kernel.decide(step['step_run_id'], 'revise', 1, 'editor', reason='Changed feedback')
+
+
+def test_exact_choice_is_durable_and_replay_cannot_switch_candidates(runtime):
+    kernel, storage, _, _ = runtime
+    run = kernel.create('choose', 'titles', fixtures.definition(True))
+    kernel.tick()
+    step = kernel.get(run['pipeline_run_id'])['steps'][0]
+    def guard(_, action, choice=''):
+        if action == 'approve' and choice != 'AR-valid':
+            raise TransitionConflict('Candidate does not belong to this version')
+    kernel.register_approval_guard('noop', guard)
+    with pytest.raises(TransitionConflict):
+        kernel.decide(step['step_run_id'], 'approve', 1, 'editor', choice_id='AR-other')
+    kernel.decide(step['step_run_id'], 'approve', 1, 'editor', choice_id='AR-valid')
+    kernel.decide(step['step_run_id'], 'approve', 1, 'editor', choice_id='AR-valid')
+    assert storage.list('approval_events')[0]['choice_id'] == 'AR-valid'
+    with pytest.raises(TransitionConflict):
+        kernel.decide(step['step_run_id'], 'approve', 1, 'editor', choice_id='AR-other')

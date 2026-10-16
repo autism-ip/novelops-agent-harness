@@ -39,6 +39,13 @@ components.json  - shadcn CLI 配置（style: default, baseColor: neutral, cssVa
 
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 
+## 创作请求原子性
+工作台 `submit` 接受已准备请求或异步请求工厂：从读取上下文到持久化、POST、清理均持有同一锁，并显示 Preparing/Saving 状态。标题/封面历史未加载或读取失败时禁止生成；失败的上下文不产生保存意图或 POST。未知 POST 结果保留确切来源与版本，重载后重试不再读取上下文。实际工作台和 ApiClient 的 HTTP 边界回归见 `tests/creative-workbench-contract.test.tsx`。
+
+热点详情打开时，Preparing/Saving 状态必须放在实际 `<dialog>` 内；手机模态框会使外部内容 inert。没有详情时状态显示在工作台。回归断言按当前对话框定位，延迟 HTTP 在断言前完成清理。
+
 热点工作台原生请求存储读取失败时禁止新建与重试，显式重查后恢复；清理失败保留原始字节、显示原因并释放操作锁，API 拒绝与清理失败并列呈现。已提交请求只重放原身份，不能重新构造命令。回归见 `tests/hotspots-storage-contract.test.tsx`。
 
+
 批量研究 HTTP 201 的逐项失败不等于成功：成功 Run 保留，错误反馈向调用者返回；已知结果清理原意图，但本地清理失败时同时显示逐项业务原因与存储原因、保留精确重放清单。回归见 `tests/research-batch-contract.test.tsx`。
+

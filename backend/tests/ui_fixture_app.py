@@ -16,6 +16,7 @@ from app.harness import HarnessKernel
 from app.hotspots import HotspotService
 from app.main import create_app
 from app.research import ResearchService
+from app.creative import CreativeService
 from app.tools.adapters.douyin_hotspots import DouyinHotspotAdapter
 from app.tools.runner import OpenCLIRunner
 from tests.feishu_transport import make_storage
@@ -37,6 +38,17 @@ def create_fixture_app():
     kernel.hotspots = HotspotService(kernel, adapter)
     class ResearchFixtureProvider:
         def complete(self, route, messages):
+            if route.model == "fixture-titles":
+                content = {"candidates": [{"title": f"The Garden of Star {i}", "hook": "An invented town remembers",
+                    "selling_point": "Cooperative fantasy", "click_score": 80, "genre_fit_score": 90,
+                    "risk_notes": "Fictional setting"} for i in range(10)]}
+                return Completion(json.dumps(content), route.model, 100, 50)
+            if route.model == "fixture-covers":
+                content = {"directions": [{"visual_direction": f"Magical garden angle {i}",
+                    "main_elements": ["invented town", "glowing flowers"], "style": "painted fantasy",
+                    "cover_prompt": f"Paint an original magical garden angle {i} with no real people",
+                    "negative_prompt": "logos, real likenesses"} for i in range(3)]}
+                return Completion(json.dumps(content), route.model, 100, 50)
             risk = {"level": "low", "flags": [], "reasons": ["Synthetic fictional setting"],
                     "confidence": .95, "uncertainties": []}
             if route.model == "fixture-risk":
@@ -50,10 +62,11 @@ def create_fixture_app():
                 "novelization_directions": ["Invent a town where neighbors restore a magical garden"], "risk": risk}
             return Completion(json.dumps(result), route.model, 100, 50)
     kernel.artifacts = ArtifactStore(kernel)
-    kernel.model_router = ModelRouter({k: Route(provider="openai", model="fixture-" + k) for k in ("research", "risk")},
+    kernel.model_router = ModelRouter({k: Route(provider="openai", model="fixture-" + k) for k in ("research", "risk", "titles", "covers")},
         {"openai": ResearchFixtureProvider()}, kernel.telemetry)
     kernel.semantic = SemanticRuntime(kernel.model_router, kernel.artifacts)
     kernel.research = ResearchService(kernel)
+    kernel.creative = CreativeService(kernel)
     app = create_app(Settings(_env_file=None, BACKEND_API_KEY="ui-fixture-key"), kernel=kernel)
     app.state.drop_manual_response = False
     app.state.drop_analysis_response = False
