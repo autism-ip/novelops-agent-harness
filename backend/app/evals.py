@@ -1,4 +1,4 @@
-"""Offline, reproducible fixture comparison; no live model/API credentials."""
+"""Reproducible fixture evaluation with explicit offline and bounded provider modes."""
 from __future__ import annotations
 
 import argparse
@@ -174,6 +174,8 @@ def main():
     parser.add_argument("--live-deepseek-thinking",choices=("disabled","enabled"),default="disabled")
     args = parser.parse_args()
     fixtures = json.loads(args.fixtures.read_text())
+    if not isinstance(fixtures, list) or not fixtures:
+        parser.error("--fixtures must contain a non-empty JSON array")
     if args.live_provider:
         if not args.live_model:
             parser.error("--live-model is required with --live-provider")
