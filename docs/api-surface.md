@@ -147,3 +147,20 @@ The backend stores:
 - Image generation credentials, if any.
 
 These secrets must not be exposed to the frontend.
+# Implemented v0.2 workflow endpoints
+
+With `HARNESS_ENABLED=true` and configured runtime tables:
+
+| Method | Path | Behavior |
+| --- | --- | --- |
+| POST | `/api/workflows` | Create/reconcile using stable `request_key`, `workflow_type`, `steps` |
+| GET | `/api/workflows` | List persisted runs |
+| GET | `/api/workflows/{id}` | Run plus steps, domain IDs only |
+| POST | `/api/workflows/{id}/cancel` | Serialized cancellation |
+| POST | `/api/workflows/steps/{id}/decision` | approve/reject with `expected_version` and `operator` |
+| GET | `/api/system/status` | Actual scheduler/storage state when enabled |
+
+All workflow endpoints require `x-api-key`. Errors: 404 missing, 409 stale or
+conflicting transition, 422 invalid definition, 503 storage/reconciliation or
+disabled runtime. See [runtime setup and recovery](harness-v02.md). The older
+API inventory below is a roadmap unless its routes exist in code.

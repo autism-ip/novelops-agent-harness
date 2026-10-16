@@ -1,6 +1,6 @@
 """
 [INPUT]: 依赖 PipelineRunsRepo、StepRunsRepo 的 CRUD 能力，依赖 models.StepDef
-[OUTPUT]: 对外提供 PipelineEngine 类（含 validation、rollback by record_id、failure cascade）
+[OUTPUT]: 对外提供 PipelineEngine 类（含 validation、按 Feishu record_id 回滚与父流程转换）
 [POS]: pipeline 包的核心编排器，管理 PipelineRun/StepRun 生命周期、依赖解析与状态转换
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
@@ -57,7 +57,7 @@ class PipelineEngine:
         pipeline_run_id = f"PR-{uuid.uuid4().hex[:12]}"
         now = datetime.now(timezone.utc).isoformat()
 
-        first_step = step_defs[0].step_key if step_defs else ""
+        first_step = step_defs[0].step_key
 
         pipeline = self._pipeline_repo.create({
             "pipeline_run_id": pipeline_run_id,
@@ -92,7 +92,7 @@ class PipelineEngine:
                 except Exception:
                     pass
             try:
-                self._pipeline_repo.delete(pipeline_run_id)
+                self._pipeline_repo.delete(pipeline.get("record_id", pipeline_run_id))
             except Exception:
                 pass
             raise
@@ -130,6 +130,13 @@ class PipelineEngine:
         if record is None:
             raise ValueError(f"Step run not found: {step_run_id}")
         return record["record_id"]
+
+    def _update_pipeline(self, pipeline_run_id: str, fields: dict) -> dict:
+        """Resolve a domain ID before mutating its Feishu record."""
+        row = self._pipeline_repo.find_by_business_key(pipeline_run_id=pipeline_run_id)
+        if row is None:
+            raise ValueError(f"Pipeline run not found: {pipeline_run_id}")
+        return self._pipeline_repo.update(row["record_id"], fields)
 
     # ----------------------------------------------------------
     # step transitions
@@ -170,7 +177,7 @@ class PipelineEngine:
 
         runnable = self.get_runnable_steps(pipeline_run_id)
         if runnable:
-            self._pipeline_repo.update(pipeline_run_id, {
+            self._update_pipeline(pipeline_run_id, {
                 "current_step": runnable[0]["step_key"],
                 "status": "running",
                 "updated_at": datetime.now(timezone.utc).isoformat(),
@@ -178,7 +185,7 @@ class PipelineEngine:
         else:
             all_steps = self._step_repo.find_by_pipeline(pipeline_run_id)
             if all(s.get("status") == "success" for s in all_steps):
-                self._pipeline_repo.update(pipeline_run_id, {
+                self._update_pipeline(pipeline_run_id, {
                     "status": "completed",
                     "current_step": "",
                     "updated_at": datetime.now(timezone.utc).isoformat(),
@@ -206,7 +213,7 @@ class PipelineEngine:
         if retry_count >= self._max_retries:
             pipeline_run_id = result.get("pipeline_run_id", "")
             if pipeline_run_id:
-                self._pipeline_repo.update(pipeline_run_id, {
+                self._update_pipeline(pipeline_run_id, {
                     "status": "failed",
                     "error_message": error_message,
                     "updated_at": datetime.now(timezone.utc).isoformat(),
