@@ -51,3 +51,5 @@ test_model_instructions.py: 两家 provider 的显式用户指令、空指令、
 test_consumption_api.py: 机会 approved 与标题/封面 selected 的 HTTP 消费边界；鉴权、缺失/未选拒绝、精确产物、跨请求丢弃/篡改拒绝，重复只读不调用模型。5项用例使用实际API/kernel/存储适配器及受控HTTP，不包含服务lifespan或真实模型质量。
 
 三种鉴权编辑输入HTTP用例同时核验最后user消息逐字等于原始反馈；来源中的同名文本仍仅在完整来源JSON内。
+
+test_runtime_dotenv_tables.py: 五项启动配置行为门禁；文件/进程优先级、完整表注册、配置实例隔离、显式空配置不回退环境和旧接口兼容；合成凭据、无远程API调用。

@@ -20,7 +20,8 @@ def build_runtime(settings):
         raise ValueError("STORY_PLANNING_ENABLED requires BOOKS_ENABLED")
     if settings.CHAPTER_LOOP_ENABLED and not settings.STORY_PLANNING_ENABLED:
         raise ValueError("CHAPTER_LOOP_ENABLED requires STORY_PLANNING_ENABLED")
-    config = TableMapConfig()
+    config = TableMapConfig(app_token=settings.FEISHU_APP_TOKEN,
+        table_ids={name: getattr(settings, "FEISHU_TABLE_ID_" + name.upper()) for name in FIELD_MAPS})
     if not config.app_token:
         raise ValueError("FEISHU_APP_TOKEN is required when HARNESS_ENABLED=true")
     client = FeishuClient(settings.FEISHU_APP_ID, settings.FEISHU_APP_SECRET)
