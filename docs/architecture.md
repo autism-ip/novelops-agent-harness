@@ -294,3 +294,7 @@ The deterministic runtime is documented in [Harness v0.2](harness-v02.md).
 That document supersedes the legacy system-Agent/lease execution descriptions
 below for new code. Semantic Agents remain model-backed handlers; scheduling,
 transitions, approvals and recovery belong to the kernel. Feishu remains SSOT.
+
+## Runtime dotenv configuration boundary
+
+Settings resolves process overrides, then .env.local, then .env for credentials, the Base token and table IDs. Runtime composition passes that resolved Base/table configuration explicitly into TableMapConfig rather than reading a second process-only source. Separate Settings instances remain isolated without mutating os.environ. Explicit table maps are copied and authoritative; missing required entries still fail fast instead of using an unrelated ambient Base/table. Legacy direct TableMapConfig callers without a map keep their process-environment interface. No business state is cached by this configuration snapshot.
