@@ -201,12 +201,14 @@ class ModelRouter:
         self.sleep = sleep
 
     def generate(self, route_name: str, prompt: Prompt, inputs: dict,
-                 output_schema: type[BaseModel], context: CallContext):
+                 output_schema: type[BaseModel], context: CallContext, *, instruction: str | None = None):
         route = self.routes.get(route_name)
         if route is None:
             raise ModelFailure("MissingRoute")
         messages = [{"role":"system", "content":prompt.template + "\nReturn only JSON matching this schema: " + encode(output_schema.model_json_schema())},
                     {"role":"user", "content":encode(inputs)}]
+        if instruction:
+            messages.append({"role": "user", "content": instruction})
         call_id = "CALL-" + uuid.uuid4().hex
         for attempt in range(route.max_retries + 1):
             trace_id = self.trace.start({"kind":"model", "run_id":context.run_id,"step_id":context.step_id,
@@ -332,8 +334,17 @@ class SemanticRuntime:
 
     def execute(self, *, route: str, prompt: Prompt, inputs: dict,
                 input_schema: type[BaseModel], output_schema: type[BaseModel],
-                context: CallContext, logical_id: str, version: int, artifact_type: str):
+                context: CallContext, logical_id: str, version: int, artifact_type: str,
+                instruction_field: str | None = None):
         validated = input_schema.model_validate(inputs)
+        payload = validated.model_dump()
+        instruction = None
+        input_hash = digest(payload)
+        if instruction_field is not None:
+            instruction = payload.get(instruction_field)
+            if not isinstance(instruction, str):
+                raise ValueError("Instruction field must name a top-level string")
+            input_hash = digest({"inputs": payload, "instruction_field": instruction_field})
         aid = stable_id("AR-", logical_id + "/" + str(version))
         route_config = self.router.routes.get(route)
         if route_config is None:
@@ -345,7 +356,7 @@ class SemanticRuntime:
                 existing = None
             if existing:
                 if (existing["prompt_hash"] != digest(prompt.model_dump()) or
-                    existing["input_hash"] != digest(validated.model_dump()) or
+                    existing["input_hash"] != input_hash or
                     existing["artifact_type"] != artifact_type or
                     existing["chapter_id"] != context.chapter_id or
                     existing["workflow_version"] != context.workflow_version or
@@ -356,13 +367,13 @@ class SemanticRuntime:
                     raise ValueError("Artifact version is immutable; use a new version")
                 output_schema.model_validate(existing["content"])
                 return existing
-            output = self.router.generate(route, prompt, validated.model_dump(), output_schema, context)
+            output = self.router.generate(route, prompt, payload, output_schema, context, instruction=instruction)
             attempts = self.router.trace.list(run_id=context.run_id)
             matching = [t for t in attempts if t["kind"] == "model" and t.get("step_id") == context.step_id and t["status"] == "success"]
             artifact = self.artifacts.save(logical_id=logical_id,version=version,artifact_type=artifact_type,
                 content=output.model_dump(),context=context,prompt=prompt,route=route,
                 provider=route_config.provider,model=matching[-1]["model"] if matching else route_config.model,route_hash=digest(route_config.model_dump()),
-                input_hash=digest(validated.model_dump()))
+                input_hash=input_hash)
             # Link the successful attempt to the immutable output after persistence.
             if matching:
                 self.router.trace.finish(matching[-1]["trace_id"], output_refs=[artifact["artifact_id"]])
