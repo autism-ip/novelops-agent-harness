@@ -116,7 +116,7 @@ def test_actionable_critique_rewrites_once_and_preserves_versions(chapter):
     assert view["selected"]["version"] == 2
     assert view["selected"]["content"]["snapshot_artifact_id"] == snapshot
     assert view["selected"]["content"]["brief_artifact_id"] == request["brief_artifact_id"]
-    assert view["versions"][1]["prompt_version"] == "chapter-rewrite-v3"
+    assert view["versions"][1]["prompt_version"] == "chapter-rewrite-v4"
     assert [row["version_no"] for row in view["versions"]] == [1, 2]
     assert [row["status"] for row in view["versions"]] == ["candidate", "review"]
     assert view["versions"][0]["review_report_id"] == view["critique"]["artifact_id"]
@@ -125,6 +125,7 @@ def test_actionable_critique_rewrites_once_and_preserves_versions(chapter):
     assert view["critique"]["content"]["constraints"]["must_change"]
     assert view["usage"]["attempts"] == 3
     assert provider.calls[-3:] == ["writer", "critic", "rewrite"]
+    assert json.loads(provider.messages[-1][1]["content"])["constraints"] == view["critique"]["content"]["constraints"]
     for messages in (provider.messages[-3], provider.messages[-1]):
         sent = json.loads(messages[1]["content"])
         assert sent["snapshot_artifact_id"] == snapshot
@@ -351,10 +352,45 @@ def test_latest_chapter_read_returns_one_run_and_lightweight_version_history(cha
 def test_critic_prompt_defines_negative_dimensions_as_quality_scores():
     from app.chapter_loop import CRITIC_PROMPT, Critique
 
-    assert CRITIC_PROMPT.version == "chapter-critic-v2"
+    assert CRITIC_PROMPT.version == "chapter-critic-v3"
     assert "5 means the defect is absent or minimal" in CRITIC_PROMPT.template
     assert "0 means severe repetition or obvious AI-like patterns" in CRITIC_PROMPT.template
     poor = critique()
     poor["repetition"] = {"score": 1, "evidence": "Repeated sentences weaken the chapter."}
     with pytest.raises(ValueError, match="pass decision requires all quality scores"):
         Critique.model_validate(poor)
+
+
+@pytest.mark.parametrize("stage", ["critic", "automatic_rewrite"])
+@pytest.mark.parametrize("count", [1, 20])
+def test_editor_constraints_survive_the_entire_revision_loop(chapter, stage, count):
+    kernel, provider, book_id = chapter
+    first = pass_run(kernel, provider, book_id)
+    previous = first["selected"]
+    source = first["versions"][0]
+    constraints = {"must_keep": [f"Mira remains the viewpoint character ({i})" for i in range(count)],
+                   "must_change": [f"Make the loss of the secret itself explicit ({i})" for i in range(count)],
+                   "do_not_change": [f"Each recovered object costs one irretrievable secret ({i})" for i in range(count)]}
+    run_id, request, snapshot = start(kernel, book_id, source_version_id=source["version_id"],
+                                      constraints=constraints)
+    report = critique("revise")
+    report["constraints"] = {key: [f"{items[0]} ({i})" for i in range(count)]
+                             for key, items in report["constraints"].items()}
+    provider.outputs.extend([draft(snapshot, request["brief_artifact_id"]), report,
+                             draft(snapshot, request["brief_artifact_id"], prose="The revised secret is gone. " * 20)])
+    settle(kernel, 5)
+    view = kernel.chapter_loop.read(run_id)
+    assert view["run"]["status"] == "completed"
+    assert provider.calls[-3:] == ["rewrite", "critic", "rewrite"]
+    critic_input = json.loads(provider.messages[-2][1]["content"])
+    rewrite_input = json.loads(provider.messages[-1][1]["content"])
+    if stage == "critic":
+        assert critic_input.get("constraints") == constraints
+    else:
+        assert rewrite_input["constraints"] == constraints
+        assert rewrite_input["critique"]["constraints"] == report["constraints"]
+    assert view["request"]["constraints"] == constraints
+    assert view["selected"]["content"]["source_version_id"] == source["version_id"]
+    assert view["selected"]["version"] == 3
+    assert kernel.artifacts.get(previous["artifact_id"]) == previous
+    assert view["usage"]["attempts"] == 3
