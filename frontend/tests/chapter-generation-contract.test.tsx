@@ -412,3 +412,19 @@ test("slow generation context and enqueue keep exact source IDs and send only on
   expect(writes(transport)).toHaveLength(1);
   expect(writes(transport)[0][1].body).toBe(JSON.stringify(context));
 });
+
+test("idle eligible-brief reads use a minute budget and explicit chapter refresh stays read-only", async () => {
+  vi.useFakeTimers();
+  const transport = serve();
+  render(<ChapterGeneration bookId={book} />);
+  await act(async () => { await vi.advanceTimersByTimeAsync(59_999); });
+  expect(transport.mock.calls.filter(([url]) => String(url).endsWith("/brief/eligible"))).toHaveLength(1);
+  expect(writes(transport)).toHaveLength(0);
+  await act(async () => { await vi.advanceTimersByTimeAsync(1); });
+  expect(transport.mock.calls.filter(([url]) => String(url).endsWith("/brief/eligible"))).toHaveLength(2);
+  fireEvent.click(screen.getByRole("button", { name: "Refresh chapter" }));
+  await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+  expect(transport.mock.calls.filter(([url]) => String(url).endsWith("/brief/eligible"))).toHaveLength(3);
+  expect(writes(transport)).toHaveLength(0);
+  expect((screen.getByRole("button", { name: "Generate chapter" }) as HTMLButtonElement).disabled).toBe(false);
+});

@@ -58,7 +58,7 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
   const pending = parsePendingChapter(storageUnavailable ? null : pendingRaw);
   const runs = useResource<ChapterRun | null>(validChapter ? `${root}/generation/latest` : null,
     revision, 5000, pollWhileActive, GENERATION_TIMEOUT_MS);
-  const brief = useResource<Artifact>(validChapter ? `${root}/brief/eligible` : null, revision, 5000, undefined, GENERATION_TIMEOUT_MS);
+  const brief = useResource<Artifact>(validChapter ? `${root}/brief/eligible` : null, revision, 60_000, undefined, GENERATION_TIMEOUT_MS);
   const latest = runs.data;
   const runBusy = !!latest && !["completed", "failed", "blocked", "cancelled"].includes(latest.run.status);
   const unavailable = runs.error instanceof ApiError && runs.error.status === 503;
