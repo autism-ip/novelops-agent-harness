@@ -19,3 +19,9 @@ After approval, the Harness applies a deterministic, schema-validated patch to S
 ## Limits and recovery
 
 Model calls, Feishu access, and persistence still depend on deployment credentials and table schema. Offline tests use synthetic model output and HTTP storage. The workflow keeps one writer and a persistent intent journal. A model validation failure fails its version; a later request uses the next version. A source state change invalidates an uncommitted Bible or current brief, and the editor must refresh context. The backend does not infer approval from a generated artifact alone.
+
+## Editorial direction and source data
+
+The authenticated API continues to accept `feedback`. Internally, `story-architect-v2` and `chapter-planner-v2` receive it as an explicit `editor_instruction`, separate from immutable source text. The Bible input also carries the validated `initial`/`major` change scope; proposals still require exact human approval before changing canonical state. Chapter direction cannot override canonical snapshot rules, and a prior brief that contradicts those rules is corrected rather than preserved. Source narrative cannot supply an instruction by including a similarly named field. Clients cannot submit the internal field through the public request schema.
+
+This input boundary and strict schema validation do not prove semantic compliance. The acceptance driver inspects a newly generated brief before spending on its chapter; observed contradictions remain failures, even when source eligibility is valid.

@@ -35,3 +35,5 @@ app/api/routes/hotspots.py: 鉴权抓取触发及热点列表/详情接口；命
 `tests/` 是语义边界：它描述未来实现必须满足的外部行为。实现代码不得通过改弱测试来过关，只能让真实行为匹配测试。
 
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+
+规划模型输入将鉴权请求的 feedback 映射为独立 editor_instruction；StoryBible 同时携带 initial/major 范围，仍由精确版本人工审批生效。提纲以规范快照规则为上位约束，修复旧提纲冲突。API 的 feedback 字段保持原契约，客户端不能伪造内部输入字段，来源中的同名文本只是数据。
