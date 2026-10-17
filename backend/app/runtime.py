@@ -16,6 +16,8 @@ def build_runtime(settings):
         raise ValueError("CREATIVE_ENABLED requires RESEARCH_ENABLED")
     if settings.BOOKS_ENABLED and not settings.CREATIVE_ENABLED:
         raise ValueError("BOOKS_ENABLED requires CREATIVE_ENABLED")
+    if settings.STORY_PLANNING_ENABLED and not settings.BOOKS_ENABLED:
+        raise ValueError("STORY_PLANNING_ENABLED requires BOOKS_ENABLED")
     config = TableMapConfig(app_token=settings.FEISHU_APP_TOKEN,
         table_ids={name: getattr(settings, "FEISHU_TABLE_ID_" + name.upper()) for name in FIELD_MAPS})
     if not config.app_token:
@@ -70,6 +72,9 @@ def build_runtime(settings):
         if settings.BOOKS_ENABLED:
             from app.books import BookService
             kernel.books = BookService(kernel)
+        if settings.STORY_PLANNING_ENABLED:
+            from app.story_planning import StoryPlanningService
+            kernel.story_planning = StoryPlanningService(kernel)
         return kernel, client
     except Exception:
         if "kernel" in locals() and getattr(kernel, "model_router", None):
