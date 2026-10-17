@@ -27,7 +27,7 @@ function response(input: unknown, init: RequestInit, latest: ReturnType<typeof r
   const path = String(input);
   if (init.method === "POST") return Response.json({ pipeline_run_id: `PR-${"4".repeat(32)}` });
   if (path.endsWith("/generation/latest")) return Response.json(latest);
-  if (path.endsWith("/brief/eligible")) return hasBrief ? Response.json(eligible) : Response.json({ detail: "No eligible brief" }, { status: 409 });
+  if (path.endsWith("/brief/eligible")) return hasBrief ? Response.json(eligible) : Response.json({ detail: "No current policy-eligible ChapterBrief" }, { status: 409 });
   if (path.endsWith("/generation/context")) {
     const chapter = Number(/\/chapters\/(\d+)\//.exec(path)?.[1]);
     return Response.json({ ...context, chapter_no: chapter });
@@ -122,7 +122,7 @@ test.each(["completed", "failed", "blocked", "cancelled"])("a %s run can regener
 
 test.each([401, 503])("generation read status %s gives contextual guidance without write", async status => {
   const transport = vi.fn((input: unknown, init: RequestInit) => Promise.resolve(
-    String(input).endsWith("/generation/latest") ? Response.json({ detail: "Unavailable" }, { status }) : response(input, init)));
+    String(input).endsWith("/generation/latest") ? Response.json({ detail: status === 503 ? "Chapter loop is not configured" : "Unavailable" }, { status }) : response(input, init)));
   vi.stubGlobal("fetch", transport);
   render(<ChapterGeneration bookId={book} />);
   await screen.findByText(status === 401 ? "Sign in to generate chapters." : "Chapter generation is not configured for this workspace.");
@@ -427,4 +427,53 @@ test("idle eligible-brief reads use a minute budget and explicit chapter refresh
   expect(transport.mock.calls.filter(([url]) => String(url).endsWith("/brief/eligible"))).toHaveLength(3);
   expect(writes(transport)).toHaveLength(0);
   expect((screen.getByRole("button", { name: "Generate chapter" }) as HTMLButtonElement).disabled).toBe(false);
+});
+
+
+test.each([{ detail: "Backend service is unavailable. Check the service, then refresh." }, { detail: "Storage verification failed" }, "Unavailable", { detail: 123 }])(
+  "generation503 distinguishes an outage from explicit feature configuration (%j)", async body => {
+    const transport = vi.fn((input: unknown, init: RequestInit)=>Promise.resolve(String(input).endsWith("/generation/latest")
+      ? Response.json(body,{status:503}) : response(input,init)));
+    vi.stubGlobal("fetch",transport);render(<ChapterGeneration bookId={book}/>);
+    await screen.findByRole("alert");
+    expect(screen.getByRole("heading",{name:"Chapter generation"})).toBeTruthy();
+    expect(screen.queryByText("Chapter generation is not configured for this workspace.")).toBeNull();
+    expect(screen.getByRole("button",{name:"Generate chapter"})).toHaveProperty("disabled",true);
+    expect(writes(transport)).toHaveLength(0);
+  });
+
+test.each([503,409])("eligible brief failure %s is visible and never presented as an absent approved Bible", async status=>{
+  const transport=vi.fn((input:unknown,init:RequestInit)=>Promise.resolve(String(input).endsWith("/brief/eligible")
+    ? Response.json({detail:"Eligible brief source is unavailable"},{status}) : response(input,init)));
+  vi.stubGlobal("fetch",transport);render(<ChapterGeneration bookId={book}/>);
+  await screen.findByText("Eligible brief source is unavailable");
+  expect(screen.queryByText("Approve the StoryBible and generate a current chapter brief first.")).toBeNull();
+  expect(screen.getByRole("button",{name:"Generate chapter"})).toHaveProperty("disabled",true);
+  expect(writes(transport)).toHaveLength(0);
+});
+
+test.each(["feature","transport"])("chapter %s failure can refresh its sources without generation",async kind=>{
+  let failed=true;
+  const transport=vi.fn((input:unknown,init:RequestInit)=>Promise.resolve(failed && String(input).endsWith("/generation/latest")
+    ? Response.json({detail:kind==="feature"?"Chapter loop is not configured":"Backend service is unavailable"},{status:503}) : response(input,init)));
+  vi.stubGlobal("fetch",transport);render(<ChapterGeneration bookId={book}/>);
+  if(kind==="feature")await screen.findByText("Chapter generation is not configured for this workspace.");
+  else await screen.findByRole("alert");
+  failed=false;fireEvent.click(screen.getByRole("button",{name:"Refresh chapter"}));
+  await waitFor(()=>expect(screen.getByRole("button",{name:"Generate chapter"})).toHaveProperty("disabled",false));
+  expect(transport.mock.calls.filter(([input])=>String(input).endsWith("/generation/latest"))).toHaveLength(2);
+  expect(writes(transport)).toHaveLength(0);
+});
+
+test("a loaded eligible brief cannot enable generation before run history finishes",async()=>{
+  let finish!:(value:Response)=>void;
+  const transport=vi.fn((input:unknown,init:RequestInit)=>String(input).endsWith("/generation/latest")
+    ? new Promise<Response>(resolve=>{finish=resolve;}) : Promise.resolve(response(input,init)));
+  vi.stubGlobal("fetch",transport);render(<ChapterGeneration bookId={book}/>);
+  await act(async()=>{});
+  const disabledWhileReading=(screen.getByRole("button",{name:"Generate chapter"}) as HTMLButtonElement).disabled;
+  await act(async()=>{finish(Response.json(null));});
+  expect(disabledWhileReading).toBe(true);
+  expect(screen.getByRole("button",{name:"Generate chapter"})).toHaveProperty("disabled",false);
+  expect(writes(transport)).toHaveLength(0);
 });

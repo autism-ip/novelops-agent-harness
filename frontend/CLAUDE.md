@@ -23,6 +23,8 @@ Node 24（`.nvmrc`）。`npm ci` 安装锁定依赖；`npm run check` 依次执�
 
 规划面板仅将后端明确的 `Story planning is not configured` 503 合同识别为未配置；其他503显示原始恢复信息。独立“Refresh planning”不生成内容，可恢复配置变更和暂时故障；历史读取中/失败时禁止新付费生成，不显示假空历史，既有待重放命令保留。
 
+章节生成仅把明确 `Chapter loop is not configured` 503 识别为未配置；Brief读取错误显示原恢复信息，不误称缺少批准Bible。只有明确 `No current policy-eligible ChapterBrief` 409 显示补齐提纲指引；运行历史或Brief读取中/失败时禁止新生成，刷新不触发付费流程。
+
 ## 目录结构
 ```
 src/

@@ -61,7 +61,11 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
   const brief = useResource<Artifact>(validChapter ? `${root}/brief/eligible` : null, revision, 60_000, undefined, GENERATION_TIMEOUT_MS);
   const latest = runs.data;
   const runBusy = !!latest && !["completed", "failed", "blocked", "cancelled"].includes(latest.run.status);
-  const unavailable = runs.error instanceof ApiError && runs.error.status === 503;
+  const unavailable = runs.error instanceof ApiError && runs.error.status === 503 &&
+    errorMessage(runs.error) === "Chapter loop is not configured";
+  const historyUnknown = runs.loading || runs.error != null;
+  const needsBrief = brief.error instanceof ApiError && brief.error.status === 409 &&
+    errorMessage(brief.error) === "No current policy-eligible ChapterBrief";
 
   function assertStorage(expected: typeof pendingRaw) {
     const current = saved(key);
@@ -102,15 +106,17 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
   }
 
   async function generate() {
-    if (!validChapter || pendingRaw || working || !brief.data) return;
+    if (!validChapter || pendingRaw || working || !brief.data || historyUnknown || brief.loading || brief.error != null || runBusy) return;
     await submit(async () => {
       const context = await api.get<ChapterContext>(`${root}/generation/context`, GENERATION_TIMEOUT_MS);
       return { path: `${root}/generations`, body: context };
     });
   }
 
-  if (unavailable) return <section className="surface p-5 text-sm text-muted-foreground" aria-label="Chapter generation">
-    Chapter generation is not configured for this workspace.
+  if (unavailable) return <section className="surface space-y-3 p-5 text-sm text-muted-foreground" aria-label="Chapter generation">
+    <p>Chapter generation is not configured for this workspace.</p>
+    <Button variant="outline" disabled={working || !validChapter || runs.loading || brief.loading}
+      onClick={() => setRevision(value => value + 1)}>Refresh chapter</Button>
   </section>;
 
   return <section className="surface space-y-5 p-5 sm:p-6" aria-label="Chapter generation">
@@ -122,14 +128,15 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
         <input className="mt-1.5 block w-full px-3 py-2" type="number" min={1} max={10000}
           value={chapter} onChange={event => setChapter(event.target.value)} />
       </label>
-      <Button disabled={working || !!pendingRaw || runBusy || !validChapter || !brief.data}
+      <Button disabled={working || !!pendingRaw || runBusy || !validChapter || !brief.data || historyUnknown || brief.loading || brief.error != null}
         onClick={() => void generate()}>{latest ? "Regenerate chapter" : "Generate chapter"}</Button>
-      <Button variant="ghost" disabled={working || !validChapter}
+      <Button variant="ghost" disabled={working || !validChapter || runs.loading || brief.loading}
         onClick={() => setRevision(value => value + 1)}>Refresh chapter</Button>
     </div>
-    {validChapter && !brief.data && !(brief.loading) &&
+    {validChapter && needsBrief &&
       <p className="text-sm text-muted-foreground">Approve the StoryBible and generate a current chapter brief first.</p>}
     {runs.error != null && <p role="alert" className="text-sm text-destructive">{visibleError(runs.error)}</p>}
+    {brief.error != null && !needsBrief && <p role="alert" className="text-sm text-destructive">{visibleError(brief.error)}</p>}
     {working && !pendingRaw && <p role="status" className="text-sm">Preparing chapter generation…</p>}
     {pending && <div className="surface-soft space-y-2 p-4 text-sm" role="status">
       <p>{working ? "Saving chapter generation… This may take a moment." : "The last submission has an unknown outcome. Retry preserves the same Book, chapter, run version and source artifacts."}</p>
