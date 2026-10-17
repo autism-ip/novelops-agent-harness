@@ -1883,8 +1883,224 @@
     "Critic can still confuse obsolete examples quoted in editorial constraints with actual prose; strict JSON failure also observed",
     "Native startup/recovery and remote reads/commands remain slow; observations are not controlled benchmarks",
     "All applicable source coverage metrics at 100%, including frontend; not achieved",
-    "Current-head CI and all review sources must be rechecked after final report push"
+    "Current-head CI and all review sources must be rechecked after final report push",
+    "Fix book/deep-link session recovery UX under existing ZEN-107/ZEN-41 scope",
+    "Diagnose observed safe scheduler halt from FeishuAPIError; restore the already queued PR-a59c70f4418847e7959102df3dd71193 without replacement or duplicate paid calls"
   ],
   "security": "Primary checkout and .env.local untouched; credentials read only; synthetic Base retention/sharing authorized; no secrets/API key/profile nonce published; no merges or deployment",
-  "skill_assessment": "Reused issue-pr-delivery, TDD and security-review. Existing independent editorial review, immutable probe and bounded-diagnostic rules remain applicable. No new skill abstraction or exclusion added."
+  "skill_assessment": {
+    "existing_skill_updated": "issue-pr-delivery",
+    "change": "HTTP liveness and scheduler readiness are separate; confirm actual stopped execution, preserve exact queued command and complete owned snapshot, resume same logical run; safe provider error-code-only observation",
+    "validator": "quick_validate.py: Skill is valid!",
+    "new_skill_created": false
+  },
+  "last_updated_at_unix": 1792211661.6212108,
+  "native_v8_final_review": {
+    "reviewed_at": 1792209519.613088,
+    "verdict": "failed",
+    "source_commit": "0fb29c10412fa26be4fed3c8445490ed0feb60c9",
+    "run_id": "PR-1963f97b39bb034b62a121bfa6a536ae",
+    "artifact_id": "AR-783ce899fdc09d7e5c73c96633ff68e3",
+    "artifact_content_hash": "cdc4c42fc35fc355f387a9691d8be27bdd25e76a53042bd069e1a135e57b97bb",
+    "version": 8,
+    "han_characters": 1715,
+    "original_v7_han_characters": 2113,
+    "reduction_from_v7": 398,
+    "native_status": "awaiting_approval",
+    "native_verifier_passed": true,
+    "critic_decision": "pass",
+    "approval_issued": false,
+    "final_lock_issued": false,
+    "passed": [
+      "1400–1800 hard Han range",
+      "Exact opening, handover and watermarks sentences",
+      "Physical return before personally whispered never-told secret",
+      "Only gap awareness after permanent loss; no post-cost recall or restored emotion",
+      "Explicit sleep and next dawn before copper-key entry",
+      "Grandfather seven years and recovered/buried corpse wording",
+      "Ledger stays in clocktower; no new power or midnight deadline",
+      "Old seven ChapterVersion Artifacts unchanged by completed native probe"
+    ],
+    "failed": [
+      {
+        "requirement": "At least 500 Han characters removed from the explicitly referenced v7 2113-Han source",
+        "actual": 398,
+        "required": 500,
+        "finding": "1715 is in the absolute original range, but this additional quantitative editorial instruction was not satisfied."
+      }
+    ],
+    "model_calls": 2,
+    "retained_rows": 322,
+    "snapshot_failures": [],
+    "scheduler_running_after_exit": false,
+    "next": "Fresh revision must clarify that the historical 2113 count refers to v7 and target 1400–1600, which also satisfies the original >=500 reduction. Preserve all original instructions and versions.",
+    "limitations": "This narrower probe instruction was added by the acceptance editor, beyond the original broad approximate length; retain the failure instead of removing it for approval."
+  },
+  "native_ui_recovery": {
+    "captured_at": 1792211443.288492,
+    "source_commit": "0fb29c10412fa26be4fed3c8445490ed0feb60c9",
+    "run_id": "PR-a59c70f4418847e7959102df3dd71193",
+    "revision_task_id": "RT-d6f0a10da7bedc7e2badc9998836ef08",
+    "source_version": 8,
+    "source_artifact": "AR-783ce899fdc09d7e5c73c96633ff68e3",
+    "original_saved_command_hash": "9b4b7f092f97dae16c4d5021db6d87de1d788fa6d8325f30b85a9c84232e23b6",
+    "ui_first_request": {
+      "duration_ms": 120004.4,
+      "response_status": 0,
+      "outcome": "unknown; preserved exact command"
+    },
+    "ui_replay": {
+      "duration_ms": 75147.8,
+      "response_status": 201,
+      "pending_storage_cleared_after_success": true,
+      "original_locator_attempt": "No match and no dispatch; then actual observed exact-text button used"
+    },
+    "durable_result": {
+      "matching_revision_tasks": 1,
+      "status": "queued",
+      "pipeline_status": "pending",
+      "steps": 5,
+      "all_steps_pending": true,
+      "model_calls": 0
+    },
+    "scheduler_failure_observation": {
+      "http_status": 200,
+      "body": {
+        "backend_status": "running",
+        "worker_status": "stopped",
+        "feishu_status": "unreachable",
+        "opencli_status": "not_configured",
+        "active_pipeline_runs": 1,
+        "pending_steps": 5,
+        "failed_steps": 7,
+        "last_error": "FeishuAPIError",
+        "last_tick": "2026-10-17T04:07:12.987541+00:00"
+      },
+      "seconds": 0.021
+    },
+    "graceful_shutdown": {
+      "retained_rows": 331,
+      "snapshot_failures": [],
+      "scheduler_running_after_exit": false,
+      "process_exit": 0
+    },
+    "resume": "Same published immutable source and queued logical task; no new command or regeneration; add safe response-code-only diagnostics."
+  },
+  "same_run_resume_at_capture": {
+    "source_commit": "0fb29c10412fa26be4fed3c8445490ed0feb60c9",
+    "status": "serving_native_editor",
+    "lifecycle_phase": "serving",
+    "resumed_run_id": "PR-a59c70f4418847e7959102df3dd71193",
+    "chapter_run_id": "PR-a59c70f4418847e7959102df3dd71193",
+    "startup": {
+      "seconds": 147.12,
+      "kernel_running": true,
+      "process_table_env_keys": [],
+      "model_calls_before_listener_ready_for_previously_authorized_run": 0
+    },
+    "scheduler_status": {
+      "worker_status": "running",
+      "feishu_status": "connected",
+      "last_error": null,
+      "last_tick": "2026-10-17T04:33:27.627949+00:00",
+      "active_pipeline_runs": 1,
+      "pending_steps": 4,
+      "failed_steps": 7
+    },
+    "feishu_failures": [],
+    "failure": null,
+    "model_calls_observed": 1
+  },
+  "ui_auth_recovery_finding": {
+    "observed_at": 1792210519.586231,
+    "issue": "ZEN-107",
+    "related_issue": "ZEN-41",
+    "source": "0fb29c10412fa26be4fed3c8445490ed0feb60c9",
+    "finding": "A signed-out/expired-session book deep link only shows Sign in to view and manage hotspots. No login form or actionable sign-in link on that surface; /login is not an app route. Existing form is on Hotspots.",
+    "impact": "Authors following book/chapter links cannot resume the requested task from the failure state; copy refers to the wrong product section.",
+    "evidence": "Ego space 4 / p1, real production frontend and native local backend; snapshot recorded current book route before login.",
+    "classification": "P1 authentication recovery UX; not a credential or backend ACL failure",
+    "next": "Complete current native revision through existing Hotspots sign-in, then implement a reusable session recovery surface without changing the approved design direction.",
+    "fixed": false
+  },
+  "post_report_ci_capture": [
+    {
+      "pr": 23,
+      "head": "6f29fba5014486f3fd41676f6e12d884b27d39f1",
+      "unresolved_threads": 0,
+      "all_checks_success": true
+    },
+    {
+      "pr": 24,
+      "head": "f555fd922d0173e9c6d9ac22fadaea8101b8f4fd",
+      "unresolved_threads": 0,
+      "all_checks_success": true
+    },
+    {
+      "pr": 25,
+      "head": "ef7a51ccb01a4691697b2405a83e12ab5be952ba",
+      "unresolved_threads": 0,
+      "all_checks_success": true
+    },
+    {
+      "pr": 27,
+      "head": "554cf6dfb7ca8a8028f17587097c4eef2574f69b",
+      "unresolved_threads": 0,
+      "all_checks_success": true
+    },
+    {
+      "pr": 28,
+      "head": "381b8b78e46dc75931bd8784b656ee4e54768d40",
+      "unresolved_threads": 0,
+      "all_checks_success": true
+    },
+    {
+      "pr": 29,
+      "head": "2a6d1b9fb21ecd74342e99b4ec41a136ca7a4623",
+      "unresolved_threads": 0,
+      "all_checks_success": true
+    },
+    {
+      "pr": 30,
+      "head": "114d00fcada2dda4cbce5c0dd213084f17fe70f6",
+      "unresolved_threads": 0,
+      "all_checks_success": true
+    },
+    {
+      "pr": 31,
+      "head": "6876e88f4153328ed9a1eeb491fa855923c6736b",
+      "unresolved_threads": 0,
+      "all_checks_success": true
+    },
+    {
+      "pr": 32,
+      "head": "75f71e2a422890a1387868ebd0365b9bdd46ddd4",
+      "unresolved_threads": 0,
+      "all_checks_success": true
+    },
+    {
+      "pr": 34,
+      "head": "87860c90468e30b76b7ccf0e70778de1fab7bed9",
+      "unresolved_threads": 0,
+      "all_checks_success": true
+    },
+    {
+      "pr": 35,
+      "head": "aa0892bfda1f71d9c709da9873a350d67ce0ca1b",
+      "unresolved_threads": 0,
+      "all_checks_success": true
+    },
+    {
+      "pr": 36,
+      "head": "4ddcd7ad7b17d44b8c50bfab75c3471fe49d84b7",
+      "unresolved_threads": 0,
+      "all_checks_success": true
+    },
+    {
+      "pr": 37,
+      "head": "eb42150468546055c1b4173734e7a4962c7967a3",
+      "unresolved_threads": 0,
+      "all_checks_success": true
+    }
+  ]
 }
