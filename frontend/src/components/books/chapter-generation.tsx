@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRef, useState, useSyncExternalStore } from "react";
 import { api, ApiError } from "@/api/client";
 import { errorMessage, useResource } from "@/components/hotspots/use-resource";
@@ -126,6 +127,8 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
           latest ? "Regenerate chapter" : "Generate chapter"}</Button>
       <Button variant="ghost" disabled={working || !validChapter}
         onClick={() => setRevision(value => value + 1)}>Refresh chapter</Button>
+      {validChapter && <Button asChild variant="outline"><Link prefetch={false}
+        href={`/books/${encodeURIComponent(bookId)}/chapters/${chapterNo}/review`}>Open review desk</Link></Button>}
     </div>
     {validChapter && !brief.data && !(brief.loading) &&
       <p className="text-sm text-muted-foreground">Approve the StoryBible and generate a current chapter brief first.</p>}

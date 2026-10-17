@@ -18,6 +18,8 @@ Node 24（`.nvmrc`）。`npm ci` 安装锁定依赖；`npm run check` 依次执�
 `src/components/books/book-bootstrap.tsx` 从批准来源创建书籍；检查 Books 后的本地清除失败显示原因和恢复指引，并保留原请求，恢复存储后可再次清除。
 `src/components/books/chapter-review-desk.tsx` 提供 ZEN-41 Book 内章节审阅台：正文与历史、所读版本 Artifact ID、Critic/Verifier、批准/拒绝/退修/终锁、选择性人工关卡和折叠的来源/模型细节；切换 Book/章节时由 `chapter-generation.tsx` 的 key 重置本地审阅表单；`review-state.ts` 校验待重放命令的精确版本身份。实测飞书审稿读取和批准/终锁均超过十秒；审稿 GET 与精确版本 POST 使用 120 秒有界限时，覆盖完整响应正文。保存中显示等待状态，超时保留原命令供重放；检查历史后的本地清除失败显示错误并保留命令，恢复存储后可再次清除；代理声明 120 秒执行预算，部署平台实际限时仍需验收。其他浏览器请求保留默认十秒。
 
+`src/app/books/[bookId]/chapters/[chapterNo]/review/page.tsx` 提供独立章节审稿入口，校验 Book 路径与 1–10000 的规范章节号；`focused-chapter-review.tsx` 只挂载同一真实审稿组件，不加载全书/Bible/Brief 历史或启动生成。章节生成区提供可发现链接，独立页保留返回书籍、手动刷新及精确审批/重放语义。`tests/focused-chapter-review.test.tsx` 使用真实 hook、ApiClient 和审稿台验证读取预算、关卡静默及版本绑定。
+
 ## 目录结构
 ```
 src/

@@ -6,6 +6,7 @@ import { useEditorIdentity } from "@/components/hotspots/editor-identity";
 import { errorMessage, useResource } from "@/components/hotspots/use-resource";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { parsePendingReview, type PendingReview } from "./review-state";
 
 type Artifact = { artifact_id: string; version: number; content: Record<string, unknown>; source_refs: string[] };
@@ -48,9 +49,10 @@ function pollWhileActive(review: ReviewState) {
   return !!review.latest && !["completed", "failed", "blocked", "cancelled", "awaiting_approval"].includes(review.latest.run.status);
 }
 
-export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged }: {
-  bookId: string; chapterNo: number; refresh: number; onChanged: () => void
+export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged, headingLevel = 3, className }: {
+  bookId: string; chapterNo: number; refresh: number; onChanged: () => void; headingLevel?: 2 | 3; className?: string
 }) {
+  const Heading = `h${headingLevel}` as "h2" | "h3";
   const root = `/api/books/${encodeURIComponent(bookId)}/chapters/${chapterNo}`;
   const key = `novelops.chapter-review.pending.${bookId}.${chapterNo}`;
   const pendingRaw = useSyncExternalStore(subscribe, () => saved(key), () => null);
@@ -147,9 +149,9 @@ export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged }: {
       version_no: body.version_no, operator: body.operator } });
   }
 
-  return <div className="space-y-5 border-t pt-5" aria-label="Chapter review desk">
+  return <div className={cn("space-y-5 border-t pt-5", className)} aria-label="Chapter review desk">
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <div><h3 className="text-lg font-semibold">Chapter review desk</h3>
+      <div><Heading className="text-lg font-semibold">Chapter review desk</Heading>
         <p className="text-sm text-muted-foreground">Read the draft, inspect the checks, then make the next editorial decision.</p></div>
       {latest && <StatusBadge status={gatePending ? "awaiting_approval" : latest.run.status} />}
     </div>
