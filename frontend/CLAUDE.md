@@ -20,6 +20,8 @@ Node 24（`.nvmrc`）。`npm ci` 安装锁定依赖；`npm run check` 依次执�
 
 `src/app/books/[bookId]/chapters/[chapterNo]/review/page.tsx` 提供独立章节审稿入口，校验 Book 路径与 1–10000 的规范章节号；`focused-chapter-review.tsx` 只挂载同一真实审稿组件，不加载全书/Bible/Brief 历史或启动生成。章节生成区提供可发现链接，独立页保留返回书籍、手动刷新及精确审批/重放语义。`tests/focused-chapter-review.test.tsx` 使用真实 hook、ApiClient 和审稿台验证读取预算、关卡静默及版本绑定。
 
+`/sign-in` 与全局导航提供所有页面的登录恢复入口；验证仅允许已知站内页面返回，成功后回到原 Book/章节。密码仅 POST 到既有登录端点，不写入 URL/浏览器存储；失败可修正重试，保存中的精确业务命令不清除。`workspace-sign-in.test.tsx` 覆盖返回路径安全、并发提交、错误恢复和原命令保护。
+
 ## 目录结构
 ```
 src/
