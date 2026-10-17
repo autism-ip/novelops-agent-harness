@@ -90,7 +90,7 @@ for (const kind of ["titles", "covers"] as const) {
 for (const status of [401, 409, 503]) {
   test(`context ${status} never persists or submits and allows a fresh retry`, async () => {
     const store = fixture(); store.rejectContext(status); render(<HotspotsWorkbench />); const dialog = await open(); const button = await within(dialog).findByRole("button", { name: "Generate next title version" });
-    fireEvent.click(button); await screen.findAllByText(status === 401 ? "Sign in to view and manage hotspots." : "Source context unavailable");
+    fireEvent.click(button); await screen.findAllByText(status === 401 ? "Sign in to continue in this workspace." : "Source context unavailable");
     expect(store.commands).toHaveLength(0); expect(sessionStorage.getItem(storageKey)).toBeNull(); expect((button as HTMLButtonElement).disabled).toBe(false);
     store.rejectContext(200); fireEvent.click(button); await waitFor(() => expect(store.commands).toHaveLength(1)); expect(store.contexts).toHaveLength(2);
   });

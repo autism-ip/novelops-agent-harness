@@ -15,6 +15,8 @@ Node 24（`.nvmrc`）。`npm ci` 安装锁定依赖；`npm run check` 依次执�
 
 `src/components/books/book-bootstrap.tsx` 从批准来源创建书籍；检查 Books 后的本地清除失败显示原因和恢复指引，并保留原请求，恢复存储后可再次清除。
 
+`/sign-in` 与全局导航提供所有页面的登录恢复入口；验证仅允许已知站内页面返回，成功后回到原 Book/章节。密码仅 POST 到既有登录端点，不写入 URL/浏览器存储；失败可修正重试，保存中的精确业务命令不清除。`workspace-sign-in.test.tsx` 覆盖返回路径安全、并发提交、错误恢复和原命令保护。
+
 ## 目录结构
 ```
 src/

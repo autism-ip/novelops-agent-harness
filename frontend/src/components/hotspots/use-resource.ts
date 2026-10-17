@@ -4,7 +4,7 @@ import { api, ApiError } from "@/api/client";
 
 export function errorMessage(error: unknown): string {
   if (error instanceof ApiError) {
-    if (error.status === 401) return "Sign in to view and manage hotspots.";
+    if (error.status === 401) return "Sign in to continue in this workspace.";
     if (error.status === 0)
       return "Request timed out. Retry the same request to check its outcome.";
     if (
