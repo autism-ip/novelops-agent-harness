@@ -1,6 +1,6 @@
 /**
  * [INPUT]: next/link, current pathname, Lucide navigation icons
- * [OUTPUT]: compact desktop top navigation and phone/tablet bottom navigation
+ * [OUTPUT]: compact desktop/mobile navigation and safe workspace sign-in recovery
  * [POS]: shared NovelOps application shell
  */
 "use client";
@@ -9,6 +9,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Activity, BookOpen, House, Layers3, Radar } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { safeWorkspaceReturn } from "@/lib/workspace-return";
+import { Button } from "@/components/ui/button";
 
 const NAV_ITEMS = [
   { href: "/", label: "Dashboard", icon: House },
@@ -41,11 +43,8 @@ export function Sidebar() {
               </Link>;
             })}
           </nav>
-          <div className="flex shrink-0 items-center gap-2 rounded-full border bg-white/80 px-3 py-2 text-xs font-medium text-muted-foreground">
-            <span className="status-dot" aria-hidden />
-            <span className="hidden sm:inline">Editor workspace</span>
-            <span className="sm:hidden">Workspace</span>
-          </div>
+          <Button asChild variant="outline" className="shrink-0"><Link prefetch={false}
+            href={`/sign-in?returnTo=${encodeURIComponent(safeWorkspaceReturn(pathname))}`}>Sign in</Link></Button>
         </div>
       </header>
       <nav aria-label="Mobile primary" className="app-nav mobile-safe-bottom fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 px-1 pt-2 lg:hidden">
