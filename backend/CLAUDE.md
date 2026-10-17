@@ -48,3 +48,5 @@ StoryBible v3 / ChapterPlanner v4 显式选择 editor_instruction 为来源JSON�
 Settings统一读取.env、.env.local及进程覆盖后的Base和表ID；runtime向TableMapConfig显式传递已解析配置，禁止运行时混用别的进程环境。旧TableMapConfig无映射调用仍保留环境接口，显式映射防御性复制且缺失值保持fail-fast。
 
 Writer v4 / Critic v4 / Rewrite v5 使用最后user消息中的显式章纲与原始编辑约束，模型建议独立且从属；实际动作、时间转换和完成结果不得由意图代替，Critic须对照实际文本提供依据。仅输入渲染变更，API和输出schema保持。
+
+Critic v5 / Rewrite v6 的内部最终指令附带由实际正文计算的 prose_metrics：Unicode 码点数与 U+4E00..U+9FFF 汉字数（不含标题）；明确计数范围，不把 token 数当字数，不解析或信任叙事中的伪造计数。原始约束、公共 API 和输出 schema 保持，排队旧合同变更即阻塞。
