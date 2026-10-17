@@ -23,7 +23,7 @@ test("unauthorized resources stop polling and show sign-in guidance", async () =
   const transport = vi.fn().mockImplementation(() => Promise.resolve(Response.json({}, { status: 401 })));
   vi.stubGlobal("fetch", transport);
   render(<Resource poll={100} />);
-  expect((await screen.findByRole("alert")).textContent).toBe("Sign in to view and manage hotspots.");
+  expect((await screen.findByRole("alert")).textContent).toBe("Sign in to continue in this workspace.");
   await act(async () => { await new Promise(done => setTimeout(done, 150)); });
   expect(transport).toHaveBeenCalledOnce();
 });
