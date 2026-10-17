@@ -1,0 +1,397 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-28T17:32:51.307Z",
+  "title": "Design System: NovelOps",
+  "extensions": {
+    "colorMeta": {
+      "background": {
+        "role": "neutral",
+        "displayName": "Cool Pearl",
+        "canonical": "#f3f6fb",
+        "tonalRamp": [
+          "oklch(15% 0.010 250)",
+          "oklch(25% 0.010 250)",
+          "oklch(35% 0.010 250)",
+          "oklch(45% 0.010 250)",
+          "oklch(55% 0.010 250)",
+          "oklch(65% 0.010 250)",
+          "oklch(80% 0.010 250)",
+          "oklch(95% 0.010 250)"
+        ]
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "Deep Slate Ink",
+        "canonical": "#14213d",
+        "tonalRamp": [
+          "oklch(15% 0.040 260)",
+          "oklch(25% 0.040 260)",
+          "oklch(35% 0.040 260)",
+          "oklch(45% 0.040 260)",
+          "oklch(55% 0.040 260)",
+          "oklch(65% 0.040 260)",
+          "oklch(80% 0.040 260)",
+          "oklch(95% 0.040 260)"
+        ]
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "Paper White",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "oklch(15% 0.000 0)",
+          "oklch(25% 0.000 0)",
+          "oklch(35% 0.000 0)",
+          "oklch(45% 0.000 0)",
+          "oklch(55% 0.000 0)",
+          "oklch(65% 0.000 0)",
+          "oklch(80% 0.000 0)",
+          "oklch(95% 0.000 0)"
+        ]
+      },
+      "primary": {
+        "role": "primary",
+        "displayName": "Cobalt Action",
+        "canonical": "#155eef",
+        "tonalRamp": [
+          "oklch(15% 0.230 264)",
+          "oklch(25% 0.230 264)",
+          "oklch(35% 0.230 264)",
+          "oklch(45% 0.230 264)",
+          "oklch(55% 0.230 264)",
+          "oklch(65% 0.230 264)",
+          "oklch(80% 0.230 264)",
+          "oklch(95% 0.230 264)"
+        ]
+      },
+      "secondary": {
+        "role": "secondary",
+        "displayName": "Blue Gray Fill",
+        "canonical": "#e8eef9",
+        "tonalRamp": [
+          "oklch(15% 0.020 256)",
+          "oklch(25% 0.020 256)",
+          "oklch(35% 0.020 256)",
+          "oklch(45% 0.020 256)",
+          "oklch(55% 0.020 256)",
+          "oklch(65% 0.020 256)",
+          "oklch(80% 0.020 256)",
+          "oklch(95% 0.020 256)"
+        ]
+      },
+      "secondary-foreground": {
+        "role": "secondary",
+        "displayName": "Slate Text",
+        "canonical": "#203252",
+        "tonalRamp": [
+          "oklch(15% 0.050 258)",
+          "oklch(25% 0.050 258)",
+          "oklch(35% 0.050 258)",
+          "oklch(45% 0.050 258)",
+          "oklch(55% 0.050 258)",
+          "oklch(65% 0.050 258)",
+          "oklch(80% 0.050 258)",
+          "oklch(95% 0.050 258)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Quiet Fill",
+        "canonical": "#edf2f9",
+        "tonalRamp": [
+          "oklch(15% 0.020 250)",
+          "oklch(25% 0.020 250)",
+          "oklch(35% 0.020 250)",
+          "oklch(45% 0.020 250)",
+          "oklch(55% 0.020 250)",
+          "oklch(65% 0.020 250)",
+          "oklch(80% 0.020 250)",
+          "oklch(95% 0.020 250)"
+        ]
+      },
+      "muted-foreground": {
+        "role": "neutral",
+        "displayName": "Quiet Ink",
+        "canonical": "#50617e",
+        "tonalRamp": [
+          "oklch(15% 0.040 256)",
+          "oklch(25% 0.040 256)",
+          "oklch(35% 0.040 256)",
+          "oklch(45% 0.040 256)",
+          "oklch(55% 0.040 256)",
+          "oklch(65% 0.040 256)",
+          "oklch(80% 0.040 256)",
+          "oklch(95% 0.040 256)"
+        ]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Cobalt Tint",
+        "canonical": "#e7efff",
+        "tonalRamp": [
+          "oklch(15% 0.030 264)",
+          "oklch(25% 0.030 264)",
+          "oklch(35% 0.030 264)",
+          "oklch(45% 0.030 264)",
+          "oklch(55% 0.030 264)",
+          "oklch(65% 0.030 264)",
+          "oklch(80% 0.030 264)",
+          "oklch(95% 0.030 264)"
+        ]
+      },
+      "accent-foreground": {
+        "role": "primary",
+        "displayName": "Deep Cobalt Ink",
+        "canonical": "#124fc8",
+        "tonalRamp": [
+          "oklch(15% 0.200 264)",
+          "oklch(25% 0.200 264)",
+          "oklch(35% 0.200 264)",
+          "oklch(45% 0.200 264)",
+          "oklch(55% 0.200 264)",
+          "oklch(65% 0.200 264)",
+          "oklch(80% 0.200 264)",
+          "oklch(95% 0.200 264)"
+        ]
+      },
+      "destructive": {
+        "role": "semantic",
+        "displayName": "Decision Red",
+        "canonical": "#b42332",
+        "tonalRamp": [
+          "oklch(15% 0.180 24)",
+          "oklch(25% 0.180 24)",
+          "oklch(35% 0.180 24)",
+          "oklch(45% 0.180 24)",
+          "oklch(55% 0.180 24)",
+          "oklch(65% 0.180 24)",
+          "oklch(80% 0.180 24)",
+          "oklch(95% 0.180 24)"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Precise Divider",
+        "canonical": "#d9e2f0",
+        "tonalRamp": [
+          "oklch(15% 0.020 252)",
+          "oklch(25% 0.020 252)",
+          "oklch(35% 0.020 252)",
+          "oklch(45% 0.020 252)",
+          "oklch(55% 0.020 252)",
+          "oklch(65% 0.020 252)",
+          "oklch(80% 0.020 252)",
+          "oklch(95% 0.020 252)"
+        ]
+      },
+      "input": {
+        "role": "neutral",
+        "displayName": "Field Stroke",
+        "canonical": "#cad6e8",
+        "tonalRamp": [
+          "oklch(15% 0.030 252)",
+          "oklch(25% 0.030 252)",
+          "oklch(35% 0.030 252)",
+          "oklch(45% 0.030 252)",
+          "oklch(55% 0.030 252)",
+          "oklch(65% 0.030 252)",
+          "oklch(80% 0.030 252)",
+          "oklch(95% 0.030 252)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Page title",
+        "purpose": "Responsive page heading."
+      },
+      "title": {
+        "displayName": "Section title",
+        "purpose": "Card and section heading."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Main reading text."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Controls and navigation."
+      }
+    },
+    "shadows": [
+      {
+        "name": "surface",
+        "value": "0 16px 42px -28px rgb(35 61 106 / 36%), 0 5px 18px -12px rgb(35 61 106 / 19%)",
+        "purpose": "Ambient depth for primary white containers."
+      },
+      {
+        "name": "surface-raised",
+        "value": "0 26px 52px -30px rgb(35 61 106 / 42%), 0 10px 24px -15px rgb(35 61 106 / 25%)",
+        "purpose": "Slight lift on hoverable surfaces."
+      },
+      {
+        "name": "navigation",
+        "value": "0 9px 30px -24px rgb(28 55 102 / 45%)",
+        "purpose": "Separation beneath sticky navigation."
+      }
+    ],
+    "motion": [
+      {
+        "name": "surface-hover",
+        "value": "220ms cubic-bezier(.2, .8, .2, 1)",
+        "purpose": "2px lift, shadow, and border transition."
+      },
+      {
+        "name": "button-state",
+        "value": "200ms",
+        "purpose": "Button color, shadow, and transform transitions."
+      },
+      {
+        "name": "page-reveal",
+        "value": "420ms cubic-bezier(.2, .8, .2, 1)",
+        "purpose": "Subtle page entrance from 8px lower and slight blur."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0.01ms",
+        "purpose": "Effective removal of animation and transitions when reduced motion is preferred."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Cobalt action for the next editor decision.",
+      "html": "<button class=\"ds-btn ds-btn-primary\">Approve opportunity</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 16px;border-radius:12px;font:600 14px/1.25 -apple-system,BlinkMacSystemFont,\"SF Pro Text\",\"Segoe UI\",sans-serif;cursor:pointer;transition:background-color .2s,color .2s,box-shadow .2s,transform .2s}.ds-btn:focus-visible{outline:2px solid var(--ring);outline-offset:2px}.ds-btn:active{transform:scale(.98)}@media(prefers-reduced-motion:reduce){.ds-btn{transition:none}}.ds-btn-primary{border:0;background:var(--primary);color:var(--card);box-shadow:0 10px 20px -13px #155eef}.ds-btn-primary:hover{background:#0d50dc;box-shadow:0 14px 24px -13px #155eef}"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Neutral peer action for closing or requesting a revision.",
+      "html": "<button class=\"ds-btn ds-btn-outline\">Request revision</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 16px;border-radius:12px;font:600 14px/1.25 -apple-system,BlinkMacSystemFont,\"SF Pro Text\",\"Segoe UI\",sans-serif;cursor:pointer;transition:background-color .2s,color .2s,box-shadow .2s,transform .2s}.ds-btn:focus-visible{outline:2px solid var(--ring);outline-offset:2px}.ds-btn:active{transform:scale(.98)}@media(prefers-reduced-motion:reduce){.ds-btn{transition:none}}.ds-btn-outline{border:1px solid var(--input);background:var(--card);color:var(--foreground)}.ds-btn-outline:hover{border-color:#a9c0e8;background:var(--accent);color:var(--accent-foreground)}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Low emphasis filled action.",
+      "html": "<button class=\"ds-btn ds-btn-secondary\">Refresh</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 16px;border-radius:12px;font:600 14px/1.25 -apple-system,BlinkMacSystemFont,\"SF Pro Text\",\"Segoe UI\",sans-serif;cursor:pointer;transition:background-color .2s,color .2s,box-shadow .2s,transform .2s}.ds-btn:focus-visible{outline:2px solid var(--ring);outline-offset:2px}.ds-btn:active{transform:scale(.98)}@media(prefers-reduced-motion:reduce){.ds-btn{transition:none}}.ds-btn-secondary{border:0;background:var(--secondary);color:var(--secondary-foreground)}.ds-btn-secondary:hover{background:#dce7f9}"
+    },
+    {
+      "name": "Destructive Button",
+      "kind": "button",
+      "refersTo": "button-destructive",
+      "description": "Red action for a destructive or reject decision.",
+      "html": "<button class=\"ds-btn ds-btn-destructive\">Reject</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 16px;border-radius:12px;font:600 14px/1.25 -apple-system,BlinkMacSystemFont,\"SF Pro Text\",\"Segoe UI\",sans-serif;cursor:pointer;transition:background-color .2s,color .2s,box-shadow .2s,transform .2s}.ds-btn:focus-visible{outline:2px solid var(--ring);outline-offset:2px}.ds-btn:active{transform:scale(.98)}@media(prefers-reduced-motion:reduce){.ds-btn{transition:none}}.ds-btn-destructive{border:0;background:var(--destructive);color:var(--card)}.ds-btn-destructive:hover{background:#971e2b}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "description": "Minimal action that appears on hover.",
+      "html": "<button class=\"ds-btn ds-btn-ghost\">Source details</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 16px;border-radius:12px;font:600 14px/1.25 -apple-system,BlinkMacSystemFont,\"SF Pro Text\",\"Segoe UI\",sans-serif;cursor:pointer;transition:background-color .2s,color .2s,box-shadow .2s,transform .2s}.ds-btn:focus-visible{outline:2px solid var(--ring);outline-offset:2px}.ds-btn:active{transform:scale(.98)}@media(prefers-reduced-motion:reduce){.ds-btn{transition:none}}.ds-btn-ghost{border:0;background:transparent;color:var(--foreground)}.ds-btn-ghost:hover{background:var(--accent);color:var(--accent-foreground)}"
+    },
+    {
+      "name": "Link Button",
+      "kind": "button",
+      "description": "Text-only cobalt action.",
+      "html": "<button class=\"ds-btn-link\">Open source</button>",
+      "css": ".ds-btn-link{display:inline-flex;align-items:center;min-height:44px;padding:8px 16px;border:0;border-radius:12px;background:transparent;color:var(--primary);font:600 14px/1.25 -apple-system,BlinkMacSystemFont,\"SF Pro Text\",\"Segoe UI\",sans-serif;text-underline-offset:4px;cursor:pointer}.ds-btn-link:hover{text-decoration:underline}.ds-btn-link:focus-visible{outline:2px solid var(--ring);outline-offset:2px}"
+    },
+    {
+      "name": "Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "White form field with a precise blue gray stroke.",
+      "html": "<label class=\"ds-field-label\">Editor name<input class=\"ds-field\" value=\"Synthetic editor\"></label>",
+      "css": ".ds-field-label{display:grid;gap:8px;color:var(--foreground);font:400 14px/1.4 -apple-system,BlinkMacSystemFont,\"SF Pro Text\",\"Segoe UI\",sans-serif}.ds-field{min-height:44px;padding:8px 12px;border:1px solid var(--input);border-radius:14px;background:var(--card);color:var(--foreground);box-shadow:inset 0 1px 2px rgb(22 43 83 / 4%);font:inherit}.ds-field:focus-visible{outline:2px solid var(--ring);outline-offset:3px}"
+    },
+    {
+      "name": "Surface Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Primary container for workflow information.",
+      "html": "<section class=\"ds-card\"><h3 class=\"ds-card-title\">Analysis history</h3><p class=\"ds-card-copy\">Review the source and version before deciding.</p></section>",
+      "css": ".ds-card{padding:20px;border:1px solid rgb(210 222 239 / 85%);border-radius:24px;background:rgb(255 255 255 / 94%);color:var(--foreground);box-shadow:0 16px 42px -28px rgb(35 61 106 / 36%),0 5px 18px -12px rgb(35 61 106 / 19%);font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Text\",\"Segoe UI\",sans-serif}.ds-card-title{margin:0;font-size:20px;font-weight:600;line-height:1.25;letter-spacing:-.025em}.ds-card-copy{margin:12px 0 0;color:var(--muted-foreground);font-size:14px;line-height:1.5}"
+    },
+    {
+      "name": "Primary Navigation",
+      "kind": "nav",
+      "refersTo": "navigation-active",
+      "description": "Compact top navigation with a tinted active destination.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Primary\"><a class=\"ds-nav-link\" href=\"#\">Dashboard</a><a class=\"ds-nav-link ds-nav-active\" href=\"#\" aria-current=\"page\">Hotspots</a><a class=\"ds-nav-link\" href=\"#\">Books</a></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;gap:4px;padding:8px;border-bottom:1px solid rgb(209 221 239 / 85%);background:rgb(255 255 255 / 88%);box-shadow:0 9px 30px -24px rgb(28 55 102 / 45%);backdrop-filter:saturate(1.5) blur(22px);font-family:-apple-system,BlinkMacSystemFont,\"SF Pro Text\",\"Segoe UI\",sans-serif}.ds-nav-link{display:inline-flex;min-height:44px;align-items:center;padding:0 16px;border-radius:16px;color:var(--muted-foreground);font-size:14px;font-weight:600;text-decoration:none;transition:background-color .2s,color .2s}.ds-nav-link:hover{background:var(--card);color:var(--foreground)}.ds-nav-link:focus-visible{outline:2px solid var(--ring);outline-offset:2px}.ds-nav-active,.ds-nav-active:hover{background:var(--accent);color:var(--accent-foreground)}@media(prefers-reduced-motion:reduce){.ds-nav-link{transition:none}}"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "status-badge",
+      "description": "Neutral fallback pill for a workflow status.",
+      "html": "<span class=\"ds-status\">analyzed</span>",
+      "css": ".ds-status{display:inline-flex;align-items:center;padding:6px 12px;border:1px solid transparent;border-radius:9999px;background:#f1f5f9;color:#1e293b;font:600 12px/1.25 -apple-system,BlinkMacSystemFont,\"SF Pro Text\",\"Segoe UI\",sans-serif;transition:background-color .3s}.ds-status:focus-visible{outline:2px solid var(--ring);outline-offset:2px}@media(prefers-reduced-motion:reduce){.ds-status{transition:none}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Editorial Review Desk",
+    "overview": "NovelOps gives a solo writer or editor a calm place to inspect source material and make the next recorded decision. The built interface uses a cool pearl canvas, deep slate ink, cobalt actions, precise pale dividers, and softly raised white surfaces. The overall character is minimalist, modern, and iOS inspired, as confirmed by the user.\n\nRounded surfaces keep dense workflow details approachable. Motion is brief and useful: it marks an interactive card or the arrival of a page without competing with source, version, and approval data. On narrow screens, the review surface becomes a focused single column modal.",
+    "keyCharacteristics": [
+      "Pearl and blue gray canvas with deep ink text and a single cobalt action accent.",
+      "Broad rounded cards and controls, fine borders, and soft offset depth.",
+      "Compact desktop navigation, mobile bottom navigation, and a focused review surface.",
+      "Visible provenance and decision state inside the same restrained visual language."
+    ],
+    "rules": [
+      {
+        "name": "The Cobalt Decision Rule",
+        "body": "Reserve saturated cobalt for actionable or selected elements; use slate for ordinary information.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Decision Rule",
+        "body": "Keep the source list and active review visible together when width permits; on a phone, give the active review the full screen.",
+        "section": "layout"
+      },
+      {
+        "name": "The Soft Lift Rule",
+        "body": "A hoverable surface moves up only 2px, with shadow and border changes over 220ms. Its resting state remains visually stable.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use cobalt for the next action and active location, with pale cobalt for its surrounding state.",
+      "Do keep 44px minimum targets for standard controls and a visible keyboard focus outline.",
+      "Do give dense source and approval information rounded, bordered containers with a clear reading order.",
+      "Do reduce animation duration to near zero when the user prefers reduced motion."
+    ],
+    "donts": [
+      "Don't use status hues as competing brand accents or infer an approval from their color alone.",
+      "Don't add decorative shadows to every nested container; use the soft inset surface for grouping.",
+      "Don't place the desktop list beside a cramped mobile review; use the full screen review mode already implemented."
+    ]
+  }
+}

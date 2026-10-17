@@ -40,6 +40,7 @@ test("public health is forwarded without a browser or server API key", async () 
   const [url, init] = upstream.mock.calls[0];
   expect(url).toBe("http://backend.test/api/system/health?probe=1");
   expect(init.method).toBe("GET");
+  expect(init.signal).toBe(request.signal);
   expect(init.headers.get("x-api-key")).toBeNull();
 });
 
@@ -124,4 +125,37 @@ test("write methods preserve method and body without forwarding browser credenti
     expect(init.headers.get("x-api-key")).toBe("private-key");
     expect(init.headers.get("Content-Type")).toBe("application/json");
   }
+});
+
+
+test.each(["GET", "POST", "HEAD"] as const)("upstream %s transport failure is safe, actionable and never retried", async method => {
+  vi.stubGlobal("crypto", webcrypto); vi.stubEnv("BACKEND_API_KEY", "private-key"); vi.stubEnv("SESSION_SECRET", "s".repeat(32)); vi.resetModules();
+  const { signSessionToken } = await import("../src/lib/session"); const route = await import("../src/app/api/[...path]/route");
+  const upstream = vi.fn().mockRejectedValue(new Error("private-key backend transport details")); vi.stubGlobal("fetch", upstream);
+  const request = new NextRequest("http://frontend.test/api/records", { method, body: method === "POST" ? '{"command":"same"}' : undefined });
+  request.cookies.set("session_token", await signSessionToken("authenticated", 60));
+  const response = await route[method === "HEAD" ? "GET" : method](request, { params: Promise.resolve({ path: ["records"] }) });
+  expect(response.status).toBe(method === "POST" ? 502 : 503);
+  const body = await response.json(); expect(body.detail).toBe(method !== "POST"
+    ? "Backend service is unavailable. Check the service, then refresh."
+    : "The request outcome is unknown. Check the saved request and retry that exact request.");
+  expect(JSON.stringify(body)).not.toContain("private-key"); expect(upstream).toHaveBeenCalledOnce();
+});
+
+test("a truncated upstream write body never fabricates a successful commit response", async () => {
+  vi.stubGlobal("crypto", webcrypto); vi.stubEnv("BACKEND_API_KEY", "private-key"); vi.stubEnv("SESSION_SECRET", "s".repeat(32)); vi.resetModules();
+  const { signSessionToken } = await import("../src/lib/session"); const { POST } = await import("../src/app/api/[...path]/route");
+  const upstream = vi.fn().mockResolvedValue(new Response(new ReadableStream({ start(controller) { controller.error(new Error("private transport details")); } }), { status: 201 })); vi.stubGlobal("fetch", upstream);
+  const request = new NextRequest("http://frontend.test/api/records", { method: "POST", body: '{}' }); request.cookies.set("session_token", await signSessionToken("authenticated", 60));
+  const response = await POST(request, { params: Promise.resolve({ path: ["records"] }) });
+  expect(response.status).toBe(502); expect(await response.json()).toEqual({ detail: "The request outcome is unknown. Check the saved request and retry that exact request." }); expect(upstream).toHaveBeenCalledOnce();
+});
+
+
+test.each([204, 205, 304])("bodyless upstream status %s is preserved rather than reported as unknown", async status => {
+  vi.stubEnv("BACKEND_API_URL", "http://backend.test"); vi.resetModules();
+  const { GET } = await import("../src/app/api/[...path]/route");
+  const upstream = vi.fn().mockResolvedValue(new Response(null, { status })); vi.stubGlobal("fetch", upstream);
+  const response = await GET(new NextRequest("http://frontend.test/api/system/health"), { params: Promise.resolve({ path: ["system", "health"] }) });
+  expect(response.status).toBe(status); expect(await response.text()).toBe(""); expect(upstream).toHaveBeenCalledOnce();
 });

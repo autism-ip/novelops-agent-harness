@@ -93,15 +93,21 @@ async function proxyRequest(
     init.body = await request.text();
   }
 
-  const res = await fetch(targetUrl.toString(), init);
-  const body = await res.text();
-
-  return new NextResponse(body, {
-    status: res.status,
-    headers: {
-      "Content-Type": res.headers.get("Content-Type") || "application/json",
-    },
-  });
+  try {
+    const res = await fetch(targetUrl.toString(), { ...init, signal: request.signal });
+    const body = await res.text();
+    return new NextResponse([204, 205, 304].includes(res.status) ? null : body, {
+      status: res.status,
+      headers: { "Content-Type": res.headers.get("Content-Type") || "application/json" },
+    });
+  } catch {
+    // A missing write response cannot establish whether the backend committed.
+    const read = request.method === "GET" || request.method === "HEAD";
+    return NextResponse.json({ detail: read
+      ? "Backend service is unavailable. Check the service, then refresh."
+      : "The request outcome is unknown. Check the saved request and retry that exact request." },
+    { status: read ? 503 : 502 });
+  }
 }
 
 export async function GET(

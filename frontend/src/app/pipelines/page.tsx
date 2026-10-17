@@ -24,8 +24,8 @@ const columns: Column<PipelineRun>[] = [
 
 export default function PipelinesPage() {
   return (
-    <div className="flex-1 p-6 space-y-6 animate-fade-in">
-      <h1 className="text-2xl font-bold">Pipelines</h1>
+    <div className="page-shell app-reveal space-y-6">
+      <header className="space-y-2"><h1 className="page-title">Pipelines</h1><p className="page-intro">Inspect workflow runs as they move through the harness.</p></header>
       <Card>
         <CardHeader>
           <CardTitle>Pipeline Runs</CardTitle>
