@@ -53,7 +53,7 @@ test.each([401, 503])("a books read failure %s is visible and cannot appear as a
   transport({ detail: "Book store unavailable" }, status);
   render(<BooksPage />);
   const alert = await screen.findByRole("alert");
-  expect(alert.textContent).toBe(status === 401 ? "Sign in to view and manage hotspots." : "Book store unavailable");
+  expect(alert.textContent).toBe(status === 401 ? "Sign in to continue in this workspace." : "Book store unavailable");
   expect(screen.queryByText("No books yet")).toBeNull();
 });
 
