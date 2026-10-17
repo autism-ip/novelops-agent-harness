@@ -103,3 +103,18 @@ test("a stalled HTTP error body reports timeout rather than a fabricated server 
   await assertion;
   expect(vi.getTimerCount()).toBe(0);
 });
+
+
+test.each(["before", "during"])("caller cancellation %s GET is distinct from its deadline", async moment => {
+  vi.useFakeTimers(); const caller = new AbortController();
+  const transport = vi.fn((_url: unknown, init: RequestInit) => new Promise<Response>((_resolve, reject) => {
+    if (init.signal?.aborted) reject(new DOMException("Cancelled", "AbortError"));
+    else init.signal?.addEventListener("abort", () => reject(new DOMException("Cancelled", "AbortError")));
+  })); vi.stubGlobal("fetch", transport);
+  if (moment === "before") caller.abort();
+  const client = createApiClient({ baseUrl: "" });
+  const pending = client.get("/api/record", 120_000, caller.signal);
+  const assertion = expect(pending).rejects.toMatchObject({ status: 0, body: "Request cancelled" });
+  if (moment === "during") caller.abort();
+  await assertion; expect(transport.mock.calls[0][1].signal?.aborted).toBe(true); expect(vi.getTimerCount()).toBe(0);
+});
