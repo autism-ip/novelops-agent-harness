@@ -70,7 +70,11 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
   const gate = bible?.run.steps.find(step => step.step_key === "review" && step.status === "awaiting_approval");
   const bibleBusy = !!bible && !["completed", "failed", "blocked", "cancelled"].includes(bible.run.status);
   const briefBusy = !!brief && !["completed", "failed", "blocked", "cancelled"].includes(brief.run.status);
-  const unavailable = bibles.error instanceof ApiError && bibles.error.status === 503;
+  const unavailable = bibles.error instanceof ApiError && bibles.error.status === 503 &&
+    errorMessage(bibles.error) === "Story planning is not configured";
+  const bibleHistoryUnknown = bibles.loading || bibles.error != null;
+  const briefHistoryUnknown = briefs.loading || briefs.error != null;
+  function refreshPlanning() { setRevision(value => value + 1); }
 
   function assertStorage(expected: typeof pendingRaw) {
     const current = saved(key);
@@ -112,7 +116,7 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
   }
 
   async function startBible() {
-    if (pendingRaw || working) return;
+    if (pendingRaw || working || bibleHistoryUnknown || bibleBusy) return;
     await submit(async () => {
       const context = await api.get<BibleContext>(`/api/books/${encodeURIComponent(bookId)}/bible/context`, PLANNING_TIMEOUT_MS);
       return { path: `/api/books/${encodeURIComponent(bookId)}/bibles`,
@@ -131,7 +135,7 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
   }
 
   async function startBrief() {
-    if (!validChapter || pendingRaw || working) return;
+    if (!validChapter || pendingRaw || working || bibleHistoryUnknown || briefHistoryUnknown || briefBusy || !approvedBible) return;
     await submit(async () => {
       const context = await api.get<BriefContext>(
         `/api/books/${encodeURIComponent(bookId)}/chapters/${chapterNo}/brief/context`, PLANNING_TIMEOUT_MS);
@@ -140,16 +144,17 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
     });
   }
 
-  if (unavailable) return <section className="surface p-5 text-sm text-muted-foreground" aria-label="Story planning">
-    Story planning is not configured for this workspace.
+  if (unavailable) return <section className="surface space-y-3 p-5 text-sm text-muted-foreground" aria-label="Story planning">
+    <p>Story planning is not configured for this workspace.</p>
+    <Button variant="outline" disabled={working || bibles.loading || briefs.loading} onClick={refreshPlanning}>Refresh planning</Button>
   </section>;
 
   return <section className="surface space-y-6 p-5 sm:p-6" aria-label="Story planning">
-    <div className="space-y-2">
+    <div className="flex flex-wrap items-start justify-between gap-4"><div className="space-y-2">
       <p className="text-xs font-semibold uppercase tracking-wide text-primary">Next story decision</p>
       <h2 className="text-xl font-semibold">Story planning</h2>
       <p className="text-sm text-muted-foreground">Build the approved StoryBible, then plan a chapter from an exact StoryState snapshot.</p>
-    </div>
+    </div><Button variant="outline" disabled={working || bibles.loading || briefs.loading} onClick={refreshPlanning}>Refresh planning</Button></div>
     {bibles.loading && <p role="status" className="text-sm">Loading story planning…</p>}
     {bibles.error != null && <p role="alert" className="text-sm text-destructive">{visibleError(bibles.error)}</p>}
     {working && !pendingRaw && <p role="status" className="text-sm">Preparing story planning…</p>}
@@ -184,7 +189,9 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
               <div key={name}><dt className="font-medium capitalize">{name.replaceAll("_", " ")}</dt>
                 <dd className="mt-1 break-words text-muted-foreground">{textValue(value)}</dd></div>)}</dl>
           </details>
-        </div> : <p className="text-sm text-muted-foreground">{bible ? "Generation is running or needs attention." : "No approved StoryBible yet."}</p>}
+        </div> : <p className="text-sm text-muted-foreground">{bibles.loading ? "Loading StoryBible history…" : bibles.error != null
+          ? "StoryBible history is unavailable. Refresh planning to retry." : bible ? "Generation is running or needs attention."
+          : approvedBible ? "No StoryBible run history yet." : "No approved StoryBible yet."}</p>}
         {gate && bible?.current && bible.artifact && <div className="space-y-3 border-t pt-4" aria-label="StoryBible approval">
           <p className="text-sm font-medium">Approve this exact Bible version before canonical state changes.</p>
           <label className="block text-sm">Editor name
@@ -200,7 +207,7 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
         <label className="block text-sm">Feedback for next generation or revision
           <textarea className="mt-1.5 block w-full px-3 py-2" rows={2} value={feedback} onChange={event => setFeedback(event.target.value)} maxLength={4000} />
         </label>
-        <Button variant="outline" disabled={working || !!pendingRaw || bibleBusy} onClick={() => void startBible()}>
+        <Button variant="outline" disabled={working || !!pendingRaw || bibleBusy || bibleHistoryUnknown} onClick={() => void startBible()}>
           {approvedBible ? "Propose major StoryBible change" : "Generate StoryBible"}
         </Button>
       </div>
@@ -222,9 +229,10 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
             <p className="mt-2">State {String(brief.artifact.content.state_artifact_id)} · v{String(brief.artifact.content.state_version)}</p>
             <p>Snapshot {brief.snapshot_artifact_id}</p>
           </details>
-        </div> : <p className="text-sm text-muted-foreground">{brief ? "Generation is running or needs attention." : "No brief for this chapter yet."}</p>}
+        </div> : <p className="text-sm text-muted-foreground">{briefs.loading ? "Loading chapter brief history…" : briefs.error != null
+          ? "Chapter brief history is unavailable. Refresh planning to retry." : brief ? "Generation is running or needs attention." : "No brief for this chapter yet."}</p>}
         {briefs.error != null && <p role="alert" className="text-sm text-destructive">{visibleError(briefs.error)}</p>}
-        <Button disabled={working || !!pendingRaw || !validChapter || !approvedBible || briefBusy} onClick={() => void startBrief()}>
+        <Button disabled={working || !!pendingRaw || !validChapter || !approvedBible || briefBusy || bibleHistoryUnknown || briefHistoryUnknown} onClick={() => void startBrief()}>
           {brief ? "Regenerate chapter brief" : "Generate chapter brief"}
         </Button>
         <p className="text-xs text-muted-foreground">Routine briefs proceed automatically after an approved StoryBible. A changed StoryState requires a new brief.</p>
