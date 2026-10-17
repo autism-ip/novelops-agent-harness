@@ -20,7 +20,9 @@ app/research.py: ZEN-35 版本化 ResearchAgent、保守风险策略、精确版
 app/creative.py: ZEN-36 标题候选与封面方向生成、逐项 Artifacts、版本选择与飞书投影；候选按业务 ID 批量重新读取，保留顺序与完整性校验，缺失时不返回部分集合，选择步骤复用本次同一组 ID；完整已选视图与选项由同一次新鲜读取返回，保留种类、终态、当前性和精确选择校验。
 app/books.py: ZEN-38 精确来源建书与 canonical StoryState，ready 重放兼容后续状态版本；同次单写者操作复用完整已审批/已选视图，不重复解析相同链路，每次重新核验来源。
 app/story_planning.py: ZEN-39 StoryBible 人工审批与确定性状态补丁、不可变 StoryContextSnapshot、版本化 ChapterBrief；资格检查仅展开最新版本，历史列表保留完整读取。
+app/chapter_loop.py: ZEN-40 精确源章节快照、Writer→机器校验→Critic→按需 Rewrite→最终校验与版本锁定；人工三类约束完整传入Critic并在后续Rewrite中保持顶层优先，Critic建议独立保留。
 app/api/routes/story_planning.py: ZEN-39 精确版本上下文、触发、历史、审批和 eligible brief 接口。
+app/api/routes/chapter_loop.py: ZEN-40 章节生成 context、触发、运行/版本历史及 final-lock 接口。
 app/api/routes/research.py: 鉴权批量分析、历史、审批/拒绝/退修与 approved 消费契约。
 app/api/routes/creative.py: ZEN-36 标题和封面的版本 context、触发、历史、选择与 selected 消费契约。
 app/api/routes/hotspots.py: 鉴权抓取触发及热点列表/详情接口；命令只由后端配置。
@@ -44,3 +46,7 @@ SemanticRuntime 可由内部调用方显式选择已验证的顶层字符串指�
 StoryBible v3 / ChapterPlanner v4 显式选择 editor_instruction 为来源JSON后的最后user消息；系统规范仍居上位，输入哈希绑定选择器，公共API不新增内部字段。
 
 Settings统一读取.env、.env.local及进程覆盖后的Base和表ID；runtime向TableMapConfig显式传递已解析配置，禁止运行时混用别的进程环境。旧TableMapConfig无映射调用仍保留环境接口，显式映射防御性复制且缺失值保持fail-fast。
+
+Writer v4 / Critic v4 / Rewrite v5 使用最后user消息中的显式章纲与原始编辑约束，模型建议独立且从属；实际动作、时间转换和完成结果不得由意图代替，Critic须对照实际文本提供依据。仅输入渲染变更，API和输出schema保持。
+
+Critic v5 / Rewrite v6 的内部最终指令附带由实际正文计算的 prose_metrics：Unicode 码点数与 U+4E00..U+9FFF 汉字数（不含标题）；明确计数范围，不把 token 数当字数，不解析或信任叙事中的伪造计数。原始约束、公共 API 和输出 schema 保持，排队旧合同变更即阻塞。

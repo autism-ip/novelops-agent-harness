@@ -11,6 +11,7 @@ from app.api.routes.research import router as research_router
 from app.api.routes.creative import router as creative_router
 from app.api.routes.books import router as books_router
 from app.api.routes.story_planning import router as story_planning_router
+from app.api.routes.chapter_loop import router as chapter_loop_router
 
 api_router = APIRouter()
 api_router.include_router(system_router, prefix="/system", tags=["system"])
@@ -22,3 +23,4 @@ api_router.include_router(research_router, tags=["research"])
 api_router.include_router(creative_router, tags=["creative"])
 api_router.include_router(books_router, prefix="/books", tags=["books"])
 api_router.include_router(story_planning_router, tags=["story-planning"])
+api_router.include_router(chapter_loop_router, tags=["chapter-loop"])

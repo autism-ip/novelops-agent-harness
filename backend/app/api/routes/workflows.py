@@ -42,12 +42,12 @@ class DecisionBody(BaseModel):
 
 @router.post("", status_code=201)
 def create(body: WorkflowBody, kernel=Depends(get_kernel)):
-    if (body.request_key.startswith(("research:", "creative:", "story-planning:")) or
+    if (body.request_key.startswith(("research:", "creative:", "story-planning:", "chapter-loop:")) or
         body.workflow_type.startswith(("hotspot_research", "title_candidates", "cover_plans",
-                                       "story_bible", "chapter_brief")) or
-        any(s.handler.startswith(("research.", "titles.", "covers.", "story_bible.", "chapter_brief."))
+                                       "story_bible", "chapter_brief", "chapter_loop")) or
+        any(s.handler.startswith(("research.", "titles.", "covers.", "story_bible.", "chapter_brief.", "chapter."))
             for s in body.steps)):
-        raise HTTPException(422, "Use the versioned domain endpoint for research, creative or story workflows")
+        raise HTTPException(422, "Use the versioned domain endpoint for research, creative, story or chapter workflows")
     return kernel.create(body.request_key, body.workflow_type,
                          [s.model_dump() for s in body.steps],
                          book_id=body.book_id, source_hotspot_id=body.source_hotspot_id)
