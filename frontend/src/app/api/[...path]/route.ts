@@ -1,14 +1,14 @@
 /**
  * [INPUT]: 依赖环境变量 BACKEND_API_URL, BACKEND_API_KEY, SESSION_SECRET（服务端专用）
  * [OUTPUT]: Next.js catch-all API route handler，代理所有 /api/* 请求到后端
- * [POS]: app/api/[...path] 的服务端代理层，验证签名 session 后注入 x-api-key
+ * [POS]: app/api/[...path] 的服务端代理层，验证签名 session 后注入 x-api-key；声明有界慢读取执行预算
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
 import { type NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/session";
 
-// Allow bounded Feishu source verification and idempotent book writes.
+// Align bounded Feishu reads, idempotent writes and chapter review with the client budget.
 export const maxDuration = 120;
 
 const BACKEND_URL = process.env.BACKEND_API_URL || "http://localhost:8000";

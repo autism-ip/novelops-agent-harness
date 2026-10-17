@@ -1,0 +1,215 @@
+{
+  "metric": "raw Python function entry coverage: all named definitions and lambdas",
+  "total": 419,
+  "entered": 401,
+  "percent": 95.70405727923628,
+  "lambdas_total": 11,
+  "lambdas_entered": 11,
+  "pytest_exitstatus": 0,
+  "missing": [
+    {
+      "file": "api/deps.py",
+      "name": "get_settings",
+      "line": 8,
+      "source_position": [
+        10,
+        10,
+        11,
+        18
+      ]
+    },
+    {
+      "file": "api/routes/creative.py",
+      "name": "decide",
+      "line": 45,
+      "source_position": [
+        47,
+        47,
+        11,
+        19
+      ]
+    },
+    {
+      "file": "api/routes/creative.py",
+      "name": "selected",
+      "line": 50,
+      "source_position": [
+        52,
+        52,
+        12,
+        20
+      ]
+    },
+    {
+      "file": "api/routes/health.py",
+      "name": "health",
+      "line": 8,
+      "source_position": [
+        11,
+        11,
+        12,
+        20
+      ]
+    },
+    {
+      "file": "api/routes/health.py",
+      "name": "status",
+      "line": 14,
+      "source_position": [
+        18,
+        18,
+        19,
+        26
+      ]
+    },
+    {
+      "file": "api/routes/research.py",
+      "name": "approved",
+      "line": 62,
+      "source_position": [
+        64,
+        64,
+        11,
+        19
+      ]
+    },
+    {
+      "file": "api/routes/story_planning.py",
+      "name": "list_bibles",
+      "line": 38,
+      "source_position": [
+        40,
+        40,
+        11,
+        19
+      ]
+    },
+    {
+      "file": "api/routes/story_planning.py",
+      "name": "list_briefs",
+      "line": 55,
+      "source_position": [
+        57,
+        57,
+        11,
+        19
+      ]
+    },
+    {
+      "file": "evals.py",
+      "name": "main",
+      "line": 165,
+      "source_position": [
+        166,
+        166,
+        13,
+        21
+      ]
+    },
+    {
+      "file": "feishu/repositories/story_states.py",
+      "name": "StoryStatesRepo.find_by_book",
+      "line": 13,
+      "source_position": [
+        14,
+        14,
+        15,
+        19
+      ]
+    },
+    {
+      "file": "generation.py",
+      "name": "ModelProvider.complete",
+      "line": 99,
+      "source_position": [
+        99,
+        99,
+        74,
+        77
+      ]
+    },
+    {
+      "file": "pipeline/worker.py",
+      "name": "WorkerLoop._resolve_record_id",
+      "line": 75,
+      "source_position": [
+        77,
+        77,
+        17,
+        21
+      ]
+    },
+    {
+      "file": "storage.py",
+      "name": "StorageProvider.get",
+      "line": 32,
+      "source_position": [
+        32,
+        32,
+        67,
+        70
+      ]
+    },
+    {
+      "file": "storage.py",
+      "name": "StorageProvider.get_many",
+      "line": 33,
+      "source_position": [
+        33,
+        33,
+        83,
+        86
+      ]
+    },
+    {
+      "file": "storage.py",
+      "name": "StorageProvider.list",
+      "line": 34,
+      "source_position": [
+        34,
+        34,
+        76,
+        79
+      ]
+    },
+    {
+      "file": "storage.py",
+      "name": "StorageProvider.ensure",
+      "line": 35,
+      "source_position": [
+        35,
+        35,
+        89,
+        92
+      ]
+    },
+    {
+      "file": "storage.py",
+      "name": "StorageProvider.update",
+      "line": 36,
+      "source_position": [
+        36,
+        36,
+        77,
+        80
+      ]
+    },
+    {
+      "file": "storage.py",
+      "name": "StorageProvider.delete",
+      "line": 37,
+      "source_position": [
+        37,
+        37,
+        63,
+        66
+      ]
+    }
+  ],
+  "definition_scope": "every app Python source including unimported modules and Protocol declarations; module/class bodies and compiler-generated comprehensions are not source functions",
+  "measurement_validation": "decorated functions, nested functions, methods, two same-line lambdas and one retained uncalled function validated in isolated source",
+  "code_commit": "e2bd6534c72fc03b89af24599bc778e3d8cab020",
+  "validation_run": "489 offline backend tests passed in 167.14s, 10 opt-in live tests deselected",
+  "additional_test": "test_editorial_round_trip_keeps_sources_and_bounded_remote_reads",
+  "previous_measurement_code_commit": "3241108810e3a26494d8b71fd1d5e0a647e6529e"
+}

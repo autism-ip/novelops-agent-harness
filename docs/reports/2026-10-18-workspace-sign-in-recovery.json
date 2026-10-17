@@ -1,0 +1,671 @@
+{
+  "date": "2026-10-18",
+  "captured_at_unix": 1792258688.626635,
+  "goal_status": "active",
+  "whole_project_complete": false,
+  "issue": "ZEN-107",
+  "pr": 34,
+  "downstream_prs": [
+    35,
+    36,
+    37
+  ],
+  "runtime_frontend_commit": "dfbdb922a17e4c54e4c1d3f7b484e8af3c0c0bbe",
+  "branch_verification": [
+    {
+      "pr": 34,
+      "branch": "codex/zen-107-ios-design",
+      "head": "a17817c8b6a183ceb1dbe045499769c9381878d6",
+      "coverage": {
+        "lines": {
+          "total": 643,
+          "covered": 591,
+          "skipped": 0,
+          "pct": 91.91
+        },
+        "statements": {
+          "total": 729,
+          "covered": 658,
+          "skipped": 0,
+          "pct": 90.26
+        },
+        "functions": {
+          "total": 205,
+          "covered": 174,
+          "skipped": 0,
+          "pct": 84.87
+        },
+        "branches": {
+          "total": 736,
+          "covered": 650,
+          "skipped": 0,
+          "pct": 88.31
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "check": "passed",
+      "tests": 137,
+      "new_auth_module_coverage": {
+        "/Users/zen/.codex/worktrees/issue-delivery/novelops-agent-harness/frontend/src/app/sign-in/page.tsx": {
+          "lines": {
+            "total": 2,
+            "covered": 2,
+            "skipped": 0,
+            "pct": 100
+          },
+          "functions": {
+            "total": 1,
+            "covered": 1,
+            "skipped": 0,
+            "pct": 100
+          },
+          "statements": {
+            "total": 2,
+            "covered": 2,
+            "skipped": 0,
+            "pct": 100
+          },
+          "branches": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "/Users/zen/.codex/worktrees/issue-delivery/novelops-agent-harness/frontend/src/components/workspace-sign-in.tsx": {
+          "lines": {
+            "total": 19,
+            "covered": 19,
+            "skipped": 0,
+            "pct": 100
+          },
+          "functions": {
+            "total": 2,
+            "covered": 2,
+            "skipped": 0,
+            "pct": 100
+          },
+          "statements": {
+            "total": 25,
+            "covered": 25,
+            "skipped": 0,
+            "pct": 100
+          },
+          "branches": {
+            "total": 12,
+            "covered": 12,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "/Users/zen/.codex/worktrees/issue-delivery/novelops-agent-harness/frontend/src/lib/workspace-return.ts": {
+          "lines": {
+            "total": 4,
+            "covered": 4,
+            "skipped": 0,
+            "pct": 100
+          },
+          "functions": {
+            "total": 1,
+            "covered": 1,
+            "skipped": 0,
+            "pct": 100
+          },
+          "statements": {
+            "total": 6,
+            "covered": 6,
+            "skipped": 0,
+            "pct": 100
+          },
+          "branches": {
+            "total": 9,
+            "covered": 9,
+            "skipped": 0,
+            "pct": 100
+          }
+        }
+      },
+      "backend_unchanged": "5dbcb3a34ef183311d907b8209e5f49e792f933d"
+    },
+    {
+      "pr": 35,
+      "branch": "codex/zen-39-story-planning",
+      "head": "7fbd188cc83d82470dc964bff09fc197f617ba84",
+      "backend_tree_unchanged": "7b123f69b187b1ba33bed7e97d7b621b988c910b",
+      "coverage": {
+        "lines": {
+          "total": 750,
+          "covered": 702,
+          "skipped": 0,
+          "pct": 93.6
+        },
+        "statements": {
+          "total": 866,
+          "covered": 794,
+          "skipped": 0,
+          "pct": 91.68
+        },
+        "functions": {
+          "total": 242,
+          "covered": 213,
+          "skipped": 0,
+          "pct": 88.01
+        },
+        "branches": {
+          "total": 917,
+          "covered": 835,
+          "skipped": 0,
+          "pct": 91.05
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "coverage_command": "npm run test:coverage",
+      "check": "passed",
+      "tests": 179,
+      "new_auth_module_coverage": {
+        "/Users/zen/.codex/worktrees/issue-delivery/novelops-agent-harness/frontend/src/app/sign-in/page.tsx": {
+          "lines": {
+            "total": 2,
+            "covered": 2,
+            "skipped": 0,
+            "pct": 100
+          },
+          "functions": {
+            "total": 1,
+            "covered": 1,
+            "skipped": 0,
+            "pct": 100
+          },
+          "statements": {
+            "total": 2,
+            "covered": 2,
+            "skipped": 0,
+            "pct": 100
+          },
+          "branches": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "/Users/zen/.codex/worktrees/issue-delivery/novelops-agent-harness/frontend/src/components/workspace-sign-in.tsx": {
+          "lines": {
+            "total": 19,
+            "covered": 19,
+            "skipped": 0,
+            "pct": 100
+          },
+          "functions": {
+            "total": 2,
+            "covered": 2,
+            "skipped": 0,
+            "pct": 100
+          },
+          "statements": {
+            "total": 25,
+            "covered": 25,
+            "skipped": 0,
+            "pct": 100
+          },
+          "branches": {
+            "total": 12,
+            "covered": 12,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "/Users/zen/.codex/worktrees/issue-delivery/novelops-agent-harness/frontend/src/lib/workspace-return.ts": {
+          "lines": {
+            "total": 4,
+            "covered": 4,
+            "skipped": 0,
+            "pct": 100
+          },
+          "functions": {
+            "total": 1,
+            "covered": 1,
+            "skipped": 0,
+            "pct": 100
+          },
+          "statements": {
+            "total": 6,
+            "covered": 6,
+            "skipped": 0,
+            "pct": 100
+          },
+          "branches": {
+            "total": 9,
+            "covered": 9,
+            "skipped": 0,
+            "pct": 100
+          }
+        }
+      },
+      "backend_unchanged": "7b123f69b187b1ba33bed7e97d7b621b988c910b"
+    },
+    {
+      "pr": 36,
+      "branch": "codex/zen-40-chapter-loop",
+      "head": "4554e816b592d1e33f9bd16dc72400d6416ccf48",
+      "backend_tree_unchanged": "287b1ef9a9c001e4fd27b2c9394030047b3ba60d",
+      "coverage": {
+        "lines": {
+          "total": 837,
+          "covered": 789,
+          "skipped": 0,
+          "pct": 94.26
+        },
+        "statements": {
+          "total": 977,
+          "covered": 900,
+          "skipped": 0,
+          "pct": 92.11
+        },
+        "functions": {
+          "total": 271,
+          "covered": 242,
+          "skipped": 0,
+          "pct": 89.29
+        },
+        "branches": {
+          "total": 1053,
+          "covered": 965,
+          "skipped": 0,
+          "pct": 91.64
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "coverage_command": "npm run test:coverage",
+      "check": "passed",
+      "tests": 216,
+      "new_auth_module_coverage": {
+        "/Users/zen/.codex/worktrees/issue-delivery/novelops-agent-harness/frontend/src/app/sign-in/page.tsx": {
+          "lines": {
+            "total": 2,
+            "covered": 2,
+            "skipped": 0,
+            "pct": 100
+          },
+          "functions": {
+            "total": 1,
+            "covered": 1,
+            "skipped": 0,
+            "pct": 100
+          },
+          "statements": {
+            "total": 2,
+            "covered": 2,
+            "skipped": 0,
+            "pct": 100
+          },
+          "branches": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "/Users/zen/.codex/worktrees/issue-delivery/novelops-agent-harness/frontend/src/components/workspace-sign-in.tsx": {
+          "lines": {
+            "total": 19,
+            "covered": 19,
+            "skipped": 0,
+            "pct": 100
+          },
+          "functions": {
+            "total": 2,
+            "covered": 2,
+            "skipped": 0,
+            "pct": 100
+          },
+          "statements": {
+            "total": 25,
+            "covered": 25,
+            "skipped": 0,
+            "pct": 100
+          },
+          "branches": {
+            "total": 12,
+            "covered": 12,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "/Users/zen/.codex/worktrees/issue-delivery/novelops-agent-harness/frontend/src/lib/workspace-return.ts": {
+          "lines": {
+            "total": 4,
+            "covered": 4,
+            "skipped": 0,
+            "pct": 100
+          },
+          "functions": {
+            "total": 1,
+            "covered": 1,
+            "skipped": 0,
+            "pct": 100
+          },
+          "statements": {
+            "total": 6,
+            "covered": 6,
+            "skipped": 0,
+            "pct": 100
+          },
+          "branches": {
+            "total": 9,
+            "covered": 9,
+            "skipped": 0,
+            "pct": 100
+          }
+        }
+      },
+      "backend_unchanged": "287b1ef9a9c001e4fd27b2c9394030047b3ba60d"
+    },
+    {
+      "pr": 37,
+      "branch": "codex/zen-41-chapter-review-desk",
+      "head": "dfbdb922a17e4c54e4c1d3f7b484e8af3c0c0bbe",
+      "backend_tree_unchanged": "91b5c2c6ba86a0aa1813a38091ea78f74011f99e",
+      "coverage": {
+        "lines": {
+          "total": 970,
+          "covered": 932,
+          "skipped": 0,
+          "pct": 96.08
+        },
+        "statements": {
+          "total": 1151,
+          "covered": 1078,
+          "skipped": 0,
+          "pct": 93.65
+        },
+        "functions": {
+          "total": 324,
+          "covered": 300,
+          "skipped": 0,
+          "pct": 92.59
+        },
+        "branches": {
+          "total": 1276,
+          "covered": 1208,
+          "skipped": 0,
+          "pct": 94.67
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "check": "passed",
+      "test_summary": "287 passed / 26 files",
+      "integration_adjustment": "Exact book401 copy updated to workspace language; error visibility and no-empty-workspace assertions preserved",
+      "tests": 287,
+      "new_auth_module_coverage": {
+        "/Users/zen/.codex/worktrees/issue-delivery/novelops-agent-harness/frontend/src/app/sign-in/page.tsx": {
+          "lines": {
+            "total": 2,
+            "covered": 2,
+            "skipped": 0,
+            "pct": 100
+          },
+          "functions": {
+            "total": 1,
+            "covered": 1,
+            "skipped": 0,
+            "pct": 100
+          },
+          "statements": {
+            "total": 2,
+            "covered": 2,
+            "skipped": 0,
+            "pct": 100
+          },
+          "branches": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "/Users/zen/.codex/worktrees/issue-delivery/novelops-agent-harness/frontend/src/components/workspace-sign-in.tsx": {
+          "lines": {
+            "total": 19,
+            "covered": 19,
+            "skipped": 0,
+            "pct": 100
+          },
+          "functions": {
+            "total": 2,
+            "covered": 2,
+            "skipped": 0,
+            "pct": 100
+          },
+          "statements": {
+            "total": 25,
+            "covered": 25,
+            "skipped": 0,
+            "pct": 100
+          },
+          "branches": {
+            "total": 12,
+            "covered": 12,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "/Users/zen/.codex/worktrees/issue-delivery/novelops-agent-harness/frontend/src/lib/workspace-return.ts": {
+          "lines": {
+            "total": 4,
+            "covered": 4,
+            "skipped": 0,
+            "pct": 100
+          },
+          "functions": {
+            "total": 1,
+            "covered": 1,
+            "skipped": 0,
+            "pct": 100
+          },
+          "statements": {
+            "total": 6,
+            "covered": 6,
+            "skipped": 0,
+            "pct": 100
+          },
+          "branches": {
+            "total": 9,
+            "covered": 9,
+            "skipped": 0,
+            "pct": 100
+          }
+        }
+      },
+      "backend_unchanged": "91b5c2c6ba86a0aa1813a38091ea78f74011f99e"
+    }
+  ],
+  "runtime_authentication": {
+    "captured_at": 1792258570032,
+    "verified_prior_observations": {
+      "expired_session_review_status": 401,
+      "wrong_password_status": 401,
+      "wrong_password_message": "Invalid workspace password. Try again.",
+      "return_target_preserved": true
+    },
+    "after": {
+      "url": "http://127.0.0.1:18432/books/BK-612ff5ad0bfaaed202baf9fe0acf390f/chapters/1/review",
+      "pending": null,
+      "error": "Request failed (500). Refresh and try again.",
+      "viewport": 390,
+      "documentWidth": 390,
+      "passwordInputs": 0,
+      "network": [
+        {
+          "path": "/api/books/BK-612ff5ad0bfaaed202baf9fe0acf390f/chapters/1/review",
+          "status": 401,
+          "duration": 28.90000009536743
+        },
+        {
+          "path": "/api/auth/login",
+          "status": 401,
+          "duration": 14.200000047683716
+        },
+        {
+          "path": "/api/auth/login",
+          "status": 200,
+          "duration": 18.799999952316284
+        },
+        {
+          "path": "/books/BK-612ff5ad0bfaaed202baf9fe0acf390f/chapters/1/review",
+          "status": 200,
+          "duration": 8.5
+        },
+        {
+          "path": "/api/books/BK-612ff5ad0bfaaed202baf9fe0acf390f/chapters/1/review",
+          "status": 500,
+          "duration": 26.799999952316284
+        },
+        {
+          "path": "/api/books/BK-612ff5ad0bfaaed202baf9fe0acf390f/chapters/1/review",
+          "status": 500,
+          "duration": 10.399999856948853
+        },
+        {
+          "path": "/api/books/BK-612ff5ad0bfaaed202baf9fe0acf390f/chapters/1/review",
+          "status": 500,
+          "duration": 13.399999856948853
+        },
+        {
+          "path": "/api/books/BK-612ff5ad0bfaaed202baf9fe0acf390f/chapters/1/review",
+          "status": 500,
+          "duration": 11.400000095367432
+        },
+        {
+          "path": "/api/books/BK-612ff5ad0bfaaed202baf9fe0acf390f/chapters/1/review",
+          "status": 500,
+          "duration": 9.400000095367432
+        },
+        {
+          "path": "/api/books/BK-612ff5ad0bfaaed202baf9fe0acf390f/chapters/1/review",
+          "status": 500,
+          "duration": 4.400000095367432
+        },
+        {
+          "path": "/api/books/BK-612ff5ad0bfaaed202baf9fe0acf390f/chapters/1/review",
+          "status": 500,
+          "duration": 5.300000190734863
+        },
+        {
+          "path": "/api/books/BK-612ff5ad0bfaaed202baf9fe0acf390f/chapters/1/review",
+          "status": 500,
+          "duration": 10.100000143051147
+        },
+        {
+          "path": "/api/books/BK-612ff5ad0bfaaed202baf9fe0acf390f/chapters/1/review",
+          "status": 500,
+          "duration": 10
+        },
+        {
+          "path": "/api/books/BK-612ff5ad0bfaaed202baf9fe0acf390f/chapters/1/review",
+          "status": 500,
+          "duration": 10.800000190734863
+        },
+        {
+          "path": "/api/books/BK-612ff5ad0bfaaed202baf9fe0acf390f/chapters/1/review",
+          "status": 500,
+          "duration": 9.299999952316284
+        }
+      ]
+    },
+    "cookies": [
+      {
+        "name": "session_token",
+        "httpOnly": true,
+        "secure": true,
+        "sameSite": "Lax",
+        "path": "/"
+      }
+    ],
+    "login_submissions": 2,
+    "successful_login_submissions": 1,
+    "observation_errors": [
+      "Unsupported loc=role:alert after successful return",
+      "Broad role=alert CSS matched paragraph and framework announcer; switched to read-only scoped DOM extraction"
+    ],
+    "backend": "Intentionally stopped after chapter9 final verification; authenticated review returns500 rather than401. No renewed content/Feishu/model acceptance claimed.",
+    "credentials_exposed": false
+  },
+  "production_changes": [
+    "Global signed-session recovery entry with exact local return path",
+    "Dedicated responsive sign-in form posting only to existing auth endpoint",
+    "Synchronous duplicate-submit guard; success clears password without clearing saved business intent",
+    "Strict known-local-route return allowlist; rejects external/API/script/traversal/query/fragment targets",
+    "Generic401 guidance describes workspace rather than hotspots"
+  ],
+  "frontend_final_coverage": {
+    "lines": {
+      "total": 970,
+      "covered": 932,
+      "skipped": 0,
+      "pct": 96.08
+    },
+    "statements": {
+      "total": 1151,
+      "covered": 1078,
+      "skipped": 0,
+      "pct": 93.65
+    },
+    "functions": {
+      "total": 324,
+      "covered": 300,
+      "skipped": 0,
+      "pct": 92.59
+    },
+    "branches": {
+      "total": 1276,
+      "covered": 1208,
+      "skipped": 0,
+      "pct": 94.67
+    },
+    "branchesTrue": {
+      "total": 0,
+      "covered": 0,
+      "skipped": 0,
+      "pct": 100
+    }
+  },
+  "mechanical_impeccable_findings": [],
+  "limits": [
+    "Successful authentication and exact URL return verified, not renewed chapter content acceptance: real backend deliberately stopped after independently verified final lock",
+    "Authenticated offline backend currently causes proxy500 and repeated5-second reads; observed and pending bounded-retry/transport-recovery fix",
+    "No actual password, cookie value, backend key or signing secret committed",
+    "All project coverage metrics100% and all13issue final business acceptance still required"
+  ],
+  "skill_assessment": {
+    "reused": [
+      "issue-pr-delivery",
+      "ego-browser",
+      "impeccable harden",
+      "security-review",
+      "tdd-workflow"
+    ],
+    "new_skill": false,
+    "reason": "Existing skills cover the workflow; a single route guard/form is project code, not a reusable agent skill."
+  }
+}

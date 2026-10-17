@@ -428,3 +428,14 @@ test("idle eligible-brief reads use a minute budget and explicit chapter refresh
   expect(writes(transport)).toHaveLength(0);
   expect((screen.getByRole("button", { name: "Generate chapter" }) as HTMLButtonElement).disabled).toBe(false);
 });
+
+
+test("chapter selection exposes its focused review route without triggering generation", async () => {
+  const transport = await open();
+  expect(screen.getByRole("link", { name: "Open review desk" }).getAttribute("href")).toBe(`/books/${book}/chapters/1/review`);
+  fireEvent.change(screen.getByLabelText("Chapter number"), { target: { value: "2" } });
+  expect(screen.getByRole("link", { name: "Open review desk" }).getAttribute("href")).toBe(`/books/${book}/chapters/2/review`);
+  fireEvent.change(screen.getByLabelText("Chapter number"), { target: { value: "0" } });
+  expect(screen.queryByRole("link", { name: "Open review desk" })).toBeNull();
+  expect(writes(transport)).toHaveLength(0);
+});

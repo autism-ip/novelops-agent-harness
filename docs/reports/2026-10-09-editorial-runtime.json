@@ -1,0 +1,68 @@
+{
+  "code_commit": "3241108810e3a26494d8b71fd1d5e0a647e6529e",
+  "runtime_probe": {
+    "seed_rows": 21,
+    "model_calls_during_live_flow": 0,
+    "operations": {
+      "approve": {
+        "seconds": 30.259,
+        "requests": 30,
+        "methods": {
+          "GET": 10,
+          "POST": 19,
+          "PUT": 1
+        },
+        "client_sends": 1,
+        "unauthenticated_status": 401
+      },
+      "approve_replay": {
+        "seconds": 22.824,
+        "requests": 27,
+        "methods": {
+          "GET": 10,
+          "POST": 17
+        },
+        "client_sends": 1,
+        "unauthenticated_status": 401
+      },
+      "lock": {
+        "seconds": 24.487,
+        "requests": 26,
+        "methods": {
+          "POST": 15,
+          "GET": 10,
+          "PUT": 1
+        },
+        "client_sends": 1,
+        "unauthenticated_status": 401
+      }
+    },
+    "runtime_chain": "current ApiClient -> production Next.js signed-session proxy -> Uvicorn FastAPI -> actual Feishu",
+    "seed_seconds": 105.393,
+    "review_seconds": 25.732,
+    "review_request_count": 22,
+    "review_methods": {
+      "GET": 11,
+      "POST": 11
+    },
+    "review_read_only": true,
+    "review_event": "authenticated persisted chapter desk matches immutable sources",
+    "editorial_event": "exact immutable version approved once then final-locked by app identity",
+    "cleanup_seconds": 119.658,
+    "cleanup_failures": [
+      [
+        "pipeline_runs",
+        "FeishuAPIError"
+      ]
+    ],
+    "total_seconds": 332.462
+  },
+  "overall_runtime_pytest": "failed only at initial cleanup: FeishuAPIError on one PipelineRun",
+  "cleanup_reconciliation": {
+    "journal_ids": 22,
+    "removed": 0,
+    "independent_remaining_rows": 0
+  },
+  "cleanup_reconciliation_pytest": "1 passed in 25.29 seconds",
+  "scope": "routine pre-generated synthetic v1; current transpiled ApiClient through local production Next session proxy and Uvicorn API to real Feishu; no real model, deployed host or browser DOM in this probe"
+}

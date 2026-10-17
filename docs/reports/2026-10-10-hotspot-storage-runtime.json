@@ -1,0 +1,198 @@
+{
+  "spaceId": 2,
+  "page": "p1",
+  "scope": "Actual production Next, signed proxy, FastAPI and kernel; synthetic external providers; only native Storage faults injected",
+  "checks": [
+    {
+      "event": "Unreadable storage blocks request before native HTTP POST",
+      "writes": 0,
+      "blocked": true,
+      "errors": []
+    },
+    {
+      "event": "Failed public clearance preserves malformed bytes and zero writes",
+      "bytes": "{native-runtime-unreadable",
+      "writes": 0,
+      "error": [
+        "Could not clear saved request. Native storage clear denied Check browser storage access and try again.",
+        "Saved request is unreadable. Review recent workflows before clearing it. I have checked recent workflows"
+      ],
+      "errors": []
+    },
+    {
+      "event": "Actual POST 201 retains exact identity when local clearance fails",
+      "bytes": "{\"path\":\"/api/hotspots/manual\",\"body\":{\"request_key\":\"4e32c131-0661-45e3-8609-b3687aaa4892\",\"title\":\"Synthetic native storage recovery 9e62f417-a933-4401-8e63-1590b4d85a4b\",\"url\":\"https://example.com/native-storage-recovery\",\"category\":\"native-storage-probe\"}}",
+      "writes": [
+        {
+          "path": "/api/hotspots/manual",
+          "body": {
+            "request_key": "4e32c131-0661-45e3-8609-b3687aaa4892",
+            "title": "Synthetic native storage recovery 9e62f417-a933-4401-8e63-1590b4d85a4b",
+            "url": "https://example.com/native-storage-recovery",
+            "category": "native-storage-probe"
+          },
+          "saved": "{\"path\":\"/api/hotspots/manual\",\"body\":{\"request_key\":\"4e32c131-0661-45e3-8609-b3687aaa4892\",\"title\":\"Synthetic native storage recovery 9e62f417-a933-4401-8e63-1590b4d85a4b\",\"url\":\"https://example.com/native-storage-recovery\",\"category\":\"native-storage-probe\"}}",
+          "status": 201,
+          "response": {
+            "pipeline_run_id": "PR-8a5ea737295b8ab99964696b17dfc7e7",
+            "pipeline_type": "hotspot_manual_v1",
+            "status": "pending",
+            "definition_json": "{\"book_id\":\"\",\"source_hotspot_id\":\"\",\"steps\":[{\"depends_on\":[],\"handler\":\"hotspots.manual_add\",\"input\":{\"category\":\"native-storage-probe\",\"title\":\"Synthetic native storage recovery 9e62f417-a933-4401-8e63-1590b4d85a4b\",\"url\":\"https://example.com/native-storage-recovery\"},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"save\"}],\"workflow_type\":\"hotspot_manual_v1\"}",
+            "book_id": "",
+            "source_hotspot_id": "",
+            "created_at": "2026-10-10T10:42:37.437957+00:00",
+            "updated_at": "2026-10-10T10:42:37.446430+00:00"
+          }
+        }
+      ],
+      "errors": []
+    },
+    {
+      "event": "Fresh actual API proves exact replay with one Hotspot and one PipelineRun",
+      "writes": [
+        {
+          "path": "/api/hotspots/manual",
+          "body": {
+            "request_key": "4e32c131-0661-45e3-8609-b3687aaa4892",
+            "title": "Synthetic native storage recovery 9e62f417-a933-4401-8e63-1590b4d85a4b",
+            "url": "https://example.com/native-storage-recovery",
+            "category": "native-storage-probe"
+          },
+          "saved": "{\"path\":\"/api/hotspots/manual\",\"body\":{\"request_key\":\"4e32c131-0661-45e3-8609-b3687aaa4892\",\"title\":\"Synthetic native storage recovery 9e62f417-a933-4401-8e63-1590b4d85a4b\",\"url\":\"https://example.com/native-storage-recovery\",\"category\":\"native-storage-probe\"}}",
+          "status": 201,
+          "response": {
+            "pipeline_run_id": "PR-8a5ea737295b8ab99964696b17dfc7e7",
+            "pipeline_type": "hotspot_manual_v1",
+            "status": "pending",
+            "definition_json": "{\"book_id\":\"\",\"source_hotspot_id\":\"\",\"steps\":[{\"depends_on\":[],\"handler\":\"hotspots.manual_add\",\"input\":{\"category\":\"native-storage-probe\",\"title\":\"Synthetic native storage recovery 9e62f417-a933-4401-8e63-1590b4d85a4b\",\"url\":\"https://example.com/native-storage-recovery\"},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"save\"}],\"workflow_type\":\"hotspot_manual_v1\"}",
+            "book_id": "",
+            "source_hotspot_id": "",
+            "created_at": "2026-10-10T10:42:37.437957+00:00",
+            "updated_at": "2026-10-10T10:42:37.446430+00:00"
+          }
+        },
+        {
+          "path": "/api/hotspots/manual",
+          "body": {
+            "request_key": "4e32c131-0661-45e3-8609-b3687aaa4892",
+            "title": "Synthetic native storage recovery 9e62f417-a933-4401-8e63-1590b4d85a4b",
+            "url": "https://example.com/native-storage-recovery",
+            "category": "native-storage-probe"
+          },
+          "saved": "{\"path\":\"/api/hotspots/manual\",\"body\":{\"request_key\":\"4e32c131-0661-45e3-8609-b3687aaa4892\",\"title\":\"Synthetic native storage recovery 9e62f417-a933-4401-8e63-1590b4d85a4b\",\"url\":\"https://example.com/native-storage-recovery\",\"category\":\"native-storage-probe\"}}",
+          "status": 201,
+          "response": {
+            "pipeline_run_id": "PR-8a5ea737295b8ab99964696b17dfc7e7",
+            "pipeline_type": "hotspot_manual_v1",
+            "status": "completed",
+            "definition_json": "{\"book_id\":\"\",\"source_hotspot_id\":\"\",\"steps\":[{\"depends_on\":[],\"handler\":\"hotspots.manual_add\",\"input\":{\"category\":\"native-storage-probe\",\"title\":\"Synthetic native storage recovery 9e62f417-a933-4401-8e63-1590b4d85a4b\",\"url\":\"https://example.com/native-storage-recovery\"},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"save\"}],\"workflow_type\":\"hotspot_manual_v1\"}",
+            "book_id": "",
+            "source_hotspot_id": "",
+            "created_at": "2026-10-10T10:42:37.437957+00:00",
+            "updated_at": "2026-10-10T10:42:37.516590+00:00"
+          }
+        }
+      ],
+      "bytes": null,
+      "errors": [],
+      "rows": [
+        {
+          "title": "Synthetic native storage recovery 9e62f417-a933-4401-8e63-1590b4d85a4b",
+          "url": "https://example.com/native-storage-recovery",
+          "category": "native-storage-probe",
+          "source": "manual",
+          "dedupe_hash": "337aca24bb8b56527d331531300a31e02a390c0e35c5a1c2442e4448884586df",
+          "hotspot_id": "HS-2ea60e53d0b179efbf084110c743f0ef",
+          "rank": 0,
+          "heat_value": 0,
+          "captured_at": "2026-10-10T10:42:37.437957+00:00",
+          "status": "normalized",
+          "raw_json": {
+            "category": "native-storage-probe",
+            "title": "Synthetic native storage recovery 9e62f417-a933-4401-8e63-1590b4d85a4b",
+            "url": "https://example.com/native-storage-recovery"
+          },
+          "last_ingestion_run_id": "PR-8a5ea737295b8ab99964696b17dfc7e7"
+        }
+      ],
+      "workflow": {
+        "pipeline_run_id": "PR-8a5ea737295b8ab99964696b17dfc7e7",
+        "pipeline_type": "hotspot_manual_v1",
+        "status": "completed",
+        "definition_json": "{\"book_id\":\"\",\"source_hotspot_id\":\"\",\"steps\":[{\"depends_on\":[],\"handler\":\"hotspots.manual_add\",\"input\":{\"category\":\"native-storage-probe\",\"title\":\"Synthetic native storage recovery 9e62f417-a933-4401-8e63-1590b4d85a4b\",\"url\":\"https://example.com/native-storage-recovery\"},\"kind\":\"service\",\"requires_approval\":false,\"step_key\":\"save\"}],\"workflow_type\":\"hotspot_manual_v1\"}",
+        "book_id": "",
+        "source_hotspot_id": "",
+        "created_at": "2026-10-10T10:42:37.437957+00:00",
+        "updated_at": "2026-10-10T10:42:37.516590+00:00"
+      }
+    }
+  ],
+  "errors": [],
+  "title": "Synthetic native storage recovery 9e62f417-a933-4401-8e63-1590b4d85a4b",
+  "passed": true,
+  "source_commit": "98ef96cfa5d5b9439aceb58ba7ab4c4a0f61d4f4",
+  "coverage": {
+    "lines": {
+      "total": 873,
+      "covered": 804,
+      "skipped": 0,
+      "pct": 92.09
+    },
+    "statements": {
+      "total": 1030,
+      "covered": 923,
+      "skipped": 0,
+      "pct": 89.61
+    },
+    "functions": {
+      "total": 300,
+      "covered": 260,
+      "skipped": 0,
+      "pct": 86.66
+    },
+    "branches": {
+      "total": 1166,
+      "covered": 1038,
+      "skipped": 0,
+      "pct": 89.02
+    },
+    "branchesTrue": {
+      "total": 0,
+      "covered": 0,
+      "skipped": 0,
+      "pct": 100
+    }
+  },
+  "whole_frontend_tests": 172,
+  "coverage_100": false,
+  "full_goal_complete": false,
+  "owner_issue": "ZEN-34",
+  "owner_pr": 28,
+  "skill_assessment": "Existing issue-pr-delivery native fault/replay workflow reused; no new abstraction or skill needed",
+  "branch_test_counts": {
+    "28": 47,
+    "29": 49,
+    "30": 63,
+    "31": 76,
+    "32": 87,
+    "34": 88,
+    "35": 110,
+    "36": 134,
+    "37": 172
+  },
+  "quality_gates": "Each owning/dependent branch independently passed tests, zero-warning lint, types and Node 24 production build; all 9 pushed source heads have PR and push aggregate CI success at current audit",
+  "remaining": [
+    "100% whole-source coverage",
+    "Research batch partial/all errors and active mobile dialog feedback audit",
+    "Current real DeepSeek/Feishu complete generation/rewrite/selected approval/final lock, quality/cost",
+    "Deployed session ACL/schema/read/poll latency and timeout budget"
+  ],
+  "cleanup": {
+    "page": "Space 2/p1 returned to about:blank; native fetch/Storage restored and event listeners removed",
+    "proxy": "stopped before API, exit 130",
+    "api": "Graceful shutdown complete, process exit 0; fixture client and TemporaryDirectory closed",
+    "immutable_copy": "deleted only after ownership marker and dependency symlink assertion",
+    "goal_space": "retained for active unfinished goal; no task.finish",
+    "ports": "lsof 18431/18432 returned no listeners"
+  }
+}

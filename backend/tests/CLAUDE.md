@@ -4,6 +4,7 @@
 成员清单
 test_harness_projection.py: 投影读取契约；无投影器不加载未使用步骤，有投影器保留当前类型、最新状态、取消兄弟步骤与投影失败后的无副作用重放恢复。
 __init__.py: pytest 包标记。
+function_entry_coverage.py: 可显式加载的全 app 函数入口报告插件；含未导入模块、嵌套函数、lambda 和 Protocol 声明，不替代语句/分支覆盖率；输出 coverage-functions.json。
 conftest.py: 测试环境与 AsyncClient 夹具（pytest_asyncio.fixture），隔离环境变量，TYPE_CHECKING 导入 Settings。
 test_system_endpoints.py: 系统端点行为门禁，验证响应形状、占位状态与不泄密。
 test_api_key_guard.py: API key 中间件行为门禁，验证公开端点豁免与私有 API 拦截。
@@ -34,6 +35,10 @@ ui_fixture_app.py: 仅本机浏览器验收服务；复用真实 API/Harness 与
 test_story_history_contract.py: ZEN-39 产品历史 API 的鉴权空历史零生成，以及故事升级后新旧 Bible/Brief 来源、顺序、资格和不可变快照的 HTTP 验收。
 test_story_planning.py: ZEN-39 API 与 Harness 门禁，覆盖人工审批、状态版本、不可变快照、brief 资格、历史读取数量上限、禁止回退旧提纲和中断恢复。
 test_chapter_loop.py: ZEN-40 章节生成、结构化 Critic、条件改写、硬规则/成本门禁、重试与最终锁定验收；人工约束在Critic和自动Rewrite中的完整性（每类1项/20项）、旧版本不可变与调用次数验收。
+test_review_prerequisites.py: 审稿台前置能力缺失时先鉴权、明确503且零外部读取/写入；Bible、Brief及正文生成请求与URL目标不一致时422且零模型调用。
+test_chapter_review_integrity.py: ZEN-41 审稿失败关闭契约；空白操作者、远程版本来源损坏、不可重放修订意图和精确终锁重放，经真实 API/仓储验证安全错误、零写入、零新增模型调用及恢复后原产物一致。
+test_chapter_review.py: ZEN-41 选择性关卡、精确 HTTP 审阅/退修、RevisionTask 恢复、历史与终锁、响应读取数量和跨刷新完整性门禁；包含空备注被远程省略后的批准/拒绝零写入重放及冲突保护，以及生产装配缺少 RevisionTasks 表配置时启动失败、已配置时按实际表 ID 查询的回归。
+
 
 架构决策
 测试以 BDD 验收行为为中心：状态值必须精确、密钥不得回显、鉴权必须先于路由缺失返回。门禁允许当前实现缺失时失败；它的职责是定义合格线，而不是替实现兜底。CI 显式排除 integration，保留全部离线断言，要求 app 语句覆盖率至少当前基线 87.82%，上传 coverage XML 与 JUnit 报告；Ruff 同时检查测试代码。不得为过门禁降低覆盖率下限、删除或弱化断言、增加应用代码排除项。

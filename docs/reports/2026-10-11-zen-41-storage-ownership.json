@@ -1,0 +1,96 @@
+{
+  "date": "2026-10-11",
+  "issue": "ZEN-41",
+  "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/37",
+  "requirement_event": "Public editorial requests must retain exact identity, sources and saved command bytes across unavailable storage, concurrent changes and confirmed POST recovery.",
+  "implementation": [
+    "Explicit storage-unavailable snapshot and public recheck; inaccessible data is never treated as empty.",
+    "Fresh ownership checks before submission, after async context when applicable, and after confirmed POST before deletion.",
+    "Checked-history clearance validates current bytes and exposes native DOMException details."
+  ],
+  "test_results": {
+    "red_summary": [
+      "14 failed | 11 passed (25)"
+    ],
+    "full_summary": [
+      "216 passed (216)"
+    ],
+    "gate": "Node 24 lint with zero warnings, typecheck and production build passed",
+    "commands": [
+      "npm --prefix frontend run test:coverage",
+      "npm --prefix frontend run check"
+    ],
+    "whole_frontend_coverage": {
+      "lines": {
+        "total": 929,
+        "covered": 868,
+        "skipped": 0,
+        "pct": 93.43
+      },
+      "statements": {
+        "total": 1098,
+        "covered": 1000,
+        "skipped": 0,
+        "pct": 91.07
+      },
+      "functions": {
+        "total": 310,
+        "covered": 275,
+        "skipped": 0,
+        "pct": 88.7
+      },
+      "branches": {
+        "total": 1247,
+        "covered": 1123,
+        "skipped": 0,
+        "pct": 90.05
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "component_coverage": {
+      "lines": {
+        "total": 100,
+        "covered": 100,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 43,
+        "covered": 43,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 131,
+        "covered": 123,
+        "skipped": 0,
+        "pct": 93.89
+      },
+      "branches": {
+        "total": 185,
+        "covered": 178,
+        "skipped": 0,
+        "pct": 96.21
+      }
+    },
+    "preserved_failures": [
+      "First green full attempt: 215 passed, one previous global read/write-denial test expected an enabled action, conflicting with fail-closed request reads. Existing exact write-error and zero-POST assertions retained; read fault narrowed to editor identity only, with 14 added read/ownership cases.",
+      "Following typecheck failed because Object.getPrototypeOf returned an untyped spy boundary; changed to typed Storage.prototype, no type assertions or gate relaxation.",
+      "Final: all 216 tests and Node 24 lint/typecheck/build passed."
+    ]
+  },
+  "test_boundaries": "Real components and ApiClient; controlled native fetch and Storage boundaries only. Exact POST and zero-write assertions retained. No private callbacks, ignored code or skipped tests.",
+  "limitations": [
+    "Whole-source coverage remains below required 100%.",
+    "Latest production/browser requirement event verification remains pending.",
+    "No real model/Base verification in this change."
+  ],
+  "review": "Current issue read through Linear MCP and mapped to original PR; status remains In Review.",
+  "skill_assessment": "Existing issue-pr-delivery and TDD skills cover native boundary failure recovery; no new skill needed.",
+  "done": false
+}

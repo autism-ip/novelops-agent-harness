@@ -64,7 +64,7 @@ def create_fixture_app():
                     "ending_hook": "The first flower speaks"}
                 return Completion(json.dumps(content), route.model, 100, 50)
             if route.model in {"fixture-writer", "fixture-rewrite"}:
-                inputs = json.loads(messages[-1]["content"])
+                inputs = json.loads(messages[1]["content"])
                 snapshot = inputs["snapshot"]
                 content = {"chapter_no": snapshot["chapter_no"],
                     "snapshot_artifact_id": inputs["snapshot_artifact_id"],
@@ -100,7 +100,7 @@ def create_fixture_app():
     kernel.creative = CreativeService(kernel)
     kernel.books = BookService(kernel)
     kernel.story_planning = StoryPlanningService(kernel)
-    kernel.chapter_loop = ChapterLoopService(kernel)
+    kernel.chapter_loop = ChapterLoopService(kernel, review_first_n=1)
     app = create_app(Settings(_env_file=None, BACKEND_API_KEY="ui-fixture-key"), kernel=kernel)
     app.state.drop_manual_response = False
     app.state.drop_analysis_response = False
