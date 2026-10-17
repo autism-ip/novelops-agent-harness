@@ -100,6 +100,8 @@ test("revision requires actionable feedback and never sends an empty request", a
 test("an approved Bible permits a brief bound to the selected chapter and state", async () => {
   const transport = await open([], true);
   fireEvent.change(screen.getByLabelText("Chapter number"), { target: { value: "2" } });
+  expect(screen.getByRole("button", { name: "Generate chapter brief" })).toHaveProperty("disabled", true);
+  await waitFor(() => expect(screen.getByRole("button", { name: "Generate chapter brief" })).toHaveProperty("disabled", false));
   fireEvent.change(screen.getByLabelText("Feedback for next generation or revision"), { target: { value: "  End at the gate  " } });
   fireEvent.click(screen.getByRole("button", { name: "Generate chapter brief" }));
   await waitFor(() => expect(writes(transport)).toHaveLength(1));
@@ -139,7 +141,7 @@ test("Bible, brief source details and eligibility reflect actual returned values
 });
 
 test.each([401, 503])("planning read status %s gives contextual sign-in or unconfigured guidance", async status => {
-  const transport = vi.fn(() => Promise.resolve(Response.json({ detail: "Unavailable" }, { status })));
+  const transport = vi.fn(() => Promise.resolve(Response.json({ detail: status === 503 ? "Story planning is not configured" : "Unavailable" }, { status })));
   vi.stubGlobal("fetch", transport);
   render(<StoryPlanning bookId={book} approvedBible={false} />);
   expect(await screen.findAllByText(status === 401 ? "Sign in to use story planning." : "Story planning is not configured for this workspace.")).toHaveLength(status === 401 ? 2 : 1);
@@ -395,4 +397,53 @@ test.each(["empty", "completed", "failed", "blocked", "cancelled", "awaiting_app
   expect(transport.mock.calls.filter(([url]) => String(url).endsWith("/bibles"))).toHaveLength(1);
   expect(transport.mock.calls.filter(([url]) => String(url).endsWith("/briefs"))).toHaveLength(1);
   expect(writes(transport)).toHaveLength(0);
+});
+
+
+test.each([{ detail: "Backend service is unavailable. Check the service, then refresh." }, { detail: "Storage verification failed" }, "Unavailable", { detail: 123 }])(
+  "planning503 only means unconfigured for the explicit feature contract (%j)", async body => {
+    const transport = vi.fn<(input: unknown, init: RequestInit) => Promise<Response>>(() => Promise.resolve(Response.json(body, { status: 503 })));
+    vi.stubGlobal("fetch", transport); render(<StoryPlanning bookId={book} approvedBible />);
+    await screen.findAllByRole("alert");
+    expect(screen.getByRole("heading", { name: "Story planning" })).toBeTruthy();
+    expect(screen.queryByText("Story planning is not configured for this workspace.")).toBeNull();
+    expect(screen.queryByText("No approved StoryBible yet.")).toBeNull();
+    expect(screen.queryByText("No brief for this chapter yet.")).toBeNull();
+    expect(screen.getByRole("button", { name: "Propose major StoryBible change" })).toHaveProperty("disabled", true);
+    expect(screen.getByRole("button", { name: "Generate chapter brief" })).toHaveProperty("disabled", true);
+    expect(transport.mock.calls.filter(([,init])=>init.method === "POST")).toHaveLength(0);
+  });
+
+test.each(["feature", "transport"])("planning %s failure can be refreshed without generating a new artifact", async kind => {
+  let failed = true;
+  const transport = vi.fn((input: unknown, init: RequestInit) => Promise.resolve(failed
+    ? Response.json({ detail: kind === "feature" ? "Story planning is not configured" : "Backend service is unavailable" }, { status: 503 })
+    : Response.json(init.method === "POST" ? { saved: String(input) } : [])));
+  vi.stubGlobal("fetch", transport); render(<StoryPlanning bookId={book} approvedBible={false} />);
+  if (kind === "feature") await screen.findByText("Story planning is not configured for this workspace.");
+  else await screen.findAllByRole("alert");
+  failed = false; fireEvent.click(screen.getByRole("button", { name: "Refresh planning" }));
+  await waitFor(()=>expect(screen.queryByText("Loading story planning…")).toBeNull());
+  expect(screen.queryByRole("alert")).toBeNull();
+  expect(screen.getByRole("button", { name: "Generate StoryBible" })).toHaveProperty("disabled", false);
+  expect(transport.mock.calls).toHaveLength(4);
+  expect(transport.mock.calls.filter(([,init])=>init.method === "POST")).toHaveLength(0);
+});
+
+test("planning cannot start a paid generation before its run history is known", async () => {
+  const finish: ((response: Response)=>void)[] = [];
+  const transport = vi.fn(() => new Promise<Response>(resolve=>finish.push(resolve))); vi.stubGlobal("fetch",transport);
+  render(<StoryPlanning bookId={book} approvedBible={false} />);
+  const disabledWhileReading = (screen.getByRole("button", { name: "Generate StoryBible" }) as HTMLButtonElement).disabled;
+  await act(async()=>{finish.forEach(resolve=>resolve(Response.json([])));});
+  expect(disabledWhileReading).toBe(true);
+  expect(screen.getByRole("button", { name: "Generate StoryBible" })).toHaveProperty("disabled",false);
+  expect(transport).toHaveBeenCalledTimes(2);
+});
+
+
+test("an approved canonical Bible is not described as missing when its run history is empty", async () => {
+  await open([], true);
+  expect(screen.getByText("No StoryBible run history yet.")).toBeTruthy();
+  expect(screen.queryByText("No approved StoryBible yet.")).toBeNull();
 });
