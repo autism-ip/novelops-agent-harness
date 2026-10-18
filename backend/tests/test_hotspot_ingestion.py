@@ -383,3 +383,62 @@ def test_invalid_urls_and_timestamps_are_rejected_without_poisoning_valid_record
     counts = json.loads(result["steps"][1]["output_json"])["counts"]
     assert counts["rejected"] == 4 and counts["selected"] == 1
     assert len(storage.list("hotspots")) == 1
+
+
+@pytest.mark.parametrize('endpoint', ['list', 'detail'])
+def test_hotspot_reads_stay_available_while_another_handler_holds_writer(ingestion, endpoint):
+    from threading import Event, Thread
+
+    kernel, service, storage, _, _, _ = ingestion
+    seed = complete(kernel, service.enqueue('seed-readable-hotspots')['pipeline_run_id'])
+    assert seed['status'] == 'completed'
+    row = storage.list('hotspots')[0]
+    entered, release, finished = Event(), Event(), Event()
+    errors, responses = [], []
+
+    def slow(step):
+        entered.set()
+        assert release.wait(3)
+        return {'output_refs': []}
+
+    kernel.register('slow', slow)
+    run = kernel.create('slow-hotspot-read-' + endpoint, 'test', [
+        {'step_key': 'slow', 'handler': 'slow'}])
+    api = TestClient(create_app(Settings(BACKEND_API_KEY='test'), kernel=kernel))
+    path = '/api/hotspots' + ('/' + row['hotspot_id'] if endpoint == 'detail' else '?source=douyin&status=normalized&limit=10')
+
+    def tick():
+        try:
+            kernel.tick()
+        except Exception as exc:
+            errors.append(exc)
+
+    def read():
+        try:
+            responses.append(api.get(path, headers={'x-api-key': 'test'}))
+        finally:
+            finished.set()
+
+    writer, reader = Thread(target=tick), Thread(target=read)
+    writer.start()
+    try:
+        assert entered.wait(1)
+        reader.start()
+        available_during_handler = finished.wait(0.5)
+    finally:
+        release.set()
+        writer.join(3)
+        reader.join(3)
+        api.close()
+    assert not writer.is_alive() and not reader.is_alive() and not errors
+    assert available_during_handler, 'Hotspot read waited for the whole external handler'
+    assert responses[0].status_code == 200
+    result = responses[0].json()
+    if endpoint == 'detail':
+        assert result['hotspot_id'] == row['hotspot_id'] and result['title'] == row['title']
+        assert isinstance(result['raw_json'], dict)
+    else:
+        assert result['total'] == 35 and len(result['items']) == 10
+        assert all(r['source'] == 'douyin' and r['status'] == 'normalized' for r in result['items'])
+    assert kernel.get(run['pipeline_run_id'])['status'] == 'completed'
+    assert len(storage.list('hotspots')) == 35
