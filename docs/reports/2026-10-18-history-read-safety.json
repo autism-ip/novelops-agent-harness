@@ -1731,7 +1731,7 @@
     "Requirement-by-requirement evidence audit for all13current issues,including selective policy and practical storage spike limits",
     "Necessary live integration gates and current review/CI after final documentation head",
     "Diagnose long-running scheduler FeishuAPIError cause where evidence permits;keep fail-stop/restart behavior distinct from HTTP liveness",
-    "Observed dashboard/pipeline/agent pages still contain static empty placeholders;verify whether their displayed runtime claims match actual API state"
+    "Dashboard shows HTTP liveness only;Pipelines/Agents still contain static empty lists;verify displayed execution readiness against actual API state"
   ],
   "security": {
     "new_business_writes": 0,
