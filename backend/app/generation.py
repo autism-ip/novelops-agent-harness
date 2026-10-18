@@ -12,7 +12,7 @@ import httpx
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from app.harness import encode, now, stable_id
-from app.storage import MissingRecord
+from app.storage import AmbiguousWrite, MissingRecord
 
 
 def digest(value) -> str:
@@ -172,6 +172,32 @@ class TraceRecorder:
             payload = json.loads(row["payload_json"])
             payload.update(fields, finished_at=now())
             self.kernel.storage.update("traces", trace_id, {"payload_json": encode(payload)})
+
+    def recover(self):
+        """Close abandoned observations without guessing their external outcome.
+
+        Startup holds the kernel writer before any handler can execute. Validate
+        the complete read before repairing rows; a damaged identity must not
+        redirect recovery to another attempt. Completed observations are immutable.
+        """
+        with self.kernel.writer:
+            pending = []
+            for row in self.kernel.storage.list("traces"):
+                try:
+                    payload = json.loads(row["payload_json"])
+                    if not isinstance(payload, dict) or any(
+                        payload.get(key, "") != row.get(key, "")
+                        for key in ("trace_id", "run_id", "step_id", "chapter_id", "kind")
+                    ) or payload["status"] not in {"running", "success", "failed", "interrupted"}:
+                        raise ValueError("Invalid trace identity or status")
+                except (ValueError, TypeError, KeyError):
+                    raise AmbiguousWrite("Invalid persisted trace during recovery") from None
+                if payload["status"] == "running":
+                    pending.append(row["trace_id"])
+            for trace_id in pending:
+                # finished_at is the reconciliation observation time. Unknown
+                # tokens, cost, latency and business effects remain unknown.
+                self.finish(trace_id, status="interrupted", failure_class="Interrupted", outcome_unknown=True)
 
     def list(self, *, run_id: str = "", chapter_id: str = ""):
         with self.kernel.writer:
