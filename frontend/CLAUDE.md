@@ -86,3 +86,4 @@ chapter 请求读存储失败时使用独立不可用状态与公开重查。提
 真实手机验收发现慢规划读取与5秒书籍轮询竞争。书籍详情改为读取结算后60秒再轮询，单次120秒有界，并提供原生 Refresh book；稳定或等待人工决策的规划历史停止空闲轮询，只有 creating/pending/running 保持5秒更新。新增 `book-read-budget.test.tsx` 和历史状态回归，慢运行测试继续严格验证不重叠及按时恢复轮询。
 
 eligible brief 是只读来源，在空闲状态改为上一请求结算后60秒读取一次；Refresh chapter 仍立即刷新来源，不会自动生成或提交付费命令。运行中的 generation 状态保持5秒结算后更新，终态/人工门停止规则保留。
+工作流观察页：`workflow-monitor.tsx` 让 `/pipelines` 与 `/agents` 通过受保护GET读取真实WorkflowRun及选中步骤，20条本地分页，未知/失败不显示假空；Agents仅展示所选流程的agent步骤，不新建独立AgentState。选中后焦点进入详情；异步内容到达后只在超出可见范围时定位一次，返回列表或轮询/刷新不会反复滚动。窄屏可直接阅读并返回流程列表。`health-indicator.tsx` 复用有界读取，分开显示HTTP与调度器状态/最后tick；`workflow-status-pages.test.tsx` 覆盖正常、失败恢复、401、缺步骤/分类和分页。所有操作只读。

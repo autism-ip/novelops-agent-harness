@@ -53,7 +53,7 @@ export default function DashboardPage() {
           <div>
             <ShieldCheck className="size-7 text-primary" aria-hidden />
             <h2 id="system-heading" className="mt-5 text-xl font-semibold">Workspace status</h2>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">Check the backend connection before beginning a review.</p>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">Check the connection and scheduler before beginning a review.</p>
           </div>
           <HealthIndicator />
         </section>
