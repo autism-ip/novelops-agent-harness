@@ -47,6 +47,7 @@ class Artifact(BaseModel):
     creator: str
     input_hash: str
     created_at: str
+    model_trace_id: str = ""
 
 
 class Route(BaseModel):
@@ -86,6 +87,13 @@ class Completion:
     input_tokens: int | None = None
     output_tokens: int | None = None
     finish_reason: str | None = "stop"
+
+
+@dataclass(frozen=True)
+class GenerationResult:
+    output: BaseModel
+    trace_id: str
+    model: str
 
 
 class ModelFailure(RuntimeError):
@@ -173,6 +181,31 @@ class TraceRecorder:
             payload.update(fields, finished_at=now())
             self.kernel.storage.update("traces", trace_id, {"payload_json": encode(payload)})
 
+    def link_artifact(self, artifact: dict):
+        """Reconcile one confirmed model attempt with its immutable output."""
+        with self.kernel.writer:
+            trace_id = artifact["model_trace_id"]
+            row = self.kernel.storage.get("traces", trace_id)
+            if row is None:
+                raise AmbiguousWrite("Artifact model trace is missing; reconciliation required")
+            try:
+                payload = json.loads(row["payload_json"])
+                required = {"trace_id": trace_id, "kind": "model", "status": "success",
+                    **{key: artifact[key] for key in ("run_id", "step_id", "chapter_id", "model",
+                        "provider", "route", "route_hash", "prompt_version", "prompt_hash", "workflow_version")},
+                    "output_hash": artifact["content_hash"], "input_refs": artifact["source_refs"]}
+                if (not isinstance(payload, dict) or
+                    any(payload.get(key, "") != row.get(key, "")
+                        for key in ("trace_id", "run_id", "step_id", "chapter_id", "kind")) or
+                    any(payload.get(key) != value for key, value in required.items()) or
+                    payload["output_refs"] not in ([], [artifact["artifact_id"]])):
+                    raise ValueError("Trace provenance changed")
+            except (ValueError, TypeError, KeyError):
+                raise AmbiguousWrite("Artifact model trace provenance changed; reconciliation required") from None
+            if payload["output_refs"] != [artifact["artifact_id"]]:
+                payload.update(output_refs=[artifact["artifact_id"]], finished_at=now())
+                self.kernel.storage.update("traces", trace_id, {"payload_json": encode(payload)})
+
     def recover(self):
         """Close abandoned observations without guessing their external outcome.
 
@@ -227,7 +260,14 @@ class ModelRouter:
         self.sleep = sleep
 
     def generate(self, route_name: str, prompt: Prompt, inputs: dict,
-                 output_schema: type[BaseModel], context: CallContext, *, instruction: str | None = None):
+                 output_schema: type[BaseModel], context: CallContext, *, instruction: str | None = None) -> BaseModel:
+        return self.generate_recorded(route_name, prompt, inputs, output_schema, context,
+                                      instruction=instruction).output
+
+    def generate_recorded(self, route_name: str, prompt: Prompt, inputs: dict,
+                          output_schema: type[BaseModel], context: CallContext, *,
+                          instruction: str | None = None) -> GenerationResult:
+        """Return this call's validated output and confirmed model-attempt identity."""
         route = self.routes.get(route_name)
         if route is None:
             raise ModelFailure("MissingRoute")
@@ -236,7 +276,8 @@ class ModelRouter:
         if instruction:
             messages.append({"role": "user", "content": instruction})
         call_id = "CALL-" + uuid.uuid4().hex
-        for attempt in range(route.max_retries + 1):
+        attempt = 0
+        while True:
             trace_id = self.trace.start({"kind":"model", "run_id":context.run_id,"step_id":context.step_id,
                 "chapter_id":context.chapter_id, "input_refs":list(context.input_refs), "output_refs":[],
                 "workflow_version":context.workflow_version, "call_id":call_id, "attempt":attempt,
@@ -274,10 +315,11 @@ class ModelRouter:
                 estimated_cost=cost, cost_status="estimated" if cost is not None else "unavailable",
                 output_hash=digest(output.model_dump()) if output is not None else None)
             if error is None:
-                return output
+                return GenerationResult(output=output, trace_id=trace_id, model=completion.model)
             if not error.retryable or attempt == route.max_retries:
                 raise error
             self.sleep(0.2 * (2 ** attempt))
+            attempt += 1
 
     def close(self):
         for provider in self.providers.values():
@@ -314,7 +356,7 @@ class ArtifactStore:
     @staticmethod
     def _decode(artifact_id: str, row: dict) -> dict:
         try:
-            payload = Artifact.model_validate_json(row["payload_json"]).model_dump()
+            payload = Artifact.model_validate_json(row["payload_json"]).model_dump(exclude_defaults=True)
             if (payload["artifact_id"] != artifact_id or
                 stable_id("AR-", payload["logical_id"] + "/" + str(payload["version"])) != artifact_id or
                 digest(payload["content"]) != payload["content_hash"]):
@@ -325,7 +367,7 @@ class ArtifactStore:
 
     def save(self, *, logical_id: str, version: int, artifact_type: str, content: dict,
              context: CallContext, prompt: Prompt, route: str, provider: str, model: str,
-             route_hash: str = "", input_hash: str = ""):
+             route_hash: str = "", input_hash: str = "", model_trace_id: str = ""):
         if version < 1 or not logical_id or not artifact_type:
             raise ValueError("Artifact type, logical ID and positive version required")
         with self.kernel.writer:
@@ -336,17 +378,19 @@ class ArtifactStore:
                 "workflow_version":context.workflow_version,"prompt_version":prompt.version,
                 "prompt_hash":digest(prompt.model_dump()),"route":route,"route_hash":route_hash,
                 "provider":provider,"model":model,"creator":"semantic-runtime","input_hash":input_hash}
+            if model_trace_id:
+                immutable["model_trace_id"] = model_trace_id
             existing = self.kernel.storage.get("artifacts", aid)
             if existing:
-                previous = json.loads(existing["payload_json"])
+                previous = self._decode(aid, existing)
                 if {k:v for k,v in previous.items() if k != "created_at"} != immutable:
                     raise ValueError("Artifact version is immutable")
                 return previous
-            payload = Artifact.model_validate({**immutable,"created_at":now()}).model_dump()
+            payload = Artifact.model_validate({**immutable,"created_at":now()}).model_dump(exclude_defaults=True)
             record = self.kernel._ensure("artifacts", "artifact_id", {"artifact_id":aid,
                 "logical_id":logical_id,"version":version,"artifact_type":artifact_type,
                 "run_id":context.run_id,"chapter_id":context.chapter_id,"payload_json":encode(payload)})
-            persisted = json.loads(record["payload_json"])
+            persisted = self._decode(aid, record)
             if {k:v for k,v in persisted.items() if k != "created_at"} != immutable:
                 raise ValueError("Artifact version is immutable")
             return persisted
@@ -392,15 +436,15 @@ class SemanticRuntime:
                     existing["run_id"] != context.run_id or existing["step_id"] != context.step_id):
                     raise ValueError("Artifact version is immutable; use a new version")
                 output_schema.model_validate(existing["content"])
+                if existing.get("model_trace_id"):
+                    self.router.trace.link_artifact(existing)
                 return existing
-            output = self.router.generate(route, prompt, payload, output_schema, context, instruction=instruction)
-            attempts = self.router.trace.list(run_id=context.run_id)
-            matching = [t for t in attempts if t["kind"] == "model" and t.get("step_id") == context.step_id and t["status"] == "success"]
+            generated = self.router.generate_recorded(route, prompt, payload, output_schema, context,
+                                                      instruction=instruction)
             artifact = self.artifacts.save(logical_id=logical_id,version=version,artifact_type=artifact_type,
-                content=output.model_dump(),context=context,prompt=prompt,route=route,
-                provider=route_config.provider,model=matching[-1]["model"] if matching else route_config.model,route_hash=digest(route_config.model_dump()),
-                input_hash=input_hash)
+                content=generated.output.model_dump(),context=context,prompt=prompt,route=route,
+                provider=route_config.provider,model=generated.model,route_hash=digest(route_config.model_dump()),
+                input_hash=input_hash,model_trace_id=generated.trace_id)
             # Link the successful attempt to the immutable output after persistence.
-            if matching:
-                self.router.trace.finish(matching[-1]["trace_id"], output_refs=[artifact["artifact_id"]])
+            self.router.trace.link_artifact(artifact)
             return artifact
