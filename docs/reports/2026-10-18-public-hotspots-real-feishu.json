@@ -1,0 +1,88 @@
+{
+  "status": "public_source_to_real_feishu_exactly_verified",
+  "new_hotspots": 50,
+  "total_hotspots": 51,
+  "unique_dedupe_keys": 51,
+  "baseline_rows_exact": 346,
+  "new_rows_exact": 55,
+  "cli_invocations": 1,
+  "model_calls": 0,
+  "exact_command_posts": 2,
+  "post_statuses": [
+    201,
+    201
+  ],
+  "run_status": "completed",
+  "step_statuses": {
+    "fetch": "success",
+    "persist": "success"
+  },
+  "step_retries": 0,
+  "source_url": "https://www.iesdouyin.com/web/api/v2/hotsearch/billboard/word/",
+  "source_stdout_sha256": "c6a6563ba9957bbe4ae3336c9a5d8a51df72fac011c2ccdccfcdf3b3e6687f70",
+  "batch_hash": "d4d9f364d901fd5c8fe8832a6c5b471736c3e277a46b53d55455de1e776e25ec",
+  "fetch_snapshot_characters": 33453,
+  "fetch_snapshot_utf8_bytes": 36687,
+  "max_raw_record_characters": 307,
+  "new_counts": {
+    "accepted": 50,
+    "duplicate_in_batch": 0,
+    "fetched": 50,
+    "omitted": 0,
+    "rejected": 0,
+    "selected": 50
+  },
+  "source_backend_commit": "99179b6af413d18917b158e390245a9fd63e01e3",
+  "source_backend_app_tree": "3446696522c077984bb0eb3ec30033d368439fc3",
+  "scope": "One authorized live public-source collection to real Feishu; whole project remains incomplete",
+  "read_contention": {
+    "status": "native_read_contention_verified",
+    "source_commit": "9dbc38d4b5066c560927f6f4c70786d0733016a5",
+    "read_results": [
+      {
+        "endpoint": "workflow-list",
+        "http_status": 200,
+        "seconds": 1.8,
+        "completed_while_handler_held_writer": true
+      },
+      {
+        "endpoint": "workflow-detail",
+        "http_status": 200,
+        "seconds": 4.67,
+        "completed_while_handler_held_writer": true
+      },
+      {
+        "endpoint": "hotspot-list",
+        "http_status": 200,
+        "seconds": 6.782,
+        "completed_while_handler_held_writer": true
+      },
+      {
+        "endpoint": "hotspot-detail",
+        "http_status": 200,
+        "seconds": 0.772,
+        "completed_while_handler_held_writer": true
+      }
+    ],
+    "baseline_rows_unchanged": 401,
+    "new_synthetic_rows_retained": 2,
+    "scheduler_running_after_exit": false,
+    "model_calls": 0,
+    "new_public_captures": 0
+  },
+  "backend_coverage": {
+    "statements": {
+      "covered": 4083,
+      "total": 4299
+    },
+    "lines": {
+      "covered": 4083,
+      "total": 4299
+    },
+    "branches": {
+      "covered": 966,
+      "total": 1132
+    },
+    "function_metric": "Previous raw statistic 410/422; not independently recomputed in this run"
+  }
+}
