@@ -20,7 +20,8 @@ function transport(view: unknown, status = 200) {
     if (path === root || path === "/api/books") return Response.json(view, { status });
     if (path === `${root}/bibles` || path === `${root}/chapters/1/briefs`) return Response.json([]);
     if (path === `${root}/chapters/1/generation/latest`) return Response.json(null);
-    if (path === `${root}/chapters/1/brief/eligible`) return Response.json({ detail: "No eligible brief" }, { status: 404 });
+    if (path === `${root}/chapters/1/review`) return Response.json({ latest: null, versions: [], revision_tasks: [] });
+    if (path === `${root}/chapters/1/brief/eligible`) return Response.json({ detail: "No current policy-eligible ChapterBrief" }, { status: 409 });
     throw new Error(`Unexpected read ${path}`);
   });
   vi.stubGlobal("fetch", fetch);
@@ -86,6 +87,7 @@ test("a canonical detail route presents source provenance and rules alongside re
   expect(within(provenance).getByText("AR-opportunity · AR-title · AR-cover")).toBeTruthy();
   expect((await screen.findByRole("button", { name: "Generate chapter" }) as HTMLButtonElement).disabled).toBe(true);
   expect(await screen.findByText("Approve the StoryBible and generate a current chapter brief first.")).toBeTruthy();
+  expect(screen.queryByRole("alert")).toBeNull();
   expect(fetch.mock.calls.every(([, init]) => (init?.method ?? "GET") === "GET")).toBe(true);
 });
 
