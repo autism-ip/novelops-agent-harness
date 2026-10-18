@@ -1,0 +1,188 @@
+{
+  "scope": "Workflow/agent observations and execution readiness; project remains incomplete",
+  "frontend_implementation_commits": [
+    "f8aef63",
+    "d93a71e"
+  ],
+  "backend_frozen_commit": "9dbc38d4b5066c560927f6f4c70786d0733016a5",
+  "branch_verification": [
+    {
+      "pr": 34,
+      "source_commit": "d93a71e",
+      "frontend_tests": 176,
+      "coverage": {
+        "statements": {
+          "pct": 92.02,
+          "covered": 715,
+          "total": 777
+        },
+        "lines": {
+          "pct": 93.71,
+          "covered": 641,
+          "total": 684
+        },
+        "functions": {
+          "pct": 88.42,
+          "covered": 191,
+          "total": 216
+        },
+        "branches": {
+          "pct": 89.77,
+          "covered": 755,
+          "total": 841
+        }
+      },
+      "lint_type_build": "passed"
+    },
+    {
+      "pr": 35,
+      "source_commit": "c2b8583d8bd7a21f36cc3c28c0571a3b6a612b60",
+      "frontend_tests": 226,
+      "coverage": {
+        "statements": {
+          "total": 918,
+          "covered": 855,
+          "skipped": 0,
+          "pct": 93.13
+        },
+        "lines": {
+          "total": 794,
+          "covered": 755,
+          "skipped": 0,
+          "pct": 95.08
+        },
+        "functions": {
+          "total": 255,
+          "covered": 232,
+          "skipped": 0,
+          "pct": 90.98
+        },
+        "branches": {
+          "total": 1051,
+          "covered": 969,
+          "skipped": 0,
+          "pct": 92.19
+        }
+      },
+      "lint_type_build": "passed"
+    },
+    {
+      "pr": 36,
+      "source_commit": "216e61d4dbc2ad959747c2004a7de99cd9f5ad05",
+      "frontend_tests": 272,
+      "coverage": {
+        "statements": {
+          "total": 1033,
+          "covered": 965,
+          "skipped": 0,
+          "pct": 93.41
+        },
+        "lines": {
+          "total": 884,
+          "covered": 845,
+          "skipped": 0,
+          "pct": 95.58
+        },
+        "functions": {
+          "total": 286,
+          "covered": 263,
+          "skipped": 0,
+          "pct": 91.95
+        },
+        "branches": {
+          "total": 1208,
+          "covered": 1120,
+          "skipped": 0,
+          "pct": 92.71
+        }
+      },
+      "lint_type_build": "passed"
+    },
+    {
+      "pr": 37,
+      "source_commit": "6aabf2e9a5ad0978ec37da40f4afe54c3cbc580a",
+      "frontend_tests": 343,
+      "coverage": {
+        "statements": {
+          "total": 1207,
+          "covered": 1143,
+          "skipped": 0,
+          "pct": 94.69
+        },
+        "lines": {
+          "total": 1017,
+          "covered": 988,
+          "skipped": 0,
+          "pct": 97.14
+        },
+        "functions": {
+          "total": 339,
+          "covered": 321,
+          "skipped": 0,
+          "pct": 94.69
+        },
+        "branches": {
+          "total": 1432,
+          "covered": 1362,
+          "skipped": 0,
+          "pct": 95.11
+        }
+      },
+      "lint_type_build": "passed"
+    }
+  ],
+  "core_components_four_metrics_100": true,
+  "native_acceptance": {
+    "frontend_commit": "f8aef63",
+    "baseline_rows_before_after": 403,
+    "workflow_count": 23,
+    "last_page_rows": 3,
+    "worker_running_then_stopped_http_alive": true,
+    "business_write_attempts": 0,
+    "model_providers_constructed": false,
+    "source": "Production lifespan on; explicit worker stop; full baseline compared before and after"
+  },
+  "ui_confirmation": {
+    "frontend_commit": "d93a71e",
+    "lifespan": "off; UI correction only",
+    "agent_steps": [
+      "writer",
+      "critic",
+      "rewrite"
+    ],
+    "viewport_width": 390,
+    "document_width": 390,
+    "detail_top": 332.2421875,
+    "detail_bottom": 740.2421875,
+    "two_poll_scroll_y": [
+      2349.5,
+      2349.5
+    ],
+    "back_scroll_y": [
+      341,
+      340.5
+    ],
+    "back_focus": "recorded-workflows",
+    "alerts": []
+  },
+  "failure_evidence_retained": [
+    "initial static-page 15 red tests",
+    "pagination 1 red test",
+    "loaded-detail positioning 1 red test",
+    "dependency symlink build failure",
+    "failed build cached port error; clean build passed",
+    "ambiguous wait selector; selected workflow not repeated",
+    "combined pre-settling assertion without before/after samples",
+    "helper lifetime ended and frontend correctly showed503, not empty data"
+  ],
+  "personal_skill_update": {
+    "skill": "issue-pr-delivery",
+    "updated_scope": "Runtime/UI observer evidence and bounded helper lifetime; permissions and issue scope unchanged",
+    "frontmatter_validation": "passed",
+    "behavior_evidence": "Actual bounded read-only server plus real browser probe, saved observations 1/2/3/4 reads, server lifetime covers observer, both exited0; prior observer failures preserved",
+    "independent_subagent_evaluation": false,
+    "skill_sha256": "823c7cbc636bb6baaa89f96be94194ffcd9be4515271972f9dd510eb9ffa24bb"
+  },
+  "whole_project_100_percent": false,
+  "no_merge_deploy_or_issue_done": true
+}
