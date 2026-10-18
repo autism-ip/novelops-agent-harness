@@ -52,3 +52,5 @@ test_consumption_api.py: 机会 approved 与标题/封面 selected 的 HTTP 消�
 三种鉴权编辑输入HTTP用例同时核验最后user消息逐字等于原始反馈；来源中的同名文本仍仅在完整来源JSON内。
 
 test_runtime_dotenv_tables.py: 五项启动配置行为门禁；文件/进程优先级、完整表注册、配置实例隔离、显式空配置不回退环境和旧接口兼容；合成凭据、无远程API调用。
+
+test_harness_kernel.py: 慢外部handler执行期间列表/详情仍可读取真实running状态；并发新命令仍等待单一writer，保留既有重启、版本审批和模糊写入行为门禁。
