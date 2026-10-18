@@ -1,0 +1,407 @@
+{
+  "date": "2026-10-19 Asia/Shanghai",
+  "goal_complete": false,
+  "scope": "All 13 original issues and original PRs; preserve every original acceptance criterion",
+  "linear_verified": {
+    "issue_count": 18,
+    "in_review_scope": 13,
+    "old_done": 5,
+    "has_next_page": false,
+    "descriptions_unchanged_since_cached_full_reads": true
+  },
+  "evidence_scope": "Interim requirement -> expected event -> implementation -> test -> runtime report map. Original criteria preserved; not a final criterion-by-criterion completion claim. Reports retain immutable runtime source versions and controlled-vs-real boundaries.",
+  "entries": [
+    {
+      "issue": "ZEN-105",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/23",
+      "linear_updated_at": "2026-09-29T16:10:19.528Z",
+      "original_acceptance_criteria": [
+        "Production-like tests document practical limits and failure behavior for the current single-user workload.",
+        "Repository APIs accept domain IDs and hide `record_id` resolution.",
+        "Ambiguous create cases use business-key reconciliation rather than blind POST retry.",
+        "Feishu implementation can be replaced behind the provider contract without changing core domain logic.",
+        "No second primary database is added unless feasibility tests demonstrate a concrete requirement."
+      ],
+      "expected_event": "真实应用身份完成领域 ID CRUD；v3 可行性和有界读/冲突行为分别测量",
+      "implementation": [
+        "backend/app/storage.py",
+        "backend/app/feishu/repositories/base.py"
+      ],
+      "tests": [
+        "backend/tests/test_storage_provider.py",
+        "backend/tests/test_storage_batch_read.py"
+      ],
+      "runtime_report": "2026-09-30-feishu-storage-provider.md",
+      "evidence_boundary": "真实应用 CRUD/批读；v3 部分为用户身份；模糊写入故障为受控传输",
+      "remaining_or_limits": "平台极限和生产 ACL 不作保证；保留单 writer；全项目覆盖率尚缺",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false
+    },
+    {
+      "issue": "ZEN-104",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/24",
+      "linear_updated_at": "2026-09-27T13:11:03.989Z",
+      "original_acceptance_criteria": [
+        "Runnable-step selection has one authoritative code path.",
+        "State changes cannot bypass the state-transition service in new code.",
+        "Single-backend execution works without distributed-worker assumptions.",
+        "Retry/recovery behavior is covered by tests for process restart, tool failure, and ambiguous persistence outcomes.",
+        "Architecture docs and code-level contracts agree on the execution model."
+      ],
+      "expected_event": "唯一内核按显式状态机调度、重启/审批恢复；慢 handler 期间仍能观察已提交进度",
+      "implementation": [
+        "backend/app/harness.py"
+      ],
+      "tests": [
+        "backend/tests/test_harness_kernel.py",
+        "backend/tests/test_harness_projection.py"
+      ],
+      "runtime_report": "2026-10-18-public-hotspots-real-feishu.md",
+      "evidence_boundary": "原生 lifespan 真实采集完成；真实 writer 竞争下四个 GET 完成；恢复故障有受控回归",
+      "remaining_or_limits": "旧运行曾安全停止于 FeishuAPIError，原始远程失败原因仍未确认；需核对中断 trace 收束",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false
+    },
+    {
+      "issue": "ZEN-106",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/25",
+      "linear_updated_at": "2026-09-27T13:11:09.678Z",
+      "original_acceptance_criteria": [
+        "At least DeepSeek and OpenAI can be represented behind the same model-provider contract even if only one is configured in local development.",
+        "Every new generated artifact is versioned and traceable to its inputs/model/prompt version.",
+        "Cost/usage metadata can be queried per run and per chapter.",
+        "Evals can compare two prompt/model/workflow variants using the same fixtures.",
+        "New Agent roles or additional model passes require an eval-backed quality/cost justification."
+      ],
+      "expected_event": "生成 Artifact 可追溯，统一路由记录实际模型/usage，允许固定 fixture 比较方案",
+      "implementation": [
+        "backend/app/generation.py",
+        "backend/app/evals.py"
+      ],
+      "tests": [
+        "backend/tests/test_evals.py",
+        "backend/tests/test_eval_cli_contract.py"
+      ],
+      "runtime_report": "2026-10-16-editor-contract-and-eval.md",
+      "evidence_boundary": "真实 DeepSeek 与飞书；当前保留 100 个 Artifact 内容哈希独立重算一致；OpenAI 为传输契约",
+      "remaining_or_limits": "一条旧 agent trace 仍 running 而步骤已 success，需故障复现/恢复审计；不推断缺失 token/账单",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false
+    },
+    {
+      "issue": "ZEN-33",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/27",
+      "linear_updated_at": "2026-09-27T18:26:59.125Z",
+      "original_acceptance_criteria": [
+        "A workflow can fetch 30–50 public Douyin hotspot records.",
+        "Normalized records are persisted to Feishu with source, business ID, dedupe hash, status, and capture metadata.",
+        "Duplicate records are reconciled rather than blindly re-created.",
+        "Tool/schema failures are observable through StepRuns and traces.",
+        "Collection and normalization do not require an LLM call."
+      ],
+      "expected_event": "公开 50 条完成入库；同一已保存批次逐条对账，既有记录不重建",
+      "implementation": [
+        "backend/app/hotspots.py"
+      ],
+      "tests": [
+        "backend/tests/test_hotspot_ingestion.py",
+        "backend/tests/test_hotspot_reconciliation_contract.py"
+      ],
+      "runtime_report": "2026-10-19-public-hotspot-reconciliation.md",
+      "evidence_boundary": "真实匿名采集一次；真实应用持久化；已保存批次重放 50 reconciled、0 新增/更新，403 记录不变",
+      "remaining_or_limits": "工具/模式/模糊网络故障为受控测试；更晚真实捕获的元数据更新尚未实测",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false
+    },
+    {
+      "issue": "ZEN-34",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/28",
+      "linear_updated_at": "2026-09-27T19:06:05.851Z",
+      "original_acceptance_criteria": [
+        "User can view Feishu-backed hotspot records through backend APIs.",
+        "User can trigger the hotspot workflow from the UI.",
+        "User can discard or manually add a hotspot.",
+        "The page is workflow/content-centric and does not expose implementation-specific Agent controls as the primary UX."
+      ],
+      "expected_event": "用户筛选/详情/分页和触发采集可观察真实结果，未知结果可精确重放",
+      "implementation": [
+        "backend/app/hotspot_controls.py",
+        "frontend/src/components/hotspots/workbench.tsx"
+      ],
+      "tests": [
+        "backend/tests/test_hotspot_controls.py",
+        "frontend/tests/hotspots-workbench.test.tsx"
+      ],
+      "runtime_report": "2026-10-18-public-hotspots-real-feishu.md",
+      "evidence_boundary": "真实浏览器到飞书 50 条；桌面/390px 详情与分页通过；手动/丢弃恢复另有受控端到端",
+      "remaining_or_limits": "十秒提交超时仍可能发生，当前按保留命令恢复；不重新写真实公开数据来重复演示丢弃",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false
+    },
+    {
+      "issue": "ZEN-35",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/29",
+      "linear_updated_at": "2026-09-28T02:48:44.109Z",
+      "original_acceptance_criteria": [
+        "Given a hotspot, the workflow produces a structured opportunity artifact with required fields.",
+        "Invalid model output is rejected or repaired before persistence.",
+        "High-risk or ambiguous items are routed to human review; routine low-risk outputs continue automatically.",
+        "Every run records input refs, output refs, model route, latency, usage, and failure class."
+      ],
+      "expected_event": "热点产生结构化机会 Artifact，风险/选择门控制推进，失败明确可查",
+      "implementation": [
+        "backend/app/research.py"
+      ],
+      "tests": [
+        "backend/tests/test_research_workflow.py",
+        "backend/tests/test_research_kernel_contract.py"
+      ],
+      "runtime_report": "2026-09-28-opportunity-research.md",
+      "evidence_boundary": "保留的真实 DeepSeek/飞书机会和 risk/risk_review；真实 risk_gate 与 selection 已批准",
+      "remaining_or_limits": "低风险自动继续与坏输出验证有受控测试，未把它们称为重复真实质量统计",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false
+    },
+    {
+      "issue": "ZEN-36",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/30",
+      "linear_updated_at": "2026-09-28T03:19:07.834Z",
+      "original_acceptance_criteria": [
+        "An approved opportunity can produce at least 10 title candidates.",
+        "A selected title can produce at least 3 cover directions.",
+        "Outputs include source refs, model/prompt version, content hash, and usage metadata.",
+        "Invalid or duplicate outputs are rejected before human review.",
+        "Results are visible and selectable from the product UI."
+      ],
+      "expected_event": "已批准机会生成至少 10 标题、选定标题生成至少 3 封面方向",
+      "implementation": [
+        "backend/app/creative.py"
+      ],
+      "tests": [
+        "backend/tests/test_creative_workflow.py",
+        "frontend/tests/creative-workbench-contract.test.tsx"
+      ],
+      "runtime_report": "2026-10-12-creative-batch-runtime.md",
+      "evidence_boundary": "当前保留真实 20 TitleCandidate、5 CoverPlan；对应两流程 completed、选择门 success",
+      "remaining_or_limits": "标题市场效果/长期模型质量不由数量或 schema 保证；去重/错误为受控测试",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false
+    },
+    {
+      "issue": "ZEN-37",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/31",
+      "linear_updated_at": "2026-09-28T03:42:54.319Z",
+      "original_acceptance_criteria": [
+        "Approved opportunity unblocks title/cover workflow.",
+        "Selected title/cover unblocks book bootstrap.",
+        "Human actions create `ApprovalEvent` records through backend APIs.",
+        "UI focuses on decisions and content rather than exposing internal Agent mechanics."
+      ],
+      "expected_event": "人类对机会/标题/封面做版本化决定，保存 ApprovalEvent 并解锁后续",
+      "implementation": [
+        "frontend/src/components/hotspots/creative-results.tsx",
+        "backend/app/creative.py"
+      ],
+      "tests": [
+        "frontend/tests/creative-workbench-contract.test.tsx",
+        "backend/tests/test_creative_workflow.py"
+      ],
+      "runtime_report": "2026-10-15-selection-recovery.md",
+      "evidence_boundary": "真实批准和已选来源解锁现存 Book；未知响应/精确重放有真实与受控证据，边界见原报告",
+      "remaining_or_limits": "变更选择/失败存储覆盖按各报告 source；未把每种 UI 错误都当真实飞书故障",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false
+    },
+    {
+      "issue": "ZEN-38",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/32",
+      "linear_updated_at": "2026-09-30T13:06:01.094Z",
+      "original_acceptance_criteria": [
+        "Approved inputs can bootstrap a Book and `StoryState v1`.",
+        "StoryState has explicit version, content hash, source refs, and timestamps.",
+        "Agent/runtime code reads canonical StoryState through a context/provider boundary.",
+        "Frontend can display core book/story state without an Agent-centric panel."
+      ],
+      "expected_event": "批准来源 bootstrap Book 与可追溯 canonical StoryState v1",
+      "implementation": [
+        "backend/app/books.py"
+      ],
+      "tests": [
+        "backend/tests/test_book_bootstrap.py",
+        "frontend/tests/book-bootstrap-contract.test.tsx"
+      ],
+      "runtime_report": "2026-09-28-book-bootstrap.md",
+      "evidence_boundary": "当前真实 ready Book，保留 StoryState v1/v2 和源 refs；恢复/外部变化有受控 E2E",
+      "remaining_or_limits": "不创建独立记忆 Agent；当前运行仍依赖完整 Base schema 和单 writer",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false
+    },
+    {
+      "issue": "ZEN-107",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/34",
+      "linear_updated_at": "2026-09-30T13:07:12.899Z",
+      "original_acceptance_criteria": [
+        "All current routes share the design system at desktop and mobile widths; mobile keeps status and light approval practical without horizontal overflow.",
+        "Hover/tap/focus feedback and small transitions clarify actions, with reduced-motion support.",
+        "Text contrast, semantic structure, keyboard access, and touch target sizing remain usable.",
+        "Browser checks exercise the core hotspot → approval → book path on desktop and mobile.",
+        "One issue-specific PR links this Linear issue and its GitHub counterpart, with screenshots and test evidence."
+      ],
+      "expected_event": "统一顶部导航和列表/决策分栏，桌面与手机维持审批与键盘可用",
+      "implementation": [
+        "frontend/src/components/workflow-monitor.tsx",
+        "frontend/src/app"
+      ],
+      "tests": [
+        "frontend/tests/workflow-status-pages.test.tsx",
+        "frontend/tests/creative-workbench-contract.test.tsx"
+      ],
+      "runtime_report": "2026-10-18-workflow-observation.md",
+      "evidence_boundary": "历史核心热点→审批→书籍受控全链路；新增真实入库、真实 v9 批准定稿；全部路由分次桌面/手机验收",
+      "remaining_or_limits": "不是一次当前完整回放的录像；业务树无更改的测试/报告同步不触发重复视觉微调",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false
+    },
+    {
+      "issue": "ZEN-39",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/35",
+      "linear_updated_at": "2026-09-30T13:06:45.982Z",
+      "original_acceptance_criteria": [
+        "A Book can produce a versioned StoryBible covering premise, protagonist, core conflict, power/gold-finger rules, reader promise, style contract, and forbidden rules.",
+        "ChapterBrief includes opening hook, scene goal, conflict, payoff, ending hook, and source version refs.",
+        "Approved or policy-eligible briefs unblock chapter generation.",
+        "StoryState changes are structured, validated, versioned, and traceable."
+      ],
+      "expected_event": "批准 StoryBible 提交 canonical v2；ChapterBrief 具有源版本并解锁写作",
+      "implementation": [
+        "backend/app/story_planning.py"
+      ],
+      "tests": [
+        "backend/tests/test_story_planning.py",
+        "backend/tests/test_story_history_contract.py"
+      ],
+      "runtime_report": "2026-10-18-chapter9-final-and-focused-review.md",
+      "evidence_boundary": "当前保留真实 1 Bible、7 版本 Brief、StoryState v1/v2，最新合格 Brief 驱动已定稿 v9",
+      "remaining_or_limits": "旧错误 Brief 和失败运行保留；不称 schema 通过就代表编辑要求完成",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false
+    },
+    {
+      "issue": "ZEN-40",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/36",
+      "linear_updated_at": "2026-09-30T13:06:52.471Z",
+      "original_acceptance_criteria": [
+        "A Book can generate the first 1–3 chapter versions from approved/policy-eligible briefs.",
+        "Every ChapterVersion links to the StoryContextSnapshot and source Artifact versions used.",
+        "Critique is structured and actionable rather than another unconditional full rewrite.",
+        "Deterministic failures prevent persistence/finalization where applicable.",
+        "Model calls record route, prompt version, token usage, estimated cost, latency, and retries.",
+        "The old unconditional `Writer → StyleAgent → AntiAIFlavorAgent → ReviewAgent` chain is not used."
+      ],
+      "expected_event": "Writer→Verifier→Critic→按需 Rewrite→最终验证，追加版本而非覆盖",
+      "implementation": [
+        "backend/app/chapter_loop.py"
+      ],
+      "tests": [
+        "backend/tests/test_chapter_loop.py",
+        "frontend/tests/chapter-generation-contract.test.tsx"
+      ],
+      "runtime_report": "2026-10-18-chapter9-final-and-focused-review.md",
+      "evidence_boundary": "真实 9 个章节版本；最终 v9 1591 汉字、独立内容审核合格，旧 8 版本和 9 Artifact 不变",
+      "remaining_or_limits": "1–3 是原验收首批版本范围，不擅自改成必须 3 个章节；质量不可由 schema 或 100% 覆盖保证",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false
+    },
+    {
+      "issue": "ZEN-41",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/37",
+      "linear_updated_at": "2026-09-30T13:07:02.143Z",
+      "original_acceptance_criteria": [
+        "User can approve/finalize or return a chapter through backend APIs.",
+        "RevisionTask is created with explicit constraints and source version.",
+        "Final lock never overwrites older ChapterVersions.",
+        "Human intervention is required for configured high-value gates or anomalies; routine pass cases can proceed automatically according to policy.",
+        "UI is book/chapter-centric rather than Agent-centric."
+      ],
+      "expected_event": "精确退修约束生成 RevisionTask，真实批准/定稿保留旧版本，按策略选择人审",
+      "implementation": [
+        "backend/app/chapter_loop.py",
+        "frontend/src/components/books/chapter-review-desk.tsx"
+      ],
+      "tests": [
+        "backend/tests/test_chapter_review.py",
+        "backend/tests/test_chapter_review_integrity.py",
+        "frontend/tests/chapter-review-contract.test.tsx"
+      ],
+      "runtime_report": "2026-10-18-chapter9-final-and-focused-review.md",
+      "evidence_boundary": "实际 UI 退修→真实 DeepSeek→v9 合格→批准/定稿成功；routine 自动 pass 目前为受控浏览器/契约证据",
+      "remaining_or_limits": "真实模型 routine pass 事件尚缺；RevisionTask queued 表示入队进度，API/UI 另查 run_status，无需误改旧记录",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false
+    }
+  ],
+  "current_readonly_integrity": {
+    "retained_rows_freshly_verified_before_and_after": 403,
+    "public_hotspots": 50,
+    "chapter_versions": 9,
+    "artifact_payload_hashes_recomputed": 100,
+    "artifact_type_counts": {
+      "TitleCandidate": 20,
+      "ChapterVersion": 9,
+      "ChapterModelResponse": 10,
+      "ChapterBrief": 7,
+      "ChapterDraft": 8,
+      "ChapterRewriteDraft": 2,
+      "ChapterVerification": 9,
+      "StoryContextSnapshot": 9,
+      "risk": 1,
+      "ChapterBriefDraft": 7,
+      "CoverPlan": 5,
+      "StoryState": 2,
+      "CriticReport": 6,
+      "risk_review": 1,
+      "covers_set": 1,
+      "StoryBible": 1,
+      "opportunity": 1,
+      "titles_set": 1
+    },
+    "old_trace_status_findings": [
+      {
+        "kind": "agent",
+        "handler": "chapter.critic",
+        "trace_status": "running",
+        "run_status": "failed",
+        "step_status": "success",
+        "step_retry_count": 1,
+        "trace_created_at": "2026-10-15T08:35:13.724102+00:00",
+        "model_usage_not_inferred": true
+      }
+    ]
+  },
+  "current_backend_coverage": {
+    "covered_lines": 4095,
+    "num_statements": 4299,
+    "percent_covered": 93.33456085435463,
+    "percent_covered_display": "93.33",
+    "missing_lines": 204,
+    "excluded_lines": 11,
+    "percent_statements_covered": 95.25471039776693,
+    "percent_statements_covered_display": "95.25",
+    "num_branches": 1132,
+    "num_partial_branches": 146,
+    "covered_branches": 974,
+    "missing_branches": 158,
+    "percent_branches_covered": 86.04240282685512,
+    "percent_branches_covered_display": "86.04"
+  },
+  "current_backend_offline_passed": 609,
+  "frontend_tests": "343 at unchanged frontend tree; not rerun for backend test/report-only changes",
+  "frontend_whole_source_four_metrics": "94.69% statement / 97.14% line / 94.69% function / 95.11% branch; unchanged source evidence from prior exact tree",
+  "open_priorities": [
+    "Reproduce and fix stale running trace after interrupted/recovered attempt without fabricating usage or replaying paid effects",
+    "Meaningful tests for all remaining applicable project metrics to 100%; no exclusions or lowered gates",
+    "Bounded genuine-model routine auto-pass event under actual policy, preserving existing locked chapter",
+    "Complete final per-criterion acceptance and exact-head CI/review audit before Done"
+  ],
+  "no_issue_done_merge_or_deploy": true
+}
