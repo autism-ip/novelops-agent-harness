@@ -84,3 +84,14 @@ provider and FastAPI composition with a stateful HTTP fixture that assigns
 different Feishu record IDs. It checks startup/shutdown, replay, concurrent
 approval, process lock, partial creates, failures and restart recovery. This is
 not a claim of live backend-to-Feishu deployment verification.
+
+### Progress reads during external work
+
+Workflow list/detail reads query persisted storage without acquiring the scheduler's
+writer lock. A long external handler therefore does not delay every status read
+until the handler finishes. Detail combines separate run and step reads and is an
+observational view, not an atomic multi-table snapshot; clients may see progress
+between transitions and must refresh before submitting versioned decisions.
+Creation, scheduling, transitions, approvals and cancellation retain the same
+single writer. Storage operation serialization and ambiguous-write reconciliation
+are unchanged. Remote provider latency can still delay an individual read.
