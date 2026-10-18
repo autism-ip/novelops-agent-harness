@@ -7,8 +7,8 @@
 | Issue / PR | 需求结果与已有事件 | 实现 / 测试 / 运行证据 | 剩余边界 |
 | --- | --- | --- | --- |
 | ZEN-105 / [#23](https://github.com/autism-ip/novelops-agent-harness/pull/23) | 真实应用身份完成领域 ID CRUD；v3 可行性和有界读/冲突行为分别测量。真实应用 CRUD/批读；v3 部分为用户身份；模糊写入故障为受控传输 | `backend/app/storage.py`；`backend/tests/test_storage_provider.py`；[运行报告](2026-09-30-feishu-storage-provider.md) | 平台极限和生产 ACL 不作保证；保留单 writer；全项目覆盖率尚缺 |
-| ZEN-104 / [#24](https://github.com/autism-ip/novelops-agent-harness/pull/24) | 唯一内核按显式状态机调度、重启/审批恢复；慢 handler 期间仍能观察已提交进度。原生 lifespan 真实采集完成；真实 writer 竞争下四个 GET 完成；恢复故障有受控回归 | `backend/app/harness.py`；`backend/tests/test_harness_kernel.py`；[运行报告](2026-10-18-public-hotspots-real-feishu.md) | 旧运行曾安全停止于 FeishuAPIError，原始远程失败原因仍未确认；需核对中断 trace 收束 |
-| ZEN-106 / [#25](https://github.com/autism-ip/novelops-agent-harness/pull/25) | 生成 Artifact 可追溯，统一路由记录实际模型/usage，允许固定 fixture 比较方案。真实 DeepSeek 与飞书；当前保留 100 个 Artifact 内容哈希独立重算一致；OpenAI 为传输契约 | `backend/app/generation.py`；`backend/tests/test_evals.py`；[运行报告](2026-10-16-editor-contract-and-eval.md) | 一条旧 agent trace 仍 running 而步骤已 success，需故障复现/恢复审计；不推断缺失 token/账单 |
+| ZEN-104 / [#24](https://github.com/autism-ip/novelops-agent-harness/pull/24) | 唯一内核按显式状态机调度、重启/审批恢复；慢 handler 期间仍能观察已提交进度。原生 lifespan 真实采集完成；真实 writer 竞争下四个 GET 完成；恢复故障有受控回归 | `backend/app/harness.py`；`backend/tests/test_harness_kernel.py`；[运行报告](2026-10-18-public-hotspots-real-feishu.md) | 旧运行原始 FeishuAPIError 原因仍未确认；[残留追踪已真实修复](2026-10-19-interrupted-trace-recovery.md)，不反推旧故障原因 |
+| ZEN-106 / [#25](https://github.com/autism-ip/novelops-agent-harness/pull/25) | 生成 Artifact 可追溯，统一路由记录实际模型/usage，允许固定 fixture 比较方案。真实 DeepSeek 与飞书；当前保留 100 个 Artifact 内容哈希独立重算一致；OpenAI 为传输契约 | `backend/app/generation.py`；`backend/tests/test_evals.py`；[运行报告](2026-10-16-editor-contract-and-eval.md) | [原残留追踪已修复](2026-10-19-interrupted-trace-recovery.md)为 interrupted；未知用量未改，仍缺全 app 四项 100% |
 | ZEN-33 / [#27](https://github.com/autism-ip/novelops-agent-harness/pull/27) | 公开 50 条完成入库；同一已保存批次逐条对账，既有记录不重建。真实匿名采集一次；真实应用持久化；已保存批次重放 50 reconciled、0 新增/更新，403 记录不变 | `backend/app/hotspots.py`；`backend/tests/test_hotspot_ingestion.py`；[运行报告](2026-10-19-public-hotspot-reconciliation.md) | 工具/模式/模糊网络故障为受控测试；更晚真实捕获的元数据更新尚未实测 |
 | ZEN-34 / [#28](https://github.com/autism-ip/novelops-agent-harness/pull/28) | 用户筛选/详情/分页和触发采集可观察真实结果，未知结果可精确重放。真实浏览器到飞书 50 条；桌面/390px 详情与分页通过；手动/丢弃恢复另有受控端到端 | `backend/app/hotspot_controls.py`；`backend/tests/test_hotspot_controls.py`；[运行报告](2026-10-18-public-hotspots-real-feishu.md) | 十秒提交超时仍可能发生，当前按保留命令恢复；不重新写真实公开数据来重复演示丢弃 |
 | ZEN-35 / [#29](https://github.com/autism-ip/novelops-agent-harness/pull/29) | 热点产生结构化机会 Artifact，风险/选择门控制推进，失败明确可查。保留的真实 DeepSeek/飞书机会和 risk/risk_review；真实 risk_gate 与 selection 已批准 | `backend/app/research.py`；`backend/tests/test_research_workflow.py`；[运行报告](2026-09-28-opportunity-research.md) | 低风险自动继续与坏输出验证有受控测试，未把它们称为重复真实质量统计 |
@@ -24,15 +24,17 @@
 
 - **逐条重复对账已取得真实证据**：同一已保存公开批次 50 条全部识别为已有记录，0 新增/更新；当前保留 403 条逐字段不变。没有第二次采集/模型/新流程。
 - 当前保留的 100 个 Artifact 内容哈希独立重算均匹配；这是完整性证据，不替代内容质量。真实标题 20、封面 5、Book ready、StoryState 两版本、章节九版本仍在。
-- **追踪恢复缺口**：一条 2026-10-15 的 `chapter.critic` agent trace 仍为 running，关联步骤已 success、retry_count=1、关联流程已 failed。`recover` 恢复步骤而未收束旧尝试 trace；原始中断过程仍需测试复现，不能从此推断当时模型是否计费或 token 数。此发现与最终 v9 是不同流程，没有改动历史数据。
+- **早先观察到的追踪恢复缺口（同日已修复）**：一条 2026-10-15 的 `chapter.critic` agent trace 仍为 running，关联步骤已 success、retry_count=1、关联流程已 failed。`recover` 恢复步骤而未收束旧尝试 trace；随后用受控中断复现、14 项回归和真实原生启动验证完成修复；实际只改变这一条合成 trace，其余 402 条不变。具体原始中断过程/账单仍不能反推。此发现与最终 v9 是不同流程，详见[完整报告](2026-10-19-interrupted-trace-recovery.md)。
 - RevisionTask 的 queued 记录入队结果；review API 关联 run_status，UI 显示 run 状态。已有文档/实现一致，不将其判为未完成任务投影。
 
 ## 当前门槛与继续工作
 
-完整后端 **609 项离线测试通过**（10 可选集成未执行，1 既有警告），Ruff 通过；本轮后端 Statement/Line 4095/4299，Branch 974/1132。新热点服务/API 的语句、行、分支 100%，并非整个后端 100%。本轮不重新声称独立全 app Function 统计。
+完整后端 **623 项离线测试通过**（10 可选集成未执行，1 既有警告），Ruff 通过；本轮后端 Statement/Line 4111/4315（95.27%），Branch 984/1142（86.16%）。热点服务/API 以及新 trace recover 函数的语句、行、分支 100%，并非整个后端 100%。本轮不重新声称独立全 app Function 统计。
 
 前端树未改变，沿用已验证的 343 项与 94.69/97.14/94.69/95.11% 四项覆盖率，未重复运行视觉验收。既有 11 行 coverage.py 排除未修改；整个项目不满足 100%。
 
-继续：先复现/修复中断尝试留下 running trace 的恢复契约；补齐剩余合理业务边界测试；取得真实模型 routine 自动通过事件；按原每项验收条件做最终审查。生产 ACL/SLA、长期吞吐和实际账单不由这些证据保证；用户当前交付目标是可审阅 PR，并未授权合并/部署。
+继续：补齐剩余合理业务边界测试；取得真实模型 routine 自动通过事件；按原每项验收条件做最终审查。生产 ACL/SLA、长期吞吐和实际账单不由这些证据保证；用户当前交付目标是可审阅 PR，并未授权合并/部署。
 
 本轮复用 issue-pr-delivery、现有 CLI/MCP 和生产 provider；未创建新通用技能。已确认原生只读重放进程正常退出，未留下调度器或新业务写入。
+
+本日追踪恢复后，原生 helper 已确认正常退出，403 条既有验收记录保留；完整用量聚合不变，没有再次采集/生成/审批。既有 issue-pr-delivery Skill 追加了中断观察与业务结果分开核对的经验，校验通过。

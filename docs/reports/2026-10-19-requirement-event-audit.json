@@ -58,9 +58,12 @@
       ],
       "runtime_report": "2026-10-18-public-hotspots-real-feishu.md",
       "evidence_boundary": "原生 lifespan 真实采集完成；真实 writer 竞争下四个 GET 完成；恢复故障有受控回归",
-      "remaining_or_limits": "旧运行曾安全停止于 FeishuAPIError，原始远程失败原因仍未确认；需核对中断 trace 收束",
+      "remaining_or_limits": "原始 FeishuAPIError 的远程原因仍未确认；残留追踪已在原 PR #25 同日修复，不能由此推断原始故障原因",
       "done": false,
-      "final_requirement_by_requirement_audit_complete": false
+      "final_requirement_by_requirement_audit_complete": false,
+      "additional_runtime_reports": [
+        "2026-10-19-interrupted-trace-recovery.md"
+      ]
     },
     {
       "issue": "ZEN-106",
@@ -84,9 +87,12 @@
       ],
       "runtime_report": "2026-10-16-editor-contract-and-eval.md",
       "evidence_boundary": "真实 DeepSeek 与飞书；当前保留 100 个 Artifact 内容哈希独立重算一致；OpenAI 为传输契约",
-      "remaining_or_limits": "一条旧 agent trace 仍 running 而步骤已 success，需故障复现/恢复审计；不推断缺失 token/账单",
+      "remaining_or_limits": "残留观察已真实恢复为 interrupted，未知用量保持未知；全 app 四项 100% 和其余需求最终验收继续",
       "done": false,
-      "final_requirement_by_requirement_audit_complete": false
+      "final_requirement_by_requirement_audit_complete": false,
+      "additional_runtime_reports": [
+        "2026-10-19-interrupted-trace-recovery.md"
+      ]
     },
     {
       "issue": "ZEN-33",
@@ -376,32 +382,53 @@
         "trace_created_at": "2026-10-15T08:35:13.724102+00:00",
         "model_usage_not_inferred": true
       }
-    ]
+    ],
+    "evidence_as_of": "Read-only verification before the single deliberate trace repair; historical running trace finding below is now resolved"
   },
   "current_backend_coverage": {
-    "covered_lines": 4095,
-    "num_statements": 4299,
-    "percent_covered": 93.33456085435463,
-    "percent_covered_display": "93.33",
+    "covered_lines": 4111,
+    "num_statements": 4315,
+    "percent_covered": 93.36631849001283,
+    "percent_covered_display": "93.37",
     "missing_lines": 204,
     "excluded_lines": 11,
-    "percent_statements_covered": 95.25471039776693,
-    "percent_statements_covered_display": "95.25",
-    "num_branches": 1132,
+    "percent_statements_covered": 95.27230590961761,
+    "percent_statements_covered_display": "95.27",
+    "num_branches": 1142,
     "num_partial_branches": 146,
-    "covered_branches": 974,
+    "covered_branches": 984,
     "missing_branches": 158,
-    "percent_branches_covered": 86.04240282685512,
-    "percent_branches_covered_display": "86.04"
+    "percent_branches_covered": 86.1646234676007,
+    "percent_branches_covered_display": "86.16"
   },
-  "current_backend_offline_passed": 609,
+  "current_backend_offline_passed": 623,
   "frontend_tests": "343 at unchanged frontend tree; not rerun for backend test/report-only changes",
   "frontend_whole_source_four_metrics": "94.69% statement / 97.14% line / 94.69% function / 95.11% branch; unchanged source evidence from prior exact tree",
   "open_priorities": [
-    "Reproduce and fix stale running trace after interrupted/recovered attempt without fabricating usage or replaying paid effects",
     "Meaningful tests for all remaining applicable project metrics to 100%; no exclusions or lowered gates",
     "Bounded genuine-model routine auto-pass event under actual policy, preserving existing locked chapter",
     "Complete final per-criterion acceptance and exact-head CI/review audit before Done"
   ],
-  "no_issue_done_merge_or_deploy": true
+  "no_issue_done_merge_or_deploy": true,
+  "current_trace_recovery": {
+    "report": "2026-10-19-interrupted-trace-recovery.md",
+    "native_source_commit": "1ad7aaf79b3c456a6b98e1f29a3140aac4280213",
+    "status": "native_trace_recovery_verified",
+    "known_records_retained": 403,
+    "other_records_unchanged": 402,
+    "deliberately_changed_trace_records": 1,
+    "target_status": "interrupted",
+    "outcome_unknown": true,
+    "model_usage_unchanged": true,
+    "model_calls": 0,
+    "second_recovery_additional_writes": 0,
+    "scheduler_running_after_exit": false
+  },
+  "closed_findings": [
+    {
+      "finding": "Reproduce and fix stale running trace after interrupted/recovered attempt without fabricating usage or replaying paid effects",
+      "status": "Implemented, regression verified and original real trace repaired; original interruption cause remains unproven",
+      "report": "2026-10-19-interrupted-trace-recovery.md"
+    }
+  ]
 }
