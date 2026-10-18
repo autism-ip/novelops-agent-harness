@@ -22,3 +22,5 @@ app/tools/adapters/: 工具适配器子包——抖音热点适配器（douyin_h
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 
 Settings统一读取.env、.env.local及进程覆盖后的Base和表ID；runtime向TableMapConfig显式传递已解析配置，禁止运行时混用别的进程环境。旧TableMapConfig无映射调用仍保留环境接口，显式映射防御性复制且缺失值保持fail-fast。
+
+工作流列表/详情读取不等待整个handler的writer锁；返回飞书中已持久化的进度观察值，不承诺跨表原子快照。全部机器修改、调度选择和审批仍串行于同一writer。

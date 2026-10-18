@@ -180,15 +180,16 @@ class HarnessKernel:
         self._transition("pipeline_runs", run_id, "pending", updated_at=now())
 
     def get(self, run_id):
-        with self.writer:
-            run = self.storage.get("pipeline_runs", run_id)
-            if run is None:
-                raise MissingRecord(run_id)
-            return {**run, "steps": self.storage.list("step_runs", pipeline_run_id=run_id)}
+        # Public reads observe persisted progress, including an in-flight step.
+        # Mutation callers already hold writer; readers must not wait for a
+        # complete external handler. This is not a multi-table transaction.
+        run = self.storage.get("pipeline_runs", run_id)
+        if run is None:
+            raise MissingRecord(run_id)
+        return {**run, "steps": self.storage.list("step_runs", pipeline_run_id=run_id)}
 
     def list(self):
-        with self.writer:
-            return self.storage.list("pipeline_runs")
+        return self.storage.list("pipeline_runs")
 
     def runnable(self, steps):
         """The only runnable-step selection path used by scheduler/recovery."""
