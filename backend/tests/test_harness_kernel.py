@@ -298,3 +298,108 @@ def test_status_reads_no_remote_tables_and_tracks_lifecycle(runtime):
     kernel.cancel(run["pipeline_run_id"])
     assert kernel.status()["active_pipeline_runs"] == 0
     assert kernel.status()["pending_steps"] == 0
+
+
+@pytest.mark.parametrize('endpoint', ['list', 'detail'])
+def test_read_api_stays_available_while_scheduler_executes_slow_handler(runtime, endpoint):
+    """A slow external write must not hide its already-persisted running state."""
+    from threading import Event, Thread
+
+    kernel, storage, _, _ = runtime
+    entered, release, read_done = Event(), Event(), Event()
+    errors, responses = [], []
+
+    def slow(step):
+        entered.set()
+        assert release.wait(3), 'Test must release the actual handler'
+        return {'output_refs': []}
+
+    kernel.register('slow', slow)
+    run = kernel.create('slow-read-' + endpoint, 'test', [
+        {'step_key': 'write', 'handler': 'slow', 'kind': 'service'}])
+    api = TestClient(create_app(Settings(BACKEND_API_KEY='test'), kernel=kernel))
+    path = '/api/workflows' + ('/' + run['pipeline_run_id'] if endpoint == 'detail' else '')
+
+    def tick():
+        try:
+            kernel.tick()
+        except Exception as exc:
+            errors.append(exc)
+
+    def read():
+        try:
+            responses.append(api.get(path, headers={'x-api-key': 'test'}))
+        finally:
+            read_done.set()
+
+    writer = Thread(target=tick)
+    reader = Thread(target=read)
+    writer.start()
+    try:
+        assert entered.wait(1)
+        reader.start()
+        available_during_write = read_done.wait(0.5)
+    finally:
+        release.set()
+        writer.join(3)
+        reader.join(3)
+        api.close()
+    assert not writer.is_alive() and not reader.is_alive()
+    assert not errors
+    assert available_during_write, 'Read waited for the whole slow handler'
+    assert responses[0].status_code == 200
+    result = responses[0].json()
+    observed = result if endpoint == 'detail' else next(r for r in result if r['pipeline_run_id'] == run['pipeline_run_id'])
+    assert observed['status'] == 'running'
+    if endpoint == 'detail':
+        assert observed['steps'][0]['status'] == 'running'
+    assert kernel.get(run['pipeline_run_id'])['status'] == 'completed'
+    assert len(storage.list('pipeline_runs')) == 1
+
+
+def test_new_commands_still_wait_for_scheduler_writer(runtime):
+    from threading import Event, Thread
+
+    kernel, storage, _, _ = runtime
+    entered, release, submitted, attempted = Event(), Event(), Event(), Event()
+    errors, results = [], []
+
+    def slow(step):
+        entered.set()
+        assert release.wait(3)
+        return {'output_refs': []}
+
+    kernel.register('slow', slow)
+    first = kernel.create('writer-one', 'test', [{'step_key': 'slow', 'handler': 'slow'}])
+
+    def tick():
+        try:
+            kernel.tick()
+        except Exception as exc:
+            errors.append(exc)
+
+    def submit():
+        attempted.set()
+        try:
+            results.append(kernel.create('writer-two', 'test', definition()))
+        except Exception as exc:
+            errors.append(exc)
+        finally:
+            submitted.set()
+
+    writer, command = Thread(target=tick), Thread(target=submit)
+    writer.start()
+    try:
+        assert entered.wait(1)
+        command.start()
+        assert attempted.wait(1)
+        assert not submitted.wait(0.1), 'Writes must remain serialized'
+        assert len(storage.list('pipeline_runs')) == 1
+    finally:
+        release.set()
+        writer.join(3)
+        command.join(3)
+    assert not writer.is_alive() and not command.is_alive() and not errors
+    assert kernel.get(first['pipeline_run_id'])['status'] == 'completed'
+    assert len(results) == 1 and results[0]['status'] == 'pending'
+    assert len(storage.list('pipeline_runs')) == 2
