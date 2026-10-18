@@ -1,0 +1,259 @@
+{
+  "date": "2026-10-19 Asia/Shanghai",
+  "issue": "ZEN-106",
+  "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/25",
+  "whole_goal_complete": false,
+  "event_achieved": "Original real abandoned trace repaired during native kernel startup; actual HTTP observes interruption; repeated recovery causes no second write; all other owned records unchanged",
+  "implementation_commit": "387697f8dd10a29e96a5f2ef4c0ed147d6e69b3f",
+  "native_source_commit": "1ad7aaf79b3c456a6b98e1f29a3140aac4280213",
+  "native_backend_app_tree": "8e58809987c1147297e6839026f2dd5bd752463a",
+  "owner_native_recover_source_identical_sha256": "424b3642c6abfe3fb662e6f0777e7ac1831dc65abdd7ac43034d67ebe30c50a8",
+  "native": {
+    "status": "native_trace_recovery_verified",
+    "target_trace_domain_id": "TR-14ab586d51234d0a974e4801dd75b136",
+    "before_status": "running",
+    "after_status": "interrupted",
+    "failure_class": "Interrupted",
+    "outcome_unknown": true,
+    "finished_at_means": "reconciliation observation time, not inferred provider execution end",
+    "before_payload_sha256": "d597401cdc145b582d088932d7c1ebca0dcca462ee46e5470030ee88c02079c0",
+    "after_payload_sha256": "d9d9c74ebd2b4608671b33958ee6d4e382c6d9b5d9c2aef226cd0510e14b6818",
+    "http_trace_status": 200,
+    "model_usage_unchanged": true,
+    "baseline_other_records_unchanged": 402,
+    "owned_records_retained": 403,
+    "changed_trace_rows": 1,
+    "operation_counts": {
+      "auth": 1,
+      "read": 221,
+      "repair": 1
+    },
+    "exact_recovery_second_write_count": 0,
+    "model_calls": 0,
+    "cli_invocations": 0,
+    "new_business_commands": 0,
+    "elapsed_seconds": 203.434,
+    "scheduler_started_with_native_lifespan": true,
+    "scheduler_running_after_exit": false,
+    "helper_process_exit_code": 0
+  },
+  "test_strategy": {
+    "initial_red_cases": 11,
+    "final_new_cases": 14,
+    "boundary": "Actual ModelRouter/SemanticRuntime/Kernel/API and stateful Feishu HTTP fixture, controlled provider and process interruption; live probe uses actual Feishu and no model provider",
+    "preserved_artifact_and_success_model_trace": true,
+    "committed_timeout_reconciles_one_update": true,
+    "corrupt_trace_preflight_no_partial_writes": true,
+    "repeated_recovery_read_only": true,
+    "no_coverage_config_ignore_gate_or_assertion_weakening": true
+  },
+  "branch_verification": [
+    {
+      "pr": 25,
+      "branch": "codex/zen-106-model-artifacts",
+      "head": "387697f8dd10a29e96a5f2ef4c0ed147d6e69b3f",
+      "offline_passed": 392
+    },
+    {
+      "pr": 27,
+      "branch": "codex/zen-33-hotspot-ingestion",
+      "head": "60b8d2132240a77c2617fdb2f5399a21f4c594f3",
+      "frontend_unchanged": true,
+      "changed_app_files": [
+        "backend/app/generation.py",
+        "backend/app/harness.py"
+      ],
+      "offline_tests_passed": true,
+      "ruff": "passed",
+      "trace_recover_statement_line_branch": "100%",
+      "offline_passed": 440
+    },
+    {
+      "pr": 28,
+      "branch": "codex/zen-34-hotspots-page",
+      "head": "c4e0d27f8cc90ea07282415c0760a2babfe2e6ed",
+      "frontend_unchanged": true,
+      "changed_app_files": [
+        "backend/app/generation.py",
+        "backend/app/harness.py"
+      ],
+      "offline_tests_passed": true,
+      "ruff": "passed",
+      "trace_recover_statement_line_branch": "100%",
+      "offline_passed": 449
+    },
+    {
+      "pr": 29,
+      "branch": "codex/zen-35-opportunity-research",
+      "head": "2d5dc65e1e635f3b8f8036896512d9f0aa3ed3d6",
+      "frontend_unchanged": true,
+      "changed_app_files": [
+        "backend/app/generation.py",
+        "backend/app/harness.py"
+      ],
+      "offline_tests_passed": true,
+      "ruff": "passed",
+      "trace_recover_statement_line_branch": "100%",
+      "offline_passed": 489
+    },
+    {
+      "pr": 30,
+      "branch": "codex/zen-36-title-cover",
+      "head": "7b473140768b2f3cbd35d9b475b3171911bb5713",
+      "frontend_unchanged": true,
+      "changed_app_files": [
+        "backend/app/generation.py",
+        "backend/app/harness.py"
+      ],
+      "offline_tests_passed": true,
+      "ruff": "passed",
+      "trace_recover_statement_line_branch": "100%",
+      "offline_passed": 517
+    },
+    {
+      "pr": 31,
+      "branch": "codex/zen-37-approval-ui",
+      "head": "5dce06868cc991cec8512d414e2f937571ecba30",
+      "frontend_unchanged": true,
+      "changed_app_files": [
+        "backend/app/generation.py",
+        "backend/app/harness.py"
+      ],
+      "offline_tests_passed": true,
+      "ruff": "passed",
+      "trace_recover_statement_line_branch": "100%",
+      "offline_passed": 517
+    },
+    {
+      "pr": 32,
+      "branch": "codex/zen-38-book-bootstrap",
+      "head": "6be274cb95295cc38b0b64dd1bc13ef65eaf8cb4",
+      "frontend_unchanged": true,
+      "changed_app_files": [
+        "backend/app/generation.py",
+        "backend/app/harness.py"
+      ],
+      "offline_tests_passed": true,
+      "ruff": "passed",
+      "trace_recover_statement_line_branch": "100%",
+      "offline_passed": 525
+    },
+    {
+      "pr": 34,
+      "branch": "codex/zen-107-ios-design",
+      "head": "35586895fc317059f272fbf01b5baad4c921cb32",
+      "frontend_unchanged": true,
+      "changed_app_files": [
+        "backend/app/generation.py",
+        "backend/app/harness.py"
+      ],
+      "offline_tests_passed": true,
+      "ruff": "passed",
+      "trace_recover_statement_line_branch": "100%",
+      "offline_passed": 525
+    },
+    {
+      "pr": 35,
+      "branch": "codex/zen-39-story-planning",
+      "head": "f943be16786cfb85d394f03559cfc2884198dcdf",
+      "frontend_unchanged": true,
+      "changed_app_files": [
+        "backend/app/generation.py",
+        "backend/app/harness.py"
+      ],
+      "offline_tests_passed": true,
+      "ruff": "passed",
+      "trace_recover_statement_line_branch": "100%",
+      "offline_passed": 541
+    },
+    {
+      "pr": 36,
+      "branch": "codex/zen-40-chapter-loop",
+      "head": "74359209fabc575b2b20074d7e25605cad78ccb3",
+      "frontend_unchanged": true,
+      "changed_app_files": [
+        "backend/app/generation.py",
+        "backend/app/harness.py"
+      ],
+      "offline_tests_passed": true,
+      "ruff": "passed",
+      "trace_recover_statement_line_branch": "100%",
+      "offline_passed": 567
+    },
+    {
+      "pr": 37,
+      "branch": "codex/zen-41-chapter-review-desk",
+      "head": "1ad7aaf79b3c456a6b98e1f29a3140aac4280213",
+      "offline_passed": 623
+    }
+  ],
+  "owner_backend_coverage": {
+    "covered_lines": 1938,
+    "num_statements": 2023,
+    "percent_covered": 94.49068569163694,
+    "percent_covered_display": "94.49",
+    "missing_lines": 85,
+    "excluded_lines": 11,
+    "percent_statements_covered": 95.7983193277311,
+    "percent_statements_covered_display": "95.80",
+    "num_branches": 500,
+    "num_partial_branches": 50,
+    "covered_branches": 446,
+    "missing_branches": 54,
+    "percent_branches_covered": 89.2,
+    "percent_branches_covered_display": "89.20"
+  },
+  "full_backend_coverage": {
+    "covered_lines": 4111,
+    "num_statements": 4315,
+    "percent_covered": 93.36631849001283,
+    "percent_covered_display": "93.37",
+    "missing_lines": 204,
+    "excluded_lines": 11,
+    "percent_statements_covered": 95.27230590961761,
+    "percent_statements_covered_display": "95.27",
+    "num_branches": 1142,
+    "num_partial_branches": 146,
+    "covered_branches": 984,
+    "missing_branches": 158,
+    "percent_branches_covered": 86.1646234676007,
+    "percent_branches_covered_display": "86.16"
+  },
+  "new_recover_function_coverage": {
+    "covered_lines": 13,
+    "num_statements": 13,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100.00",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100.00",
+    "num_branches": 8,
+    "num_partial_branches": 0,
+    "covered_branches": 8,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100.00"
+  },
+  "function_coverage_scope": "New function entry and all its statements/branches covered; whole-app independent function count not rerun",
+  "frontend_scope": "Frontend source tree unchanged; prior same-tree 343 tests and four metrics retained, not rerun locally for this backend change",
+  "failures_preserved": [
+    {
+      "kind": "local preflight",
+      "detail": "An older terminal checkpoint has no finished_at field; failed before build_runtime or any external request. Preserved log and corrected the checkpoint-specific terminal assertion."
+    }
+  ],
+  "limits": [
+    "Does not establish the original interruption cause or original provider bill",
+    "Does not retrieve a model response that never became a durable Artifact; existing bounded handler/model retry policy is unchanged",
+    "A damaged trace or uncertain repair stops startup for reconciliation",
+    "Whole-project four metrics at 100%, actual routine-auto-pass model event and final per-criterion acceptance remain incomplete"
+  ],
+  "skill": {
+    "name": "issue-pr-delivery",
+    "updated": true,
+    "change": "Audit abandoned attempt observations independently of business state; preserve unknown usage and label recovery time; do not repeat business effects to close traces",
+    "validation": "quick_validate passed; unit and native recovery/failure boundaries exercised"
+  },
+  "no_merge_deploy_issue_done": true
+}
