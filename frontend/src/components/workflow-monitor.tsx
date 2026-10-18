@@ -4,7 +4,7 @@
  * [POS]: Shared Pipelines and Agents workspace surface
  */
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { WorkflowRun } from "@/api/types";
 import { ApiError } from "@/api/client";
@@ -19,8 +19,18 @@ export function WorkflowMonitor({ mode }: { mode: "workflows" | "agents" }) {
   const [selected, setSelected] = useState<string | null>(null);
   const [offset, setOffset] = useState(0);
   const detailRegion = useRef<HTMLElement>(null);
+  const revealedRun = useRef<string | null>(null);
   const runs = useResource<WorkflowRun[]>("/api/workflows", revision, 10_000);
   const detail = useResource<WorkflowRun>(selected ? `/api/workflows/${encodeURIComponent(selected)}` : null, revision, 5_000);
+  const detailRunId = detail.data?.pipeline_run_id;
+  useEffect(() => {
+    if (!selected || detailRunId !== selected || revealedRun.current === selected) return;
+    revealedRun.current = selected;
+    const region = detailRegion.current!;
+    const bounds = region.getBoundingClientRect();
+    if (bounds.top < 96 || bounds.bottom > window.innerHeight - 96)
+      region.scrollIntoView({ block: "start" });
+  }, [selected, detailRunId]);
   const agentView = mode === "agents";
   const path = agentView ? "/agents" : "/pipelines";
   const steps = detail.data?.steps;
@@ -59,7 +69,7 @@ export function WorkflowMonitor({ mode }: { mode: "workflows" | "agents" }) {
       </section>
       <section ref={detailRegion} tabIndex={-1} className="surface min-w-0 scroll-mt-24 p-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-6 lg:sticky lg:top-24" aria-label="Workflow details">
         <h2 className="text-xl font-semibold">{agentView ? "Agent steps" : "Workflow details"}</h2>
-        {selected && <a href="#recorded-workflows" className="mt-2 inline-flex min-h-11 items-center text-primary underline">Back to workflows</a>}
+        {selected && <a href="#recorded-workflows" onClick={() => { revealedRun.current = selected; }} className="mt-2 inline-flex min-h-11 items-center text-primary underline">Back to workflows</a>}
         {!selected && <p className="mt-4 text-muted-foreground">{agentView ? "Choose a workflow to inspect its agent steps." : "Choose a workflow to inspect its persisted steps."}</p>}
         {detail.loading && <p role="status" className="mt-4">Loading workflow steps…</p>}
         {detail.error != null && <p role="alert" className="mt-4 text-destructive">{errorMessage(detail.error)}</p>}

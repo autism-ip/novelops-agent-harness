@@ -1,4 +1,4 @@
-import { afterEach, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import PipelinesPage from "../src/app/pipelines/page";
 import AgentsPage from "../src/app/agents/page";
@@ -18,7 +18,10 @@ function backend(options: { runs?: unknown[]; detail?: unknown; runtime?: unknow
   });
   vi.stubGlobal("fetch", transport); return transport;
 }
-afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+const scroll = vi.fn();
+const originalScroll = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "scrollIntoView");
+beforeEach(() => { scroll.mockReset(); Object.defineProperty(HTMLElement.prototype, "scrollIntoView", { configurable: true, value: scroll }); });
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.restoreAllMocks(); if (originalScroll) Object.defineProperty(HTMLElement.prototype, "scrollIntoView", originalScroll); else Reflect.deleteProperty(HTMLElement.prototype, "scrollIntoView"); });
 
 test("pipelines displays real persisted runs and their steps through read-only endpoints", async () => {
   const transport = backend(); render(<PipelinesPage />);
@@ -138,4 +141,36 @@ test.each([undefined, []])("workflow step history distinguishes missing from con
   backend({ detail: { ...run, steps: value } }); render(<PipelinesPage />);
   fireEvent.click(await screen.findByRole("button", { name: /Collect public hotspots/ }));
   expect(await screen.findByText(value ? "No steps have been recorded for this workflow." : "Step history is incomplete. Refresh activity to read it again.")).toBeTruthy();
+});
+
+test("loaded details below the visible area are revealed once without repeated refresh scrolling", async () => {
+  vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 600, 350, 500));
+  const transport = backend(); render(<PipelinesPage />);
+  fireEvent.click(await screen.findByRole("button", { name: /Collect public hotspots/ }));
+  expect(await screen.findByText("fetch")).toBeTruthy();
+  expect(scroll).toHaveBeenCalledExactlyOnceWith({ block: "start" });
+  fireEvent.click(screen.getByRole("button", { name: "Refresh activity" }));
+  await waitFor(() => expect(transport.mock.calls.filter(([p]) => p === "/api/workflows/PR-live")).toHaveLength(2));
+  expect(await screen.findByText("fetch")).toBeTruthy();
+  expect(scroll).toHaveBeenCalledOnce();
+});
+
+test("a desktop detail already visible is not scrolled away from the list", async () => {
+  vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 96, 600, 400));
+  backend(); render(<PipelinesPage />);
+  fireEvent.click(await screen.findByRole("button", { name: /Collect public hotspots/ }));
+  expect(await screen.findByText("fetch")).toBeTruthy();
+  expect(scroll).not.toHaveBeenCalled();
+});
+
+test("returning to the list before a slow detail arrives prevents a later scroll jump", async () => {
+  vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 600, 350, 500));
+  let resolve!: (response: Response) => void;
+  const transport = backend();
+  transport.mockImplementation(async input => String(input) === "/api/workflows/PR-live" ? new Promise<Response>(done => { resolve = done; }) : Response.json(String(input) === "/api/workflows" ? [run] : running));
+  render(<PipelinesPage />); fireEvent.click(await screen.findByRole("button", { name: /Collect public hotspots/ }));
+  fireEvent.click(screen.getByRole("link", { name: "Back to workflows" }));
+  resolve(Response.json({ ...run, steps }));
+  expect(await screen.findByText("fetch")).toBeTruthy();
+  expect(scroll).not.toHaveBeenCalled();
 });
