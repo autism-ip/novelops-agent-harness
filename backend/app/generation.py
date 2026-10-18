@@ -203,7 +203,8 @@ class TraceRecorder:
             except (ValueError, TypeError, KeyError):
                 raise AmbiguousWrite("Artifact model trace provenance changed; reconciliation required") from None
             if payload["output_refs"] != [artifact["artifact_id"]]:
-                self.finish(trace_id, output_refs=[artifact["artifact_id"]])
+                payload.update(output_refs=[artifact["artifact_id"]], finished_at=now())
+                self.kernel.storage.update("traces", trace_id, {"payload_json": encode(payload)})
 
     def recover(self):
         """Close abandoned observations without guessing their external outcome.
