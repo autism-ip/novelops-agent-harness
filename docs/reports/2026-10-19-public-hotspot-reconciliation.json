@@ -1,0 +1,112 @@
+{
+  "date": "2026-10-19 Asia/Shanghai",
+  "issue": "ZEN-33",
+  "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/27",
+  "requirement_event": "The previously captured public batch reconciles all 50 existing Feishu records without creating or updating any record",
+  "event_achieved": true,
+  "whole_project_complete": false,
+  "live": {
+    "status": "saved_public_batch_reconciled_without_writes",
+    "source_commit": "9dbc38d4b5066c560927f6f4c70786d0733016a5",
+    "new_public_captures": 0,
+    "model_calls": 0,
+    "attempted_mutations": [],
+    "baseline_rows_exact_before": 403,
+    "batch_hash": "d4d9f364d901fd5c8fe8832a6c5b471736c3e277a46b53d55455de1e776e25ec",
+    "source_stdout_sha256": "c6a6563ba9957bbe4ae3336c9a5d8a51df72fac011c2ccdccfcdf3b3e6687f70",
+    "elapsed_reconciliation_seconds": 76.903,
+    "result": {
+      "counts": {
+        "accepted": 50,
+        "duplicate_in_batch": 0,
+        "fetched": 50,
+        "omitted": 0,
+        "rejected": 0,
+        "selected": 50
+      },
+      "created": 0,
+      "reconciled": 50,
+      "updated": 0,
+      "batch_hash": "d4d9f364d901fd5c8fe8832a6c5b471736c3e277a46b53d55455de1e776e25ec"
+    },
+    "output_ref_count": 50,
+    "output_refs_sha256": "277113f24c4e1f20c34779e3b4bcabf2fe04f0de7199fedf34e6f2b8440a318a",
+    "baseline_rows_exact_after": 403,
+    "total_hotspots": 51,
+    "unique_dedupe_keys": 51,
+    "scheduler_started": false,
+    "scheduler_running_after_exit": false
+  },
+  "external_operation_counts": {
+    "auth": 1,
+    "read": 93
+  },
+  "runtime_scope": "Direct production HotspotService.persist using the original successful fetch StepRun; no new scheduler run or UI collection. Reads use actual application identity and Feishu transport. All mutation methods are forbidden.",
+  "same_persist_method_sha256": "2adeb5d15814000c0e19f4cf72d4b87801710797bb63700656831acd1bb959fe",
+  "tests": {
+    "new_cases": 17,
+    "owner_offline_passed": 426,
+    "optional_integration_deselected": 10,
+    "existing_warnings": 1,
+    "ruff": "passed",
+    "coverage_config_changed": false,
+    "application_code_changed": false,
+    "coverage": {
+      "app/hotspots.py": {
+        "covered_lines": 159,
+        "num_statements": 159,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 54,
+        "num_partial_branches": 0,
+        "covered_branches": 54,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "app/api/routes/hotspots.py": {
+        "covered_lines": 25,
+        "num_statements": 25,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 4,
+        "num_partial_branches": 0,
+        "covered_branches": 4,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      }
+    },
+    "owner_all_app_coverage": {
+      "covered_lines": 2138,
+      "num_statements": 2219,
+      "percent_covered": 95.18850987432675,
+      "percent_covered_display": "95.19",
+      "missing_lines": 81,
+      "excluded_lines": 11,
+      "percent_statements_covered": 96.34970707525913,
+      "percent_statements_covered_display": "96.35",
+      "num_branches": 566,
+      "num_partial_branches": 49,
+      "covered_branches": 513,
+      "missing_branches": 53,
+      "percent_branches_covered": 90.63604240282686,
+      "percent_branches_covered_display": "90.64"
+    }
+  },
+  "limits": [
+    "Same-batch replay does not prove new-capture metadata refresh against a live later source",
+    "Actual network timeout and malformed-write recovery remain fault-injected evidence; deliberately inducing an external ambiguous write was not repeated",
+    "No throughput or production ACL/SLA guarantee",
+    "Whole-project coverage and all-issue final acceptance remain incomplete"
+  ],
+  "skill": "Reused issue-pr-delivery and existing production provider; no new generic skill needed"
+}
