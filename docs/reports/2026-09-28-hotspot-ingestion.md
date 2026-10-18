@@ -72,3 +72,18 @@ is lost. Native `POST .../records/search` is a read and is excluded from this
 write-failure injector and record-create counter. The regressions still require
 35 unique stored hotspots/35 creates after committed response loss, and blocked
 recovery with exactly one unknown create attempt even after restart.
+
+## Progress-read correction (2026-10-18)
+
+Actual app-authenticated ingestion exposed a long writer-lock wait in hotspot
+list/detail reads. Two concurrent API regressions reproduced that they waited for
+an entire slow external handler. Reads now return persisted observations without
+acquiring the kernel writer; normalization, filtering, payload validation and
+pagination are unchanged. During batch persistence a reader may observe the
+already-committed subset until completion. The single machine writer, stable IDs,
+source snapshot and ambiguity handling remain intact. Together with the upstream
+workflow-read correction, this branch passes 409 offline tests, Ruff and the
+unchanged coverage gate; total branch-inclusive coverage is 94.33%, not 100%.
+The ongoing live run uses its original source; it is not retroactively attributed
+to this correction. Its final outcome and independent persisted checks will be
+reported separately.

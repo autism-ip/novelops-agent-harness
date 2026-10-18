@@ -167,27 +167,26 @@ class HotspotService:
             raise AmbiguousWrite("Invalid stored hotspot payload") from None
 
     def get(self, hotspot_id):
-        with self.kernel.writer:
-            row = self.kernel.storage.get("hotspots", hotspot_id)
-            if row is None:
-                raise MissingRecord(hotspot_id)
-            return self.public(row)
+        # Read committed source observations without waiting for a whole batch.
+        row = self.kernel.storage.get("hotspots", hotspot_id)
+        if row is None:
+            raise MissingRecord(hotspot_id)
+        return self.public(row)
 
     def list(self, *, source=None, status=None, captured_from=None, captured_to=None, offset=0, limit=50):
         if captured_from and captured_to and captured_from > captured_to:
             raise ValueError("captured_from must precede captured_to")
-        with self.kernel.writer:
-            rows = self.kernel.storage.list("hotspots", **{k: v for k, v in {"source": source, "status": status}.items() if v})
-            selected = []
-            for row in rows:
-                try:
-                    capture = datetime.fromisoformat(row["captured_at"].replace("Z", "+00:00"))
-                    if capture.tzinfo is None:
-                        raise ValueError("Missing timezone")
-                except (KeyError, ValueError, TypeError, AttributeError):
-                    raise AmbiguousWrite("Invalid stored capture timestamp") from None
-                if (captured_from is None or capture >= captured_from) and (captured_to is None or capture <= captured_to):
-                    selected.append((capture, row))
-            selected.sort(key=lambda item: (item[0], item[1]["hotspot_id"]), reverse=True)
-            return {"items": [self.public(r) for _, r in selected[offset:offset+limit]],
-                    "total": len(selected), "offset": offset, "limit": limit}
+        rows = self.kernel.storage.list("hotspots", **{k: v for k, v in {"source": source, "status": status}.items() if v})
+        selected = []
+        for row in rows:
+            try:
+                capture = datetime.fromisoformat(row["captured_at"].replace("Z", "+00:00"))
+                if capture.tzinfo is None:
+                    raise ValueError("Missing timezone")
+            except (KeyError, ValueError, TypeError, AttributeError):
+                raise AmbiguousWrite("Invalid stored capture timestamp") from None
+            if (captured_from is None or capture >= captured_from) and (captured_to is None or capture <= captured_to):
+                selected.append((capture, row))
+        selected.sort(key=lambda item: (item[0], item[1]["hotspot_id"]), reverse=True)
+        return {"items": [self.public(r) for _, r in selected[offset:offset+limit]],
+                "total": len(selected), "offset": offset, "limit": limit}
