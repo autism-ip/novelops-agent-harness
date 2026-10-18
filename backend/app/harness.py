@@ -390,6 +390,8 @@ class HarnessKernel:
 
     def recover(self):
         with self.writer:
+            if self.telemetry:
+                self.telemetry.recover()
             with self._metrics_lock:
                 self._observed = {"pipeline_runs": {}, "step_runs": {}}
                 self._counts = {"active_pipeline_runs": 0, "pending_steps": 0, "failed_steps": 0}
