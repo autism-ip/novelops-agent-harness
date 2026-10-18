@@ -71,6 +71,21 @@ not produce fake model usage. Each model attempt has its own trace, including
 failed schema attempts that still consumed tokens. Running/incomplete traces
 survive crashes and count as unknown usage until reconciled.
 
+Before starting its scheduler, the kernel recovers persisted traces under its
+writer lock. An abandoned `running` observation becomes `interrupted`, with
+`failure_class=Interrupted` and `outcome_unknown=true`. This is an interrupted
+observation, not proof of provider success/failure or billing. `finished_at`
+records the reconciliation time; missing token/cost/latency fields are not
+invented. Existing successful, failed and interrupted observations are unchanged.
+Recovery validates the whole trace read, including row/payload identity and status,
+before any repair; corrupt records or an unconfirmed repair stop startup. Exact
+recovery after a committed response timeout reconciles without a second write.
+
+This does not change handler retry policy. A resumed semantic handler still
+reuses its immutable Artifact when present, without another model request.
+If a model response was never persisted as an Artifact, its external outcome
+may remain unknown; this recovery does not claim to retrieve that response.
+
 Usage aggregates all model attempts per run or chapter. Missing token counts or
 prices yield null totals and explicit unknown counts; they are never silently
 zeroed. Optional input_cost_per_million/output_cost_per_million values are
