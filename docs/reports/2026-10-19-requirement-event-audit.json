@@ -311,13 +311,17 @@
       ],
       "tests": [
         "backend/tests/test_chapter_loop.py",
-        "frontend/tests/chapter-generation-contract.test.tsx"
+        "frontend/tests/chapter-generation-contract.test.tsx",
+        "backend/tests/test_chapter_execution_integrity.py"
       ],
       "runtime_report": "2026-10-18-chapter9-final-and-focused-review.md",
       "evidence_boundary": "真实 9 个章节版本；最终 v9 1591 汉字、独立内容审核合格，旧 8 版本和 9 Artifact 不变",
       "remaining_or_limits": "1–3 是原验收首批版本范围，不擅自改成必须 3 个章节；质量不可由 schema 或 100% 覆盖保证",
       "done": false,
-      "final_requirement_by_requirement_audit_complete": false
+      "final_requirement_by_requirement_audit_complete": false,
+      "additional_verification_reports": [
+        "2026-10-19-chapter-final-provenance.md"
+      ]
     },
     {
       "issue": "ZEN-41",
@@ -338,13 +342,17 @@
       "tests": [
         "backend/tests/test_chapter_review.py",
         "backend/tests/test_chapter_review_integrity.py",
-        "frontend/tests/chapter-review-contract.test.tsx"
+        "frontend/tests/chapter-review-contract.test.tsx",
+        "backend/tests/test_chapter_execution_integrity.py"
       ],
       "runtime_report": "2026-10-18-chapter9-final-and-focused-review.md",
       "evidence_boundary": "实际 UI 退修→真实 DeepSeek→v9 合格→批准/定稿成功；routine 自动 pass 目前为受控浏览器/契约证据",
       "remaining_or_limits": "真实模型 routine pass 事件尚缺；RevisionTask queued 表示入队进度，API/UI 另查 run_status，无需误改旧记录",
       "done": false,
-      "final_requirement_by_requirement_audit_complete": false
+      "final_requirement_by_requirement_audit_complete": false,
+      "additional_verification_reports": [
+        "2026-10-19-chapter-final-provenance.md"
+      ]
     }
   ],
   "current_readonly_integrity": {
@@ -387,22 +395,22 @@
     "evidence_as_of": "Read-only verification before the single deliberate trace repair; historical running trace finding below is now resolved"
   },
   "current_backend_coverage": {
-    "covered_lines": 4147,
-    "num_statements": 4342,
-    "percent_covered": 93.75227686703097,
-    "percent_covered_display": "93.75",
-    "missing_lines": 195,
+    "covered_lines": 4165,
+    "num_statements": 4347,
+    "percent_covered": 94.17864289612515,
+    "percent_covered_display": "94.18",
+    "missing_lines": 182,
     "excluded_lines": 11,
-    "percent_statements_covered": 95.50898203592814,
-    "percent_statements_covered_display": "95.51",
-    "num_branches": 1148,
-    "num_partial_branches": 136,
-    "covered_branches": 1000,
-    "missing_branches": 148,
-    "percent_branches_covered": 87.10801393728222,
-    "percent_branches_covered_display": "87.11"
+    "percent_statements_covered": 95.81320450885669,
+    "percent_statements_covered_display": "95.81",
+    "num_branches": 1150,
+    "num_partial_branches": 128,
+    "covered_branches": 1012,
+    "missing_branches": 138,
+    "percent_branches_covered": 88.0,
+    "percent_branches_covered_display": "88.00"
   },
-  "current_backend_offline_passed": 663,
+  "current_backend_offline_passed": 694,
   "frontend_tests": "343 at unchanged frontend tree; not rerun for backend test/report-only changes",
   "frontend_whole_source_four_metrics": "94.69% statement / 97.14% line / 94.69% function / 95.11% branch; unchanged source evidence from prior exact tree",
   "open_priorities": [
@@ -440,6 +448,16 @@
       "finding": "A committed Artifact followed by output-link failure was not repaired on replay",
       "status": "Immutable model_trace_id with exact provenance validation and idempotent link repair; no repeated model call",
       "report": "2026-10-19-model-provenance-and-replay.md"
+    },
+    {
+      "finding": "Self-consistent Artifact hash did not establish selected chapter domain provenance; missing refs could raise IndexError and bool identity could equal integer",
+      "status": "Red regressions then exact typed domain/source verification before reads or promotion; original evidence restore resumes without new model/version",
+      "report": "2026-10-19-chapter-final-provenance.md"
+    },
+    {
+      "finding": "Foundation final verification did not recheck a reject decision after rewrite selection",
+      "status": "Rejected selection stops in ZEN-40; ZEN-41 preserves configured high-value original-candidate human review policy",
+      "report": "2026-10-19-chapter-final-provenance.md"
     }
   ],
   "current_model_provenance": {
@@ -475,5 +493,86 @@
     "branch": "80/80 = 100%",
     "executable_named_functions": "26/26",
     "unchanged_default_type_protocol_exclusions": 3
+  },
+  "current_backend_named_executable_function_entries": {
+    "covered": 402,
+    "total": 407,
+    "unentered": [
+      [
+        "app/api/deps.py",
+        "get_settings"
+      ],
+      [
+        "app/api/routes/health.py",
+        "health"
+      ],
+      [
+        "app/api/routes/health.py",
+        "status"
+      ],
+      [
+        "app/feishu/repositories/story_states.py",
+        "StoryStatesRepo.find_by_book"
+      ],
+      [
+        "app/pipeline/worker.py",
+        "WorkerLoop._resolve_record_id"
+      ]
+    ],
+    "zero_executable_statement_declarations": [
+      [
+        "app/generation.py",
+        "ModelProvider.complete"
+      ],
+      [
+        "app/storage.py",
+        "StorageProvider.get"
+      ],
+      [
+        "app/storage.py",
+        "StorageProvider.get_many"
+      ],
+      [
+        "app/storage.py",
+        "StorageProvider.list"
+      ],
+      [
+        "app/storage.py",
+        "StorageProvider.ensure"
+      ],
+      [
+        "app/storage.py",
+        "StorageProvider.update"
+      ],
+      [
+        "app/storage.py",
+        "StorageProvider.delete"
+      ]
+    ],
+    "definition": "Named coverage.py function entries with num_statements > 0, entered iff its body has covered lines; zero-statement Protocol declarations are listed separately. Not a whole-project four-metric 100% claim."
+  },
+  "current_chapter_provenance": {
+    "report": "2026-10-19-chapter-final-provenance.md",
+    "new_cases": 31,
+    "pr36_offline_passed": 638,
+    "pr37_offline_passed": 694,
+    "final_verify": {
+      "covered_lines": 47,
+      "num_statements": 47,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100.00",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100.00",
+      "num_branches": 20,
+      "num_partial_branches": 0,
+      "covered_branches": 20,
+      "missing_branches": 0,
+      "percent_branches_covered": 100.0,
+      "percent_branches_covered_display": "100.00"
+    },
+    "external_writes": 0,
+    "new_model_calls": 0
   }
 }
