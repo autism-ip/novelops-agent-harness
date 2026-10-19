@@ -43,3 +43,10 @@ The planner treats `prior_final_chapters` as completed narrative history, never 
 Brief reads batch the brief and snapshot in a single response-scoped Artifact read. This preserves the existing read budget without retaining a mutable cache between requests or skipping fresh execution/decision checks. Writer, Critic and Rewrite consume this frozen historical context downstream in ZEN-40.
 
 When `STORY_PLANNING_ENABLED` is enabled, configure `FEISHU_TABLE_ID_CHAPTER_VERSIONS` with read access even if chapter generation is disabled. Planning owns its canonical-history reader and fails during runtime composition when the table configuration is absent; it does not depend on a later chapter-service flag to register that repository. Existing additive canonical Artifact metadata is read without introducing a second store.
+
+Internal chapter consumers can obtain the exact original BriefRequest together with
+its eligible Brief and freshly verified planning snapshot in one read. The full
+editor direction is retained up to the existing 4000-character input limit; a
+five-field plan is not a lossless substitute. Caller-local edits do not persist,
+and public Brief/read response shapes remain unchanged. This adds no provider
+request and does not rewrite an existing planning Artifact.
