@@ -42,8 +42,10 @@ def build_runtime(settings):
             names += ("title_candidates", "cover_plans")
         if settings.BOOKS_ENABLED:
             names += ("books", "story_states")
+        if settings.STORY_PLANNING_ENABLED:
+            names += ("chapter_versions",)
         if settings.CHAPTER_LOOP_ENABLED:
-            names += ("chapter_versions", "revision_tasks")
+            names += ("revision_tasks",)
         repositories = {name: BaseRepository(client, config.app_token, config.get_table_id(name), FIELD_MAPS[name])
                         for name in names}
         storage = FeishuStorageProvider(repositories, {name: next(iter(FIELD_MAPS[name])) for name in names})

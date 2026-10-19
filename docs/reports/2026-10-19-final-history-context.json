@@ -1,0 +1,528 @@
+{
+  "date": "2026-10-19",
+  "goal_complete": false,
+  "issues": [
+    "ZEN-39",
+    "ZEN-40",
+    "ZEN-41"
+  ],
+  "prs": [
+    "https://github.com/autism-ip/novelops-agent-harness/pull/35",
+    "https://github.com/autism-ip/novelops-agent-harness/pull/36",
+    "https://github.com/autism-ip/novelops-agent-harness/pull/37"
+  ],
+  "original_requirement_event": "Build chapter planning/writing context from exact canonical State and Artifact versions, preserving interpretive continuity and selective review without repeating paid outputs.",
+  "findings": [
+    "Planner and chapter context omitted prior final chapter prose.",
+    "A newly finalized relevant earlier chapter did not invalidate an existing brief.",
+    "A generic self-consistent history payload needed exact projection/verification checks and bounded prose validation.",
+    "The first implementation reread a verified planning snapshot and exceeded the existing remote-read budget; request-scoped reuse restored the original budgets."
+  ],
+  "implementation": [
+    "Freeze nearest earlier final ChapterVersion with bounded full prose, domain IDs, version, content hash and Artifact source ref; exclude drafts, future chapters and other books.",
+    "Validate final projection, immutable Artifact identity, matching text, reference order and passing verification before planning. Legacy finals without canonical provenance fail closed.",
+    "New brief snapshots use chapter/run-specific logical IDs so unchanged State versions do not cause context collisions.",
+    "Relevant final-history changes invalidate completed brief eligibility and stop queued planning/writing before new model calls; old snapshots and paid artifacts remain immutable.",
+    "Writer v5, Critic v6, Rewrite v7 receive the identical frozen history and treat it as source data, not instructions. No new model role/pass or automatic State patch.",
+    "Read/eligibility can return the same invocation's verified immutable snapshot to internal chapter consumers; public read shape stays unchanged and decisions/execution remain fresh."
+  ],
+  "new_tests": {
+    "planning": 32,
+    "chapter_consumption": 6,
+    "total": 38,
+    "core_services_mocked": false,
+    "component_scope": "Planning tests seed external canonical record fixtures; downstream tests execute actual chapter generation/final lock services before second-chapter planning through stateful Feishu HTTP/model boundaries.",
+    "reproduction": "2 initial planning failures; downstream propagation/integrity failures; 4 initial malformed prose boundary failures. Existing round-trip read-budget regression reproduced, then passed without increasing budgets."
+  },
+  "gates": [
+    {
+      "pr": 35,
+      "branch": "codex/zen-39-story-planning",
+      "source_commit": "b141931ba7023f9c63ae46dae4164992de48f144",
+      "app_tree": "8e3836ed5e58443624601c95adf5400f344ec6fe",
+      "offline_tests": 613,
+      "integration_deselected": 10,
+      "existing_warnings": 1,
+      "ruff": "passed",
+      "totals": {
+        "covered_lines": 3522,
+        "num_statements": 3674,
+        "percent_covered": 94.34782608695652,
+        "percent_covered_display": "94.35",
+        "missing_lines": 152,
+        "excluded_lines": 11,
+        "percent_statements_covered": 95.86281981491562,
+        "percent_statements_covered_display": "95.86",
+        "num_branches": 926,
+        "num_partial_branches": 102,
+        "covered_branches": 818,
+        "missing_branches": 108,
+        "percent_branches_covered": 88.33693304535637,
+        "percent_branches_covered_display": "88.34"
+      },
+      "history_projection_function": {
+        "covered_lines": 29,
+        "num_statements": 29,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 12,
+        "num_partial_branches": 0,
+        "covered_branches": 12,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "story_planning_module": {
+        "covered_lines": 360,
+        "num_statements": 387,
+        "percent_covered": 90.06211180124224,
+        "percent_covered_display": "90.06",
+        "missing_lines": 27,
+        "excluded_lines": 0,
+        "percent_statements_covered": 93.02325581395348,
+        "percent_statements_covered_display": "93.02",
+        "num_branches": 96,
+        "num_partial_branches": 19,
+        "covered_branches": 75,
+        "missing_branches": 21,
+        "percent_branches_covered": 78.125,
+        "percent_branches_covered_display": "78.12"
+      },
+      "generation_module": {
+        "covered_lines": 313,
+        "num_statements": 313,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 3,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 80,
+        "num_partial_branches": 0,
+        "covered_branches": 80,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "named_executable_function_entries": {
+        "covered": 347,
+        "total": 353,
+        "unentered": [
+          [
+            "app/api/deps.py",
+            "get_settings"
+          ],
+          [
+            "app/api/routes/health.py",
+            "health"
+          ],
+          [
+            "app/api/routes/health.py",
+            "status"
+          ],
+          [
+            "app/api/routes/workflows.py",
+            "decision"
+          ],
+          [
+            "app/feishu/repositories/story_states.py",
+            "StoryStatesRepo.find_by_book"
+          ],
+          [
+            "app/pipeline/worker.py",
+            "WorkerLoop._resolve_record_id"
+          ]
+        ],
+        "zero_executable_statement_declarations": [
+          [
+            "app/generation.py",
+            "ModelProvider.complete"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get_many"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.list"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.ensure"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.update"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.delete"
+          ]
+        ],
+        "definition": "Named coverage.py functions with executable statements; entered iff body has covered lines. This independent entry diagnostic is not a whole-project four-metric 100% claim."
+      }
+    },
+    {
+      "pr": 36,
+      "branch": "codex/zen-40-chapter-loop",
+      "source_commit": "b3bad7561d82df15482227c912a734977ddb7eb6",
+      "app_tree": "9a282000453f82d7456535fed7bb0d203e68c2ae",
+      "offline_tests": 676,
+      "integration_deselected": 10,
+      "existing_warnings": 1,
+      "ruff": "passed",
+      "totals": {
+        "covered_lines": 3999,
+        "num_statements": 4195,
+        "percent_covered": 93.56614158284304,
+        "percent_covered_display": "93.57",
+        "missing_lines": 196,
+        "excluded_lines": 11,
+        "percent_statements_covered": 95.32777115613825,
+        "percent_statements_covered_display": "95.33",
+        "num_branches": 1074,
+        "num_partial_branches": 135,
+        "covered_branches": 931,
+        "missing_branches": 143,
+        "percent_branches_covered": 86.6852886405959,
+        "percent_branches_covered_display": "86.69"
+      },
+      "history_projection_function": {
+        "covered_lines": 29,
+        "num_statements": 29,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 12,
+        "num_partial_branches": 0,
+        "covered_branches": 12,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "story_planning_module": {
+        "covered_lines": 360,
+        "num_statements": 387,
+        "percent_covered": 90.06211180124224,
+        "percent_covered_display": "90.06",
+        "missing_lines": 27,
+        "excluded_lines": 0,
+        "percent_statements_covered": 93.02325581395348,
+        "percent_statements_covered_display": "93.02",
+        "num_branches": 96,
+        "num_partial_branches": 19,
+        "covered_branches": 75,
+        "missing_branches": 21,
+        "percent_branches_covered": 78.125,
+        "percent_branches_covered_display": "78.12"
+      },
+      "generation_module": {
+        "covered_lines": 313,
+        "num_statements": 313,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 3,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 80,
+        "num_partial_branches": 0,
+        "covered_branches": 80,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "named_executable_function_entries": {
+        "covered": 388,
+        "total": 397,
+        "unentered": [
+          [
+            "app/api/deps.py",
+            "get_settings"
+          ],
+          [
+            "app/api/routes/chapter_loop.py",
+            "versions"
+          ],
+          [
+            "app/api/routes/chapter_loop.py",
+            "read"
+          ],
+          [
+            "app/api/routes/chapter_loop.py",
+            "lock_final"
+          ],
+          [
+            "app/api/routes/health.py",
+            "health"
+          ],
+          [
+            "app/api/routes/health.py",
+            "status"
+          ],
+          [
+            "app/api/routes/workflows.py",
+            "decision"
+          ],
+          [
+            "app/feishu/repositories/story_states.py",
+            "StoryStatesRepo.find_by_book"
+          ],
+          [
+            "app/pipeline/worker.py",
+            "WorkerLoop._resolve_record_id"
+          ]
+        ],
+        "zero_executable_statement_declarations": [
+          [
+            "app/generation.py",
+            "ModelProvider.complete"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get_many"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.list"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.ensure"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.update"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.delete"
+          ]
+        ],
+        "definition": "Named coverage.py functions with executable statements; entered iff body has covered lines. This independent entry diagnostic is not a whole-project four-metric 100% claim."
+      }
+    },
+    {
+      "pr": 37,
+      "branch": "codex/zen-41-chapter-review-desk",
+      "source_commit": "0886104af65349ead8b2fe62f3e168407cde88d5",
+      "app_tree": "20492e7419ae930f402f4c47bcf2b74ccdd3eb83",
+      "offline_tests": 732,
+      "integration_deselected": 10,
+      "existing_warnings": 1,
+      "ruff": "passed",
+      "totals": {
+        "covered_lines": 4234,
+        "num_statements": 4412,
+        "percent_covered": 94.32915921288014,
+        "percent_covered_display": "94.33",
+        "missing_lines": 178,
+        "excluded_lines": 11,
+        "percent_statements_covered": 95.96554850407978,
+        "percent_statements_covered_display": "95.97",
+        "num_branches": 1178,
+        "num_partial_branches": 129,
+        "covered_branches": 1039,
+        "missing_branches": 139,
+        "percent_branches_covered": 88.20033955857386,
+        "percent_branches_covered_display": "88.20"
+      },
+      "history_projection_function": {
+        "covered_lines": 29,
+        "num_statements": 29,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 12,
+        "num_partial_branches": 0,
+        "covered_branches": 12,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "story_planning_module": {
+        "covered_lines": 360,
+        "num_statements": 387,
+        "percent_covered": 90.06211180124224,
+        "percent_covered_display": "90.06",
+        "missing_lines": 27,
+        "excluded_lines": 0,
+        "percent_statements_covered": 93.02325581395348,
+        "percent_statements_covered_display": "93.02",
+        "num_branches": 96,
+        "num_partial_branches": 19,
+        "covered_branches": 75,
+        "missing_branches": 21,
+        "percent_branches_covered": 78.125,
+        "percent_branches_covered_display": "78.12"
+      },
+      "generation_module": {
+        "covered_lines": 313,
+        "num_statements": 313,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 3,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 80,
+        "num_partial_branches": 0,
+        "covered_branches": 80,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "named_executable_function_entries": {
+        "covered": 403,
+        "total": 408,
+        "unentered": [
+          [
+            "app/api/deps.py",
+            "get_settings"
+          ],
+          [
+            "app/api/routes/health.py",
+            "health"
+          ],
+          [
+            "app/api/routes/health.py",
+            "status"
+          ],
+          [
+            "app/feishu/repositories/story_states.py",
+            "StoryStatesRepo.find_by_book"
+          ],
+          [
+            "app/pipeline/worker.py",
+            "WorkerLoop._resolve_record_id"
+          ]
+        ],
+        "zero_executable_statement_declarations": [
+          [
+            "app/generation.py",
+            "ModelProvider.complete"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get_many"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.list"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.ensure"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.update"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.delete"
+          ]
+        ],
+        "definition": "Named coverage.py functions with executable statements; entered iff body has covered lines. This independent entry diagnostic is not a whole-project four-metric 100% claim."
+      }
+    }
+  ],
+  "formal_gate": "python -m pytest -m 'not integration' --cov=app --cov-branch --cov-report=json --cov-report=term -q; original configured fail_under=87.81558726673984",
+  "diagnostic_correction": "One focused coverage diagnostic used an unnecessary --cov-fail-under=0 override. It is not acceptance evidence. All final full suites above ran at the unchanged configured gate and passed. No configuration/ignore or assertions were weakened.",
+  "frontend": {
+    "tree": "5d1da703d2d9709d195bfe4e900e05038adcf7fd",
+    "unchanged": true,
+    "local_tests_not_rerun": true,
+    "prior_same_tree_tests": 343,
+    "prior_same_tree_statement_line_function_branch": [
+      94.69,
+      97.14,
+      94.69,
+      95.11
+    ]
+  },
+  "real_read_only_feishu": {
+    "source": {
+      "commit": "0886104af65349ead8b2fe62f3e168407cde88d5",
+      "app_tree": "20492e7419ae930f402f4c47bcf2b74ccdd3eb83",
+      "path": "/tmp/novelops-history-full-source-0886104a",
+      "backend_tree": "ab17cf36a3e1009ddf6014fd933963944a6f5b25",
+      "frontend_tree": "5d1da703d2d9709d195bfe4e900e05038adcf7fd",
+      "offline_tests": 732
+    },
+    "status": "verified_read_only",
+    "application_identity": true,
+    "baseline_exact_before": 408,
+    "baseline_exact_after": 408,
+    "prior_final_version": 9,
+    "prior_final_artifact_id": "AR-0c61d88046756776efee02df8c35e1d2",
+    "prior_final_content_hash": "af94593f0881cbde71593f462d40e42668c5ef627ddff9491436e50195bfe819",
+    "operation_counts": {
+      "auth": 1,
+      "read": 41
+    },
+    "record_mutations": 0,
+    "model_requests": 0,
+    "scheduler_started": false,
+    "process_terminal": true
+  },
+  "real_model_runtime": {
+    "status": "not_started_automatic_approval_rejected",
+    "request_sent": false,
+    "new_base_records": 0,
+    "reason": "Automatic approval rejected sending the retained chapter prose, StoryState and new direction to external DeepSeek and creating new planning records because that exact data/destination scope was not explicitly authorized.",
+    "prepared_source": "0886104af65349ead8b2fe62f3e168407cde88d5",
+    "provider_destination": "https://api.deepseek.com/chat/completions",
+    "provider_model": "deepseek-flash",
+    "data_categories": [
+      "Retained synthetic canonical StoryState v2",
+      "Retained synthetic chapter1 final version9 prose and provenance",
+      "New synthetic chapter2 editorial direction"
+    ],
+    "local_preview_sha256": "2a7c79a8ebf09c06fb416e136e7ae9f51fc5cc30ca8d37418d647a43396f692b",
+    "max_requests_total_if_authorized": 4,
+    "model_retries": 0,
+    "configured_review_first_n": 1,
+    "configured_review_score_threshold": 3,
+    "next_step": "Obtain explicit approval of the concrete data/destination scope, then verify exact live baseline and request preview before any paid request. Independent plan/prose review remains required."
+  },
+  "review": {
+    "prepublish": "Original 13 PRs retain current bases and have no new feedback in all review sources; current Linear issue descriptions unchanged.",
+    "new_heads": "Verify exact pushed refs, latest effective CI and review after publication."
+  },
+  "limits": [
+    "Full-project Statement/Line/Function/Branch are still below 100%; final 61-criterion audit incomplete.",
+    "No new native chapter2 planning/generation event has occurred; real routine automatic pass remains unproven.",
+    "Read-only app-identity history projection is real Feishu evidence, not a native scheduler or model-quality check.",
+    "One nearest earlier full final is bounded context, not an all-history retrieval system or semantic State update.",
+    "No production SLA, platform maximum, billing or original outage root-cause claim."
+  ],
+  "skill_assessment": {
+    "reused": "issue-pr-delivery; TDD; existing provenance/recovery/bounded-real-probe workflows",
+    "new_skill_needed": false,
+    "reason": "Existing skills already cover exact immutable inputs, prerequisite revalidation, preserving paid outputs and response-scoped reads; no new general tool abstraction is needed."
+  },
+  "no_main_merge_deploy_or_done": true
+}
