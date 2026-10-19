@@ -23,6 +23,14 @@ pricing is fabricated. Configure supported JSON Chat Completions models for each
 route; missing routes/keys fail explicitly. No paid API call is made by the
 offline test/eval suite. Downstream workflow composition registers semantic
 handlers before kernel startup and accesses `kernel.semantic`.
+
+`ModelRouter.generate` keeps its validated-output API. `generate_recorded` also
+returns the confirmed trace ID and returned model for that exact call.
+`SemanticRuntime` uses this result directly, rather than rediscovering provenance
+through a potentially incomplete or older history list. Retries still use one
+call ID, the immutable route's 0–2 retry limit and the same backoff. Each attempt
+returns a successful result, raises at exhaustion, or advances that finite budget;
+there is no implicit missing output after the retry loop.
 For local development, backend Settings loads `.env` then `.env.local`; the latter
 overrides file values, and process environment variables override both. Both
 files are ignored by Git. The backend still requires `BACKEND_API_KEY` to start.
@@ -56,6 +64,21 @@ version, creator, prompt version/hash, route/config hash, provider/actual return
 model and timestamp. Replaying identical generation returns the persisted
 artifact without another model call. Changed inputs/prompts/routes or content
 require a new version; there is no overwrite API.
+
+New direct model outputs include `model_trace_id` in their immutable JSON payload.
+The output link is checked against that trace's run, step, inputs, model,
+prompt/route/workflow versions and output hash. An exact replay can finish a
+failed link write after Artifact creation without another model request. A
+missing, conflicting or differently linked trace requires reconciliation; a
+settled link is not rewritten. Derived outputs continue tracing their versioned
+source Artifacts.
+
+This optional JSON field needs no Base column migration. Older payloads without
+it keep their previous read shape and can replay without a guessed trace lookup.
+An empty optional value is omitted from normalized output. No old payload is
+backfilled or rewritten. New payloads use the updated Artifact schema; the older
+strict schema does not recognize this added metadata when explicitly reading a
+new output.
 
 Inputs must reference immutable source versions. Prompt and workflow definitions
 should be version-controlled; trace rows include route snapshots/request hashes.
