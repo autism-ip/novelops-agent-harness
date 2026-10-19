@@ -87,11 +87,12 @@
       ],
       "runtime_report": "2026-10-16-editor-contract-and-eval.md",
       "evidence_boundary": "真实 DeepSeek 与飞书；当前保留 100 个 Artifact 内容哈希独立重算一致；OpenAI 为传输契约",
-      "remaining_or_limits": "残留观察已真实恢复为 interrupted，未知用量保持未知；全 app 四项 100% 和其余需求最终验收继续",
+      "remaining_or_limits": "直接模型产物已绑定确认的 trace ID，断链精确重放无重复调用；旧记录未猜测回填；全 app 四项 100% 与最终逐条件核验继续",
       "done": false,
       "final_requirement_by_requirement_audit_complete": false,
       "additional_runtime_reports": [
-        "2026-10-19-interrupted-trace-recovery.md"
+        "2026-10-19-interrupted-trace-recovery.md",
+        "2026-10-19-model-provenance-and-replay.md"
       ]
     },
     {
@@ -386,22 +387,22 @@
     "evidence_as_of": "Read-only verification before the single deliberate trace repair; historical running trace finding below is now resolved"
   },
   "current_backend_coverage": {
-    "covered_lines": 4111,
-    "num_statements": 4315,
-    "percent_covered": 93.36631849001283,
-    "percent_covered_display": "93.37",
-    "missing_lines": 204,
+    "covered_lines": 4147,
+    "num_statements": 4342,
+    "percent_covered": 93.75227686703097,
+    "percent_covered_display": "93.75",
+    "missing_lines": 195,
     "excluded_lines": 11,
-    "percent_statements_covered": 95.27230590961761,
-    "percent_statements_covered_display": "95.27",
-    "num_branches": 1142,
-    "num_partial_branches": 146,
-    "covered_branches": 984,
-    "missing_branches": 158,
-    "percent_branches_covered": 86.1646234676007,
-    "percent_branches_covered_display": "86.16"
+    "percent_statements_covered": 95.50898203592814,
+    "percent_statements_covered_display": "95.51",
+    "num_branches": 1148,
+    "num_partial_branches": 136,
+    "covered_branches": 1000,
+    "missing_branches": 148,
+    "percent_branches_covered": 87.10801393728222,
+    "percent_branches_covered_display": "87.11"
   },
-  "current_backend_offline_passed": 623,
+  "current_backend_offline_passed": 663,
   "frontend_tests": "343 at unchanged frontend tree; not rerun for backend test/report-only changes",
   "frontend_whole_source_four_metrics": "94.69% statement / 97.14% line / 94.69% function / 95.11% branch; unchanged source evidence from prior exact tree",
   "open_priorities": [
@@ -429,6 +430,50 @@
       "finding": "Reproduce and fix stale running trace after interrupted/recovered attempt without fabricating usage or replaying paid effects",
       "status": "Implemented, regression verified and original real trace repaired; original interruption cause remains unproven",
       "report": "2026-10-19-interrupted-trace-recovery.md"
+    },
+    {
+      "finding": "History-based model provenance could select an old attempt or configured alias",
+      "status": "Red regressions, exact recorded-attempt binding and real DeepSeek/native Feishu event verified",
+      "report": "2026-10-19-model-provenance-and-replay.md"
+    },
+    {
+      "finding": "A committed Artifact followed by output-link failure was not repaired on replay",
+      "status": "Immutable model_trace_id with exact provenance validation and idempotent link repair; no repeated model call",
+      "report": "2026-10-19-model-provenance-and-replay.md"
     }
-  ]
+  ],
+  "current_model_provenance": {
+    "report": "2026-10-19-model-provenance-and-replay.md",
+    "status": "fresh_persisted_snapshot_and_provider_response_independently_verified",
+    "native_process_exit_code": 0,
+    "source_commit": "76deb6a46ed83977203fa66a8b5d6d1de105e5e3",
+    "baseline_rows_unchanged": 403,
+    "legacy_artifact_read_shapes_unchanged": 100,
+    "new_rows_retained": 5,
+    "total_owned_records_retained": 408,
+    "model_requests": 1,
+    "model_http_status": 200,
+    "model_returned": "deepseek-flash",
+    "model_tokens": {
+      "input_tokens": 147,
+      "output_tokens": 8,
+      "estimated_cost": 5.3700000000000004e-05,
+      "cost_status": "estimated"
+    },
+    "artifact_content_sha256": "7085a6b0c6dde093a8a5b74339023ad9ad6a6f1989af75c18c6e96860313bbeb",
+    "artifact_payload_sha256": "8a0dbe413b922112ac89d5abbe1cd7def66a4b40e5f9eeae7ccd6061ce2b57a4",
+    "raw_provider_response_sha256": "a5471ef8b9e60f588bec751d2ed6baa317d4fae33792950373b125009bd4fbe3",
+    "direct_current_trace_id_confirmed": true,
+    "semantic_history_scans": 0,
+    "exact_replays_additional_model_requests": 0,
+    "exact_replays_additional_writes": 0,
+    "scheduler_running_after_exit": false,
+    "runtime_seconds": 248.716
+  },
+  "current_generation_module_coverage": {
+    "statement_line": "313/313 = 100%",
+    "branch": "80/80 = 100%",
+    "executable_named_functions": "26/26",
+    "unchanged_default_type_protocol_exclusions": 3
+  }
 }

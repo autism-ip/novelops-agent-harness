@@ -8,7 +8,7 @@
 | --- | --- | --- | --- |
 | ZEN-105 / [#23](https://github.com/autism-ip/novelops-agent-harness/pull/23) | 真实应用身份完成领域 ID CRUD；v3 可行性和有界读/冲突行为分别测量。真实应用 CRUD/批读；v3 部分为用户身份；模糊写入故障为受控传输 | `backend/app/storage.py`；`backend/tests/test_storage_provider.py`；[运行报告](2026-09-30-feishu-storage-provider.md) | 平台极限和生产 ACL 不作保证；保留单 writer；全项目覆盖率尚缺 |
 | ZEN-104 / [#24](https://github.com/autism-ip/novelops-agent-harness/pull/24) | 唯一内核按显式状态机调度、重启/审批恢复；慢 handler 期间仍能观察已提交进度。原生 lifespan 真实采集完成；真实 writer 竞争下四个 GET 完成；恢复故障有受控回归 | `backend/app/harness.py`；`backend/tests/test_harness_kernel.py`；[运行报告](2026-10-18-public-hotspots-real-feishu.md) | 旧运行原始 FeishuAPIError 原因仍未确认；[残留追踪已真实修复](2026-10-19-interrupted-trace-recovery.md)，不反推旧故障原因 |
-| ZEN-106 / [#25](https://github.com/autism-ip/novelops-agent-harness/pull/25) | 生成 Artifact 可追溯，统一路由记录实际模型/usage，允许固定 fixture 比较方案。真实 DeepSeek 与飞书；当前保留 100 个 Artifact 内容哈希独立重算一致；OpenAI 为传输契约 | `backend/app/generation.py`；`backend/tests/test_evals.py`；[运行报告](2026-10-16-editor-contract-and-eval.md) | [原残留追踪已修复](2026-10-19-interrupted-trace-recovery.md)为 interrupted；未知用量未改，仍缺全 app 四项 100% |
+| ZEN-106 / [#25](https://github.com/autism-ip/novelops-agent-harness/pull/25) | 生成 Artifact 可追溯，统一路由记录实际模型/usage，允许固定 fixture 比较方案。真实 DeepSeek 与飞书；当前保留 100 个 Artifact 内容哈希独立重算一致；OpenAI 为传输契约 | `backend/app/generation.py`；`backend/tests/test_evals.py`；[运行报告](2026-10-16-editor-contract-and-eval.md) | [原残留追踪已修复](2026-10-19-interrupted-trace-recovery.md)；[直接产物溯源与断链重放已验证](2026-10-19-model-provenance-and-replay.md)，仍缺全 app 四项 100% |
 | ZEN-33 / [#27](https://github.com/autism-ip/novelops-agent-harness/pull/27) | 公开 50 条完成入库；同一已保存批次逐条对账，既有记录不重建。真实匿名采集一次；真实应用持久化；已保存批次重放 50 reconciled、0 新增/更新，403 记录不变 | `backend/app/hotspots.py`；`backend/tests/test_hotspot_ingestion.py`；[运行报告](2026-10-19-public-hotspot-reconciliation.md) | 工具/模式/模糊网络故障为受控测试；更晚真实捕获的元数据更新尚未实测 |
 | ZEN-34 / [#28](https://github.com/autism-ip/novelops-agent-harness/pull/28) | 用户筛选/详情/分页和触发采集可观察真实结果，未知结果可精确重放。真实浏览器到飞书 50 条；桌面/390px 详情与分页通过；手动/丢弃恢复另有受控端到端 | `backend/app/hotspot_controls.py`；`backend/tests/test_hotspot_controls.py`；[运行报告](2026-10-18-public-hotspots-real-feishu.md) | 十秒提交超时仍可能发生，当前按保留命令恢复；不重新写真实公开数据来重复演示丢弃 |
 | ZEN-35 / [#29](https://github.com/autism-ip/novelops-agent-harness/pull/29) | 热点产生结构化机会 Artifact，风险/选择门控制推进，失败明确可查。保留的真实 DeepSeek/飞书机会和 risk/risk_review；真实 risk_gate 与 selection 已批准 | `backend/app/research.py`；`backend/tests/test_research_workflow.py`；[运行报告](2026-09-28-opportunity-research.md) | 低风险自动继续与坏输出验证有受控测试，未把它们称为重复真实质量统计 |
@@ -29,7 +29,7 @@
 
 ## 当前门槛与继续工作
 
-完整后端 **623 项离线测试通过**（10 可选集成未执行，1 既有警告），Ruff 通过；本轮后端 Statement/Line 4111/4315（95.27%），Branch 984/1142（86.16%）。热点服务/API 以及新 trace recover 函数的语句、行、分支 100%，并非整个后端 100%。本轮不重新声称独立全 app Function 统计。
+完整后端 **663 项离线测试通过**（10 可选集成未执行，1 既有警告），Ruff 通过；本轮后端 Statement/Line 4147/4342（95.51%），Branch 1000/1148（87.11%）。热点服务/API、整个模型基础模块的语句/行/分支 100%；后者 26 个实际实现函数均覆盖。并非整个后端 100%。本轮不重新声称独立全 app Function 统计。
 
 前端树未改变，沿用已验证的 343 项与 94.69/97.14/94.69/95.11% 四项覆盖率，未重复运行视觉验收。既有 11 行 coverage.py 排除未修改；整个项目不满足 100%。
 
@@ -38,3 +38,5 @@
 本轮复用 issue-pr-delivery、现有 CLI/MCP 和生产 provider；未创建新通用技能。已确认原生只读重放进程正常退出，未留下调度器或新业务写入。
 
 本日追踪恢复后，原生 helper 已确认正常退出，403 条既有验收记录保留；完整用量聚合不变，没有再次采集/生成/审批。既有 issue-pr-delivery Skill 追加了中断观察与业务结果分开核对的经验，校验通过。
+
+本日又完成一次受限真实 DeepSeek 溯源控制：1 请求、147 输入/8 输出 token，产物绑定本次确认追踪；精确产物与命令重放无额外模型/写入。原 403 条不变、新增 5 条合成证据，当前已知验收记录保留 408 条；100 个旧 Artifact 的读形状不变。它不替代仍待验证的真实章节 routine 自动通过。详见[完整报告](2026-10-19-model-provenance-and-replay.md)。
