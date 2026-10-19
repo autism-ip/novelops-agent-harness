@@ -285,13 +285,18 @@
       ],
       "tests": [
         "backend/tests/test_story_planning.py",
-        "backend/tests/test_story_history_contract.py"
+        "backend/tests/test_story_history_contract.py",
+        "backend/tests/test_planning_history.py",
+        "backend/tests/test_chapter_history_context.py"
       ],
       "runtime_report": "2026-10-18-chapter9-final-and-focused-review.md",
       "evidence_boundary": "当前保留真实 1 Bible、7 版本 Brief、StoryState v1/v2，最新合格 Brief 驱动已定稿 v9",
       "remaining_or_limits": "旧错误 Brief 和失败运行保留；不称 schema 通过就代表编辑要求完成",
       "done": false,
-      "final_requirement_by_requirement_audit_complete": false
+      "final_requirement_by_requirement_audit_complete": false,
+      "additional_verification_reports": [
+        "2026-10-19-final-history-context.md"
+      ]
     },
     {
       "issue": "ZEN-40",
@@ -312,7 +317,9 @@
       "tests": [
         "backend/tests/test_chapter_loop.py",
         "frontend/tests/chapter-generation-contract.test.tsx",
-        "backend/tests/test_chapter_execution_integrity.py"
+        "backend/tests/test_chapter_execution_integrity.py",
+        "backend/tests/test_planning_history.py",
+        "backend/tests/test_chapter_history_context.py"
       ],
       "runtime_report": "2026-10-18-chapter9-final-and-focused-review.md",
       "evidence_boundary": "真实 9 个章节版本；最终 v9 1591 汉字、独立内容审核合格，旧 8 版本和 9 Artifact 不变",
@@ -320,7 +327,8 @@
       "done": false,
       "final_requirement_by_requirement_audit_complete": false,
       "additional_verification_reports": [
-        "2026-10-19-chapter-final-provenance.md"
+        "2026-10-19-chapter-final-provenance.md",
+        "2026-10-19-final-history-context.md"
       ]
     },
     {
@@ -343,7 +351,9 @@
         "backend/tests/test_chapter_review.py",
         "backend/tests/test_chapter_review_integrity.py",
         "frontend/tests/chapter-review-contract.test.tsx",
-        "backend/tests/test_chapter_execution_integrity.py"
+        "backend/tests/test_chapter_execution_integrity.py",
+        "backend/tests/test_planning_history.py",
+        "backend/tests/test_chapter_history_context.py"
       ],
       "runtime_report": "2026-10-18-chapter9-final-and-focused-review.md",
       "evidence_boundary": "实际 UI 退修→真实 DeepSeek→v9 合格→批准/定稿成功；routine 自动 pass 目前为受控浏览器/契约证据",
@@ -351,7 +361,8 @@
       "done": false,
       "final_requirement_by_requirement_audit_complete": false,
       "additional_verification_reports": [
-        "2026-10-19-chapter-final-provenance.md"
+        "2026-10-19-chapter-final-provenance.md",
+        "2026-10-19-final-history-context.md"
       ]
     }
   ],
@@ -395,22 +406,22 @@
     "evidence_as_of": "Read-only verification before the single deliberate trace repair; historical running trace finding below is now resolved"
   },
   "current_backend_coverage": {
-    "covered_lines": 4165,
-    "num_statements": 4347,
-    "percent_covered": 94.17864289612515,
-    "percent_covered_display": "94.18",
-    "missing_lines": 182,
+    "covered_lines": 4236,
+    "num_statements": 4414,
+    "percent_covered": 94.33321415802645,
+    "percent_covered_display": "94.33",
+    "missing_lines": 178,
     "excluded_lines": 11,
-    "percent_statements_covered": 95.81320450885669,
-    "percent_statements_covered_display": "95.81",
-    "num_branches": 1150,
-    "num_partial_branches": 128,
-    "covered_branches": 1012,
-    "missing_branches": 138,
-    "percent_branches_covered": 88.0,
-    "percent_branches_covered_display": "88.00"
+    "percent_statements_covered": 95.96737652922519,
+    "percent_statements_covered_display": "95.97",
+    "num_branches": 1180,
+    "num_partial_branches": 129,
+    "covered_branches": 1041,
+    "missing_branches": 139,
+    "percent_branches_covered": 88.22033898305085,
+    "percent_branches_covered_display": "88.22"
   },
-  "current_backend_offline_passed": 694,
+  "current_backend_offline_passed": 734,
   "frontend_tests": "343 at unchanged frontend tree; not rerun for backend test/report-only changes",
   "frontend_whole_source_four_metrics": "94.69% statement / 97.14% line / 94.69% function / 95.11% branch; unchanged source evidence from prior exact tree",
   "open_priorities": [
@@ -458,6 +469,16 @@
       "finding": "Foundation final verification did not recheck a reject decision after rewrite selection",
       "status": "Rejected selection stops in ZEN-40; ZEN-41 preserves configured high-value original-candidate human review policy",
       "report": "2026-10-19-chapter-final-provenance.md"
+    },
+    {
+      "finding": "Planner and chapter context omitted final prose and did not invalidate planning after a relevant final arrived",
+      "status": "Nearest final is frozen with validated exact provenance; changed history invalidates planning and blocks new generation; downstream semantic passes share exact same history",
+      "report": "2026-10-19-final-history-context.md"
+    },
+    {
+      "finding": "Planning-only runtime lacked ChapterVersions reader; extra planning GET exceeded existing remote-read budgets",
+      "status": "Actual build_runtime composition is covered for configured and missing table; same-invocation verified snapshot reuse preserves original request budgets",
+      "report": "2026-10-19-final-history-context.md"
     }
   ],
   "current_model_provenance": {
@@ -495,8 +516,8 @@
     "unchanged_default_type_protocol_exclusions": 3
   },
   "current_backend_named_executable_function_entries": {
-    "covered": 402,
-    "total": 407,
+    "covered": 403,
+    "total": 408,
     "unentered": [
       [
         "app/api/deps.py",
@@ -549,7 +570,7 @@
         "StorageProvider.delete"
       ]
     ],
-    "definition": "Named coverage.py function entries with num_statements > 0, entered iff its body has covered lines; zero-statement Protocol declarations are listed separately. Not a whole-project four-metric 100% claim."
+    "definition": "Named coverage.py functions with executable statements; entered iff body has covered lines. This independent entry diagnostic is not a whole-project four-metric 100% claim."
   },
   "current_chapter_provenance": {
     "report": "2026-10-19-chapter-final-provenance.md",
@@ -574,5 +595,171 @@
     },
     "external_writes": 0,
     "new_model_calls": 0
+  },
+  "current_final_history_context": {
+    "report": "2026-10-19-final-history-context.md",
+    "new_behavioral_cases": 40,
+    "branch_tests": [
+      615,
+      678,
+      734
+    ],
+    "native_runtime": {
+      "status": "bounded_native_event_observed",
+      "authorization": "User explicitly approved these synthetic data, exact DeepSeek endpoint, max four requests, zero retries and retained Base evidence after initial automatic-review rejection; no requests/writes preceded approval.",
+      "source": {
+        "commit": "585edb312cff2721ff424a57c52279aea099514a",
+        "app_tree": "be73ac628d9ac513a960f92c97ace5a6f3c0d41c",
+        "path": "/tmp/novelops-history-full-source-585edb31",
+        "backend_tree": "f3d3d87de8611848ca45727b7d061de1039d2e93",
+        "frontend_tree": "5d1da703d2d9709d195bfe4e900e05038adcf7fd",
+        "offline_tests": 734
+      },
+      "provider_destination": "https://api.deepseek.com/chat/completions",
+      "provider_model": "deepseek-flash",
+      "approved_planner_preview_sha256": "2a7c79a8ebf09c06fb416e136e7ae9f51fc5cc30ca8d37418d647a43396f692b",
+      "planner_body_exactly_matches_approved_preview": true,
+      "total_model_requests": 1,
+      "model_retries": 0,
+      "total_new_owned_rows_retained": 9,
+      "known_retained_rows_after": 417,
+      "configured_review_first_n": 1,
+      "configured_review_score_threshold": 3,
+      "phases": [
+        {
+          "phase": "plan",
+          "status": "native_history_plan_verified_after_deterministic_resume",
+          "run_id": "PR-703f8e3af4a325b63676b395a5651aeb",
+          "source_commit": "585edb312cff2721ff424a57c52279aea099514a",
+          "baseline_exact_before": 408,
+          "baseline_exact_after": 408,
+          "new_owned_rows_retained": 9,
+          "snapshot_failures": [],
+          "scheduler_running_after_exit": false,
+          "operation_counts": {
+            "auth": 2,
+            "read": 635,
+            "owned_write": 26
+          },
+          "model_requests": [
+            {
+              "provider": "deepseek",
+              "route": "chapter_planner",
+              "trace_id": "TR-7beb12ef2e7f4a03a34c13e872c44580",
+              "request_sha256": "1b7698b9acabe32f1b522c15af35bdd271690a8d80271454bb7ea22ba09a9272",
+              "sent_at": 1792411321.3806322
+            }
+          ],
+          "model_responses": [
+            {
+              "route": "chapter_planner",
+              "http_status": 200,
+              "sha256": "34ca0c05cbb7598939ebecce50745dd32eec09e2ab5428e1447e6a188e631533",
+              "usage": {
+                "prompt_tokens": 6452,
+                "completion_tokens": 366,
+                "total_tokens": 6818,
+                "prompt_tokens_details": {
+                  "cached_tokens": 0
+                },
+                "prompt_cache_hit_tokens": 0,
+                "prompt_cache_miss_tokens": 6452
+              },
+              "received_at": 1792411325.0388858
+            }
+          ],
+          "replay_http_status": 201,
+          "replay_added_writes": 0,
+          "replay_added_models": 0,
+          "selected_prose_han": null,
+          "usage": null
+        }
+      ],
+      "independent_reviews": {
+        "brief": {
+          "accepted": false,
+          "narrative_continuity_accepted": true,
+          "requested_format_accepted": false,
+          "source_commit": "585edb312cff2721ff424a57c52279aea099514a",
+          "brief_content_hash": "c8cf18922173b4fc97924a129348c5b69d0ff01aa3f66833ec7e5e6f369dd702",
+          "brief_artifact_id": "AR-11a8ad64ab21daaa4dd2d426d5fd09e6",
+          "field_sentence_counts": {
+            "opening_hook": 2,
+            "scene_goal": 1,
+            "conflict": 1,
+            "payoff": 3,
+            "ending_hook": 1
+          },
+          "requested_sentence_range_per_field": [
+            1,
+            2
+          ],
+          "checks": {
+            "third_person_planning": true,
+            "continues_chapter1_v9_copper_key": true,
+            "actual_find_verify_return_planned": true,
+            "return_before_whisper_and_irreversible_loss": true,
+            "new_secret_and_no_recovered_prior_secret": true,
+            "explicit_sleep_then_next_dawn": true,
+            "ledger_only_lost_item_location_deadline": true,
+            "length_range_retained_explicitly": false
+          },
+          "findings": [
+            "Payoff contains three sentences rather than the requested one or two.",
+            "The brief does not explicitly preserve the original 700–1000 Han target; source inspection plus two behavioral regressions confirms Writer/Critic/Rewrite cannot reliably receive the original complete direction."
+          ],
+          "disposition": "Retain original paid planning and provenance. Do not launch chapter generation until original-direction propagation is fixed and this independent acceptance gate is resolved. No content edited, no forced pass, no replacement planning request."
+        }
+      },
+      "routine_pass_observed": false,
+      "observer_startup_correction": {
+        "failure": "Probe guard initially classified an existing projection ensure as a new create; native startup stopped before models or writes.",
+        "operation_counts": {
+          "auth": 1,
+          "read": 67
+        },
+        "model_requests": 0,
+        "record_mutations": 0,
+        "baseline_exact_after": 408,
+        "scheduler_running_after_exit": false,
+        "correction": "Permit the real storage ensure for an exact known baseline ID only with allow_create=False; compare the returned row to the frozen baseline. Existing updates/deletes remain forbidden. Original failed observation retained; same business command IDs used."
+      },
+      "deterministic_resume": {
+        "same_run_id": "PR-703f8e3af4a325b63676b395a5651aeb",
+        "cause": "Probe omitted service traces from its kind/count allowlist; materialize stopped before handler invocation.",
+        "preserved_checkpoint_rows": 7,
+        "model_requests_before_resume": 1,
+        "new_model_requests_during_resume": 0,
+        "model_retries": 0,
+        "harness_recovery_allowance": 1,
+        "meaning": "Only interrupted deterministic service was recovered. Successful Planner was not replayed; provider hooks forbid any model request during resume. This is not zero infrastructure recovery.",
+        "original_failed_observation_retained": true
+      }
+    },
+    "real_read_only": {
+      "source": {
+        "commit": "0886104af65349ead8b2fe62f3e168407cde88d5",
+        "app_tree": "20492e7419ae930f402f4c47bcf2b74ccdd3eb83",
+        "path": "/tmp/novelops-history-full-source-0886104a",
+        "backend_tree": "ab17cf36a3e1009ddf6014fd933963944a6f5b25",
+        "frontend_tree": "5d1da703d2d9709d195bfe4e900e05038adcf7fd",
+        "offline_tests": 732
+      },
+      "status": "verified_read_only",
+      "application_identity": true,
+      "baseline_exact_before": 408,
+      "baseline_exact_after": 408,
+      "prior_final_version": 9,
+      "prior_final_artifact_id": "AR-0c61d88046756776efee02df8c35e1d2",
+      "prior_final_content_hash": "af94593f0881cbde71593f462d40e42668c5ef627ddff9491436e50195bfe819",
+      "operation_counts": {
+        "auth": 1,
+        "read": 41
+      },
+      "record_mutations": 0,
+      "model_requests": 0,
+      "scheduler_started": false,
+      "process_terminal": true
+    }
   }
 }
