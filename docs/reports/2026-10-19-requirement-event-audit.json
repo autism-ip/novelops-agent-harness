@@ -287,7 +287,9 @@
         "backend/tests/test_story_planning.py",
         "backend/tests/test_story_history_contract.py",
         "backend/tests/test_planning_history.py",
-        "backend/tests/test_chapter_history_context.py"
+        "backend/tests/test_chapter_history_context.py",
+        "backend/tests/test_planning_editorial_source.py",
+        "backend/tests/test_chapter_editorial_source.py"
       ],
       "runtime_report": "2026-10-18-chapter9-final-and-focused-review.md",
       "evidence_boundary": "当前保留真实 1 Bible、7 版本 Brief、StoryState v1/v2，最新合格 Brief 驱动已定稿 v9",
@@ -295,7 +297,8 @@
       "done": false,
       "final_requirement_by_requirement_audit_complete": false,
       "additional_verification_reports": [
-        "2026-10-19-final-history-context.md"
+        "2026-10-19-final-history-context.md",
+        "2026-10-19-planning-editorial-direction.md"
       ]
     },
     {
@@ -319,7 +322,9 @@
         "frontend/tests/chapter-generation-contract.test.tsx",
         "backend/tests/test_chapter_execution_integrity.py",
         "backend/tests/test_planning_history.py",
-        "backend/tests/test_chapter_history_context.py"
+        "backend/tests/test_chapter_history_context.py",
+        "backend/tests/test_planning_editorial_source.py",
+        "backend/tests/test_chapter_editorial_source.py"
       ],
       "runtime_report": "2026-10-18-chapter9-final-and-focused-review.md",
       "evidence_boundary": "真实 9 个章节版本；最终 v9 1591 汉字、独立内容审核合格，旧 8 版本和 9 Artifact 不变",
@@ -328,7 +333,8 @@
       "final_requirement_by_requirement_audit_complete": false,
       "additional_verification_reports": [
         "2026-10-19-chapter-final-provenance.md",
-        "2026-10-19-final-history-context.md"
+        "2026-10-19-final-history-context.md",
+        "2026-10-19-planning-editorial-direction.md"
       ]
     },
     {
@@ -353,7 +359,9 @@
         "frontend/tests/chapter-review-contract.test.tsx",
         "backend/tests/test_chapter_execution_integrity.py",
         "backend/tests/test_planning_history.py",
-        "backend/tests/test_chapter_history_context.py"
+        "backend/tests/test_chapter_history_context.py",
+        "backend/tests/test_planning_editorial_source.py",
+        "backend/tests/test_chapter_editorial_source.py"
       ],
       "runtime_report": "2026-10-18-chapter9-final-and-focused-review.md",
       "evidence_boundary": "实际 UI 退修→真实 DeepSeek→v9 合格→批准/定稿成功；routine 自动 pass 目前为受控浏览器/契约证据",
@@ -362,7 +370,8 @@
       "final_requirement_by_requirement_audit_complete": false,
       "additional_verification_reports": [
         "2026-10-19-chapter-final-provenance.md",
-        "2026-10-19-final-history-context.md"
+        "2026-10-19-final-history-context.md",
+        "2026-10-19-planning-editorial-direction.md"
       ]
     }
   ],
@@ -406,28 +415,29 @@
     "evidence_as_of": "Read-only verification before the single deliberate trace repair; historical running trace finding below is now resolved"
   },
   "current_backend_coverage": {
-    "covered_lines": 4236,
-    "num_statements": 4414,
-    "percent_covered": 94.33321415802645,
-    "percent_covered_display": "94.33",
+    "covered_lines": 4240,
+    "num_statements": 4418,
+    "percent_covered": 94.34332619557459,
+    "percent_covered_display": "94.34",
     "missing_lines": 178,
     "excluded_lines": 11,
-    "percent_statements_covered": 95.96737652922519,
+    "percent_statements_covered": 95.97102761430511,
     "percent_statements_covered_display": "95.97",
-    "num_branches": 1180,
+    "num_branches": 1186,
     "num_partial_branches": 129,
-    "covered_branches": 1041,
+    "covered_branches": 1047,
     "missing_branches": 139,
-    "percent_branches_covered": 88.22033898305085,
-    "percent_branches_covered_display": "88.22"
+    "percent_branches_covered": 88.27993254637437,
+    "percent_branches_covered_display": "88.28"
   },
-  "current_backend_offline_passed": 734,
+  "current_backend_offline_passed": 746,
   "frontend_tests": "343 at unchanged frontend tree; not rerun for backend test/report-only changes",
   "frontend_whole_source_four_metrics": "94.69% statement / 97.14% line / 94.69% function / 95.11% branch; unchanged source evidence from prior exact tree",
   "open_priorities": [
     "Meaningful tests for all remaining applicable project metrics to 100%; no exclusions or lowered gates",
     "Bounded genuine-model routine auto-pass event under actual policy, preserving existing locked chapter",
-    "Complete final per-criterion acceptance and exact-head CI/review audit before Done"
+    "Complete final per-criterion acceptance and exact-head CI/review audit before Done",
+    "Retained real planner payoff still exceeds requested 1–2 sentences; independent acceptance remains false. Existing authorization used1/max4 model requests, remaining3; no replacement paid output or chapter phase started."
   ],
   "no_issue_done_merge_or_deploy": true,
   "current_trace_recovery": {
@@ -479,6 +489,16 @@
       "finding": "Planning-only runtime lacked ChapterVersions reader; extra planning GET exceeded existing remote-read budgets",
       "status": "Actual build_runtime composition is covered for configured and missing table; same-invocation verified snapshot reuse preserves original request budgets",
       "report": "2026-10-19-final-history-context.md"
+    },
+    {
+      "finding": "Original full planning direction could be lost after a five-field summary",
+      "status": "Same eligible source read, complete direction and origin request fingerprint frozen; Writer/Critic/Rewrite receive the full contract, including 4000-character boundary",
+      "report": "2026-10-19-planning-editorial-direction.md"
+    },
+    {
+      "finding": "A generic snapshot could relabel itself as legacy and bypass new direction validation",
+      "status": "Run definition independently stores planning request fingerprint; tampered source/downgrade stops before any model; genuine old completed context remains readable",
+      "report": "2026-10-19-planning-editorial-direction.md"
     }
   ],
   "current_model_provenance": {
@@ -570,7 +590,7 @@
         "StorageProvider.delete"
       ]
     ],
-    "definition": "Named coverage.py functions with executable statements; entered iff body has covered lines. This independent entry diagnostic is not a whole-project four-metric 100% claim."
+    "scope": "Independent named function entry diagnostic, not a whole-project four-metric 100% claim."
   },
   "current_chapter_provenance": {
     "report": "2026-10-19-chapter-final-provenance.md",
@@ -761,5 +781,125 @@
       "scheduler_started": false,
       "process_terminal": true
     }
-  }
+  },
+  "current_planning_editorial_direction": {
+    "report": "2026-10-19-planning-editorial-direction.md",
+    "new_behavioral_cases": 12,
+    "branch_tests": [
+      617,
+      690,
+      746
+    ],
+    "original_direction_source_fixed": true,
+    "new_readonly_real_compatibility": {
+      "status": "verified_read_only",
+      "started_at": 1792413592.677257,
+      "source": {
+        "commit": "bef2e38470475794ba09f2a281a96a8399ce9b74",
+        "path": "/tmp/novelops-direction-full-source-bef2e384",
+        "app_tree": "88b2cf4d2300fedeb016e38c45b232f4346e789c",
+        "backend_tree": "8579181ff98d15ad6d564ae635bf44acc18a76bb",
+        "frontend_tree": "5d1da703d2d9709d195bfe4e900e05038adcf7fd",
+        "offline_tests": 746
+      },
+      "model_requests": 0,
+      "mutations": 0,
+      "operations": [
+        "auth",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read"
+      ],
+      "baseline_exact_before": 417,
+      "original_direction_codepoints": 791,
+      "retained_plan_id": "AR-11a8ad64ab21daaa4dd2d426d5fd09e6",
+      "retained_plan_content_hash": "c8cf18922173b4fc97924a129348c5b69d0ff01aa3f66833ec7e5e6f369dd702",
+      "legacy_final_run_id": "PR-a59c70f4418847e7959102df3dd71193",
+      "legacy_final_artifact_id": "AR-0c61d88046756776efee02df8c35e1d2",
+      "legacy_final_content_hash": "af94593f0881cbde71593f462d40e42668c5ef627ddff9491436e50195bfe819",
+      "legacy_selected_version": 9,
+      "baseline_exact_after": 417,
+      "prior_final_artifact_id": "AR-0c61d88046756776efee02df8c35e1d2",
+      "prior_final_content_hash": "af94593f0881cbde71593f462d40e42668c5ef627ddff9491436e50195bfe819",
+      "prior_final_version": 9,
+      "operation_counts": {
+        "auth": 1,
+        "read": 72
+      },
+      "finished_at": 1792413774.8020742,
+      "scheduler_running": false
+    },
+    "new_model_requests": 0,
+    "new_record_mutations": 0
+  },
+  "latest_retained_rows_verified": 417
 }
