@@ -632,6 +632,8 @@ class ChapterLoopService:
             raise AmbiguousWrite("Pass decision selected a rewritten version")
         if decision == "revise" and selected["version"] != self._number(req, True):
             raise AmbiguousWrite("Revision decision did not select a rewritten version")
+        if decision == "reject":
+            raise AmbiguousWrite("Rejected chapter did not select its verified candidate")
         version_id = stable_id("CV-", self._logical(req, "versions") + "/" + str(selected["version"]))
         row = self.kernel.storage.get("chapter_versions", version_id)
         if not row or row["artifact_id"] != selected_id:

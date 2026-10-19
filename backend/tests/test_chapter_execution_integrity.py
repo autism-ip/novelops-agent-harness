@@ -164,7 +164,7 @@ def test_final_verification_replay_is_read_only_with_rewrites_disabled(chapter):
     assert provider.calls == calls
 
 
-@pytest.mark.parametrize("fault", ["changed_verification", "pass_selected_rewrite", "revise_selected_original"])
+@pytest.mark.parametrize("fault", ["changed_verification", "pass_selected_rewrite", "revise_selected_original", "reject_selected_rewrite"])
 def test_final_verification_checks_evidence_and_critic_selection_before_promotion(chapter, fault):
     from app.generation import digest
     from app.harness import PermanentStepFailure
@@ -194,8 +194,10 @@ def test_final_verification_checks_evidence_and_critic_selection_before_promotio
             payload["content"]["checks"]["prose_length"] = False
             expected, detail = PermanentStepFailure, None
         else:
-            payload["content"] = critique()
-            expected, detail = AmbiguousWrite, "Pass decision selected a rewritten version"
+            payload["content"] = critique("reject" if fault == "reject_selected_rewrite" else "pass")
+            expected = AmbiguousWrite
+            detail = ("Rejected chapter did not select its verified candidate" if fault == "reject_selected_rewrite"
+                      else "Pass decision selected a rewritten version")
         payload["content_hash"] = digest(payload["content"])
         kernel.storage.update("artifacts", artifact_id, {"payload_json": encode(payload)})
     transport = transport_of(kernel)
