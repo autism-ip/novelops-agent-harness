@@ -298,3 +298,43 @@ def test_planning_snapshot_cannot_drop_the_prior_final_reference(history):
     settle(kernel, 2)
     assert kernel.story_planning.read(run["pipeline_run_id"])["eligible"] is True
     assert provider.calls == [*calls, "chapter_planner"]
+
+
+@pytest.mark.parametrize('configured', [False, True])
+def test_planning_only_runtime_has_its_own_canonical_history_reader(history, monkeypatch, configured):
+    from app.config import Settings
+    from app.feishu.table_map import FIELD_MAPS
+    from app.runtime import build_runtime
+
+    original, provider, book_id = history
+    row, artifact = seed_final(original, book_id)
+    client = original.storage._repos['artifacts']._client
+    transport = client._http._transport.handler
+    monkeypatch.setattr('app.runtime.FeishuClient', lambda *args, **kwargs: client)
+    tables = {'FEISHU_TABLE_ID_' + name.upper(): name for name in FIELD_MAPS}
+    if not configured:
+        tables['FEISHU_TABLE_ID_CHAPTER_VERSIONS'] = ''
+    settings = Settings(_env_file=None, BACKEND_API_KEY='test', FEISHU_APP_ID='fixture-app',
+        FEISHU_APP_SECRET='fixture-secret', FEISHU_APP_TOKEN='app', HARNESS_ENABLED=True, GENERATION_ENABLED=True,
+        HOTSPOTS_ENABLED=True, RESEARCH_ENABLED=True, CREATIVE_ENABLED=True, BOOKS_ENABLED=True,
+        STORY_PLANNING_ENABLED=True, OPENAI_API_KEY='unused-fixture', DEEPSEEK_API_KEY='unused-fixture',
+        MODEL_ROUTES_JSON=json.dumps({name: route.model_dump() for name, route in original.model_router.routes.items()}),
+        **tables)
+    calls, offset = list(provider.calls), len(transport.calls)
+    if not configured:
+        with pytest.raises(ValueError, match='chapter_versions'):
+            build_runtime(settings)
+        assert provider.calls == calls
+        return
+    runtime, remote = build_runtime(settings)
+    try:
+        assert not getattr(runtime, 'chapter_loop', None)
+        result = runtime.story_planning.prior_final_chapters(book_id, 2)
+        assert result[0]['version_id'] == row['version_id']
+        assert result[0]['content'] == artifact['content']
+        assert any(r.url.path.endswith('/chapter_versions/records') for r in transport.calls[offset:])
+        assert_read_only(transport, offset)
+        assert provider.calls == calls
+    finally:
+        runtime.model_router.close()
+        remote._http.close()

@@ -42,7 +42,7 @@ def build_runtime(settings):
             names += ("title_candidates", "cover_plans")
         if settings.BOOKS_ENABLED:
             names += ("books", "story_states")
-        if settings.CHAPTER_LOOP_ENABLED:
+        if settings.STORY_PLANNING_ENABLED:
             names += ("chapter_versions",)
         repositories = {name: BaseRepository(client, config.app_token, config.get_table_id(name), FIELD_MAPS[name])
                         for name in names}
