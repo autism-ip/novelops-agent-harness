@@ -37,3 +37,20 @@ Writer v4, Critic v4 and Rewrite v5 opt in to the validated internal editor_inst
 The chapter-specific snapshot now carries the planning snapshot's `prior_final_chapters`, bounded to the nearest earlier final ChapterVersion. It retains that final's exact Artifact reference and full validated prose. The deterministic context builder includes the same historical Artifact in source refs. Before each model/service step, the service compares this frozen history and ordered references against the current eligible planning snapshot; missing or changed historical context stops before a new model call. A newly finalized earlier chapter invalidates an older brief and queued chapter run rather than silently replacing their context.
 
 Writer v5, Critic v6 and Rewrite v7 treat prior final prose as completed narrative history and source data, never instructions. They must preserve completed events and irreversible costs. This adds no model role or unconditional pass. Existing prompt/configuration hashes continue to prevent silent execution upgrades of frozen old runs. Legacy completed contexts without history remain readable when their actual planning snapshot also has no historical context; paid outputs are not backfilled or regenerated.
+
+### Complete original editorial direction
+
+Context v3 freezes the complete original planning direction, its exact request
+fingerprint, and the originating planning run ID. The chapter run definition also
+stores that fingerprint. Every semantic step checks both sources before invoking
+a model; changing a new snapshot's version label cannot downgrade the contract.
+Writer v6, Critic v7, and Rewrite v8 receive the same complete direction, including
+the supported 4000-character limit. Canonical rules lead, followed by explicit
+revision constraints, the original direction, and the five-field plan. Formatting
+requirements for planning fields retain their planning-only scope.
+
+The eligible-brief read supplies the originating request and verified snapshot in
+the same invocation. Existing remote-read budgets remain intact. Completed legacy
+contexts remain readable; their immutable contents are retained. Queued execution
+continues to require its frozen model/prompt configuration. Existing paid briefs
+and chapter versions are preserved.
