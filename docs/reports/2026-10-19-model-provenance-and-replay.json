@@ -1,0 +1,260 @@
+{
+  "date": "2026-10-19 Asia/Shanghai",
+  "issue": "ZEN-106",
+  "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/25",
+  "whole_goal_complete": false,
+  "requirement_events_achieved": [
+    "New direct model Artifact and output link use this exact confirmed attempt, not a history heuristic",
+    "Exact replay reconciles a failed output-link write after Artifact commit without another model request",
+    "Current-code real DeepSeek + native kernel + real Feishu completed and replayed one synthetic output",
+    "All 403 prior owned records unchanged; all 100 old Artifact public read shapes unchanged"
+  ],
+  "implementation_commits": [
+    "69ecdd667ef961b6ff7d464f26c70ba42f70a865",
+    "e197955c24d0f801efdd0d9ef103c8a08e293d13"
+  ],
+  "native_source_commit": "76deb6a46ed83977203fa66a8b5d6d1de105e5e3",
+  "native_app_tree": "3706af27cdd90cbe7a160765ead20a0f519c7cf6",
+  "owner_and_native_methods_same_sha256": {
+    "ModelRouter.generate_recorded": "92ab09b955bfc936b78f6d9b76c6455f3369c12606b72922a861b2adf3d5ecf8",
+    "TraceRecorder.link_artifact": "006623b2256863ce33b29a599d8e943e48ed437197e63383519a4cc06f8b3203",
+    "SemanticRuntime.execute": "36af8eb94d049e90c11bfcfc661412f6b8ae6aae376152629a455cd785f11a13"
+  },
+  "native_evidence": {
+    "status": "fresh_persisted_snapshot_and_provider_response_independently_verified",
+    "native_process_exit_code": 0,
+    "source_commit": "76deb6a46ed83977203fa66a8b5d6d1de105e5e3",
+    "baseline_rows_unchanged": 403,
+    "legacy_artifact_read_shapes_unchanged": 100,
+    "new_rows_retained": 5,
+    "total_owned_records_retained": 408,
+    "model_requests": 1,
+    "model_http_status": 200,
+    "model_returned": "deepseek-flash",
+    "model_tokens": {
+      "input_tokens": 147,
+      "output_tokens": 8,
+      "estimated_cost": 5.3700000000000004e-05,
+      "cost_status": "estimated"
+    },
+    "artifact_content_sha256": "7085a6b0c6dde093a8a5b74339023ad9ad6a6f1989af75c18c6e96860313bbeb",
+    "artifact_payload_sha256": "8a0dbe413b922112ac89d5abbe1cd7def66a4b40e5f9eeae7ccd6061ce2b57a4",
+    "raw_provider_response_sha256": "a5471ef8b9e60f588bec751d2ed6baa317d4fae33792950373b125009bd4fbe3",
+    "direct_current_trace_id_confirmed": true,
+    "semantic_history_scans": 0,
+    "exact_replays_additional_model_requests": 0,
+    "exact_replays_additional_writes": 0,
+    "scheduler_running_after_exit": false,
+    "runtime_seconds": 248.716
+  },
+  "native_http_operations": {
+    "auth": 1,
+    "read": 213,
+    "owned_write": 13
+  },
+  "route_config": {
+    "provider": "deepseek",
+    "model": "deepseek-flash",
+    "max_retries": 0,
+    "timeout": 20.0,
+    "max_output_tokens": 128,
+    "deepseek_thinking": "disabled",
+    "input_cost_per_million": 0.3,
+    "output_cost_per_million": 1.2
+  },
+  "no_new_tables_or_base_columns": true,
+  "metadata_schema": {
+    "new_direct_model_field": "model_trace_id",
+    "default_omitted": true,
+    "legacy_read_shape_preserved": true,
+    "legacy_trace_backfill": false,
+    "old_strict_reader_cannot_read_new_field": true
+  },
+  "regressions": {
+    "new_cases": 40,
+    "original_red": [
+      "Missing history selected configured alias instead of returned model",
+      "Stale history selected old model and overwrote old trace output refs",
+      "Artifact commit followed by link failure replayed without repairing the link"
+    ],
+    "coverage_ignores_added": false,
+    "assertions_or_gates_weakened": false,
+    "boundary": "Actual shared runtime/router/client/repository code with controlled provider/Feishu HTTP responses; native integration uses real services"
+  },
+  "branch_verification": [
+    {
+      "pr": 25,
+      "branch": "codex/zen-106-model-artifacts",
+      "code_head": "e197955",
+      "offline_passed": 432
+    },
+    {
+      "pr": 27,
+      "branch": "codex/zen-33-hotspot-ingestion",
+      "head": "03806f1b6417563d809da032c3ab420bc6901b80",
+      "frontend_tree_unchanged": true,
+      "generation_statement_line_branch": "100%",
+      "tests": "passed",
+      "ruff": "passed",
+      "offline_passed": 480
+    },
+    {
+      "pr": 28,
+      "branch": "codex/zen-34-hotspots-page",
+      "head": "699a3d7c91bca7eda5f106921ad9e26beb521bfa",
+      "frontend_tree_unchanged": true,
+      "generation_statement_line_branch": "100%",
+      "tests": "passed",
+      "ruff": "passed",
+      "offline_passed": 489
+    },
+    {
+      "pr": 29,
+      "branch": "codex/zen-35-opportunity-research",
+      "head": "bd3759c7eeafadb11d1266e3786ed829a51a103d",
+      "frontend_tree_unchanged": true,
+      "generation_statement_line_branch": "100%",
+      "tests": "passed",
+      "ruff": "passed",
+      "offline_passed": 529
+    },
+    {
+      "pr": 30,
+      "branch": "codex/zen-36-title-cover",
+      "head": "a277030b8b9fefbe07170f8e0e1fd5ae2e106064",
+      "frontend_tree_unchanged": true,
+      "generation_statement_line_branch": "100%",
+      "tests": "passed",
+      "ruff": "passed",
+      "offline_passed": 557
+    },
+    {
+      "pr": 31,
+      "branch": "codex/zen-37-approval-ui",
+      "head": "7fa65138ce0122d058301a3aaebed8474ea3a243",
+      "frontend_tree_unchanged": true,
+      "generation_statement_line_branch": "100%",
+      "tests": "passed",
+      "ruff": "passed",
+      "offline_passed": 557
+    },
+    {
+      "pr": 32,
+      "branch": "codex/zen-38-book-bootstrap",
+      "head": "cfcf095c31618e2121aecf15a5bce41552447c7f",
+      "frontend_tree_unchanged": true,
+      "generation_statement_line_branch": "100%",
+      "tests": "passed",
+      "ruff": "passed",
+      "offline_passed": 565
+    },
+    {
+      "pr": 34,
+      "branch": "codex/zen-107-ios-design",
+      "head": "0ea0d8a5031f960635f1f1702355dc4347640293",
+      "frontend_tree_unchanged": true,
+      "generation_statement_line_branch": "100%",
+      "tests": "passed",
+      "ruff": "passed",
+      "offline_passed": 565
+    },
+    {
+      "pr": 35,
+      "branch": "codex/zen-39-story-planning",
+      "head": "2d1bb7c9a8133899928df31a5fe73d6060ed832c",
+      "frontend_tree_unchanged": true,
+      "generation_statement_line_branch": "100%",
+      "tests": "passed",
+      "ruff": "passed",
+      "offline_passed": 581
+    },
+    {
+      "pr": 36,
+      "branch": "codex/zen-40-chapter-loop",
+      "head": "01f6f7c012ed8674cb0b22a5b8e7f7b506b347e5",
+      "frontend_tree_unchanged": true,
+      "generation_statement_line_branch": "100%",
+      "tests": "passed",
+      "ruff": "passed",
+      "offline_passed": 607
+    },
+    {
+      "pr": 37,
+      "branch": "codex/zen-41-chapter-review-desk",
+      "code_head": "76deb6a46ed83977203fa66a8b5d6d1de105e5e3",
+      "offline_passed": 663
+    }
+  ],
+  "generation_module_coverage": {
+    "covered_lines": 313,
+    "num_statements": 313,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100.00",
+    "missing_lines": 0,
+    "excluded_lines": 3,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100.00",
+    "num_branches": 80,
+    "num_partial_branches": 0,
+    "covered_branches": 80,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100.00"
+  },
+  "generation_implemented_function_coverage": {
+    "covered": 26,
+    "total": 26,
+    "scope": "Named executable source functions; one Protocol declaration and adjacent blank lines retain the same 3 default Coverage.py exclusions as before"
+  },
+  "owner_backend_coverage": {
+    "covered_lines": 1974,
+    "num_statements": 2050,
+    "percent_covered": 95.30516431924883,
+    "percent_covered_display": "95.31",
+    "missing_lines": 76,
+    "excluded_lines": 11,
+    "percent_statements_covered": 96.29268292682927,
+    "percent_statements_covered_display": "96.29",
+    "num_branches": 506,
+    "num_partial_branches": 40,
+    "covered_branches": 462,
+    "missing_branches": 44,
+    "percent_branches_covered": 91.30434782608695,
+    "percent_branches_covered_display": "91.30"
+  },
+  "full_backend_coverage": {
+    "covered_lines": 4147,
+    "num_statements": 4342,
+    "percent_covered": 93.75227686703097,
+    "percent_covered_display": "93.75",
+    "missing_lines": 195,
+    "excluded_lines": 11,
+    "percent_statements_covered": 95.50898203592814,
+    "percent_statements_covered_display": "95.51",
+    "num_branches": 1148,
+    "num_partial_branches": 136,
+    "covered_branches": 1000,
+    "missing_branches": 148,
+    "percent_branches_covered": 87.10801393728222,
+    "percent_branches_covered_display": "87.11"
+  },
+  "whole_app_function_coverage_independently_remeasured": false,
+  "offline_eval_comparison": {
+    "same_fixture_hash": "f4a307cfe485a3871b7fb16c5b598e57dcab07f6d715be19c48a62e69fb07792",
+    "same_outputs_metrics_usage_prices_and_attempts": true,
+    "only_uncompared_field": "measured latency_ms",
+    "real_model_calls": 0
+  },
+  "frontend": "Source tree unchanged; prior same-tree 343 tests/four metrics not rerun locally",
+  "failures_preserved": [
+    "Inspected merge conflict on existing creator keyword/body; kept creator and model_trace_id, then reran each branch gate"
+  ],
+  "remaining": [
+    "Whole-project applicable statement/line/function/branch 100%",
+    "Actual routine chapter automatic-pass event",
+    "Final per-criterion acceptance audit for all 13 original issues",
+    "Final current-head CI/review after publication"
+  ],
+  "no_pr_merge_to_main_deploy_or_issue_done": true,
+  "skill_assessment": "Reused issue-pr-delivery; existing same-command reconciliation guidance applies. Stable acknowledged references and replayable output links are reusable; no new generic skill needed."
+}
