@@ -38,7 +38,7 @@
 
 - plan：状态 `native_history_plan_verified_after_deterministic_resume`，原 408 条逐字段不变，新增 9 条证据保留；1 次真实请求，精确重放新增模型/写入 0/0。读取/写入计数、响应哈希与实际usage见JSON。服务终止，scheduler停止。
 
-合计 1 次请求，模型0重试；确定性service恢复1次，已知保留 417 条；本轮没有新采集，原第1章v9及50条真实公开热点保留。routine自动通过观测为 **False**，独立内容审查与模型Critic结论分别记录在JSON。
+合计 1 次请求，模型0重试；确定性service恢复1次，已知保留 417 条；本轮没有新采集，原第1章v9及50条真实公开热点保留。routine自动通过观测为 **False**，独立规划审查未通过；未调用Writer/Critic，不能声称真实routine事件已达成。
 
 规划组件另补2项实际 build_runtime 回归，证明仅启用规划也注册 ChapterVersions 读取仓库，缺失表配置启动即失败；审核分支另外保留 RevisionTasks。只读预检使用较早完整源码，但其 story_planning.py 与最终冻结源码逐字节相同；真实 native 事件使用最终完整源码，不将组件相同推断为全部运行时相同。
 
