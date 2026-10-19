@@ -1,0 +1,467 @@
+{
+  "date": "2026-10-19",
+  "goal_complete": false,
+  "issues": [
+    "ZEN-39",
+    "ZEN-40",
+    "ZEN-41"
+  ],
+  "prs": [
+    "https://github.com/autism-ip/novelops-agent-harness/pull/35",
+    "https://github.com/autism-ip/novelops-agent-harness/pull/36",
+    "https://github.com/autism-ip/novelops-agent-harness/pull/37"
+  ],
+  "requirement_event": "Preserve the original authorized writing requirements through versioned chapter context and every Writer/Critic/Rewrite invocation even when a five-field plan summarizes them.",
+  "findings_closed": [
+    {
+      "finding": "Original planning direction was lost after a summarized brief, including the explicit prose Han-count target.",
+      "reproduction": "Two pass/revise behavior regressions failed against frozen 585edb31; two origin-reader regressions failed before the PR35 interface change.",
+      "resolution": "Read eligible Brief, exact original request and verified snapshot in one invocation; freeze complete direction, planning run ID and request digest in chapter context v3 and request digest in run definition."
+    },
+    {
+      "finding": "Relabeling a self-consistent new snapshot as v2 could bypass new direction checks.",
+      "reproduction": "One downgrade regression failed before the run fingerprint was added.",
+      "resolution": "New run metadata independently requires the exact originating planning request; deleting fields or changing version labels does not permit a model call."
+    }
+  ],
+  "implementation": [
+    "Internal source read preserves public response/Artifact shapes and caller-local changes never persist.",
+    "Writer v6, Critic v7, Rewrite v8 receive the same complete original direction, up to the existing 4000-character bound.",
+    "Canonical rules precede explicit revision constraints, original planning direction, then the five-field plan. Planning field formatting keeps its plan-only scope.",
+    "Same-invocation source reuse avoids extra remote reads; original round-trip budgets remain unchanged.",
+    "Completed legacy context remains readable; paid outputs are retained. Frozen prompt/route configuration still gates queued execution."
+  ],
+  "new_cases": {
+    "planning_source": 2,
+    "chapter_roles_integrity_limits_legacy": 10,
+    "total": 12,
+    "core_services_mocked": false,
+    "boundary": "Stateful Feishu HTTP and model responses controlled; actual client/repos/storage/ModelRouter/ArtifactStore/kernel/domain services run. Legacy-shape test is a boundary fixture, with separate real retained-data compatibility below."
+  },
+  "gates": [
+    {
+      "pr": 35,
+      "branch": "codex/zen-39-story-planning",
+      "source_commit": "2961dbe443e8adab7da902592fca6cb58050ae5c",
+      "app_tree": "4981daaa11d5f855189e996fb2fe1cc732ad73f6",
+      "frontend_tree": "d66ed69f208a22a065740d5e50c7c4f46b169bd7",
+      "offline_passed": 617,
+      "integration_deselected": 10,
+      "existing_warnings": 1,
+      "ruff": "passed",
+      "totals": {
+        "covered_lines": 3531,
+        "num_statements": 3678,
+        "percent_covered": 94.53125,
+        "percent_covered_display": "94.53",
+        "missing_lines": 147,
+        "excluded_lines": 11,
+        "percent_statements_covered": 96.00326264274062,
+        "percent_statements_covered_display": "96.00",
+        "num_branches": 930,
+        "num_partial_branches": 99,
+        "covered_branches": 825,
+        "missing_branches": 105,
+        "percent_branches_covered": 88.70967741935483,
+        "percent_branches_covered_display": "88.71"
+      },
+      "named_executable_function_entries": {
+        "covered": 347,
+        "total": 353,
+        "unentered": [
+          [
+            "app/api/deps.py",
+            "get_settings"
+          ],
+          [
+            "app/api/routes/health.py",
+            "health"
+          ],
+          [
+            "app/api/routes/health.py",
+            "status"
+          ],
+          [
+            "app/api/routes/workflows.py",
+            "decision"
+          ],
+          [
+            "app/feishu/repositories/story_states.py",
+            "StoryStatesRepo.find_by_book"
+          ],
+          [
+            "app/pipeline/worker.py",
+            "WorkerLoop._resolve_record_id"
+          ]
+        ],
+        "zero_executable_statement_declarations": [
+          [
+            "app/generation.py",
+            "ModelProvider.complete"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get_many"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.list"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.ensure"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.update"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.delete"
+          ]
+        ],
+        "scope": "Independent named function entry diagnostic, not a whole-project four-metric 100% claim."
+      }
+    },
+    {
+      "pr": 36,
+      "branch": "codex/zen-40-chapter-loop",
+      "source_commit": "d0acbc34b9eab4fd106793532d273c4eac746630",
+      "app_tree": "1d35af63c897f4d8dfdb1bfcbee8621b5287c9d9",
+      "frontend_tree": "684a63431603401a9eee9282681cd982e19a8a24",
+      "offline_passed": 690,
+      "integration_deselected": 10,
+      "existing_warnings": 1,
+      "ruff": "passed",
+      "totals": {
+        "covered_lines": 4009,
+        "num_statements": 4199,
+        "percent_covered": 93.76775904527372,
+        "percent_covered_display": "93.77",
+        "missing_lines": 190,
+        "excluded_lines": 11,
+        "percent_statements_covered": 95.47511312217195,
+        "percent_statements_covered_display": "95.48",
+        "num_branches": 1080,
+        "num_partial_branches": 131,
+        "covered_branches": 941,
+        "missing_branches": 139,
+        "percent_branches_covered": 87.12962962962963,
+        "percent_branches_covered_display": "87.13"
+      },
+      "named_executable_function_entries": {
+        "covered": 388,
+        "total": 397,
+        "unentered": [
+          [
+            "app/api/deps.py",
+            "get_settings"
+          ],
+          [
+            "app/api/routes/chapter_loop.py",
+            "versions"
+          ],
+          [
+            "app/api/routes/chapter_loop.py",
+            "read"
+          ],
+          [
+            "app/api/routes/chapter_loop.py",
+            "lock_final"
+          ],
+          [
+            "app/api/routes/health.py",
+            "health"
+          ],
+          [
+            "app/api/routes/health.py",
+            "status"
+          ],
+          [
+            "app/api/routes/workflows.py",
+            "decision"
+          ],
+          [
+            "app/feishu/repositories/story_states.py",
+            "StoryStatesRepo.find_by_book"
+          ],
+          [
+            "app/pipeline/worker.py",
+            "WorkerLoop._resolve_record_id"
+          ]
+        ],
+        "zero_executable_statement_declarations": [
+          [
+            "app/generation.py",
+            "ModelProvider.complete"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get_many"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.list"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.ensure"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.update"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.delete"
+          ]
+        ],
+        "scope": "Independent named function entry diagnostic, not a whole-project four-metric 100% claim."
+      }
+    },
+    {
+      "pr": 37,
+      "branch": "codex/zen-41-chapter-review-desk",
+      "source_commit": "bef2e38470475794ba09f2a281a96a8399ce9b74",
+      "app_tree": "88b2cf4d2300fedeb016e38c45b232f4346e789c",
+      "frontend_tree": "5d1da703d2d9709d195bfe4e900e05038adcf7fd",
+      "offline_passed": 746,
+      "integration_deselected": 10,
+      "existing_warnings": 1,
+      "ruff": "passed",
+      "totals": {
+        "covered_lines": 4240,
+        "num_statements": 4418,
+        "percent_covered": 94.34332619557459,
+        "percent_covered_display": "94.34",
+        "missing_lines": 178,
+        "excluded_lines": 11,
+        "percent_statements_covered": 95.97102761430511,
+        "percent_statements_covered_display": "95.97",
+        "num_branches": 1186,
+        "num_partial_branches": 129,
+        "covered_branches": 1047,
+        "missing_branches": 139,
+        "percent_branches_covered": 88.27993254637437,
+        "percent_branches_covered_display": "88.28"
+      },
+      "named_executable_function_entries": {
+        "covered": 403,
+        "total": 408,
+        "unentered": [
+          [
+            "app/api/deps.py",
+            "get_settings"
+          ],
+          [
+            "app/api/routes/health.py",
+            "health"
+          ],
+          [
+            "app/api/routes/health.py",
+            "status"
+          ],
+          [
+            "app/feishu/repositories/story_states.py",
+            "StoryStatesRepo.find_by_book"
+          ],
+          [
+            "app/pipeline/worker.py",
+            "WorkerLoop._resolve_record_id"
+          ]
+        ],
+        "zero_executable_statement_declarations": [
+          [
+            "app/generation.py",
+            "ModelProvider.complete"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get_many"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.list"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.ensure"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.update"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.delete"
+          ]
+        ],
+        "scope": "Independent named function entry diagnostic, not a whole-project four-metric 100% claim."
+      }
+    }
+  ],
+  "formal_gate": "Original configured fail_under 87.81558726673984; pytest -m not-integration (actual quoted expression: not integration) --cov=app --cov-branch --cov-report=json --cov-report=term -q. No overrides/config/ignores/assertions/budget changes.",
+  "real_readonly_compatibility": {
+    "status": "verified_read_only",
+    "started_at": 1792413592.677257,
+    "source": {
+      "commit": "bef2e38470475794ba09f2a281a96a8399ce9b74",
+      "path": "/tmp/novelops-direction-full-source-bef2e384",
+      "app_tree": "88b2cf4d2300fedeb016e38c45b232f4346e789c",
+      "backend_tree": "8579181ff98d15ad6d564ae635bf44acc18a76bb",
+      "frontend_tree": "5d1da703d2d9709d195bfe4e900e05038adcf7fd",
+      "offline_tests": 746
+    },
+    "model_requests": 0,
+    "mutations": 0,
+    "operations": [
+      "auth",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read",
+      "read"
+    ],
+    "baseline_exact_before": 417,
+    "original_direction_codepoints": 791,
+    "retained_plan_id": "AR-11a8ad64ab21daaa4dd2d426d5fd09e6",
+    "retained_plan_content_hash": "c8cf18922173b4fc97924a129348c5b69d0ff01aa3f66833ec7e5e6f369dd702",
+    "legacy_final_run_id": "PR-a59c70f4418847e7959102df3dd71193",
+    "legacy_final_artifact_id": "AR-0c61d88046756776efee02df8c35e1d2",
+    "legacy_final_content_hash": "af94593f0881cbde71593f462d40e42668c5ef627ddff9491436e50195bfe819",
+    "legacy_selected_version": 9,
+    "baseline_exact_after": 417,
+    "prior_final_artifact_id": "AR-0c61d88046756776efee02df8c35e1d2",
+    "prior_final_content_hash": "af94593f0881cbde71593f462d40e42668c5ef627ddff9491436e50195bfe819",
+    "prior_final_version": 9,
+    "operation_counts": {
+      "auth": 1,
+      "read": 72
+    },
+    "finished_at": 1792413774.8020742,
+    "scheduler_running": false
+  },
+  "new_real_model_requests_this_fix": 0,
+  "new_external_record_mutations_this_fix": 0,
+  "previous_native_plan": {
+    "source_commit": "585edb312cff2721ff424a57c52279aea099514a",
+    "requests": 1,
+    "input_tokens": 6452,
+    "output_tokens": 366,
+    "model_retries": 0,
+    "same_run_deterministic_service_recovery": 1,
+    "retained_new_records": 9,
+    "known_retained_records": 417,
+    "independent_editorial_acceptance": false,
+    "reason": "Payoff has three sentences instead of requested one or two; original paid output retained.",
+    "report": "2026-10-19-final-history-context.md"
+  },
+  "frontend": {
+    "unchanged": true,
+    "root_tree": "5d1da703d2d9709d195bfe4e900e05038adcf7fd",
+    "local_tests_not_rerun": true,
+    "prior_same_tree_tests": 343,
+    "prior_same_tree_statement_line_function_branch": [
+      94.69,
+      97.14,
+      94.69,
+      95.11
+    ]
+  },
+  "review": {
+    "previous_published_heads": "All 13 exact heads had latest push/PR CI success and no new/unresolved feedback before this follow-up.",
+    "current_heads": "Recheck refs, CI and every review source after publishing new heads."
+  },
+  "limits": [
+    "Full project S/L/F/B 100% and final 13-issue / 61-criterion audit remain incomplete.",
+    "Real revised-code Writer/Critic/Rewrite quality and routine automatic pass are not proven; only one real Planner request has occurred.",
+    "Original paid plan has not passed its sentence-format acceptance; no forced pass or replacement generation.",
+    "Read-only compatibility proves actual retained data can be consumed, not scheduler throughput or full new model execution.",
+    "No production SLA, original outage root-cause or actual billing assertion."
+  ],
+  "skill_assessment": {
+    "reused": "issue-pr-delivery, TDD, existing immutable-source and bounded-runtime workflows",
+    "new_skill_needed": false,
+    "reason": "Existing source freezing, same-command reconciliation, editorial constraint propagation and boundary-regression workflows cover this defect; no new generic tool abstraction."
+  },
+  "no_main_merge_deploy_or_done": true
+}
