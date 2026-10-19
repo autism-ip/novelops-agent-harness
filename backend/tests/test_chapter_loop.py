@@ -102,7 +102,7 @@ def test_model_echoed_nested_ids_cannot_change_chapter_provenance(chapter):
     assert raw["content"]["brief_artifact_id"] == "AR-nested-brief"
     assert bound_draft["source_refs"][:2] == [snapshot, request["brief_artifact_id"]]
     assert bound_draft["creator"] == "chapter-source-binder"
-    assert view["versions"][0]["prompt_version"] == "chapter-writer-v5"
+    assert view["versions"][0]["prompt_version"] == "chapter-writer-v6"
 
 
 def test_actionable_critique_rewrites_once_and_preserves_versions(chapter):
@@ -116,7 +116,7 @@ def test_actionable_critique_rewrites_once_and_preserves_versions(chapter):
     assert view["selected"]["version"] == 2
     assert view["selected"]["content"]["snapshot_artifact_id"] == snapshot
     assert view["selected"]["content"]["brief_artifact_id"] == request["brief_artifact_id"]
-    assert view["versions"][1]["prompt_version"] == "chapter-rewrite-v7"
+    assert view["versions"][1]["prompt_version"] == "chapter-rewrite-v8"
     assert [row["version_no"] for row in view["versions"]] == [1, 2]
     assert [row["status"] for row in view["versions"]] == ["candidate", "review"]
     assert view["versions"][0]["review_report_id"] == view["critique"]["artifact_id"]
@@ -352,7 +352,7 @@ def test_latest_chapter_read_returns_one_run_and_lightweight_version_history(cha
 def test_critic_prompt_defines_negative_dimensions_as_quality_scores():
     from app.chapter_loop import CRITIC_PROMPT, Critique
 
-    assert CRITIC_PROMPT.version == "chapter-critic-v6"
+    assert CRITIC_PROMPT.version == "chapter-critic-v7"
     assert "5 means the defect is absent or minimal" in CRITIC_PROMPT.template
     assert "0 means severe repetition or obvious AI-like patterns" in CRITIC_PROMPT.template
     poor = critique()
