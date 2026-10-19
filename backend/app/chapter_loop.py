@@ -351,7 +351,8 @@ class ChapterLoopService:
     def _live(self, run: dict, manifest: dict) -> tuple[dict, dict]:
         req = manifest["request"]
         state = self.kernel.books.context_provider.get(req["book_id"])["state"]
-        brief = self.kernel.story_planning.eligible_brief(req["book_id"], req["chapter_no"])
+        brief, planning = self.kernel.story_planning.eligible_brief(
+            req["book_id"], req["chapter_no"], _with_snapshot=True)
         runs = self._runs(req["book_id"], req["chapter_no"])
         if (state["artifact_id"] != req["state_artifact_id"] or state["version"] != req["state_version"] or
             state["content_hash"] != manifest["state_hash"] or
@@ -365,7 +366,6 @@ class ChapterLoopService:
             snapshot["content"]["state_artifact_id"] != state["artifact_id"] or
             snapshot["content"]["brief_artifact_id"] != brief["artifact_id"]):
             raise AmbiguousWrite("Chapter snapshot provenance changed")
-        planning = self.kernel.artifacts.get(brief["content"]["snapshot_artifact_id"])
         history = planning["content"].get("prior_final_chapters", [])
         prefix = [state["artifact_id"], planning["content"]["bible_artifact_id"], brief["artifact_id"],
                   planning["artifact_id"], *(item["artifact_id"] for item in history)]
