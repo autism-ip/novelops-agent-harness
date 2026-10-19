@@ -651,11 +651,13 @@
         "ZEN-39",
         "ZEN-40",
         "ZEN-41"
-      ]
+      ],
+      "resolved_by_follow_up": "Complete original direction and source fingerprint propagation; 617/690/746 branch gates and real 417-row read-only compatibility; previous runtime source unchanged."
     },
     {
       "finding": "Real Planner payoff has three sentences while the explicit probe requested one or two per field.",
       "status": "Independent editorial acceptance does not pass; actual paid output retained without editing or replacement."
     }
-  ]
+  ],
+  "follow_up_report": "2026-10-19-planning-editorial-direction.md"
 }
