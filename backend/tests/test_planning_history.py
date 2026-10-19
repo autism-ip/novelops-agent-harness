@@ -67,6 +67,9 @@ def test_planner_freezes_prior_final_content_and_exact_artifact_reference(histor
     inputs = json.loads(provider.messages[-1][1]["content"])
     assert inputs["snapshot"]["prior_final_chapters"] == previous
     assert view["eligible"] is True and view["artifact"]["source_refs"][0] == snapshot["artifact_id"]
+    eligible, frozen = kernel.story_planning.eligible_brief(book_id, 2, _with_snapshot=True)
+    assert eligible == view["artifact"] and frozen == snapshot
+    assert "snapshot" not in view and "_with_snapshot" not in view
     assert kernel.storage.get("chapter_versions", row["version_id"]) == row
     assert kernel.artifacts.get(artifact["artifact_id"]) == artifact
 
