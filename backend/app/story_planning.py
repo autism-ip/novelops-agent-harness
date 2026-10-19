@@ -510,7 +510,7 @@ class StoryPlanningService:
             creator="chapter-brief-materializer")
         return {"output_refs": [artifact["artifact_id"]]}
 
-    def read(self, run_id: str) -> dict:
+    def read(self, run_id: str, *, _with_snapshot: bool = False):
         with self.kernel.writer:
             run = self.kernel.get(run_id)
             kind, manifest = self._manifest(run)
@@ -535,10 +535,11 @@ class StoryPlanningService:
             gate = next((s for s in run["steps"] if s["step_key"] == "review"), None)
             decision = (self.kernel.storage.get("approval_events", stable_id("AP-", gate["step_run_id"] + "/" + str(gate["output_version"])))
                         if gate and gate.get("output_version") else None)
-            return {"run": run, "kind": kind, "request": req, "artifact": artifact,
+            result = {"run": run, "kind": kind, "request": req, "artifact": artifact,
                     "snapshot_artifact_id": manifest.get("snapshot_id", ""),
                     "decision": decision, "current": current,
                     "eligible": kind == "brief" and run["status"] == "completed" and current and artifact is not None}
+            return (result, snapshot) if _with_snapshot else result
 
     def list_bibles(self, book_id: str) -> list[dict]:
         with self.kernel.writer:
@@ -548,10 +549,16 @@ class StoryPlanningService:
         with self.kernel.writer:
             return [self.read(row["pipeline_run_id"]) for row in reversed(self._runs("brief", book_id, chapter_no))]
 
-    def eligible_brief(self, book_id: str, chapter_no: int) -> dict:
+    def eligible_brief(self, book_id: str, chapter_no: int, *, _with_snapshot: bool = False):
         with self.kernel.writer:
             rows = self._runs("brief", book_id, chapter_no)
-            latest = self.read(rows[-1]["pipeline_run_id"]) if rows else None
+            latest = snapshot = None
+            if rows:
+                if _with_snapshot:
+                    latest, snapshot = self.read(rows[-1]["pipeline_run_id"], _with_snapshot=True)
+                else:
+                    latest = self.read(rows[-1]["pipeline_run_id"])
             if latest is None or not latest["eligible"]:
                 raise TransitionConflict("No current policy-eligible ChapterBrief")
-            return latest["artifact"]
+            # Share only this invocation's freshly verified immutable snapshot.
+            return (latest["artifact"], snapshot) if _with_snapshot else latest["artifact"]
