@@ -140,3 +140,76 @@ def test_final_selection_validates_domain_provenance_not_only_content_hash(chapt
     assert result["run"]["status"] in {"completed", "awaiting_approval"}
     assert result["selected"] == json.loads(original["payload_json"])
     assert len(result["versions"]) == 1 and provider.calls == calls
+
+
+def test_final_verification_replay_is_read_only_with_rewrites_disabled(chapter):
+    from app.chapter_loop import ChapterLoopService
+
+    kernel, provider, book_id = chapter
+    kernel.chapter_loop = ChapterLoopService(kernel, max_rewrites=0)
+    run_id, request, snapshot = start(kernel, book_id)
+    provider.outputs.extend([draft(snapshot, request["brief_artifact_id"]), critique()])
+    settle(kernel, 5)
+    view = kernel.chapter_loop.read(run_id)
+    assert view["run"]["status"] == "completed" and len(view["versions"]) == 1
+    original = kernel.storage.get("chapter_versions", view["versions"][0]["version_id"])
+    final = next(s for s in view["run"]["steps"] if s["step_key"] == "final_verify")
+    transport = transport_of(kernel)
+    offset, calls = len(transport.calls), list(provider.calls)
+    with kernel.writer:
+        replay = kernel.chapter_loop.final_verify(final)
+    assert replay == json.loads(final["output_json"])
+    assert_reads_only(transport, offset)
+    assert kernel.storage.get("chapter_versions", original["version_id"]) == original
+    assert provider.calls == calls
+
+
+@pytest.mark.parametrize("fault", ["changed_verification", "pass_selected_rewrite", "revise_selected_original"])
+def test_final_verification_checks_evidence_and_critic_selection_before_promotion(chapter, fault):
+    from app.generation import digest
+    from app.harness import PermanentStepFailure
+
+    kernel, provider, book_id = chapter
+    run_id, request, snapshot = start(kernel, book_id)
+    provider.outputs.extend([draft(snapshot, request["brief_artifact_id"]), critique("revise"),
+                             draft(snapshot, request["brief_artifact_id"], prose="Mira asked her neighbors to repair the gate together. " * 8)])
+    settle(kernel, 4)
+    run = kernel.get(run_id)
+    versions = kernel.storage.list("chapter_versions", book_id=book_id)
+    assert len(versions) == 2 and all(row["status"] == "candidate" for row in versions)
+    rewrite = next(s for s in run["steps"] if s["step_key"] == "rewrite")
+    final = next(s for s in run["steps"] if s["step_key"] == "final_verify")
+    selected = kernel.artifacts.get(json.loads(rewrite["output_json"])["output_refs"][0])
+    if fault == "revise_selected_original":
+        original = min(versions, key=lambda row: row["version_no"])
+        kernel.storage.update("step_runs", rewrite["step_run_id"],
+                              {"output_json": encode({"output_refs": [original["artifact_id"]]})})
+        expected, detail = AmbiguousWrite, "Revision decision did not select a rewritten version"
+    else:
+        artifact_id = selected["content"]["verification_artifact_id"] if fault == "changed_verification" else next(
+            row["review_report_id"] for row in versions if row.get("review_report_id"))
+        original = kernel.storage.get("artifacts", artifact_id)
+        payload = json.loads(original["payload_json"])
+        if fault == "changed_verification":
+            payload["content"]["checks"]["prose_length"] = False
+            expected, detail = PermanentStepFailure, None
+        else:
+            payload["content"] = critique()
+            expected, detail = AmbiguousWrite, "Pass decision selected a rewritten version"
+        payload["content_hash"] = digest(payload["content"])
+        kernel.storage.update("artifacts", artifact_id, {"payload_json": encode(payload)})
+    transport = transport_of(kernel)
+    offset, calls = len(transport.calls), list(provider.calls)
+    with kernel.writer, pytest.raises(expected, match=detail):
+        kernel.chapter_loop.final_verify(final)
+    assert_reads_only(transport, offset)
+    assert kernel.storage.list("chapter_versions", book_id=book_id) == versions
+    assert provider.calls == calls
+    if fault == "revise_selected_original":
+        kernel.storage.update("step_runs", rewrite["step_run_id"], {"output_json": rewrite["output_json"]})
+    else:
+        kernel.storage.update("artifacts", artifact_id, {"payload_json": original["payload_json"]})
+    settle(kernel, 1)
+    result = kernel.chapter_loop.read(run_id)
+    assert result["run"]["status"] == "completed" and result["selected"] == selected
+    assert len(result["versions"]) == 2 and provider.calls == calls
