@@ -549,16 +549,18 @@ class StoryPlanningService:
         with self.kernel.writer:
             return [self.read(row["pipeline_run_id"]) for row in reversed(self._runs("brief", book_id, chapter_no))]
 
-    def eligible_brief(self, book_id: str, chapter_no: int, *, _with_snapshot: bool = False):
+    def eligible_brief(self, book_id: str, chapter_no: int, *, _with_snapshot: bool = False, _with_source: bool = False):
         with self.kernel.writer:
             rows = self._runs("brief", book_id, chapter_no)
             latest = snapshot = None
             if rows:
-                if _with_snapshot:
+                if _with_snapshot or _with_source:
                     latest, snapshot = self.read(rows[-1]["pipeline_run_id"], _with_snapshot=True)
                 else:
                     latest = self.read(rows[-1]["pipeline_run_id"])
             if latest is None or not latest["eligible"]:
                 raise TransitionConflict("No current policy-eligible ChapterBrief")
             # Share only this invocation's freshly verified immutable snapshot.
+            if _with_source:
+                return latest["artifact"], snapshot, latest["request"]
             return (latest["artifact"], snapshot) if _with_snapshot else latest["artifact"]
