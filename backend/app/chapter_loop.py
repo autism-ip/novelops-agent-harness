@@ -605,7 +605,22 @@ class ChapterLoopService:
                 pass
         if selected_id not in expected_ids or selected["artifact_type"] != "ChapterVersion":
             raise AmbiguousWrite("Final selection does not belong to the chapter run")
-        draft = self.kernel.artifacts.get(selected["source_refs"][2])
+        # A generic Artifact hash proves payload consistency, not authority to
+        # promote this chapter. Validate its frozen domain identity before using
+        # positional source references or changing the review projection.
+        refs, content = selected["source_refs"], selected["content"]
+        expected_content = {key: req[key] for key in (
+            "book_id", "chapter_no", "state_artifact_id", "state_version", "source_version_id")}
+        expected_content.update(version_no=selected["version"], snapshot_artifact_id=snapshot["artifact_id"],
+                                brief_artifact_id=brief["artifact_id"])
+        if (len(refs) != 4 or refs[:2] != [snapshot["artifact_id"], brief["artifact_id"]] or
+            refs[-1] != content.get("verification_artifact_id") or
+            any(type(content.get(key)) is not type(value) or content.get(key) != value
+                for key, value in expected_content.items()) or
+            selected["run_id"] != run["pipeline_run_id"] or
+            selected["chapter_id"] != f'{req["book_id"]}/{req["chapter_no"]}'):
+            raise AmbiguousWrite("Final ChapterVersion provenance changed")
+        draft = self.kernel.artifacts.get(refs[2])
         checked = self._verify(draft, snapshot, brief)
         verification = self.kernel.artifacts.get(selected["content"]["verification_artifact_id"])
         if (not checked["passed"] or selected["content"]["verification_artifact_id"] not in selected["source_refs"] or
