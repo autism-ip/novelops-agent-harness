@@ -42,3 +42,5 @@ test_model_instructions.py: 两家 provider 的显式用户指令、空指令、
 test_runtime_dotenv_tables.py: 五项启动配置行为门禁；文件/进程优先级、完整表注册、配置实例隔离、显式空配置不回退环境和旧接口兼容；合成凭据、无远程API调用。
 
 test_harness_kernel.py: 慢外部handler执行期间列表/详情仍可读取真实running状态；并发新命令仍等待单一writer，保留既有重启、版本审批和模糊写入行为门禁。
+
+test_harness_boundaries.py: 审批身份、严格版本、重复操作者与外部审批证据损坏的行为门禁；真实API/Kernel/存储映射，验证拒绝后无写入、恢复原证据和精确重放。

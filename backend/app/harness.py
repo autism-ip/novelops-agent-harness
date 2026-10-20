@@ -90,6 +90,9 @@ RUN_TRANSITIONS = {
 }
 
 
+APPROVAL_ACTIONS = {"approve", "reject", "revise"}
+
+
 class HarnessKernel:
     def __init__(self, storage: StorageProvider, *, journal_dir: Path,
                  poll_interval: float = 1, max_retries: int = 3):
@@ -338,10 +341,23 @@ class HarnessKernel:
                 self._refresh_parent(run_id)
                 return
 
+    @staticmethod
+    def _validate_approval_event(event, step_id, version):
+        identity = {"target_type": "step_run", "target_id": step_id, "target_version": version}
+        action, operator = event.get("action"), event.get("operator")
+        if (any(event.get(key) != value for key, value in identity.items()) or
+            not isinstance(action, str) or action not in APPROVAL_ACTIONS or
+            not isinstance(operator, str) or not operator.strip()):
+            raise AmbiguousWrite("Stored approval identity is unreadable or changed")
+
     def decide(self, step_id, action, expected_version, operator, *, reason=""):
         with self.writer:
-            if action not in {"approve", "reject", "revise"}:
+            if action not in APPROVAL_ACTIONS:
                 raise ValueError("Unsupported decision")
+            if type(expected_version) is not int or expected_version < 1:
+                raise ValueError("Expected version must be a positive integer")
+            if not isinstance(operator, str) or not operator.strip():
+                raise ValueError("Operator is required")
             reason = reason.strip()
             if action == "revise" and not reason:
                 raise ValueError("Revision reason is required")
@@ -352,7 +368,10 @@ class HarnessKernel:
                 raise TransitionConflict("Stale output version")
             approval_id = stable_id("AP-", step_id + "/" + str(expected_version))
             previous = self.storage.get("approval_events", approval_id)
-            if previous and (previous["action"] != action or previous.get("reason", "") != reason):
+            if previous:
+                self._validate_approval_event(previous, step_id, expected_version)
+            if previous and (previous["action"] != action or previous.get("operator") != operator or
+                             previous.get("reason", "") != reason):
                 raise TransitionConflict("This version already has a different decision")
             target = "success" if action == "approve" else "failed"
             if previous and step["status"] == target:
@@ -424,6 +443,7 @@ class HarnessKernel:
                         aid = stable_id("AP-", sid + "/" + str(step["output_version"]))
                         decision = self.storage.get("approval_events", aid)
                         if decision:
+                            self._validate_approval_event(decision, sid, step["output_version"])
                             self.decide(sid, decision["action"], step["output_version"], decision["operator"],
                                         reason=decision.get("reason", ""))
                 self._refresh_parent(run_id)
