@@ -277,6 +277,8 @@ class HarnessKernel:
         with self.writer:
             if action not in {"approve", "reject"}:
                 raise ValueError("Unsupported decision")
+            if not isinstance(operator, str) or not operator.strip():
+                raise ValueError("Operator is required")
             step = self.storage.get("step_runs", step_id)
             if step is None:
                 raise MissingRecord(step_id)
@@ -284,7 +286,7 @@ class HarnessKernel:
                 raise TransitionConflict("Stale output version")
             approval_id = stable_id("AP-", step_id + "/" + str(expected_version))
             previous = self.storage.get("approval_events", approval_id)
-            if previous and previous["action"] != action:
+            if previous and (previous["action"] != action or previous.get("operator") != operator):
                 raise TransitionConflict("This version already has a different decision")
             target = "success" if action == "approve" else "failed"
             if previous and step["status"] == target:
