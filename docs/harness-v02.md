@@ -62,10 +62,18 @@ outcome is unknown. Exhausted retries fail the parent. Persistence failures afte
 handler success stop the scheduler instead of immediately re-running the tool.
 Restart then uses the same stable handler identity and reconciliation contract.
 
-Approvals use exact output versions. Persist a stable ApprovalEvent before
-transitioning the step; startup finishes an interrupted approved transition.
-Repeated identical decisions are idempotent; opposite/stale decisions return
-409. Routine steps continue automatically; only configured gates wait.
+Approvals require a positive JSON integer output version and a nonblank textual
+operator label. The label is audit metadata under the existing API-key boundary;
+it does not establish an authenticated user identity. Persist a stable
+ApprovalEvent before transitioning the step; startup finishes an interrupted
+approved transition. Repeated identical decisions, including the original
+operator, are idempotent; changed operator/action or stale versions return 409.
+Before replay or recovery, verify the stored event targets this exact StepRun
+and version and contains a supported action and nonblank operator. Missing or
+changed durable identity requires reconciliation (503); do not settle the step
+or replace the event. After external evidence is restored, the same decision can
+resume without another approval event or handler execution. Routine steps
+continue automatically; only configured gates wait.
 
 ## Compatibility and ownership
 
