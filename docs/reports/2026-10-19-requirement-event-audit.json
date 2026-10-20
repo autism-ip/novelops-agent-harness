@@ -35,7 +35,32 @@
       "evidence_boundary": "真实应用 CRUD/批读；v3 部分为用户身份；模糊写入故障为受控传输",
       "remaining_or_limits": "平台极限和生产 ACL 不作保证；保留单 writer；全项目覆盖率尚缺",
       "done": false,
-      "final_requirement_by_requirement_audit_complete": false
+      "final_requirement_by_requirement_audit_complete": false,
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/21",
+      "github_updated_at": "2026-09-27T12:29:32Z",
+      "github_body_sha256": "31f1084c6e7565c3741bd054e4dc176142e4672b23fe8590d90956b44e462949",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "Domain-ID/record-ID mismatch tests cover read/update/delete, completion/failure, and rollback; missing/duplicate business keys fail explicitly.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "A create committed remotely before a simulated timeout is reconciled without a second blind POST.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Record measured CRUD/PATCH availability, pagination, batch behavior, history, rate/conflict handling, payload limits, and recovery for representative v0.2 records.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Add transport/provider contract tests and a clearly gated live feasibility suite; distinguish mocks, skipped live checks, and measured results.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Document additive schema rollout/backfill/rollback and legacy snapshot compatibility without introducing a second primary database.",
+          "final_independent_verification": "pending"
+        }
+      ]
     },
     {
       "issue": "ZEN-104",
@@ -63,6 +88,31 @@
       "final_requirement_by_requirement_audit_complete": false,
       "additional_runtime_reports": [
         "2026-10-19-interrupted-trace-recovery.md"
+      ],
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/20",
+      "github_updated_at": "2026-09-27T12:29:36Z",
+      "github_body_sha256": "4312b437d58bf757b8d76908173ff5cbb62f681472b8f06162533f2ad9a68b9b",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "Starting the documented service runs an enqueued deterministic mock/tool workflow without manual `poll_once` calls; shutdown stops cleanly.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Concurrent API actions and scheduler ticks use one writer and enforce valid transitions; approvals are idempotent and version-aware.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Restart before/after persistence, partial run creation, exhausted retries, and tool failures recover or stop with explicit state.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "With domain IDs different from Feishu record IDs, all pipeline/step read/update/rollback paths target the correct records.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Integration tests exercise the real composition boundary, not only repositories replaced by permissive mocks.",
+          "final_independent_verification": "pending"
+        }
       ]
     },
     {
@@ -93,6 +143,31 @@
       "additional_runtime_reports": [
         "2026-10-19-interrupted-trace-recovery.md",
         "2026-10-19-model-provenance-and-replay.md"
+      ],
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/22",
+      "github_updated_at": "2026-09-27T12:29:27Z",
+      "github_body_sha256": "dd274317caed92cd5109dcf659faa42c308ed231857fcbf70b7136fe81714bea",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "DeepSeek and OpenAI adapters satisfy one contract, including valid output, schema failure, provider failure, retry, and missing configuration.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Artifact metadata records immutable version/source/hash/run/prompt references and survives retry without accidental overwrite.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Usage queries aggregate attempts per run and chapter; mark estimated or unavailable costs explicitly rather than treating missing usage as zero.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Fixed fixtures compare at least two route/prompt/workflow configurations with machine-readable quality/cost/latency results.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Trace APIs expose deterministic tool calls and model calls with failure classes and correlation IDs; sensitive credentials are excluded.",
+          "final_independent_verification": "pending"
+        }
       ]
     },
     {
@@ -118,7 +193,28 @@
       "evidence_boundary": "真实匿名采集一次；真实应用持久化；已保存批次重放 50 reconciled、0 新增/更新，403 记录不变",
       "remaining_or_limits": "工具/模式/模糊网络故障为受控测试；更晚真实捕获的元数据更新尚未实测",
       "done": false,
-      "final_requirement_by_requirement_audit_complete": false
+      "final_requirement_by_requirement_audit_complete": false,
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/6",
+      "github_updated_at": "2026-09-27T12:30:16Z",
+      "github_body_sha256": "7be488b1ec1e0175b8d8a9a2294de073f5c3cb101b31f673657d5e22913576fe",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "Replaying the same batch, including after a restart or a committed-but-timed-out create, produces no duplicate hotspots.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Inject timeout, nonzero exit, invalid JSON, malformed records, and storage failure; StepRun/trace exposes the outcome and recovery is bounded.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "A controlled 30–50-record fixture exercises fetch → normalization → persistence → API read. A live source returning fewer records is reported accurately rather than padded.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Report fetched/accepted/rejected/deduplicated counts and keep source provenance; repeated requests use stable business keys.",
+          "final_independent_verification": "pending"
+        }
+      ]
     },
     {
       "issue": "ZEN-34",
@@ -143,7 +239,28 @@
       "evidence_boundary": "真实浏览器到飞书 50 条；桌面/390px 详情与分页通过；手动/丢弃恢复另有受控端到端",
       "remaining_or_limits": "十秒提交超时仍可能发生，当前按保留命令恢复；不重新写真实公开数据来重复演示丢弃",
       "done": false,
-      "final_requirement_by_requirement_audit_complete": false
+      "final_requirement_by_requirement_audit_complete": false,
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/7",
+      "github_updated_at": "2026-09-27T12:30:12Z",
+      "github_body_sha256": "1f63d2aa28a3a6bc5aa77339565e83c73dc47d34dd8b13024149fda5d4794f4e",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "Empty, loading, filtered, failed, and successful views behave correctly using actual backend payloads.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Manual add/discard persist through the backend and are reflected after refresh; repeated clicks do not create duplicate work.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Fetch/analyze shows a run ID, changing status, and actionable failure details.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Protected operations use the existing session/proxy flow; backend/provider credentials never enter browser configuration.",
+          "final_independent_verification": "pending"
+        }
+      ]
     },
     {
       "issue": "ZEN-35",
@@ -167,7 +284,28 @@
       "evidence_boundary": "保留的真实 DeepSeek/飞书机会和 risk/risk_review；真实 risk_gate 与 selection 已批准",
       "remaining_or_limits": "低风险自动继续与坏输出验证有受控测试，未把它们称为重复真实质量统计",
       "done": false,
-      "final_requirement_by_requirement_audit_complete": false
+      "final_requirement_by_requirement_audit_complete": false,
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/8",
+      "github_updated_at": "2026-09-27T12:30:08Z",
+      "github_body_sha256": "89918503fde54d7c21abe14ea0a4bafc695b4d99274b34f24cc2e421cd06df02",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "Fixture-driven valid, invalid, high-risk, and ambiguous model outputs exercise validation, bounded repair, failure recording, and approval routing.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Repeated execution retains source-hotspot references and creates deliberate artifact versions without duplicate approval events.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Model/provider failures are traceable and cannot silently advance the workflow.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "A selected hotspot can be analyzed through the authenticated API and returned to the product screen.",
+          "final_independent_verification": "pending"
+        }
+      ]
     },
     {
       "issue": "ZEN-36",
@@ -192,7 +330,28 @@
       "evidence_boundary": "当前保留真实 20 TitleCandidate、5 CoverPlan；对应两流程 completed、选择门 success",
       "remaining_or_limits": "标题市场效果/长期模型质量不由数量或 schema 保证；去重/错误为受控测试",
       "done": false,
-      "final_requirement_by_requirement_audit_complete": false
+      "final_requirement_by_requirement_audit_complete": false,
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/9",
+      "github_updated_at": "2026-09-27T12:30:04Z",
+      "github_body_sha256": "356d2c59f814a9ca2ef960e6afa1748eff81fa4da8a1c7d34334ee93f15bc171",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "Validate at least 10 distinct title candidates and at least 3 cover directions for a selected title, with bounded handling of insufficient/invalid model output.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Re-generation preserves prior versions and their approval decisions.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Stale or rejected source artifacts cannot unblock book bootstrap.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Backend responses expose stable business IDs, source versions, and trace references required by the UI.",
+          "final_independent_verification": "pending"
+        }
+      ]
     },
     {
       "issue": "ZEN-37",
@@ -217,7 +376,28 @@
       "evidence_boundary": "真实批准和已选来源解锁现存 Book；未知响应/精确重放有真实与受控证据，边界见原报告",
       "remaining_or_limits": "变更选择/失败存储覆盖按各报告 source；未把每种 UI 错误都当真实飞书故障",
       "done": false,
-      "final_requirement_by_requirement_audit_complete": false
+      "final_requirement_by_requirement_audit_complete": false,
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/10",
+      "github_updated_at": "2026-09-27T12:29:59Z",
+      "github_body_sha256": "b1bc76610a197f015313de6537ddb34d7a7625cd2617894949da48c5257cfba3",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "End-to-end opportunity approval unlocks generation, and selecting eligible title/cover versions enables bootstrap.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Repeated submission is idempotent; stale-version/conflicting decisions are rejected and explained.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Loading, empty, authentication failure, backend failure, and regeneration states are visible.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Content comparison and decisions are primary; model/trace details are secondary.",
+          "final_independent_verification": "pending"
+        }
+      ]
     },
     {
       "issue": "ZEN-38",
@@ -235,13 +415,38 @@
       ],
       "tests": [
         "backend/tests/test_book_bootstrap.py",
-        "frontend/tests/book-bootstrap-contract.test.tsx"
+        "frontend/tests/book-bootstrap-contract.test.tsx",
+        "backend/tests/test_book_context_integrity.py"
       ],
       "runtime_report": "2026-09-28-book-bootstrap.md",
       "evidence_boundary": "当前真实 ready Book，保留 StoryState v1/v2 和源 refs；恢复/外部变化有受控 E2E",
       "remaining_or_limits": "不创建独立记忆 Agent；当前运行仍依赖完整 Base schema 和单 writer",
       "done": false,
-      "final_requirement_by_requirement_audit_complete": false
+      "final_requirement_by_requirement_audit_complete": false,
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/11",
+      "github_updated_at": "2026-09-27T12:29:52Z",
+      "github_body_sha256": "dc79faa729ed98107064b108f985f586485a21b04475ae147bcfcce5e16b867a",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "Repeated bootstrap or an interrupted create recovers one Book and one intended initial state version through a stable business key.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Reject missing/stale/unapproved inputs before committing canonical state.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Book and StoryState can be read by business IDs and displayed with source/version references.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Failed partial initialization is reconciled without silently losing provenance or overwriting historical state.",
+          "final_independent_verification": "pending"
+        }
+      ],
+      "additional_verification_reports": [
+        "2026-10-20-book-context-boundaries.md"
+      ]
     },
     {
       "issue": "ZEN-107",
@@ -267,7 +472,11 @@
       "evidence_boundary": "历史核心热点→审批→书籍受控全链路；新增真实入库、真实 v9 批准定稿；全部路由分次桌面/手机验收",
       "remaining_or_limits": "不是一次当前完整回放的录像；业务树无更改的测试/报告同步不触发重复视觉微调",
       "done": false,
-      "final_requirement_by_requirement_audit_complete": false
+      "final_requirement_by_requirement_audit_complete": false,
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/33",
+      "github_updated_at": "2026-09-28T15:20:33Z",
+      "github_body_sha256": "e18ab8c469632a0f64279b285a8af90cd51836d8c979fad5753b191e446ffe8e",
+      "github_additional_acceptance_checks": []
     },
     {
       "issue": "ZEN-39",
@@ -299,6 +508,27 @@
       "additional_verification_reports": [
         "2026-10-19-final-history-context.md",
         "2026-10-19-planning-editorial-direction.md"
+      ],
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/12",
+      "github_updated_at": "2026-09-27T12:29:48Z",
+      "github_body_sha256": "9985aae9121091f948abd786d302e472d4f9f789970d841c40c949d077dc5a86",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "Invalid patches, unknown references, and stale base versions cannot mutate canonical StoryState.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Initial Bible and major direction changes wait for approval; policy-eligible routine briefs proceed.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Every brief and snapshot can resolve the exact input state/artifact versions after later state changes.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Regeneration creates new versions and retains prior Bible/brief history.",
+          "final_independent_verification": "pending"
+        }
       ]
     },
     {
@@ -335,6 +565,27 @@
         "2026-10-19-chapter-final-provenance.md",
         "2026-10-19-final-history-context.md",
         "2026-10-19-planning-editorial-direction.md"
+      ],
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/13",
+      "github_updated_at": "2026-09-27T12:29:44Z",
+      "github_body_sha256": "9ba3d2742e8c9a884b3c8fabe4118a2e5744c6d694f64ecf6c81a592d597ec23",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "Generate 1–3 chapters with exact snapshot/source version provenance and per-chapter usage accounting.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Cover pass-without-rewrite, revise, reject, hard-rule failure, provider failure, and rewrite-budget exhaustion.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Each rewrite appends a ChapterVersion; final lock preserves history and rejects stale/conflicting commands.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Restart/retry cannot duplicate the same intended output version or bypass a required human gate.",
+          "final_independent_verification": "pending"
+        }
       ]
     },
     {
@@ -372,6 +623,27 @@
         "2026-10-19-chapter-final-provenance.md",
         "2026-10-19-final-history-context.md",
         "2026-10-19-planning-editorial-direction.md"
+      ],
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/14",
+      "github_updated_at": "2026-09-27T12:29:40Z",
+      "github_body_sha256": "abee7b5b68e96d3ceb23c83a4cf1e8d16d654cf358e5b8a3c1d94453640ec08b",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "Revise creates a task bound to the selected source version and constraints; resulting rewrite appears as a new version.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Approve/reject/regenerate/final-lock refresh persisted state; duplicate clicks and stale-version conflicts are handled.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Final lock leaves every older version accessible and blocks incompatible later mutations.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Routine policy-pass cases can proceed automatically; configured anomalies/gates visibly wait for the user.",
+          "final_independent_verification": "pending"
+        }
       ]
     }
   ],
@@ -415,22 +687,22 @@
     "evidence_as_of": "Read-only verification before the single deliberate trace repair; historical running trace finding below is now resolved"
   },
   "current_backend_coverage": {
-    "covered_lines": 4240,
+    "covered_lines": 4255,
     "num_statements": 4418,
-    "percent_covered": 94.34332619557459,
-    "percent_covered_display": "94.34",
-    "missing_lines": 178,
+    "percent_covered": 94.82512491077802,
+    "percent_covered_display": "94.83",
+    "missing_lines": 163,
     "excluded_lines": 11,
-    "percent_statements_covered": 95.97102761430511,
-    "percent_statements_covered_display": "95.97",
+    "percent_statements_covered": 96.31054775916705,
+    "percent_statements_covered_display": "96.31",
     "num_branches": 1186,
-    "num_partial_branches": 129,
-    "covered_branches": 1047,
-    "missing_branches": 139,
-    "percent_branches_covered": 88.27993254637437,
-    "percent_branches_covered_display": "88.28"
+    "num_partial_branches": 117,
+    "covered_branches": 1059,
+    "missing_branches": 127,
+    "percent_branches_covered": 89.29173693086004,
+    "percent_branches_covered_display": "89.29"
   },
-  "current_backend_offline_passed": 746,
+  "current_backend_offline_passed": 778,
   "frontend_tests": "343 at unchanged frontend tree; not rerun for backend test/report-only changes",
   "frontend_whole_source_four_metrics": "94.69% statement / 97.14% line / 94.69% function / 95.11% branch; unchanged source evidence from prior exact tree",
   "open_priorities": [
@@ -590,7 +862,7 @@
         "StorageProvider.delete"
       ]
     ],
-    "scope": "Independent named function entry diagnostic, not a whole-project four-metric 100% claim."
+    "scope": "Independent named function entry diagnostic; not full-project Function100%."
   },
   "current_chapter_provenance": {
     "report": "2026-10-19-chapter-final-provenance.md",
@@ -901,5 +1173,74 @@
     "new_model_requests": 0,
     "new_record_mutations": 0
   },
-  "latest_retained_rows_verified": 417
+  "latest_retained_rows_verified": 417,
+  "last_updated": "2026-10-20",
+  "current_book_boundary_verification": {
+    "report": "2026-10-20-book-context-boundaries.md",
+    "new_cases": 32,
+    "production_changes": false,
+    "books_module": {
+      "covered_lines": 124,
+      "num_statements": 124,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100.00",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100.00",
+      "num_branches": 36,
+      "num_partial_branches": 0,
+      "covered_branches": 36,
+      "missing_branches": 0,
+      "percent_branches_covered": 100.0,
+      "percent_branches_covered_display": "100.00"
+    },
+    "books_named_entries": {
+      "covered": 9,
+      "total": 9
+    },
+    "diagnostic_correction": {
+      "original_claim_withdrawn": "Boolean true being accepted as canonical version1 was not reproduced.",
+      "actual_failure": "The original test storage.update arrangement failed while decoding/reconciling a malformed numeric echo; the intended canonical-read assertion was never reached. The fake server had accepted the field, so this does not prove prevention or rollback of an external write.",
+      "corrected_check": "Inject malformed external cells into the HTTP fixture, then assert authenticated API503/FeishuAPIError, no exposed canonical content, unchanged rows, zero new model calls and exact recovery after restoration.",
+      "fixture_correction": "Three initial unmatched-source checks saw a lazy empty-table container allocation. Prime existing empty Book/StoryState tables before the baseline; retain whole-state equality and request-level no-write assertions.",
+      "production_fix_needed_for_this_claim": false
+    },
+    "real_runtime_evidence_scope": {
+      "new_real_model_requests": 0,
+      "new_real_feishu_record_mutations": 0,
+      "new_public_collection": 0,
+      "same_full_application_tree_as_previous_real_verification": true,
+      "previous_source": {
+        "commit": "bef2e38470475794ba09f2a281a96a8399ce9b74",
+        "path": "/tmp/novelops-direction-full-source-bef2e384",
+        "app_tree": "88b2cf4d2300fedeb016e38c45b232f4346e789c",
+        "backend_tree": "8579181ff98d15ad6d564ae635bf44acc18a76bb",
+        "frontend_tree": "5d1da703d2d9709d195bfe4e900e05038adcf7fd",
+        "offline_tests": 746
+      },
+      "previous_retained_rows_exact": 417,
+      "previous_readonly_operation_counts": {
+        "auth": 1,
+        "read": 72
+      },
+      "previous_report": "2026-10-19-planning-editorial-direction.md",
+      "meaning": "Production app and frontend trees are unchanged. Reuse historical real-read proof at its stated source/time; this test-only wave does not claim a fresh live Base corruption/recovery run."
+    }
+  },
+  "requirement_inventory": {
+    "linear_original_acceptance_criteria": 61,
+    "github_explicit_additional_checks": 51,
+    "original_issues": 13,
+    "full_scopes_and_user_constraints_still_apply": true,
+    "final_requirement_by_requirement_audit_complete": false,
+    "correction": "Earlier61-count map listed Linear criteria only. Existing51 explicit GitHub checks are now separately itemized; no requirement is replaced or marked completed."
+  },
+  "verification_findings": [
+    {
+      "finding": "Boolean alias diagnosis did not reach the canonical read; setup update failed decoding/reconciling malformed numeric data",
+      "disposition": "Withdrawn as a product defect; corrected HTTP/API evidence verifies existing refusal and exact recovery.",
+      "report": "2026-10-20-book-context-boundaries.md"
+    }
+  ]
 }
