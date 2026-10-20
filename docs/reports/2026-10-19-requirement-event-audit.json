@@ -509,7 +509,8 @@
       "additional_verification_reports": [
         "2026-10-19-final-history-context.md",
         "2026-10-19-planning-editorial-direction.md",
-        "2026-10-20-planning-boundaries.md"
+        "2026-10-20-planning-boundaries.md",
+        "2026-10-20-native-chapter2-format-and-failure.md"
       ],
       "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/12",
       "github_updated_at": "2026-09-27T12:29:48Z",
@@ -531,7 +532,12 @@
           "requirement": "Regeneration creates new versions and retains prior Bible/brief history.",
           "final_independent_verification": "pending"
         }
-      ]
+      ],
+      "latest_native_event_scope": {
+        "report": "2026-10-20-native-chapter2-format-and-failure.md",
+        "source": "c270db45d241e457cc6ba19f07dd3c134381d0af",
+        "actual_outcome": "Newplanningv2 format/continuity accepted;oldv1 retained"
+      }
     },
     {
       "issue": "ZEN-40",
@@ -566,7 +572,8 @@
       "additional_verification_reports": [
         "2026-10-19-chapter-final-provenance.md",
         "2026-10-19-final-history-context.md",
-        "2026-10-19-planning-editorial-direction.md"
+        "2026-10-19-planning-editorial-direction.md",
+        "2026-10-20-native-chapter2-format-and-failure.md"
       ],
       "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/13",
       "github_updated_at": "2026-09-27T12:29:44Z",
@@ -588,7 +595,12 @@
           "requirement": "Restart/retry cannot duplicate the same intended output version or bypass a required human gate.",
           "final_independent_verification": "pending"
         }
-      ]
+      ],
+      "latest_native_event_scope": {
+        "report": "2026-10-20-native-chapter2-format-and-failure.md",
+        "source": "c270db45d241e457cc6ba19f07dd3c134381d0af",
+        "actual_outcome": "Chapter2candidate996Han retained;CriticSchemaFailure;routineFalse;independentproseFalse"
+      }
     },
     {
       "issue": "ZEN-41",
@@ -624,7 +636,8 @@
       "additional_verification_reports": [
         "2026-10-19-chapter-final-provenance.md",
         "2026-10-19-final-history-context.md",
-        "2026-10-19-planning-editorial-direction.md"
+        "2026-10-19-planning-editorial-direction.md",
+        "2026-10-20-native-chapter2-format-and-failure.md"
       ],
       "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/14",
       "github_updated_at": "2026-09-27T12:29:40Z",
@@ -646,7 +659,12 @@
           "requirement": "Routine policy-pass cases can proceed automatically; configured anomalies/gates visibly wait for the user.",
           "final_independent_verification": "pending"
         }
-      ]
+      ],
+      "latest_native_event_scope": {
+        "report": "2026-10-20-native-chapter2-format-and-failure.md",
+        "source": "c270db45d241e457cc6ba19f07dd3c134381d0af",
+        "actual_outcome": "Chapter2candidate996Han retained;CriticSchemaFailure;routineFalse;independentproseFalse"
+      }
     }
   ],
   "current_readonly_integrity": {
@@ -711,7 +729,7 @@
     "Meaningful tests for all remaining applicable project metrics to 100%; no exclusions or lowered gates",
     "Bounded genuine-model routine auto-pass event under actual policy, preserving existing locked chapter",
     "Complete final per-criterion acceptance and exact-head CI/review audit before Done",
-    "Retained real planner payoff still exceeds requested 1–2 sentences; independent acceptance remains false. Existing authorization used1/max4 model requests, remaining3; no replacement paid output or chapter phase started."
+    "New realplanningv2 passesformat;chapter2v1 retained but failsindependentmemory/deadline review;CriticJSONSchemaFailure preventedpass.4/4modelrequests consumed;additionalpaidproposal pendingauthorization."
   ],
   "no_issue_done_merge_or_deploy": true,
   "current_trace_recovery": {
@@ -1175,7 +1193,7 @@
     "new_model_requests": 0,
     "new_record_mutations": 0
   },
-  "latest_retained_rows_verified": 417,
+  "latest_retained_rows_verified": 444,
   "last_updated": "2026-10-20",
   "current_book_boundary_verification": {
     "report": "2026-10-20-book-context-boundaries.md",
@@ -1295,5 +1313,91 @@
       "previous_report": "2026-10-19-planning-editorial-direction.md",
       "meaning": "Historical live data-read evidence remains attributed to its original source/time; HTTP fixture failures are not a new live Base incident/recovery probe."
     }
+  },
+  "current_native_chapter2_acceptance": {
+    "report": "2026-10-20-native-chapter2-format-and-failure.md",
+    "source": {
+      "commit": "c270db45d241e457cc6ba19f07dd3c134381d0af",
+      "path": "/tmp/novelops-planning-boundary-pr37-c270db45",
+      "app_tree": "88b2cf4d2300fedeb016e38c45b232f4346e789c",
+      "published_head": "d221096e378d1299010c63e7c107591d6ddcf8af",
+      "offline_tests": 818
+    },
+    "events": {
+      "plan2_format_and_continuity_accepted": true,
+      "original_direction_native_propagation_verified": true,
+      "chapter2_candidate_written_and_retained": true,
+      "critic_schema_failure_refused": true,
+      "valid_CriticReport_created": false,
+      "routine_pass_observed": false,
+      "independent_prose_accepted": false,
+      "chapter2_approved_or_final_locked": false
+    },
+    "retention": {
+      "authorized_base": "https://fcnaul7kb1kf.feishu.cn/base/T8I6buCMoaiLB6srVBrc9i2jnph",
+      "known_before": 417,
+      "new_plan_rows": 9,
+      "new_chapter_rows": 17,
+      "new_diagnostic_rows": 1,
+      "known_after": 444,
+      "old417_exact_after_plan": true,
+      "old426_exact_after_chapter": true,
+      "old443_exact_after_diagnostic": true,
+      "new_artifact_hashes_independently_recomputed": [
+        {
+          "artifact_id": "AR-b29d0ebe13297c5c07ea84f0ac1fca85",
+          "type": "StoryContextSnapshot",
+          "content_hash": "483f82b5fe2917122d31bf1eb2f70004324c8412eb586ae093712bf7c9246e38"
+        },
+        {
+          "artifact_id": "AR-c53599d350b8b38f96a3981593fc3edc",
+          "type": "ChapterBriefDraft",
+          "content_hash": "35cc47d5afbb1a7e7e6f1176a01cb3dbf503497f2225a3ec94462a1ec9658811"
+        },
+        {
+          "artifact_id": "AR-a7fdbf6b0d5ba9365fc8073e3e92649f",
+          "type": "ChapterBrief",
+          "content_hash": "bc4bc90268870ad3465c54a65aeb49a4a4e0feb8032b615cdac6667e27cdb941"
+        },
+        {
+          "artifact_id": "AR-cfca70d675fd1a40c6fdf7bb664e854f",
+          "type": "StoryContextSnapshot",
+          "content_hash": "1c8ae1ef5830707e652ed1c57082a439c9565e4ddd390dbaab90f9e19d3b2ffe"
+        },
+        {
+          "artifact_id": "AR-1b4faeaf40f70e40c4a12f00cbb25caa",
+          "type": "ChapterModelResponse",
+          "content_hash": "199efa41073d588674dd4a406d1f0d5b47fa55e4528b0c68a8ffe21f77b09d4b"
+        },
+        {
+          "artifact_id": "AR-dbd51b864a2b55a76abae4015eca3d76",
+          "type": "ChapterDraft",
+          "content_hash": "314e996b3c8df992f9803ce6c3c9c2f8603634f5bb256ff0c927a16a92a274f7"
+        },
+        {
+          "artifact_id": "AR-188a355b2a6e60afa48eebaf561443da",
+          "type": "ChapterVerification",
+          "content_hash": "0d07eb0099021088ecb70956e0bf025ad75c83a30495450e68008c9e966d29fe"
+        },
+        {
+          "artifact_id": "AR-8028451c8f17a7d87c190df7b6e50861",
+          "type": "ChapterVersion",
+          "content_hash": "fb9a250aad924ebdbef0657503a63a53c45e84bba9ced1b6db1a534917730046"
+        },
+        {
+          "artifact_id": "AR-205d981f2e957fe26c5c9f07a5db472b",
+          "type": "RejectedModelResponseEvidence",
+          "content_hash": "582af1811fc1f83a948442607aa305d387b1b1a1188fc389ef98dfbfca801326"
+        }
+      ]
+    },
+    "global_model_requests": 4,
+    "global_authorized_max": 4,
+    "remaining_model_requests": 0,
+    "writer_han": 996,
+    "critic_contract_failure": "SchemaFailure:JSONExtraData@column1521",
+    "independent_prose_accepted": false,
+    "all_native_helpers_terminal_scheduler_stopped": true,
+    "new_proposal_authorization_received": false
   }
 }
