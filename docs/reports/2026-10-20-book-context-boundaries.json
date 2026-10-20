@@ -1,0 +1,744 @@
+{
+  "date": "2026-10-20",
+  "goal_complete": false,
+  "issue": "ZEN-38",
+  "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/11",
+  "owning_pr": "https://github.com/autism-ip/novelops-agent-harness/pull/32",
+  "dependent_prs": [
+    34,
+    35,
+    36,
+    37
+  ],
+  "original_requirement_event": "Approved sources bootstrap one Book and one intended canonical StoryState; damaged external evidence refuses canonical output, preserves provenance and can reconcile the same logical operation without new model output.",
+  "production_changes": false,
+  "new_test_cases": 32,
+  "test_scope": {
+    "api_actual_runtime_controlled_http": 28,
+    "service_actual_runtime_controlled_http": 2,
+    "constructor_unit_actual_kernel": 1,
+    "isolated_faulty_collaborator_contract_unit": 1,
+    "core_book_logic_mocked": false,
+    "upstream_mock_scope": "One explicitly isolated test substitutes a deliberately inconsistent Creative.selected_state view. All other31 retain actual business methods. External HTTP/model responses are fixtures; this is not live-platform failure injection."
+  },
+  "events_verified": [
+    "Missing/incomplete/mismatched book or state, corrupt Artifact/refs/hash/schema and malformed numeric cells refuse canonical API output; raw business state unchanged, restoring evidence returns exactly the prior state.",
+    "Wrong approved source request does not reserve a Book or StoryState; corrected original request bootstraps normally without new model calls.",
+    "Partial initialization conflicts preserve records; restoring evidence reconciles the same deterministic command and exact version.",
+    "A stale first absence reconciles the already-ready Book without duplicate create/update.",
+    "A title approval changed between actual HTTP reads stops bootstrap context; restoring prior choice returns the original context.",
+    "One isolated upstream inconsistency contract test verifies the remaining source link guard; it is not an end-to-end claim."
+  ],
+  "diagnostic_correction": {
+    "original_claim_withdrawn": "Boolean true being accepted as canonical version1 was not reproduced.",
+    "actual_failure": "The original test storage.update arrangement failed while decoding/reconciling a malformed numeric echo; the intended canonical-read assertion was never reached. The fake server had accepted the field, so this does not prove prevention or rollback of an external write.",
+    "corrected_check": "Inject malformed external cells into the HTTP fixture, then assert authenticated API503/FeishuAPIError, no exposed canonical content, unchanged rows, zero new model calls and exact recovery after restoration.",
+    "fixture_correction": "Three initial unmatched-source checks saw a lazy empty-table container allocation. Prime existing empty Book/StoryState tables before the baseline; retain whole-state equality and request-level no-write assertions.",
+    "production_fix_needed_for_this_claim": false
+  },
+  "gates": [
+    {
+      "pr": 32,
+      "branch": "codex/zen-38-book-bootstrap",
+      "source_commit": "6f7d9ba36cc26b0f770864e5a0c014053c7b18c8",
+      "path": "/tmp/novelops-book-context-pr32-6f7d9ba3",
+      "app_tree": "9a70e3ab12f92e00a9eef2ab590df7c06ee703ba",
+      "frontend_tree": "7f03c1288009f0c019baa006d4fc1cf6b1db1b1f",
+      "offline_passed": 597,
+      "integration_deselected": 10,
+      "existing_warnings": 1,
+      "ruff": "passed",
+      "totals": {
+        "covered_lines": 3126,
+        "num_statements": 3231,
+        "percent_covered": 95.6532477154853,
+        "percent_covered_display": "95.65",
+        "missing_lines": 105,
+        "excluded_lines": 11,
+        "percent_statements_covered": 96.7502321262767,
+        "percent_statements_covered_display": "96.75",
+        "num_branches": 818,
+        "num_partial_branches": 67,
+        "covered_branches": 747,
+        "missing_branches": 71,
+        "percent_branches_covered": 91.32029339853301,
+        "percent_branches_covered_display": "91.32"
+      },
+      "books_module": {
+        "covered_lines": 122,
+        "num_statements": 122,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 34,
+        "num_partial_branches": 0,
+        "covered_branches": 34,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "canonical_provider": {
+        "covered_lines": 21,
+        "num_statements": 21,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 6,
+        "num_partial_branches": 0,
+        "covered_branches": 6,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "books_named_executable_entries": {
+        "covered": 9,
+        "total": 9
+      },
+      "whole_named_executable_entries": {
+        "covered": 308,
+        "total": 314,
+        "unentered": [
+          [
+            "app/api/deps.py",
+            "get_settings"
+          ],
+          [
+            "app/api/routes/health.py",
+            "health"
+          ],
+          [
+            "app/api/routes/health.py",
+            "status"
+          ],
+          [
+            "app/api/routes/workflows.py",
+            "decision"
+          ],
+          [
+            "app/feishu/repositories/story_states.py",
+            "StoryStatesRepo.find_by_book"
+          ],
+          [
+            "app/pipeline/worker.py",
+            "WorkerLoop._resolve_record_id"
+          ]
+        ],
+        "zero_executable_statement_declarations": [
+          [
+            "app/generation.py",
+            "ModelProvider.complete"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get_many"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.list"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.ensure"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.update"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.delete"
+          ]
+        ],
+        "scope": "Independent named function entry diagnostic; not full-project Function100%."
+      },
+      "test_file_sha256": "2aa6ac9c821273ac1eefa7ee79c6469ef91b9893138477b66df2451e13bf7b9c"
+    },
+    {
+      "pr": 34,
+      "branch": "codex/zen-107-ios-design",
+      "source_commit": "36f0875de0aa442f5b444028f944a28a799b623c",
+      "path": "/tmp/novelops-book-context-pr34-36f0875d",
+      "app_tree": "9a70e3ab12f92e00a9eef2ab590df7c06ee703ba",
+      "frontend_tree": "446af9ab10ebb3cd63c966032bac5ef445c7587f",
+      "offline_passed": 597,
+      "integration_deselected": 10,
+      "existing_warnings": 1,
+      "ruff": "passed",
+      "totals": {
+        "covered_lines": 3126,
+        "num_statements": 3231,
+        "percent_covered": 95.6532477154853,
+        "percent_covered_display": "95.65",
+        "missing_lines": 105,
+        "excluded_lines": 11,
+        "percent_statements_covered": 96.7502321262767,
+        "percent_statements_covered_display": "96.75",
+        "num_branches": 818,
+        "num_partial_branches": 67,
+        "covered_branches": 747,
+        "missing_branches": 71,
+        "percent_branches_covered": 91.32029339853301,
+        "percent_branches_covered_display": "91.32"
+      },
+      "books_module": {
+        "covered_lines": 122,
+        "num_statements": 122,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 34,
+        "num_partial_branches": 0,
+        "covered_branches": 34,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "canonical_provider": {
+        "covered_lines": 21,
+        "num_statements": 21,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 6,
+        "num_partial_branches": 0,
+        "covered_branches": 6,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "books_named_executable_entries": {
+        "covered": 9,
+        "total": 9
+      },
+      "whole_named_executable_entries": {
+        "covered": 308,
+        "total": 314,
+        "unentered": [
+          [
+            "app/api/deps.py",
+            "get_settings"
+          ],
+          [
+            "app/api/routes/health.py",
+            "health"
+          ],
+          [
+            "app/api/routes/health.py",
+            "status"
+          ],
+          [
+            "app/api/routes/workflows.py",
+            "decision"
+          ],
+          [
+            "app/feishu/repositories/story_states.py",
+            "StoryStatesRepo.find_by_book"
+          ],
+          [
+            "app/pipeline/worker.py",
+            "WorkerLoop._resolve_record_id"
+          ]
+        ],
+        "zero_executable_statement_declarations": [
+          [
+            "app/generation.py",
+            "ModelProvider.complete"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get_many"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.list"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.ensure"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.update"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.delete"
+          ]
+        ],
+        "scope": "Independent named function entry diagnostic; not full-project Function100%."
+      },
+      "test_file_sha256": "2aa6ac9c821273ac1eefa7ee79c6469ef91b9893138477b66df2451e13bf7b9c"
+    },
+    {
+      "pr": 35,
+      "branch": "codex/zen-39-story-planning",
+      "source_commit": "2d56b70f5093ffa3aee6184559f0223f5886c8a8",
+      "path": "/tmp/novelops-book-context-pr35-2d56b70f",
+      "app_tree": "4981daaa11d5f855189e996fb2fe1cc732ad73f6",
+      "frontend_tree": "d66ed69f208a22a065740d5e50c7c4f46b169bd7",
+      "offline_passed": 649,
+      "integration_deselected": 10,
+      "existing_warnings": 1,
+      "ruff": "passed",
+      "totals": {
+        "covered_lines": 3546,
+        "num_statements": 3678,
+        "percent_covered": 95.1171875,
+        "percent_covered_display": "95.12",
+        "missing_lines": 132,
+        "excluded_lines": 11,
+        "percent_statements_covered": 96.4110929853181,
+        "percent_statements_covered_display": "96.41",
+        "num_branches": 930,
+        "num_partial_branches": 87,
+        "covered_branches": 837,
+        "missing_branches": 93,
+        "percent_branches_covered": 90.0,
+        "percent_branches_covered_display": "90.00"
+      },
+      "books_module": {
+        "covered_lines": 124,
+        "num_statements": 124,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 36,
+        "num_partial_branches": 0,
+        "covered_branches": 36,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "canonical_provider": {
+        "covered_lines": 21,
+        "num_statements": 21,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 6,
+        "num_partial_branches": 0,
+        "covered_branches": 6,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "books_named_executable_entries": {
+        "covered": 9,
+        "total": 9
+      },
+      "whole_named_executable_entries": {
+        "covered": 347,
+        "total": 353,
+        "unentered": [
+          [
+            "app/api/deps.py",
+            "get_settings"
+          ],
+          [
+            "app/api/routes/health.py",
+            "health"
+          ],
+          [
+            "app/api/routes/health.py",
+            "status"
+          ],
+          [
+            "app/api/routes/workflows.py",
+            "decision"
+          ],
+          [
+            "app/feishu/repositories/story_states.py",
+            "StoryStatesRepo.find_by_book"
+          ],
+          [
+            "app/pipeline/worker.py",
+            "WorkerLoop._resolve_record_id"
+          ]
+        ],
+        "zero_executable_statement_declarations": [
+          [
+            "app/generation.py",
+            "ModelProvider.complete"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get_many"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.list"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.ensure"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.update"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.delete"
+          ]
+        ],
+        "scope": "Independent named function entry diagnostic; not full-project Function100%."
+      },
+      "test_file_sha256": "2aa6ac9c821273ac1eefa7ee79c6469ef91b9893138477b66df2451e13bf7b9c"
+    },
+    {
+      "pr": 36,
+      "branch": "codex/zen-40-chapter-loop",
+      "source_commit": "e24a27495a41234268362593c40c08c8ad169fed",
+      "path": "/tmp/novelops-book-context-pr36-e24a2749",
+      "app_tree": "1d35af63c897f4d8dfdb1bfcbee8621b5287c9d9",
+      "frontend_tree": "684a63431603401a9eee9282681cd982e19a8a24",
+      "offline_passed": 722,
+      "integration_deselected": 10,
+      "existing_warnings": 1,
+      "ruff": "passed",
+      "totals": {
+        "covered_lines": 4024,
+        "num_statements": 4199,
+        "percent_covered": 94.27921954915703,
+        "percent_covered_display": "94.28",
+        "missing_lines": 175,
+        "excluded_lines": 11,
+        "percent_statements_covered": 95.83234103357943,
+        "percent_statements_covered_display": "95.83",
+        "num_branches": 1080,
+        "num_partial_branches": 119,
+        "covered_branches": 953,
+        "missing_branches": 127,
+        "percent_branches_covered": 88.24074074074075,
+        "percent_branches_covered_display": "88.24"
+      },
+      "books_module": {
+        "covered_lines": 124,
+        "num_statements": 124,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 36,
+        "num_partial_branches": 0,
+        "covered_branches": 36,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "canonical_provider": {
+        "covered_lines": 21,
+        "num_statements": 21,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 6,
+        "num_partial_branches": 0,
+        "covered_branches": 6,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "books_named_executable_entries": {
+        "covered": 9,
+        "total": 9
+      },
+      "whole_named_executable_entries": {
+        "covered": 388,
+        "total": 397,
+        "unentered": [
+          [
+            "app/api/deps.py",
+            "get_settings"
+          ],
+          [
+            "app/api/routes/chapter_loop.py",
+            "versions"
+          ],
+          [
+            "app/api/routes/chapter_loop.py",
+            "read"
+          ],
+          [
+            "app/api/routes/chapter_loop.py",
+            "lock_final"
+          ],
+          [
+            "app/api/routes/health.py",
+            "health"
+          ],
+          [
+            "app/api/routes/health.py",
+            "status"
+          ],
+          [
+            "app/api/routes/workflows.py",
+            "decision"
+          ],
+          [
+            "app/feishu/repositories/story_states.py",
+            "StoryStatesRepo.find_by_book"
+          ],
+          [
+            "app/pipeline/worker.py",
+            "WorkerLoop._resolve_record_id"
+          ]
+        ],
+        "zero_executable_statement_declarations": [
+          [
+            "app/generation.py",
+            "ModelProvider.complete"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get_many"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.list"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.ensure"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.update"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.delete"
+          ]
+        ],
+        "scope": "Independent named function entry diagnostic; not full-project Function100%."
+      },
+      "test_file_sha256": "2aa6ac9c821273ac1eefa7ee79c6469ef91b9893138477b66df2451e13bf7b9c"
+    },
+    {
+      "pr": 37,
+      "branch": "codex/zen-41-chapter-review-desk",
+      "source_commit": "15b107d6cc77b3a1a013274256aedcc2055ab9a6",
+      "path": "/tmp/novelops-book-context-pr37-15b107d6",
+      "app_tree": "88b2cf4d2300fedeb016e38c45b232f4346e789c",
+      "frontend_tree": "5d1da703d2d9709d195bfe4e900e05038adcf7fd",
+      "offline_passed": 778,
+      "integration_deselected": 10,
+      "existing_warnings": 1,
+      "ruff": "passed",
+      "totals": {
+        "covered_lines": 4255,
+        "num_statements": 4418,
+        "percent_covered": 94.82512491077802,
+        "percent_covered_display": "94.83",
+        "missing_lines": 163,
+        "excluded_lines": 11,
+        "percent_statements_covered": 96.31054775916705,
+        "percent_statements_covered_display": "96.31",
+        "num_branches": 1186,
+        "num_partial_branches": 117,
+        "covered_branches": 1059,
+        "missing_branches": 127,
+        "percent_branches_covered": 89.29173693086004,
+        "percent_branches_covered_display": "89.29"
+      },
+      "books_module": {
+        "covered_lines": 124,
+        "num_statements": 124,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 36,
+        "num_partial_branches": 0,
+        "covered_branches": 36,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "canonical_provider": {
+        "covered_lines": 21,
+        "num_statements": 21,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 6,
+        "num_partial_branches": 0,
+        "covered_branches": 6,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "books_named_executable_entries": {
+        "covered": 9,
+        "total": 9
+      },
+      "whole_named_executable_entries": {
+        "covered": 403,
+        "total": 408,
+        "unentered": [
+          [
+            "app/api/deps.py",
+            "get_settings"
+          ],
+          [
+            "app/api/routes/health.py",
+            "health"
+          ],
+          [
+            "app/api/routes/health.py",
+            "status"
+          ],
+          [
+            "app/feishu/repositories/story_states.py",
+            "StoryStatesRepo.find_by_book"
+          ],
+          [
+            "app/pipeline/worker.py",
+            "WorkerLoop._resolve_record_id"
+          ]
+        ],
+        "zero_executable_statement_declarations": [
+          [
+            "app/generation.py",
+            "ModelProvider.complete"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get_many"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.list"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.ensure"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.update"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.delete"
+          ]
+        ],
+        "scope": "Independent named function entry diagnostic; not full-project Function100%."
+      },
+      "test_file_sha256": "2aa6ac9c821273ac1eefa7ee79c6469ef91b9893138477b66df2451e13bf7b9c"
+    }
+  ],
+  "formal_gate": "Exact source commit archives, original configured fail_under87.81558726673984; pytest -m not-integration (actual expression: not integration) --cov=app --cov-branch --cov-report=json --cov-report=term -q. No configuration, exclusions, threshold or assertion weakening.",
+  "runtime_evidence_scope": {
+    "new_real_model_requests": 0,
+    "new_real_feishu_record_mutations": 0,
+    "new_public_collection": 0,
+    "same_full_application_tree_as_previous_real_verification": true,
+    "previous_source": {
+      "commit": "bef2e38470475794ba09f2a281a96a8399ce9b74",
+      "path": "/tmp/novelops-direction-full-source-bef2e384",
+      "app_tree": "88b2cf4d2300fedeb016e38c45b232f4346e789c",
+      "backend_tree": "8579181ff98d15ad6d564ae635bf44acc18a76bb",
+      "frontend_tree": "5d1da703d2d9709d195bfe4e900e05038adcf7fd",
+      "offline_tests": 746
+    },
+    "previous_retained_rows_exact": 417,
+    "previous_readonly_operation_counts": {
+      "auth": 1,
+      "read": 72
+    },
+    "previous_report": "2026-10-19-planning-editorial-direction.md",
+    "meaning": "Production app and frontend trees are unchanged. Reuse historical real-read proof at its stated source/time; this test-only wave does not claim a fresh live Base corruption/recovery run."
+  },
+  "requirement_inventory": {
+    "linear_original_acceptance": 61,
+    "github_explicit_additional_checks": 51,
+    "github_issues_fully_read": 13,
+    "project_issues": 18,
+    "open_original_issues": 13,
+    "new_project_issue_detected": false,
+    "final_requirement_by_requirement_audit_complete": false,
+    "note": "The51 existing GitHub checks were not separately itemized in the earlier61-count Linear map. Preserve both; neither count replaces full scopes or user constraints."
+  },
+  "skill_update": {
+    "skill": "issue-pr-delivery",
+    "before_sha256": "959fa4049c4098f8c01aa068758cbe048c8f6a75c8518b149b1edbfe361340d7",
+    "after_sha256": "063949e1cda767baa8108eacf5290685d740e7706736b96d3284ebbd0242e6e5",
+    "purpose": "Classify actual assertion-stage failures and separate external-corruption behavior from rejected fixture setup and isolated dependency contract tests.",
+    "validation": "Skill is valid!",
+    "validator": "skill-creator/scripts/quick_validate.py",
+    "behavioral_evidence": "Original setup-stage traceback inspected; explicit external-corruption API cases now return503 with unchanged rows and recover after restoration; isolated upstream unit case labeled separately."
+  },
+  "limits": [
+    "Whole-project S/L/F/B100% still not achieved. Books S/L/B100% and9 named entries do not establish global Function100%.",
+    "Real model routine auto-pass and independent final per-requirement audit remain pending.",
+    "Retained real Planner has3 payoff sentences instead of requested1–2; independent plan acceptance remains false and chapter phase has not started. Shared max4 model-call authorization used1, remaining3.",
+    "Controlled external data faults and one dependency contract double are not evidence of live Feishu outage/rate/ACL behavior.",
+    "No main merge, deployment, issue Done change, new paid output or actual billing conclusion."
+  ],
+  "frontend": {
+    "production_tree_unchanged": true,
+    "local_tests_not_rerun": true,
+    "root_tree": "5d1da703d2d9709d195bfe4e900e05038adcf7fd",
+    "prior_same_tree_tests": 343,
+    "prior_same_tree_statement_line_function_branch": [
+      94.69,
+      97.14,
+      94.69,
+      95.11
+    ]
+  },
+  "review": {
+    "baseline": "Current complete review query retained before publication; validate new heads and all review sources after push.",
+    "new_heads_ci": "pending publication verification"
+  },
+  "no_main_merge_deploy_or_done": true
+}
