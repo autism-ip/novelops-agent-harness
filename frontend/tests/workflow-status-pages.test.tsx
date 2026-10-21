@@ -1,5 +1,10 @@
+/**
+ * [INPUT]: Real workspace pages/hooks with controlled fetch and viewport geometry.
+ * [OUTPUT]: Persisted workflow/status contracts and settled asynchronous reveal assertions.
+ * [POS]: ZEN-107 workflow observation regression gate; no production effect replacement.
+ */
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import PipelinesPage from "../src/app/pipelines/page";
 import AgentsPage from "../src/app/agents/page";
 import DashboardPage from "../src/app/page";
@@ -148,10 +153,11 @@ test("loaded details below the visible area are revealed once without repeated r
   const transport = backend(); render(<PipelinesPage />);
   fireEvent.click(await screen.findByRole("button", { name: /Collect public hotspots/ }));
   expect(await screen.findByText("fetch")).toBeTruthy();
-  expect(scroll).toHaveBeenCalledExactlyOnceWith({ block: "start" });
+  await waitFor(() => expect(scroll).toHaveBeenCalledExactlyOnceWith({ block: "start" }));
   fireEvent.click(screen.getByRole("button", { name: "Refresh activity" }));
   await waitFor(() => expect(transport.mock.calls.filter(([p]) => p === "/api/workflows/PR-live")).toHaveLength(2));
   expect(await screen.findByText("fetch")).toBeTruthy();
+  await act(async () => {});
   expect(scroll).toHaveBeenCalledOnce();
 });
 
@@ -160,6 +166,7 @@ test("a desktop detail already visible is not scrolled away from the list", asyn
   backend(); render(<PipelinesPage />);
   fireEvent.click(await screen.findByRole("button", { name: /Collect public hotspots/ }));
   expect(await screen.findByText("fetch")).toBeTruthy();
+  await act(async () => {});
   expect(scroll).not.toHaveBeenCalled();
 });
 
@@ -172,5 +179,6 @@ test("returning to the list before a slow detail arrives prevents a later scroll
   fireEvent.click(screen.getByRole("link", { name: "Back to workflows" }));
   resolve(Response.json({ ...run, steps }));
   expect(await screen.findByText("fetch")).toBeTruthy();
+  await act(async () => {});
   expect(scroll).not.toHaveBeenCalled();
 });
