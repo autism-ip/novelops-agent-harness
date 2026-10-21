@@ -97,6 +97,7 @@ export type WorkflowRun = {
     error_message?: string;
     output_json?: string;
     output_version?: number;
+    requires_approval?: boolean;
   }[];
 };
 
@@ -105,11 +106,12 @@ export type CreativeRun = {
   kind: "titles" | "covers";
   request: { source_run_id: string; version: number; source_artifact_id: string };
   current: boolean;
-  decision: { choice_id: string; action: string } | null;
+  decision: { choice_id: string; action: string; reason?: string } | null;
   candidates: {
     artifact_id: string;
     version: number;
     model: string;
+    route: string;
     prompt_version: string;
     content: {
       title?: string; hook?: string; selling_point?: string; click_score?: number;
@@ -126,9 +128,11 @@ export type OpportunityAnalysis = {
   source: { title: string };
   current: boolean;
   approval_status: string;
+  decisions: { action: string; reason: string; target_id: string; target_version: number }[];
   opportunity: {
     artifact_id: string;
     model: string;
+    route: string;
     prompt_version: string;
     content: {
       summary: string;
