@@ -113,7 +113,15 @@
           "requirement": "Integration tests exercise the real composition boundary, not only repositories replaced by permissive mocks.",
           "final_independent_verification": "pending"
         }
-      ]
+      ],
+      "additional_verification_reports": [
+        "2026-10-21-approval-identity-and-recovery.md"
+      ],
+      "latest_native_event_scope": {
+        "source": "d9153cbefe9d8e5af9c7a4bf9b97d32e34993187",
+        "report": "2026-10-21-approval-identity-and-recovery.md",
+        "actual_outcome": "Approve/reject audit identity, exact replay and post-commit rejection recovery observed on real authorized Base;corrupt-evidence refusal proven with controlled HTTP fixture"
+      }
     },
     {
       "issue": "ZEN-106",
@@ -168,6 +176,9 @@
           "requirement": "Trace APIs expose deterministic tool calls and model calls with failure classes and correlation IDs; sensitive credentials are excluded.",
           "final_independent_verification": "pending"
         }
+      ],
+      "additional_verification_reports": [
+        "2026-10-21-approval-identity-and-recovery.md"
       ]
     },
     {
@@ -214,6 +225,9 @@
           "requirement": "Report fetched/accepted/rejected/deduplicated counts and keep source provenance; repeated requests use stable business keys.",
           "final_independent_verification": "pending"
         }
+      ],
+      "additional_verification_reports": [
+        "2026-10-21-approval-identity-and-recovery.md"
       ]
     },
     {
@@ -260,6 +274,9 @@
           "requirement": "Protected operations use the existing session/proxy flow; backend/provider credentials never enter browser configuration.",
           "final_independent_verification": "pending"
         }
+      ],
+      "additional_verification_reports": [
+        "2026-10-21-approval-identity-and-recovery.md"
       ]
     },
     {
@@ -305,6 +322,9 @@
           "requirement": "A selected hotspot can be analyzed through the authenticated API and returned to the product screen.",
           "final_independent_verification": "pending"
         }
+      ],
+      "additional_verification_reports": [
+        "2026-10-21-approval-identity-and-recovery.md"
       ]
     },
     {
@@ -351,6 +371,9 @@
           "requirement": "Backend responses expose stable business IDs, source versions, and trace references required by the UI.",
           "final_independent_verification": "pending"
         }
+      ],
+      "additional_verification_reports": [
+        "2026-10-21-approval-identity-and-recovery.md"
       ]
     },
     {
@@ -397,6 +420,9 @@
           "requirement": "Content comparison and decisions are primary; model/trace details are secondary.",
           "final_independent_verification": "pending"
         }
+      ],
+      "additional_verification_reports": [
+        "2026-10-21-approval-identity-and-recovery.md"
       ]
     },
     {
@@ -445,7 +471,8 @@
         }
       ],
       "additional_verification_reports": [
-        "2026-10-20-book-context-boundaries.md"
+        "2026-10-20-book-context-boundaries.md",
+        "2026-10-21-approval-identity-and-recovery.md"
       ]
     },
     {
@@ -476,7 +503,10 @@
       "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/33",
       "github_updated_at": "2026-09-28T15:20:33Z",
       "github_body_sha256": "e18ab8c469632a0f64279b285a8af90cd51836d8c979fad5753b191e446ffe8e",
-      "github_additional_acceptance_checks": []
+      "github_additional_acceptance_checks": [],
+      "additional_verification_reports": [
+        "2026-10-21-approval-identity-and-recovery.md"
+      ]
     },
     {
       "issue": "ZEN-39",
@@ -510,7 +540,8 @@
         "2026-10-19-final-history-context.md",
         "2026-10-19-planning-editorial-direction.md",
         "2026-10-20-planning-boundaries.md",
-        "2026-10-20-native-chapter2-format-and-failure.md"
+        "2026-10-20-native-chapter2-format-and-failure.md",
+        "2026-10-21-approval-identity-and-recovery.md"
       ],
       "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/12",
       "github_updated_at": "2026-09-27T12:29:48Z",
@@ -573,7 +604,8 @@
         "2026-10-19-chapter-final-provenance.md",
         "2026-10-19-final-history-context.md",
         "2026-10-19-planning-editorial-direction.md",
-        "2026-10-20-native-chapter2-format-and-failure.md"
+        "2026-10-20-native-chapter2-format-and-failure.md",
+        "2026-10-21-approval-identity-and-recovery.md"
       ],
       "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/13",
       "github_updated_at": "2026-09-27T12:29:44Z",
@@ -637,7 +669,8 @@
         "2026-10-19-chapter-final-provenance.md",
         "2026-10-19-final-history-context.md",
         "2026-10-19-planning-editorial-direction.md",
-        "2026-10-20-native-chapter2-format-and-failure.md"
+        "2026-10-20-native-chapter2-format-and-failure.md",
+        "2026-10-21-approval-identity-and-recovery.md"
       ],
       "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/14",
       "github_updated_at": "2026-09-27T12:29:40Z",
@@ -707,22 +740,22 @@
     "evidence_as_of": "Read-only verification before the single deliberate trace repair; historical running trace finding below is now resolved"
   },
   "current_backend_coverage": {
-    "covered_lines": 4282,
-    "num_statements": 4418,
-    "percent_covered": 95.68165596002855,
-    "percent_covered_display": "95.68",
-    "missing_lines": 136,
+    "covered_lines": 4309,
+    "num_statements": 4432,
+    "percent_covered": 96.17845716317099,
+    "percent_covered_display": "96.18",
+    "missing_lines": 123,
     "excluded_lines": 11,
-    "percent_statements_covered": 96.92168401991852,
-    "percent_statements_covered_display": "96.92",
-    "num_branches": 1186,
-    "num_partial_branches": 98,
-    "covered_branches": 1080,
-    "missing_branches": 106,
-    "percent_branches_covered": 91.06239460370995,
-    "percent_branches_covered_display": "91.06"
+    "percent_statements_covered": 97.22472924187726,
+    "percent_statements_covered_display": "97.22",
+    "num_branches": 1194,
+    "num_partial_branches": 84,
+    "covered_branches": 1102,
+    "missing_branches": 92,
+    "percent_branches_covered": 92.29480737018426,
+    "percent_branches_covered_display": "92.29"
   },
-  "current_backend_offline_passed": 818,
+  "current_backend_offline_passed": 890,
   "frontend_tests": "343 at unchanged frontend tree; not rerun for backend test/report-only changes",
   "frontend_whole_source_four_metrics": "94.69% statement / 97.14% line / 94.69% function / 95.11% branch; unchanged source evidence from prior exact tree",
   "open_priorities": [
@@ -826,63 +859,6 @@
     "branch": "80/80 = 100%",
     "executable_named_functions": "26/26",
     "unchanged_default_type_protocol_exclusions": 3
-  },
-  "current_backend_named_executable_function_entries": {
-    "covered": 403,
-    "total": 408,
-    "unentered": [
-      [
-        "app/api/deps.py",
-        "get_settings"
-      ],
-      [
-        "app/api/routes/health.py",
-        "health"
-      ],
-      [
-        "app/api/routes/health.py",
-        "status"
-      ],
-      [
-        "app/feishu/repositories/story_states.py",
-        "StoryStatesRepo.find_by_book"
-      ],
-      [
-        "app/pipeline/worker.py",
-        "WorkerLoop._resolve_record_id"
-      ]
-    ],
-    "zero_executable_statement_declarations": [
-      [
-        "app/generation.py",
-        "ModelProvider.complete"
-      ],
-      [
-        "app/storage.py",
-        "StorageProvider.get"
-      ],
-      [
-        "app/storage.py",
-        "StorageProvider.get_many"
-      ],
-      [
-        "app/storage.py",
-        "StorageProvider.list"
-      ],
-      [
-        "app/storage.py",
-        "StorageProvider.ensure"
-      ],
-      [
-        "app/storage.py",
-        "StorageProvider.update"
-      ],
-      [
-        "app/storage.py",
-        "StorageProvider.delete"
-      ]
-    ],
-    "scope": "Independent named function entry diagnostic; not full-project Function100%."
   },
   "current_chapter_provenance": {
     "report": "2026-10-19-chapter-final-provenance.md",
@@ -1193,8 +1169,8 @@
     "new_model_requests": 0,
     "new_record_mutations": 0
   },
-  "latest_retained_rows_verified": 444,
-  "last_updated": "2026-10-20",
+  "latest_retained_rows_verified": 452,
+  "last_updated": "2026-10-21",
   "current_book_boundary_verification": {
     "report": "2026-10-20-book-context-boundaries.md",
     "new_cases": 32,
@@ -1261,6 +1237,11 @@
       "finding": "Boolean alias diagnosis did not reach the canonical read; setup update failed decoding/reconciling malformed numeric data",
       "disposition": "Withdrawn as a product defect; corrected HTTP/API evidence verifies existing refusal and exact recovery.",
       "report": "2026-10-20-book-context-boundaries.md"
+    },
+    {
+      "finding": "Approval replay/blank actor/corrupt event identity and coerced versions",
+      "status": "fixed_with_offline_and_native_scope_evidence",
+      "report": "2026-10-21-approval-identity-and-recovery.md"
     }
   ],
   "current_planning_boundary_verification": {
@@ -1399,5 +1380,1399 @@
     "independent_prose_accepted": false,
     "all_native_helpers_terminal_scheduler_stopped": true,
     "new_proposal_authorization_received": false
+  },
+  "historical_named_function_entry_diagnostic_before_approval_fix": {
+    "covered": 403,
+    "total": 408,
+    "unentered": [
+      [
+        "app/api/deps.py",
+        "get_settings"
+      ],
+      [
+        "app/api/routes/health.py",
+        "health"
+      ],
+      [
+        "app/api/routes/health.py",
+        "status"
+      ],
+      [
+        "app/feishu/repositories/story_states.py",
+        "StoryStatesRepo.find_by_book"
+      ],
+      [
+        "app/pipeline/worker.py",
+        "WorkerLoop._resolve_record_id"
+      ]
+    ],
+    "zero_executable_statement_declarations": [
+      [
+        "app/generation.py",
+        "ModelProvider.complete"
+      ],
+      [
+        "app/storage.py",
+        "StorageProvider.get"
+      ],
+      [
+        "app/storage.py",
+        "StorageProvider.get_many"
+      ],
+      [
+        "app/storage.py",
+        "StorageProvider.list"
+      ],
+      [
+        "app/storage.py",
+        "StorageProvider.ensure"
+      ],
+      [
+        "app/storage.py",
+        "StorageProvider.update"
+      ],
+      [
+        "app/storage.py",
+        "StorageProvider.delete"
+      ]
+    ],
+    "scope": "Independent named function entry diagnostic; not full-project Function100%."
+  },
+  "current_backend_raw_function_entries": {
+    "metric": "raw Python function entry coverage: all named definitions and lambdas",
+    "total": 427,
+    "lambdas_total": 11,
+    "lambdas_entered": 11,
+    "pytest_exitstatus": 0,
+    "definition_scope": "every app Python source including unimported modules and Protocol declarations; module/class bodies and compiler-generated comprehensions are not source functions",
+    "entered": 415,
+    "percent": 97.18969555035129,
+    "missing": [
+      {
+        "file": "api/deps.py",
+        "name": "get_settings",
+        "line": 8,
+        "source_position": [
+          10,
+          10,
+          11,
+          18
+        ]
+      },
+      {
+        "file": "api/routes/health.py",
+        "name": "health",
+        "line": 8,
+        "source_position": [
+          11,
+          11,
+          12,
+          20
+        ]
+      },
+      {
+        "file": "api/routes/health.py",
+        "name": "status",
+        "line": 14,
+        "source_position": [
+          18,
+          18,
+          19,
+          26
+        ]
+      },
+      {
+        "file": "feishu/repositories/story_states.py",
+        "name": "StoryStatesRepo.find_by_book",
+        "line": 13,
+        "source_position": [
+          14,
+          14,
+          15,
+          19
+        ]
+      },
+      {
+        "file": "generation.py",
+        "name": "ModelProvider.complete",
+        "line": 107,
+        "source_position": [
+          107,
+          107,
+          74,
+          77
+        ]
+      },
+      {
+        "file": "pipeline/worker.py",
+        "name": "WorkerLoop._resolve_record_id",
+        "line": 75,
+        "source_position": [
+          77,
+          77,
+          17,
+          21
+        ]
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.get",
+        "line": 32,
+        "source_position": [
+          32,
+          32,
+          67,
+          70
+        ]
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.get_many",
+        "line": 33,
+        "source_position": [
+          33,
+          33,
+          83,
+          86
+        ]
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.list",
+        "line": 34,
+        "source_position": [
+          34,
+          34,
+          76,
+          79
+        ]
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.ensure",
+        "line": 35,
+        "source_position": [
+          35,
+          35,
+          89,
+          92
+        ]
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.update",
+        "line": 36,
+        "source_position": [
+          36,
+          36,
+          77,
+          80
+        ]
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.delete",
+        "line": 37,
+        "source_position": [
+          37,
+          37,
+          63,
+          66
+        ]
+      }
+    ],
+    "measurement": "Union of full875 corpus and15 additional lifecycle cases on identical app source: intersect missing function identities (relative file,qualname,line,position)",
+    "app_tree": "579ddede98322fddf061b21522f075e74552fa93",
+    "test_corpus_total": 890,
+    "source_measurements": [
+      {
+        "path": "/tmp/novelops-kernel-identity-pr37-d9153cbe/backend/coverage-functions.json",
+        "sha256": "285bebd42c81c87ef95dbd7e215f5e9abf64bc9e966c2f89ed2f818545e6e5e1"
+      },
+      {
+        "path": "/tmp/novelops-kernel-lifecycle-pr37-4b76da6e/backend/coverage-functions.json",
+        "sha256": "1893f8ae728379c74d1199f2c7e448116a194e4beac38e63d612eb8b7fd30bbd"
+      }
+    ]
+  },
+  "current_approval_identity_verification": {
+    "report": "2026-10-21-approval-identity-and-recovery.md",
+    "native": {
+      "source_commit": "d9153cbefe9d8e5af9c7a4bf9b97d32e34993187",
+      "app_tree_matches_final_test_source": true,
+      "native_test_source_before_lifecycle_cases": true,
+      "base_url": "https://fcnaul7kb1kf.feishu.cn/base/T8I6buCMoaiLB6srVBrc9i2jnph",
+      "status": "native_approval_identity_verified",
+      "real_application_credentials": true,
+      "cli_invocations": 0,
+      "baseline_before": 444,
+      "baseline_after": 444,
+      "new_owned_rows_retained": 8,
+      "total_known_rows": 452,
+      "row_counts": {
+        "pipeline_runs": 2,
+        "approval_events": 2,
+        "step_runs": 2,
+        "traces": 2
+      },
+      "verified_decisions": {
+        "approve": {
+          "action": "approve",
+          "approval_id": "AP-f33c960a2c5180772db8884b68d32336",
+          "created_at": "2026-10-21T01:44:33.451316+00:00",
+          "operator": "synthetic-original-editor",
+          "target_id": "SR-26eb45f6a691499bd210a66118f99fb5",
+          "target_type": "step_run",
+          "target_version": 1
+        },
+        "reject": {
+          "action": "reject",
+          "approval_id": "AP-07dbfa70c11a3cf9c5e758950b125817",
+          "created_at": "2026-10-21T01:46:31.322045+00:00",
+          "operator": "synthetic-original-editor",
+          "target_id": "SR-4cb9ff793c53e9cf0f38ed9d49f4812d",
+          "target_type": "step_run",
+          "target_version": 1
+        }
+      },
+      "verified_runs": {
+        "PR-d08205083d74413dcf8e967175bab826": {
+          "created_at": "2026-10-21T01:26:58.956811+00:00",
+          "definition_json": "{\"book_id\":\"\",\"source_hotspot_id\":\"\",\"steps\":[{\"depends_on\":[],\"handler\":\"acceptance.approval_identity\",\"input\":{\"action\":\"approve\",\"synthetic\":true},\"kind\":\"service\",\"requires_approval\":true,\"step_key\":\"review\"}],\"workflow_type\":\"approval_identity_acceptance\"}",
+          "pipeline_run_id": "PR-d08205083d74413dcf8e967175bab826",
+          "pipeline_type": "approval_identity_acceptance",
+          "status": "completed",
+          "updated_at": "2026-10-21T01:44:46.935090+00:00"
+        },
+        "PR-5fdb86fbbfe2300b174c98123476eeec": {
+          "created_at": "2026-10-21T01:45:08.694646+00:00",
+          "definition_json": "{\"book_id\":\"\",\"source_hotspot_id\":\"\",\"steps\":[{\"depends_on\":[],\"handler\":\"acceptance.approval_identity\",\"input\":{\"action\":\"reject\",\"synthetic\":true},\"kind\":\"service\",\"requires_approval\":true,\"step_key\":\"review\"}],\"workflow_type\":\"approval_identity_acceptance\"}",
+          "pipeline_run_id": "PR-5fdb86fbbfe2300b174c98123476eeec",
+          "pipeline_type": "approval_identity_acceptance",
+          "status": "failed",
+          "updated_at": "2026-10-21T01:52:07.061848+00:00"
+        }
+      },
+      "verified_steps": {
+        "SR-26eb45f6a691499bd210a66118f99fb5": {
+          "finished_at": "2026-10-21T01:27:53.672037+00:00",
+          "handler": "acceptance.approval_identity",
+          "input_json": "{\"action\":\"approve\",\"synthetic\":true}",
+          "kind": "service",
+          "output_json": "{\"result\":\"ready\",\"synthetic\":true}",
+          "output_version": 1,
+          "pipeline_run_id": "PR-d08205083d74413dcf8e967175bab826",
+          "requires_approval": true,
+          "retry_count": 0,
+          "started_at": "2026-10-21T01:27:36.038205+00:00",
+          "status": "success",
+          "step_key": "review",
+          "step_run_id": "SR-26eb45f6a691499bd210a66118f99fb5"
+        },
+        "SR-4cb9ff793c53e9cf0f38ed9d49f4812d": {
+          "finished_at": "2026-10-21T01:45:47.303115+00:00",
+          "handler": "acceptance.approval_identity",
+          "input_json": "{\"action\":\"reject\",\"synthetic\":true}",
+          "kind": "service",
+          "output_json": "{\"result\":\"ready\",\"synthetic\":true}",
+          "output_version": 1,
+          "pipeline_run_id": "PR-5fdb86fbbfe2300b174c98123476eeec",
+          "requires_approval": true,
+          "retry_count": 0,
+          "started_at": "2026-10-21T01:45:33.599256+00:00",
+          "status": "failed",
+          "step_key": "review",
+          "step_run_id": "SR-4cb9ff793c53e9cf0f38ed9d49f4812d"
+        }
+      },
+      "http_results": [
+        {
+          "path": "/workflows",
+          "expected": 201,
+          "observed": 201
+        },
+        {
+          "path": "/workflows",
+          "expected": 201,
+          "observed": 201
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "expected": 422,
+          "observed": 422
+        },
+        {
+          "path": "/workflows",
+          "expected": 201,
+          "observed": 201
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "expected": 422,
+          "observed": 422
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "expected": 422,
+          "observed": 422
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "expected": 422,
+          "observed": 422
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "expected": 422,
+          "observed": 422
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "expected": 200,
+          "observed": 200
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "expected": 409,
+          "observed": 409
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "expected": 200,
+          "observed": 200
+        },
+        {
+          "path": "/workflows",
+          "expected": 201,
+          "observed": 201
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "expected": 422,
+          "observed": 422
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "expected": 422,
+          "observed": 422
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "expected": 422,
+          "observed": 422
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "expected": 422,
+          "observed": 422
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "expected": 409,
+          "observed": 409
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "expected": 200,
+          "observed": 200
+        }
+      ],
+      "handler_calls": [
+        "SR-26eb45f6a691499bd210a66118f99fb5",
+        "SR-4cb9ff793c53e9cf0f38ed9d49f4812d"
+      ],
+      "service_instances": [
+        {
+          "started_at": 1792546017.144344,
+          "scheduler_running": true,
+          "stopped_at": 1792546114.631812,
+          "scheduler_running_after_exit": false
+        },
+        {
+          "started_at": 1792546505.258065,
+          "scheduler_running": true,
+          "stopped_at": 1792546562.74991,
+          "scheduler_running_after_exit": false
+        },
+        {
+          "started_at": 1792547036.709302,
+          "scheduler_running": true,
+          "stopped_at": 1792547233.328578,
+          "scheduler_running_after_exit": false
+        },
+        {
+          "started_at": 1792547540.074042,
+          "scheduler_running": true,
+          "stopped_at": 1792547587.236612,
+          "scheduler_running_after_exit": false
+        }
+      ],
+      "prior_observer_failures": [
+        {
+          "checkpoint": "/tmp/novelops-20261021-kernel-approval-native.json",
+          "exit": 1,
+          "cause": "Concurrent checkpoint temp rename without lock",
+          "old444_exact": true,
+          "new_rows_retained": 3,
+          "scheduler_stopped": true
+        },
+        {
+          "checkpoint": "/tmp/novelops-20261021-kernel-approval-native-v2.json",
+          "exit": 1,
+          "cause": "Global mutation counter included legitimate scheduler timestamp updates during an actual422 API response",
+          "old444_exact": true,
+          "new_rows_retained": 3,
+          "scheduler_stopped": true
+        }
+      ],
+      "same_workflow_resumed": true,
+      "save_function_validation": "20threads/200writes/0network",
+      "no_write_api_observations": [
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "status": 422,
+          "operation_begin": 209,
+          "operation_end": 216,
+          "api_writes_before": 1,
+          "api_writes_after": 1,
+          "scheduler_writes_in_window": 1
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "status": 422,
+          "operation_begin": 216,
+          "operation_end": 216,
+          "api_writes_before": 1,
+          "api_writes_after": 1,
+          "scheduler_writes_in_window": 0
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "status": 422,
+          "operation_begin": 216,
+          "operation_end": 216,
+          "api_writes_before": 1,
+          "api_writes_after": 1,
+          "scheduler_writes_in_window": 0
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "status": 422,
+          "operation_begin": 216,
+          "operation_end": 216,
+          "api_writes_before": 1,
+          "api_writes_after": 1,
+          "scheduler_writes_in_window": 0
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "status": 409,
+          "operation_begin": 235,
+          "operation_end": 239,
+          "api_writes_before": 4,
+          "api_writes_after": 4,
+          "scheduler_writes_in_window": 0
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "status": 200,
+          "operation_begin": 239,
+          "operation_end": 247,
+          "api_writes_before": 4,
+          "api_writes_after": 4,
+          "scheduler_writes_in_window": 0
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "status": 422,
+          "operation_begin": 295,
+          "operation_end": 304,
+          "api_writes_before": 7,
+          "api_writes_after": 7,
+          "scheduler_writes_in_window": 1
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "status": 422,
+          "operation_begin": 304,
+          "operation_end": 304,
+          "api_writes_before": 7,
+          "api_writes_after": 7,
+          "scheduler_writes_in_window": 0
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "status": 422,
+          "operation_begin": 304,
+          "operation_end": 304,
+          "api_writes_before": 7,
+          "api_writes_after": 7,
+          "scheduler_writes_in_window": 0
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "status": 422,
+          "operation_begin": 304,
+          "operation_end": 304,
+          "api_writes_before": 7,
+          "api_writes_after": 7,
+          "scheduler_writes_in_window": 0
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "status": 409,
+          "operation_begin": 551,
+          "operation_end": 556,
+          "api_writes_before": 10,
+          "api_writes_after": 10,
+          "scheduler_writes_in_window": 0
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "status": 200,
+          "operation_begin": 556,
+          "operation_end": 565,
+          "api_writes_before": 10,
+          "api_writes_after": 10,
+          "scheduler_writes_in_window": 0
+        }
+      ],
+      "mutation_attribution": "HTTP request hook records thread/method/path; invalid/conflicting/exact-replay API must have zero non-scheduler writes. Background timestamp writes are recorded separately, not hidden.",
+      "operation_counts": {
+        "auth": 4,
+        "read": 1040,
+        "owned_write": 32
+      },
+      "model_requests": 0,
+      "global_paid_model_cap": 4,
+      "global_paid_requests_used": 4,
+      "global_paid_remaining": 0,
+      "initial_approve_entry": "Real HTTP decision endpoint",
+      "initial_reject_entry": "Direct actual kernel.decide under its writer for post-commit interruption injection; fresh app startup recovery and exact replay verified over real HTTP",
+      "interrupted_after_durable_event": true,
+      "scheduler_running_after_exit": false,
+      "snapshot_failures": [],
+      "observer_kind": "Real local Uvicorn/HTTP, configured runtime identity, Feishu data; deterministic acceptance handler; post-commit response hook is injected, not an actual OS kill; initial observer failure preserved and same business workflow resumed"
+    },
+    "new_cases": 72,
+    "branch_gates": [
+      {
+        "pr": 24,
+        "branch": "codex/zen-104-harness-kernel",
+        "source_commit": "ebc341e31b3b6de37c1203a84f5611256c56ef66",
+        "previous_published_head": "fb8ac4c9f19946445cf175c1bfca69c5abc87bc2",
+        "app_tree": "b1536def50f4087f124d63036d882047729fe9bd",
+        "tests_tree": "23283d960b833e20d81c5b10a5420a3a36d8a4c1",
+        "frontend_tree": "a4cfe7f58e5c359b04ffe1df77d0a68ccb780936",
+        "coverage_config_tree": "e03f45aeca3b3550ccf8e44a985d84b0c5eef325",
+        "offline_passed": 378,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 1500,
+          "num_statements": 1559,
+          "percent_covered": 95.5177743431221,
+          "percent_covered_display": "95.52",
+          "missing_lines": 59,
+          "excluded_lines": 8,
+          "percent_statements_covered": 96.21552277100706,
+          "percent_statements_covered_display": "96.22",
+          "num_branches": 382,
+          "num_partial_branches": 24,
+          "covered_branches": 354,
+          "missing_branches": 28,
+          "percent_branches_covered": 92.67015706806282,
+          "percent_branches_covered_display": "92.67"
+        },
+        "harness_coverage": {
+          "covered_lines": 311,
+          "num_statements": 313,
+          "percent_covered": 99.06759906759906,
+          "percent_covered_display": "99.07",
+          "missing_lines": 2,
+          "excluded_lines": 0,
+          "percent_statements_covered": 99.36102236421725,
+          "percent_statements_covered_display": "99.36",
+          "num_branches": 116,
+          "num_partial_branches": 2,
+          "covered_branches": 114,
+          "missing_branches": 2,
+          "percent_branches_covered": 98.27586206896552,
+          "percent_branches_covered_display": "98.28"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr24-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr24-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 25,
+        "branch": "codex/zen-106-model-artifacts",
+        "source_commit": "999b67f3137a477192c0ef87738d36b79028a8a0",
+        "previous_published_head": "ffa7081985dbc0696a66bbc22f095a57a043ae77",
+        "app_tree": "cb8d0bc31b3fd15b8412b4674bfe3c3551eed6be",
+        "tests_tree": "886b23e4fd9ae56807abc8d4adc8a3515d8ae931",
+        "frontend_tree": "a4cfe7f58e5c359b04ffe1df77d0a68ccb780936",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 504,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 2004,
+          "num_statements": 2064,
+          "percent_covered": 96.5477114041893,
+          "percent_covered_display": "96.55",
+          "missing_lines": 60,
+          "excluded_lines": 11,
+          "percent_statements_covered": 97.09302325581395,
+          "percent_statements_covered_display": "97.09",
+          "num_branches": 514,
+          "num_partial_branches": 25,
+          "covered_branches": 485,
+          "missing_branches": 29,
+          "percent_branches_covered": 94.3579766536965,
+          "percent_branches_covered_display": "94.36"
+        },
+        "harness_coverage": {
+          "covered_lines": 325,
+          "num_statements": 327,
+          "percent_covered": 99.10913140311804,
+          "percent_covered_display": "99.11",
+          "missing_lines": 2,
+          "excluded_lines": 0,
+          "percent_statements_covered": 99.38837920489297,
+          "percent_statements_covered_display": "99.39",
+          "num_branches": 122,
+          "num_partial_branches": 2,
+          "covered_branches": 120,
+          "missing_branches": 2,
+          "percent_branches_covered": 98.36065573770492,
+          "percent_branches_covered_display": "98.36"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr25-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr25-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 27,
+        "branch": "codex/zen-33-hotspot-ingestion",
+        "source_commit": "18b796cd5d44f6ec519bfa7a05ec5020375b7192",
+        "previous_published_head": "3bc52a0506402dba1d9bd354023852af7c825914",
+        "app_tree": "99fb865e9dad0e6df07a625e7d3902ae4de56f0f",
+        "tests_tree": "b3d41c382416feec16656ec06ee5e7e27c2141f2",
+        "frontend_tree": "a4cfe7f58e5c359b04ffe1df77d0a68ccb780936",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 552,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 2219,
+          "num_statements": 2276,
+          "percent_covered": 97.03419399860432,
+          "percent_covered_display": "97.03",
+          "missing_lines": 57,
+          "excluded_lines": 11,
+          "percent_statements_covered": 97.49560632688927,
+          "percent_statements_covered_display": "97.50",
+          "num_branches": 590,
+          "num_partial_branches": 24,
+          "covered_branches": 562,
+          "missing_branches": 28,
+          "percent_branches_covered": 95.2542372881356,
+          "percent_branches_covered_display": "95.25"
+        },
+        "harness_coverage": {
+          "covered_lines": 325,
+          "num_statements": 327,
+          "percent_covered": 99.10913140311804,
+          "percent_covered_display": "99.11",
+          "missing_lines": 2,
+          "excluded_lines": 0,
+          "percent_statements_covered": 99.38837920489297,
+          "percent_statements_covered_display": "99.39",
+          "num_branches": 122,
+          "num_partial_branches": 2,
+          "covered_branches": 120,
+          "missing_branches": 2,
+          "percent_branches_covered": 98.36065573770492,
+          "percent_branches_covered_display": "98.36"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr27-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr27-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 28,
+        "branch": "codex/zen-34-hotspots-page",
+        "source_commit": "ba3d4b90d74f0597bda44ed7a702dfd121a423d9",
+        "previous_published_head": "50b28d3a7d265164d044a04e3f8e514b6dbc39c6",
+        "app_tree": "c42975e2bec0961109fd5d8839610689f33e5c6c",
+        "tests_tree": "191f4ea7faa9f1138b1c71218ee84935ea379e8c",
+        "frontend_tree": "9fb61e309e7a580b9411178ddb13997cccd4ee61",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 561,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 2287,
+          "num_statements": 2347,
+          "percent_covered": 96.91211401425178,
+          "percent_covered_display": "96.91",
+          "missing_lines": 60,
+          "excluded_lines": 11,
+          "percent_statements_covered": 97.44354495100127,
+          "percent_statements_covered_display": "97.44",
+          "num_branches": 600,
+          "num_partial_branches": 27,
+          "covered_branches": 569,
+          "missing_branches": 31,
+          "percent_branches_covered": 94.83333333333333,
+          "percent_branches_covered_display": "94.83"
+        },
+        "harness_coverage": {
+          "covered_lines": 325,
+          "num_statements": 327,
+          "percent_covered": 99.10913140311804,
+          "percent_covered_display": "99.11",
+          "missing_lines": 2,
+          "excluded_lines": 0,
+          "percent_statements_covered": 99.38837920489297,
+          "percent_statements_covered_display": "99.39",
+          "num_branches": 122,
+          "num_partial_branches": 2,
+          "covered_branches": 120,
+          "missing_branches": 2,
+          "percent_branches_covered": 98.36065573770492,
+          "percent_branches_covered_display": "98.36"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr28-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr28-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 29,
+        "branch": "codex/zen-35-opportunity-research",
+        "source_commit": "ca0fd5f4246554968b9b65da767195bff1e683fb",
+        "previous_published_head": "359a0b386430676b8ac5e4a95943011aec4be799",
+        "app_tree": "f5a63f754693200ffe2605501595c1edca27c71d",
+        "tests_tree": "4211d0e02fe4506fb9839624d6618443cd230b7b",
+        "frontend_tree": "a0a73bbb9351fdc0a84f6e5ee1dc54a24eabdf26",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 601,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 2659,
+          "num_statements": 2735,
+          "percent_covered": 96.47743813682678,
+          "percent_covered_display": "96.48",
+          "missing_lines": 76,
+          "excluded_lines": 11,
+          "percent_statements_covered": 97.22120658135283,
+          "percent_statements_covered_display": "97.22",
+          "num_branches": 700,
+          "num_partial_branches": 41,
+          "covered_branches": 655,
+          "missing_branches": 45,
+          "percent_branches_covered": 93.57142857142857,
+          "percent_branches_covered_display": "93.57"
+        },
+        "harness_coverage": {
+          "covered_lines": 369,
+          "num_statements": 375,
+          "percent_covered": 97.47572815533981,
+          "percent_covered_display": "97.48",
+          "missing_lines": 6,
+          "excluded_lines": 0,
+          "percent_statements_covered": 98.4,
+          "percent_statements_covered_display": "98.40",
+          "num_branches": 140,
+          "num_partial_branches": 7,
+          "covered_branches": 133,
+          "missing_branches": 7,
+          "percent_branches_covered": 95.0,
+          "percent_branches_covered_display": "95.00"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr29-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr29-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 30,
+        "branch": "codex/zen-36-title-cover",
+        "source_commit": "b8d5beead30bd44474767a1069a72075ae27b1c8",
+        "previous_published_head": "63139b99e8fc793ddde4f48ac5d40ba7ea0e13af",
+        "app_tree": "784597d4c7f578edf4d41726f2e51a9463459976",
+        "tests_tree": "c2a36f9c7cc18b43a142822251c1543f09329bc0",
+        "frontend_tree": "49111c240b1818124b9349933db8246785404f18",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 629,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 2990,
+          "num_statements": 3077,
+          "percent_covered": 96.32219632219632,
+          "percent_covered_display": "96.32",
+          "missing_lines": 87,
+          "excluded_lines": 11,
+          "percent_statements_covered": 97.17257068573285,
+          "percent_statements_covered_display": "97.17",
+          "num_branches": 784,
+          "num_partial_branches": 51,
+          "covered_branches": 729,
+          "missing_branches": 55,
+          "percent_branches_covered": 92.98469387755102,
+          "percent_branches_covered_display": "92.98"
+        },
+        "harness_coverage": {
+          "covered_lines": 371,
+          "num_statements": 377,
+          "percent_covered": 97.495183044316,
+          "percent_covered_display": "97.50",
+          "missing_lines": 6,
+          "excluded_lines": 0,
+          "percent_statements_covered": 98.40848806366047,
+          "percent_statements_covered_display": "98.41",
+          "num_branches": 142,
+          "num_partial_branches": 7,
+          "covered_branches": 135,
+          "missing_branches": 7,
+          "percent_branches_covered": 95.07042253521126,
+          "percent_branches_covered_display": "95.07"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr30-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr30-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 31,
+        "branch": "codex/zen-37-approval-ui",
+        "source_commit": "4774fed164319e033062f967d5c5550bee9ead9e",
+        "previous_published_head": "fb5b0f444c30071ec141785d012ad4a5588333c2",
+        "app_tree": "784597d4c7f578edf4d41726f2e51a9463459976",
+        "tests_tree": "c2a36f9c7cc18b43a142822251c1543f09329bc0",
+        "frontend_tree": "800e0fe10869813437708dd586c3fc995ecc6388",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 629,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 2990,
+          "num_statements": 3077,
+          "percent_covered": 96.32219632219632,
+          "percent_covered_display": "96.32",
+          "missing_lines": 87,
+          "excluded_lines": 11,
+          "percent_statements_covered": 97.17257068573285,
+          "percent_statements_covered_display": "97.17",
+          "num_branches": 784,
+          "num_partial_branches": 51,
+          "covered_branches": 729,
+          "missing_branches": 55,
+          "percent_branches_covered": 92.98469387755102,
+          "percent_branches_covered_display": "92.98"
+        },
+        "harness_coverage": {
+          "covered_lines": 371,
+          "num_statements": 377,
+          "percent_covered": 97.495183044316,
+          "percent_covered_display": "97.50",
+          "missing_lines": 6,
+          "excluded_lines": 0,
+          "percent_statements_covered": 98.40848806366047,
+          "percent_statements_covered_display": "98.41",
+          "num_branches": 142,
+          "num_partial_branches": 7,
+          "covered_branches": 135,
+          "missing_branches": 7,
+          "percent_branches_covered": 95.07042253521126,
+          "percent_branches_covered_display": "95.07"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr31-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr31-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 32,
+        "branch": "codex/zen-38-book-bootstrap",
+        "source_commit": "b49e8e6049bf340b8f9a2ef9f7d387141c33500a",
+        "previous_published_head": "b8fed3328655efaf481f409feb579d415b365dfa",
+        "app_tree": "0239084ee6ccc3dae2495e437650733b4cc21d02",
+        "tests_tree": "f7a092cdf21bad80cefcbbc939dede8acbdae68e",
+        "frontend_tree": "7f03c1288009f0c019baa006d4fc1cf6b1db1b1f",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 669,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 3153,
+          "num_statements": 3245,
+          "percent_covered": 96.31540162122329,
+          "percent_covered_display": "96.32",
+          "missing_lines": 92,
+          "excluded_lines": 11,
+          "percent_statements_covered": 97.1648690292758,
+          "percent_statements_covered_display": "97.16",
+          "num_branches": 826,
+          "num_partial_branches": 54,
+          "covered_branches": 768,
+          "missing_branches": 58,
+          "percent_branches_covered": 92.97820823244552,
+          "percent_branches_covered_display": "92.98"
+        },
+        "harness_coverage": {
+          "covered_lines": 371,
+          "num_statements": 377,
+          "percent_covered": 97.495183044316,
+          "percent_covered_display": "97.50",
+          "missing_lines": 6,
+          "excluded_lines": 0,
+          "percent_statements_covered": 98.40848806366047,
+          "percent_statements_covered_display": "98.41",
+          "num_branches": 142,
+          "num_partial_branches": 7,
+          "covered_branches": 135,
+          "missing_branches": 7,
+          "percent_branches_covered": 95.07042253521126,
+          "percent_branches_covered_display": "95.07"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr32-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr32-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 34,
+        "branch": "codex/zen-107-ios-design",
+        "source_commit": "10123a11bca4a199b9442f56885ddcebbd70cda1",
+        "previous_published_head": "94fefddab6d7ed4ce72f349a42b9380dc92d7a84",
+        "app_tree": "0239084ee6ccc3dae2495e437650733b4cc21d02",
+        "tests_tree": "f7a092cdf21bad80cefcbbc939dede8acbdae68e",
+        "frontend_tree": "446af9ab10ebb3cd63c966032bac5ef445c7587f",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 669,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 3153,
+          "num_statements": 3245,
+          "percent_covered": 96.31540162122329,
+          "percent_covered_display": "96.32",
+          "missing_lines": 92,
+          "excluded_lines": 11,
+          "percent_statements_covered": 97.1648690292758,
+          "percent_statements_covered_display": "97.16",
+          "num_branches": 826,
+          "num_partial_branches": 54,
+          "covered_branches": 768,
+          "missing_branches": 58,
+          "percent_branches_covered": 92.97820823244552,
+          "percent_branches_covered_display": "92.98"
+        },
+        "harness_coverage": {
+          "covered_lines": 371,
+          "num_statements": 377,
+          "percent_covered": 97.495183044316,
+          "percent_covered_display": "97.50",
+          "missing_lines": 6,
+          "excluded_lines": 0,
+          "percent_statements_covered": 98.40848806366047,
+          "percent_statements_covered_display": "98.41",
+          "num_branches": 142,
+          "num_partial_branches": 7,
+          "covered_branches": 135,
+          "missing_branches": 7,
+          "percent_branches_covered": 95.07042253521126,
+          "percent_branches_covered_display": "95.07"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr34-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr34-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 35,
+        "branch": "codex/zen-39-story-planning",
+        "source_commit": "582e3af178bfeb259c1c470788ca70bc3d8b2487",
+        "previous_published_head": "e89ee5b33e499415dd06d82cdf0dfac9b1330d53",
+        "app_tree": "5113dd42b11eb1e6b3caf4c9587ee120d474c88f",
+        "tests_tree": "3a458cb1b127a2e5b662a51fad59dedba83e6483",
+        "frontend_tree": "d66ed69f208a22a065740d5e50c7c4f46b169bd7",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 761,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 3600,
+          "num_statements": 3692,
+          "percent_covered": 96.73866090712743,
+          "percent_covered_display": "96.74",
+          "missing_lines": 92,
+          "excluded_lines": 11,
+          "percent_statements_covered": 97.50812567713976,
+          "percent_statements_covered_display": "97.51",
+          "num_branches": 938,
+          "num_partial_branches": 55,
+          "covered_branches": 879,
+          "missing_branches": 59,
+          "percent_branches_covered": 93.71002132196162,
+          "percent_branches_covered_display": "93.71"
+        },
+        "harness_coverage": {
+          "covered_lines": 371,
+          "num_statements": 377,
+          "percent_covered": 97.495183044316,
+          "percent_covered_display": "97.50",
+          "missing_lines": 6,
+          "excluded_lines": 0,
+          "percent_statements_covered": 98.40848806366047,
+          "percent_statements_covered_display": "98.41",
+          "num_branches": 142,
+          "num_partial_branches": 7,
+          "covered_branches": 135,
+          "missing_branches": 7,
+          "percent_branches_covered": 95.07042253521126,
+          "percent_branches_covered_display": "95.07"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr35-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr35-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 36,
+        "branch": "codex/zen-40-chapter-loop",
+        "source_commit": "e4ae8b99f374e04b5135adee1cb4d2677cbfe1ac",
+        "previous_published_head": "522d1fc4226be35a3642f6a939307b6e17e3093b",
+        "app_tree": "85aa8d8c7dfad60f0231643714cd2288e0dbe631",
+        "tests_tree": "fde681875a7c0a7afba0608509f70c072154a56b",
+        "frontend_tree": "684a63431603401a9eee9282681cd982e19a8a24",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 834,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 4078,
+          "num_statements": 4213,
+          "percent_covered": 95.6989247311828,
+          "percent_covered_display": "95.70",
+          "missing_lines": 135,
+          "excluded_lines": 11,
+          "percent_statements_covered": 96.79563256586755,
+          "percent_statements_covered_display": "96.80",
+          "num_branches": 1088,
+          "num_partial_branches": 87,
+          "covered_branches": 995,
+          "missing_branches": 93,
+          "percent_branches_covered": 91.45220588235294,
+          "percent_branches_covered_display": "91.45"
+        },
+        "harness_coverage": {
+          "covered_lines": 371,
+          "num_statements": 377,
+          "percent_covered": 97.495183044316,
+          "percent_covered_display": "97.50",
+          "missing_lines": 6,
+          "excluded_lines": 0,
+          "percent_statements_covered": 98.40848806366047,
+          "percent_statements_covered_display": "98.41",
+          "num_branches": 142,
+          "num_partial_branches": 7,
+          "covered_branches": 135,
+          "missing_branches": 7,
+          "percent_branches_covered": 95.07042253521126,
+          "percent_branches_covered_display": "95.07"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr36-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr36-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 37,
+        "branch": "codex/zen-41-chapter-review-desk",
+        "source_commit": "4b76da6e043e743edfc8fd13a0f157202ebe7544",
+        "previous_published_head": "3991229b052e65a780c41a315db6eae4dbe6b0e9",
+        "app_tree": "579ddede98322fddf061b21522f075e74552fa93",
+        "tests_tree": "77bd4833a37c341ce20d1ca0dcc597fa2596e19b",
+        "frontend_tree": "5d1da703d2d9709d195bfe4e900e05038adcf7fd",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 890,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 4309,
+          "num_statements": 4432,
+          "percent_covered": 96.17845716317099,
+          "percent_covered_display": "96.18",
+          "missing_lines": 123,
+          "excluded_lines": 11,
+          "percent_statements_covered": 97.22472924187726,
+          "percent_statements_covered_display": "97.22",
+          "num_branches": 1194,
+          "num_partial_branches": 84,
+          "covered_branches": 1102,
+          "missing_branches": 92,
+          "percent_branches_covered": 92.29480737018426,
+          "percent_branches_covered_display": "92.29"
+        },
+        "harness_coverage": {
+          "covered_lines": 371,
+          "num_statements": 377,
+          "percent_covered": 97.495183044316,
+          "percent_covered_display": "97.50",
+          "missing_lines": 6,
+          "excluded_lines": 0,
+          "percent_statements_covered": 98.40848806366047,
+          "percent_statements_covered_display": "98.41",
+          "num_branches": 142,
+          "num_partial_branches": 7,
+          "covered_branches": 135,
+          "missing_branches": 7,
+          "percent_branches_covered": 95.07042253521126,
+          "percent_branches_covered_display": "95.07"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr37-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr37-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      }
+    ],
+    "goal_complete": false
   }
 }
