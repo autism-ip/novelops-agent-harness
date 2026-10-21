@@ -195,7 +195,8 @@ def test_approval_recovers_crash_after_event_persisted(runtime):
     kernel.tick()
     step = kernel.get(run["pipeline_run_id"])["steps"][0]
     storage.ensure("approval_events", {"approval_id": stable_id("AP-", step["step_run_id"] + "/1"),
-        "target_id": step["step_run_id"], "target_version": 1, "action": "approve", "operator": "test"})
+        "target_type": "step_run", "target_id": step["step_run_id"], "target_version": 1,
+        "action": "approve", "operator": "test"})
     restarted = HarnessKernel(storage, journal_dir=journal)
     restarted.recover()
     restarted.tick()
