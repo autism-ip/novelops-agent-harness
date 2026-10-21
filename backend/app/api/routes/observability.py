@@ -32,7 +32,8 @@ def chapter_usage(chapter_id: str, kernel=Depends(get_kernel)):
 
 @router.get("/artifacts/{artifact_id}")
 def artifact(artifact_id: str, kernel=Depends(get_kernel)):
-    enabled(kernel)
+    if not getattr(kernel, "artifacts", None):
+        raise HTTPException(503, "Artifact storage is not configured")
     try:
         return kernel.artifacts.get(artifact_id)
     except ArtifactIntegrityError:
