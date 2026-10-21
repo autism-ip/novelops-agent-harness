@@ -1,6 +1,6 @@
 /**
  * [INPUT]: 无外部依赖，纯类型定义
- * [OUTPUT]: HealthResponse, SystemStatus, PipelineRun, AgentState, Hotspot 与 WorkflowRun 类型
+ * [OUTPUT]: HealthResponse、含调度tick/error的SystemStatus及含步骤kind的WorkflowRun等API类型
  * [POS]: api 模块的类型契约层，被 client 调用方和页面组件消费
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
@@ -25,6 +25,8 @@ export type SystemStatus = {
   active_pipeline_runs: number;
   pending_steps: number;
   failed_steps: number;
+  last_tick?: string | null;
+  last_error?: string | null;
 };
 
 // ----------------------------------------------------------------
@@ -94,6 +96,7 @@ export type WorkflowRun = {
   steps?: {
     step_run_id: string;
     step_key: string;
+    kind?: string;
     status: string;
     error_message?: string;
     output_json?: string;

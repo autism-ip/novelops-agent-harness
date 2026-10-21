@@ -31,7 +31,7 @@ export function DataTable<T>({
 }) {
   if (data.length === 0) {
     return (
-      <div className="rounded-lg border p-8 text-center text-muted-foreground">
+      <div className="py-10 text-center text-sm text-muted-foreground">
         {emptyMessage}
       </div>
     );

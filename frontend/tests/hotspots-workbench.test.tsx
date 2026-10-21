@@ -67,11 +67,17 @@ function fixture(initial: Hotspot[] = [], signedIn = true) {
 }
 
 beforeEach(() => {
+  vi.stubGlobal("matchMedia", () => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() }));
+  Object.defineProperty(HTMLDialogElement.prototype, "show", { configurable: true, value: function () { this.setAttribute("open", ""); } });
   Object.defineProperty(HTMLDialogElement.prototype, "showModal", { configurable: true, value: function () { this.setAttribute("open", ""); } });
   Object.defineProperty(HTMLDialogElement.prototype, "close", { configurable: true, value: function () { this.removeAttribute("open"); this.dispatchEvent(new Event("close")); } });
 });
 afterEach(() => { cleanup(); sessionStorage.clear(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
+async function findResultButton(name: string) {
+  const table = await screen.findByRole("table");
+  return within(table).findByRole("button", { name });
+}
 function fillManual(title: string) {
   fireEvent.click(screen.getByRole("button", { name: "Add manually" }));
   fireEvent.change(screen.getByLabelText("Title"), { target: { value: title } });
@@ -83,16 +89,16 @@ function fillManual(title: string) {
 test("pagination and filters reset selection to the visible results", async () => {
   fixture(Array.from({ length: 21 }, (_, i) => hotspot(i + 1, i === 20 ? "manual" : "douyin")));
   render(<HotspotsWorkbench />);
-  await screen.findByRole("button", { name: "Idea 1" });
-  fireEvent.click(screen.getByRole("checkbox", { name: "Select Idea 1" }));
+  await findResultButton("Idea 1");
+  fireEvent.click(within(screen.getByRole("table")).getByRole("checkbox", { name: "Select Idea 1" }));
   expect(screen.getByText("1 selected")).toBeTruthy();
   fireEvent.click(screen.getByRole("button", { name: "Next" }));
-  await screen.findByRole("button", { name: "Idea 21" });
+  await findResultButton("Idea 21");
   expect(screen.getByText("0 selected")).toBeTruthy();
   fireEvent.click(screen.getByRole("button", { name: "Previous" }));
-  await screen.findByRole("button", { name: "Idea 1" });
+  await findResultButton("Idea 1");
   fireEvent.change(screen.getByLabelText("Source", { selector: "select" }), { target: { value: "manual" } });
-  await screen.findByRole("button", { name: "Idea 21" });
+  await findResultButton("Idea 21");
   expect(screen.queryByRole("button", { name: "Idea 1" })).toBeNull();
   expect((screen.getByRole("button", { name: "Previous" }) as HTMLButtonElement).disabled).toBe(true);
 });
@@ -102,11 +108,11 @@ test("manual add, detail and discard preserve the exact user command", async () 
   render(<HotspotsWorkbench />);
   await screen.findByText("No hotspot workflows yet.");
   fillManual("A new idea");
-  await screen.findByRole("button", { name: "A new idea" });
+  await findResultButton("A new idea");
   expect(store.commands[0].body).toMatchObject({ title: "A new idea", url: "https://example.test/idea", category: "adventure" });
   expect(typeof store.commands[0].body.request_key).toBe("string");
   expect(sessionStorage.getItem(storageKey)).toBeNull();
-  fireEvent.click(screen.getByRole("button", { name: "A new idea" }));
+  fireEvent.click(within(screen.getByRole("table")).getByRole("button", { name: "A new idea" }));
   const dialog = await screen.findByRole("dialog", { name: "Hotspot details" });
   await within(dialog).findByText("A new idea");
   expect(within(dialog).getByRole("link", { name: "Open source" }).getAttribute("rel")).toBe("noopener noreferrer");
@@ -155,7 +161,7 @@ test("public collection uses a new key and displays the persisted workflow", asy
   render(<HotspotsWorkbench />);
   await screen.findByText("No hotspot workflows yet.");
   fireEvent.click(screen.getByRole("button", { name: "Fetch public hotspots" }));
-  await screen.findByRole("button", { name: "Idea 1" });
+  await findResultButton("Idea 1");
   expect(store.commands[0]).toMatchObject({ path: "/api/hotspots/fetch", body: { limit: 50 } });
   expect(String(store.commands[0].body.request_key)).not.toBe("");
   expect(screen.getByText("Run: PR-1")).toBeTruthy();
@@ -169,18 +175,18 @@ test("disabled collection and invalid date range prevent unsafe requests", async
   const store = fixture([hotspot(1)]);
   store.disableCollection();
   render(<HotspotsWorkbench />);
-  await screen.findByRole("button", { name: "Idea 1" });
+  await findResultButton("Idea 1");
   expect((screen.getByRole("button", { name: "Fetch public hotspots" }) as HTMLButtonElement).disabled).toBe(true);
   expect(screen.getByText(/Public collection is unavailable/)).toBeTruthy();
-  fireEvent.click(screen.getByRole("checkbox", { name: "Select Idea 1" }));
-  fireEvent.click(screen.getByRole("checkbox", { name: "Select Idea 1" }));
+  fireEvent.click(within(screen.getByRole("table")).getByRole("checkbox", { name: "Select Idea 1" }));
+  fireEvent.click(within(screen.getByRole("table")).getByRole("checkbox", { name: "Select Idea 1" }));
   expect(screen.getByText("0 selected")).toBeTruthy();
   fireEvent.change(screen.getByLabelText("Captured from"), { target: { value: "2026-10-09" } });
   fireEvent.change(screen.getByLabelText("Captured through"), { target: { value: "2026-10-08" } });
   expect(screen.getByText("Start date must precede end date.")).toBeTruthy();
   expect(screen.queryByRole("button", { name: "Idea 1" })).toBeNull();
   fireEvent.change(screen.getByLabelText("Captured from"), { target: { value: "" } });
-  await screen.findByRole("button", { name: "Idea 1" });
+  await findResultButton("Idea 1");
   fireEvent.change(screen.getByLabelText("Status", { selector: "select" }), { target: { value: "discarded" } });
   await screen.findByText("No hotspots match these filters. Fetch public hotspots or add an idea manually.");
 });
@@ -216,4 +222,18 @@ test("corrupt saved commands block new work until history is checked", async () 
   fireEvent.click(screen.getByRole("button", { name: "I have checked recent workflows" }));
   expect(sessionStorage.getItem(storageKey)).toBeNull();
   await waitFor(() => expect((screen.getByRole("button", { name: "Add manually" }) as HTMLButtonElement).disabled).toBe(false));
+});
+
+test("mobile cards select and open the same hotspot details", async () => {
+  vi.stubGlobal("matchMedia", () => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() }));
+  fixture([hotspot(1)]);
+  render(<HotspotsWorkbench />);
+  const card = await screen.findByRole("article");
+  fireEvent.click(within(card).getByRole("checkbox", { name: "Select Idea 1" }));
+  expect(screen.getByText("1 selected")).toBeTruthy();
+  fireEvent.click(within(card).getByRole("button", { name: "Idea 1" }));
+  const dialog = await screen.findByRole("dialog", { name: "Hotspot details" });
+  expect(await within(dialog).findByText("Idea 1")).toBeTruthy();
+  fireEvent.click(within(dialog).getByRole("button", { name: "Close" }));
+  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
 });
