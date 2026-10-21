@@ -60,3 +60,5 @@ test_runtime_dotenv_tables.py: 五项启动配置行为门禁；文件/进程优
 test_harness_kernel.py: 慢外部handler执行期间列表/详情仍可读取真实running状态；并发新命令仍等待单一writer，保留既有重启、版本审批和模糊写入行为门禁。
 
 test_harness_boundaries.py: 审批身份、严格版本、重复操作者与外部审批证据损坏的行为门禁；真实API/Kernel/存储映射，验证拒绝后无写入、恢复原证据和精确重放。
+
+test_kernel_lifecycle_boundaries.py: 15项内核生命周期边界；运行中注册限制、重复启动、非法定义/转换、404、非审批步骤拒绝、取消保留已完成结果和完成任务重启不重跑。
