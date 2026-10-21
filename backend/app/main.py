@@ -29,6 +29,8 @@ def create_app(settings: Settings, *, kernel=None) -> FastAPI:
         finally:
             if runtime:
                 await asyncio.to_thread(runtime.stop)
+                if getattr(runtime, "model_router", None):
+                    runtime.model_router.close()
             if client:
                 client._http.close()
 
