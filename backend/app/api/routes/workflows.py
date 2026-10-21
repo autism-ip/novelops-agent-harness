@@ -35,7 +35,7 @@ class WorkflowBody(BaseModel):
 
 class DecisionBody(BaseModel):
     action: Literal["approve", "reject", "revise"]
-    expected_version: int = Field(ge=1)
+    expected_version: int = Field(ge=1, strict=True)
     operator: str = Field(min_length=1)
     reason: str = Field(default="", max_length=4000)
 
