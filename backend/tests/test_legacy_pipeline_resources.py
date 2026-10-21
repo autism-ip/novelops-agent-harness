@@ -115,6 +115,7 @@ def test_resolved_settings_control_real_pipeline_http_io(fixture, source, method
     else:
         data = response.json()
         if path.endswith("/steps"):
+            assert len(data) == 1
             assert data[0]["step_run_id"] == "SR-existing"
         else:
             assert data["record_id"] == "rec-existing"
@@ -184,3 +185,67 @@ def test_active_kernel_disables_legacy_creation_before_external_io(fixture):
     assert response.status_code == 410
     assert response.json()["detail"] == "Use /api/workflows for v0.2 execution"
     assert fixture.clients == [] and fixture.transport.calls == []
+
+
+@pytest.mark.parametrize("method,path", ROUTES)
+@pytest.mark.parametrize("failure", ["auth", "missing_table"])
+def test_all_legacy_routes_release_clients_after_setup_or_auth_failure(fixture, method, path, failure):
+    app = fixture.build("process", missing="FEISHU_TABLE_ID_STEP_RUNS" if failure == "missing_table" else "")
+    seed(fixture.transport)
+    before = copy.deepcopy(fixture.transport.tables)
+    if failure == "auth":
+        def rejected_auth(outbound):
+            fixture.transport.calls.append(outbound)
+            assert "/auth/" in outbound.url.path
+            return httpx.Response(200, json={"code": 999, "msg": "synthetic auth refusal"})
+        fixture.network.handler = rejected_auth
+    response = request(app, method, path)
+    assert response.status_code == (503 if failure == "auth" else 422), response.text
+    if failure == "auth":
+        assert response.json()["detail"] == "FeishuAuthError"
+        assert len(fixture.transport.calls) == 1
+    else:
+        assert fixture.transport.calls == []
+    assert fixture.transport.tables == before
+    assert len(fixture.clients) == 1 and fixture.clients[0].is_closed
+
+
+@pytest.mark.parametrize("failed_deletes", [(), ("configured-steps",), ("configured-pipelines",),
+                                           ("configured-steps", "configured-pipelines")])
+def test_partial_create_attempts_all_record_id_rollbacks_and_releases_client(fixture, failed_deletes):
+    app = fixture.build("process")
+    seed(fixture.transport)
+    before = copy.deepcopy(fixture.transport.tables)
+    original = fixture.transport.__call__
+    step_creates = []
+    delete_calls = []
+
+    def partial_failure(outbound):
+        path = outbound.url.path
+        if outbound.method == "POST" and path.endswith("/configured-steps/records"):
+            step_creates.append(outbound)
+            if len(step_creates) == 2:
+                fixture.transport.calls.append(outbound)
+                return httpx.Response(400, json={"code": 123, "msg": "synthetic second step failure"})
+        if outbound.method == "DELETE":
+            delete_calls.append(outbound)
+            if any(f"/tables/{table}/" in path for table in failed_deletes):
+                fixture.transport.calls.append(outbound)
+                return httpx.Response(400, json={"code": 456, "msg": "synthetic cleanup failure"})
+        return original(outbound)
+
+    fixture.network.handler = partial_failure
+    response = request(app, "POST", "/api/pipelines")
+    assert response.status_code == 503
+    assert response.json() == {"detail": "FeishuAPIError", "reconciliation_required": True}
+    assert len(step_creates) == 2  # no replay of failed create
+    assert [call.url.path.rsplit("/", 1)[-1] for call in delete_calls] == ["rec2", "rec1"]
+    assert "/tables/configured-steps/" in delete_calls[0].url.path
+    assert "/tables/configured-pipelines/" in delete_calls[1].url.path
+    for table, previous in before.items():
+        rows = fixture.transport.tables[table]
+        assert {key: rows[key] for key in previous} == previous
+        retained = set(rows) - set(previous)
+        assert retained == ({"rec2" if table.endswith("steps") else "rec1"}
+                            if table in failed_deletes else set())
+    assert len(fixture.clients) == 1 and fixture.clients[0].is_closed
