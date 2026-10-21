@@ -19,6 +19,8 @@ app/hotspot_controls.py: ZEN-34 人工添加与丢弃命令；通过持久化工
 app/research.py: ZEN-35 版本化 ResearchAgent、保守风险策略、精确版本审批与可恢复飞书分析投影；同一次读取按业务 ID 批量验证两种产物与审批事件，保留未生成产物和步骤顺序，每次重新核验热点当前性。
 app/creative.py: ZEN-36 标题候选与封面方向生成、逐项 Artifacts、版本选择与飞书投影；候选按业务 ID 批量重新读取，保留顺序与完整性校验，缺失时不返回部分集合，选择步骤复用本次同一组 ID；完整已选视图与选项由同一次新鲜读取返回，保留种类、终态、当前性和精确选择校验。
 app/books.py: ZEN-38 精确来源建书与 canonical StoryState，ready 重放兼容后续状态版本；同次单写者操作复用完整已审批/已选视图，不重复解析相同链路，每次重新核验来源。
+app/story_planning.py: ZEN-39 StoryBible 人工审批与确定性状态补丁、不可变 StoryContextSnapshot、版本化 ChapterBrief；资格检查仅展开最新版本，历史列表保留完整读取。
+app/api/routes/story_planning.py: ZEN-39 精确版本上下文、触发、历史、审批和 eligible brief 接口。
 app/api/routes/research.py: 鉴权批量分析、历史、审批/拒绝/退修与 approved 消费契约。
 app/api/routes/creative.py: ZEN-36 标题和封面的版本 context、触发、历史、选择与 selected 消费契约。
 app/api/routes/hotspots.py: 鉴权抓取触发及热点列表/详情接口；命令只由后端配置。
@@ -31,9 +33,15 @@ app/api/routes/hotspots.py: 鉴权抓取触发及热点列表/详情接口；命
 
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 
+规划模型输入将鉴权请求的 feedback 映射为独立 editor_instruction；StoryBible 同时携带 initial/major 范围，仍由精确版本人工审批生效。提纲以规范快照规则为上位约束，修复旧提纲冲突。API 的 feedback 字段保持原契约，客户端不能伪造内部输入字段，来源中的同名文本只是数据。
+
 app/evals.py: 离线对比及有界真实 provider 评估 CLI；非空数组 fixture 验证先于客户端创建，输出失败类别与用量未知状态，不把传输测试当作真实模型质量证据。
 
+chapter-planner-v3 区分给作者的规划说明与下游章节正文风格，遵从编辑指定的视角、句数和原句标点；真实语义仍须独立验收。
+
 SemanticRuntime 可由内部调用方显式选择已验证的顶层字符串指令字段，作为来源 JSON 后的最后 user 消息；输入哈希同时绑定字段选择，缺省路径消息/哈希保持，嵌套来源不能被提升为指令。
+
+StoryBible v3 / ChapterPlanner v4 显式选择 editor_instruction 为来源JSON后的最后user消息；系统规范仍居上位，输入哈希绑定选择器，公共API不新增内部字段。
 
 Settings统一读取.env、.env.local及进程覆盖后的Base和表ID；runtime向TableMapConfig显式传递已解析配置，禁止运行时混用别的进程环境。旧TableMapConfig无映射调用仍保留环境接口，显式映射防御性复制且缺失值保持fail-fast。
 

@@ -1,0 +1,813 @@
+{
+  "date": "2026-10-20",
+  "goal_complete": false,
+  "issues": [
+    "ZEN-39",
+    "ZEN-40",
+    "ZEN-41"
+  ],
+  "owning_pr": 35,
+  "dependent_prs": [
+    36,
+    37
+  ],
+  "source": {
+    "commit": "c270db45d241e457cc6ba19f07dd3c134381d0af",
+    "path": "/tmp/novelops-planning-boundary-pr37-c270db45",
+    "app_tree": "88b2cf4d2300fedeb016e38c45b232f4346e789c",
+    "published_head": "d221096e378d1299010c63e7c107591d6ddcf8af",
+    "offline_tests": 818
+  },
+  "production_changes": false,
+  "original_expected_event": "A current policy-eligible chapter2 plan carrying canonical Statev2 and chapter1finalv9 produces faithful prose, structured critique and a policy-pass without an unnecessary rewrite or human approval.",
+  "actual_requirement_event_achieved": false,
+  "events": {
+    "plan2_format_and_continuity_accepted": true,
+    "original_direction_native_propagation_verified": true,
+    "chapter2_candidate_written_and_retained": true,
+    "critic_schema_failure_refused": true,
+    "valid_CriticReport_created": false,
+    "routine_pass_observed": false,
+    "independent_prose_accepted": false,
+    "chapter2_approved_or_final_locked": false
+  },
+  "plan2": {
+    "run_id": "PR-84a2155a86ee865d93932284595eef22",
+    "brief_artifact_id": "AR-a7fdbf6b0d5ba9365fc8073e3e92649f",
+    "content_hash": "bc4bc90268870ad3465c54a65aeb49a4a4e0feb8032b615cdac6667e27cdb941",
+    "request_version": 2,
+    "field_sentence_counts": {
+      "opening_hook": 2,
+      "scene_goal": 1,
+      "conflict": 1,
+      "payoff": 2,
+      "ending_hook": 1
+    },
+    "independent_review": {
+      "accepted": true,
+      "acceptance_scope": "Planning artifact only; actual chapter prose still requires independent verification.",
+      "source_commit": "c270db45d241e457cc6ba19f07dd3c134381d0af",
+      "source_app_tree": "88b2cf4d2300fedeb016e38c45b232f4346e789c",
+      "brief_artifact_id": "AR-a7fdbf6b0d5ba9365fc8073e3e92649f",
+      "brief_content_hash": "bc4bc90268870ad3465c54a65aeb49a4a4e0feb8032b615cdac6667e27cdb941",
+      "field_sentence_counts": {
+        "opening_hook": 2,
+        "scene_goal": 1,
+        "conflict": 1,
+        "payoff": 2,
+        "ending_hook": 1
+      },
+      "requested_sentence_range_per_field": [
+        1,
+        2
+      ],
+      "checks": {
+        "third_person_planning": true,
+        "continues_chapter1_v9_copper_key": true,
+        "find_verify_actual_return_planned": true,
+        "chen_accepts_key_before_private_whisper": true,
+        "new_secret_and_irreversible_loss": true,
+        "no_recovery_or_repeat_of_previous_return": true,
+        "explicit_sleep_then_next_dawn": true,
+        "no_new_contract_item_or_free_power": true,
+        "original700to1000Han_direction_retained_exactly_in_request": true,
+        "state_v2_and_latest_final_v9_exact": true
+      },
+      "narrative_evidence": {
+        "return": "陈伯收下钥匙",
+        "personal_whisper": "俯身对账本低声说出那个秘密",
+        "irreversible_cost": "只剩说不清来处的空白，那点隐秘的期待再也摸不到",
+        "next_dawn": "熄灯睡下，次日黎明钟声再响"
+      },
+      "prose_checks_still_required": [
+        "First-person limited viewpoint; actual700–1000Han count",
+        "Actual find/ordinary verification/Chen receives key before personal private whisper and irreversible loss",
+        "No disclosure of the new secret to Chen or postman, no recovered grandpa secret, no post-cost knowledge of lost secret/motive/link",
+        "Concrete temperature/dialogue, avoid copied previous sea/ebb metaphors",
+        "Sleep and nextdawn transition; the new lost-item record must include only characteristics/location/deadline and no second completed return"
+      ],
+      "planning_omission_to_check_in_prose": "Ending hook abbreviates the next record without an explicit deadline; canonical Bible and full original direction still require a deadline in actual prose. Do not infer its presence from this plan.",
+      "paid_v1_preserved": true,
+      "no_content_edited_or_forced_pass": true,
+      "models_used_in_this_assistant_review": 0
+    }
+  },
+  "chapter": {
+    "run_id": "PR-de63e044bf0c1e61f762da9408870cc5",
+    "writer_artifact_id": "AR-8028451c8f17a7d87c190df7b6e50861",
+    "writer_content_hash": "fb9a250aad924ebdbef0657503a63a53c45e84bba9ced1b6db1a534917730046",
+    "writer_han": 996,
+    "run_status": "failed",
+    "review_gate": {
+      "step_id": "SR-260e2b04fa9b21ea7bb85a948b131aaf",
+      "status": "cancelled",
+      "output_version": 0
+    },
+    "step_statuses": [
+      {
+        "step_key": "writer",
+        "status": "success",
+        "error_message": null
+      },
+      {
+        "step_key": "verify_writer",
+        "status": "success",
+        "error_message": null
+      },
+      {
+        "step_key": "critic",
+        "status": "failed",
+        "error_message": "ModelFailure: handler exhausted retries"
+      },
+      {
+        "step_key": "rewrite",
+        "status": "cancelled",
+        "error_message": null
+      },
+      {
+        "step_key": "final_verify",
+        "status": "cancelled",
+        "error_message": null
+      }
+    ],
+    "independent_review": {
+      "accepted": false,
+      "source_commit": "c270db45d241e457cc6ba19f07dd3c134381d0af",
+      "source_app_tree": "88b2cf4d2300fedeb016e38c45b232f4346e789c",
+      "writer_artifact_id": "AR-8028451c8f17a7d87c190df7b6e50861",
+      "writer_content_hash": "fb9a250aad924ebdbef0657503a63a53c45e84bba9ced1b6db1a534917730046",
+      "han_characters": 996,
+      "han_range_accepted": true,
+      "prose_first_person": true,
+      "actual_return_before_personal_whisper": true,
+      "sleep_then_next_dawn": true,
+      "old_chapter1_v9_not_replayed_or_restored": true,
+      "findings": [
+        {
+          "id": "post_cost_specific_memory",
+          "severity": "blocking",
+          "evidence": "话里有个邮差",
+          "context": "This appears after the ledger absorbs the whisper. The narrator still identifies a specific person from the paid secret.",
+          "requirement": "After payment, no content/motive/emotional link of the new secret may remain; only unlocated blankness.",
+          "accepted": false
+        },
+        {
+          "id": "next_record_deadline_missing",
+          "severity": "blocking",
+          "evidence": "一只裂了表蒙的旧怀表，最后出现地点，钟楼机械层废件箱底层。",
+          "context": "Final next-dawn record supplies characteristics/location but no return deadline.",
+          "requirement": "Canonical PowerSystem requires each record to state characteristics,last location and return deadline.",
+          "accepted": false
+        },
+        {
+          "id": "quantity_claim_inconsistent",
+          "severity": "minor",
+          "evidence": "多了两个字：限今日午前",
+          "context": "The stated two characters are followed by five Han characters.",
+          "accepted": false
+        },
+        {
+          "id": "drain_grille_position",
+          "severity": "minor",
+          "evidence": "顶上悬着的旧格栅",
+          "context": "Subsequent crouching/digging and the return dialogue locate the key beneath a drainage grille; the overhead description is spatially unclear.",
+          "accepted": false
+        }
+      ],
+      "deadline_of_actual_return": "Morning progression suggests but does not explicitly measure the noon deadline; clarify in any future revision.",
+      "critic_contract_accepted": false,
+      "critic_raw_json_failure": {
+        "class": "JSONDecodeError",
+        "message": "Extra data",
+        "line": 1,
+        "column": 1521,
+        "position": 1520
+      },
+      "critic_raw_assistant_sha256": "086908ff64286a6ece8fcb101f3b5c7dbf3895a9e169a5abcee8ac595830dc88",
+      "critic_persisted_as_CriticReport": false,
+      "critic_raw_intended_pass_is_not_accepted_workflow_pass": true,
+      "routine_pass_observed": false,
+      "runtime_result": "Critic step failedSchemaFailure;Rewrite/finalverificationnotstarted;candidate retained.",
+      "disposition": "Retain actual paid outputs and failure trace. Do not repair malformed JSON,edit prose,approve/final-lock or force a pass. Shared4request budget exhausted; further paid work requires new authorization."
+    },
+    "independent_mechanics": {
+      "source": {
+        "commit": "c270db45d241e457cc6ba19f07dd3c134381d0af",
+        "path": "/tmp/novelops-planning-boundary-pr37-c270db45",
+        "app_tree": "88b2cf4d2300fedeb016e38c45b232f4346e789c",
+        "published_head": "d221096e378d1299010c63e7c107591d6ddcf8af",
+        "offline_tests": 818
+      },
+      "baseline426_exact": true,
+      "new_rows_retained": 17,
+      "artifact_content_hashes_recomputed": 5,
+      "actual_model_routes": [
+        "writer",
+        "critic"
+      ],
+      "global_spent_or_reserved": 4,
+      "global_max": 4,
+      "routine_pass_observed": false,
+      "semantic_content_acceptance": "pending_manual_review",
+      "full_original_direction_and_history_in_actual_outgoing_roles": [
+        "writer",
+        "critic"
+      ],
+      "writer_artifact_id": "AR-8028451c8f17a7d87c190df7b6e50861",
+      "writer_content_hash": "fb9a250aad924ebdbef0657503a63a53c45e84bba9ced1b6db1a534917730046",
+      "writer_han": 996,
+      "writer_codepoints": 1181,
+      "requested_han_min": 700,
+      "requested_han_max": 1000,
+      "requested_han_range_met": true,
+      "raw_writer_output_preserved": true,
+      "critic_received_exact_prose_and_measured_han": true
+    }
+  },
+  "diagnostic": {
+    "artifact_id": "AR-205d981f2e957fe26c5c9f07a5db472b",
+    "artifact_type": "RejectedModelResponseEvidence",
+    "content_hash": "582af1811fc1f83a948442607aa305d387b1b1a1188fc389ef98dfbfca801326",
+    "run_id": "PR-de63e044bf0c1e61f762da9408870cc5",
+    "step_id": "SR-740870ee9e6d5789b18b95bb8a2ccb1c",
+    "failed_model_trace_id": "TR-7fe05624020f4870847aa5a7bb6a9312",
+    "raw_assistant_text_sha256": "086908ff64286a6ece8fcb101f3b5c7dbf3895a9e169a5abcee8ac595830dc88",
+    "exact_parsed_http_envelope_retained": true,
+    "semantic_promotion": false,
+    "exact_replay_added_writes": 0
+  },
+  "retention": {
+    "authorized_base": "https://fcnaul7kb1kf.feishu.cn/base/T8I6buCMoaiLB6srVBrc9i2jnph",
+    "known_before": 417,
+    "new_plan_rows": 9,
+    "new_chapter_rows": 17,
+    "new_diagnostic_rows": 1,
+    "known_after": 444,
+    "old417_exact_after_plan": true,
+    "old426_exact_after_chapter": true,
+    "old443_exact_after_diagnostic": true,
+    "new_artifact_hashes_independently_recomputed": [
+      {
+        "artifact_id": "AR-b29d0ebe13297c5c07ea84f0ac1fca85",
+        "type": "StoryContextSnapshot",
+        "content_hash": "483f82b5fe2917122d31bf1eb2f70004324c8412eb586ae093712bf7c9246e38"
+      },
+      {
+        "artifact_id": "AR-c53599d350b8b38f96a3981593fc3edc",
+        "type": "ChapterBriefDraft",
+        "content_hash": "35cc47d5afbb1a7e7e6f1176a01cb3dbf503497f2225a3ec94462a1ec9658811"
+      },
+      {
+        "artifact_id": "AR-a7fdbf6b0d5ba9365fc8073e3e92649f",
+        "type": "ChapterBrief",
+        "content_hash": "bc4bc90268870ad3465c54a65aeb49a4a4e0feb8032b615cdac6667e27cdb941"
+      },
+      {
+        "artifact_id": "AR-cfca70d675fd1a40c6fdf7bb664e854f",
+        "type": "StoryContextSnapshot",
+        "content_hash": "1c8ae1ef5830707e652ed1c57082a439c9565e4ddd390dbaab90f9e19d3b2ffe"
+      },
+      {
+        "artifact_id": "AR-1b4faeaf40f70e40c4a12f00cbb25caa",
+        "type": "ChapterModelResponse",
+        "content_hash": "199efa41073d588674dd4a406d1f0d5b47fa55e4528b0c68a8ffe21f77b09d4b"
+      },
+      {
+        "artifact_id": "AR-dbd51b864a2b55a76abae4015eca3d76",
+        "type": "ChapterDraft",
+        "content_hash": "314e996b3c8df992f9803ce6c3c9c2f8603634f5bb256ff0c927a16a92a274f7"
+      },
+      {
+        "artifact_id": "AR-188a355b2a6e60afa48eebaf561443da",
+        "type": "ChapterVerification",
+        "content_hash": "0d07eb0099021088ecb70956e0bf025ad75c83a30495450e68008c9e966d29fe"
+      },
+      {
+        "artifact_id": "AR-8028451c8f17a7d87c190df7b6e50861",
+        "type": "ChapterVersion",
+        "content_hash": "fb9a250aad924ebdbef0657503a63a53c45e84bba9ced1b6db1a534917730046"
+      },
+      {
+        "artifact_id": "AR-205d981f2e957fe26c5c9f07a5db472b",
+        "type": "RejectedModelResponseEvidence",
+        "content_hash": "582af1811fc1f83a948442607aa305d387b1b1a1188fc389ef98dfbfca801326"
+      }
+    ]
+  },
+  "native_observations": [
+    {
+      "phase": "plan2",
+      "status": "native_history_plan2_verified",
+      "operations": {
+        "auth": 1,
+        "read": 365,
+        "owned_write": 22
+      },
+      "replay_new_models": 0,
+      "replay_new_writes": 0
+    },
+    {
+      "phase": "chapter2",
+      "status": "native_history_chapter2_observed",
+      "business_run_failed": true,
+      "operations": {
+        "auth": 1,
+        "read": 564,
+        "owned_write": 38
+      },
+      "replay_new_models": 0,
+      "replay_new_writes": 0
+    },
+    {
+      "phase": "diagnostic",
+      "status": "rejected_critic_evidence_retained",
+      "operations": {
+        "auth": 1,
+        "read": 207,
+        "owned_write": 1
+      }
+    }
+  ],
+  "processes": {
+    "preflight": "exit0",
+    "plan2": "exit0",
+    "chapter2_observer": "exit0",
+    "diagnostic_v3": "exit0",
+    "all_schedulers_stopped": true,
+    "meaning": "Observer exit0 does not mean the chapter workflow passed; its Critic step failed."
+  },
+  "model_receipts": [
+    {
+      "phase": "original_plan_v1",
+      "route": "chapter_planner",
+      "trace_id": "TR-7beb12ef2e7f4a03a34c13e872c44580",
+      "request_sha256": "1b7698b9acabe32f1b522c15af35bdd271690a8d80271454bb7ea22ba09a9272",
+      "response_sha256": "34ca0c05cbb7598939ebecce50745dd32eec09e2ab5428e1447e6a188e631533",
+      "http_status": 200,
+      "finish_reason": "stop",
+      "model": "deepseek-flash",
+      "prompt_version": "chapter-planner-v5",
+      "input_tokens": 6452,
+      "output_tokens": 366,
+      "trace_status": "success",
+      "failure_class": null,
+      "estimated_cost": 0.0023748,
+      "retry_attempt": 0
+    },
+    {
+      "phase": "new_plan_v2",
+      "route": "chapter_planner",
+      "trace_id": "TR-efc2e0d4e6b241fa8fc055a6e91b1e02",
+      "request_sha256": "dc06fb3cb45f08869b16cca35088edfaa5bf291a464f87e21e80c0fcd507ffb7",
+      "response_sha256": "2b350089b81253fae1dcc67169aa2fe12d93a04ee980ec02f0889409d6cdd68e",
+      "http_status": 200,
+      "finish_reason": "stop",
+      "model": "deepseek-flash",
+      "prompt_version": "chapter-planner-v5",
+      "input_tokens": 7161,
+      "output_tokens": 340,
+      "trace_status": "success",
+      "failure_class": null,
+      "estimated_cost": 0.0025562999999999996,
+      "retry_attempt": 0
+    },
+    {
+      "phase": "chapter2_v1",
+      "route": "writer",
+      "trace_id": "TR-732eebb818df473f92c7b95aed17a160",
+      "request_sha256": "ac46c1344feb1b48dd7dd968334b11e48d5df061338b70e7a730da1392fa1c01",
+      "response_sha256": "966580af056e12c5119527752f26e94f78a00ab1278a9dd6bfdc7745d5ff08ed",
+      "http_status": 200,
+      "finish_reason": "stop",
+      "model": "deepseek-flash",
+      "prompt_version": "chapter-writer-v6",
+      "input_tokens": 8836,
+      "output_tokens": 920,
+      "trace_status": "success",
+      "failure_class": null,
+      "estimated_cost": 0.0037547999999999995,
+      "retry_attempt": 0
+    },
+    {
+      "phase": "chapter2_v1",
+      "route": "critic",
+      "trace_id": "TR-7fe05624020f4870847aa5a7bb6a9312",
+      "request_sha256": "85be736a324906feea076696f967af81630a300e508ba8526424083f5cc94b57",
+      "response_sha256": "a009d6809332c2ef43fc31a76db6b11c895a3be6a7f6e858a08e93a44bafb35a",
+      "http_status": 200,
+      "finish_reason": "stop",
+      "model": "deepseek-flash",
+      "prompt_version": "chapter-critic-v7",
+      "input_tokens": 10530,
+      "output_tokens": 1281,
+      "trace_status": "failed",
+      "failure_class": "SchemaFailure",
+      "estimated_cost": 0.0046962,
+      "retry_attempt": 0
+    }
+  ],
+  "global_model_requests": 4,
+  "global_authorized_max": 4,
+  "remaining_model_requests": 0,
+  "automatic_model_retries": 0,
+  "totals": {
+    "input_tokens": 32979,
+    "output_tokens": 2907,
+    "configured_estimated_cost": 0.0133821,
+    "cost_is_provider_bill": false
+  },
+  "current_gates": [
+    {
+      "pr": 35,
+      "branch": "codex/zen-39-story-planning",
+      "source_commit": "398b648f6b467f16a6daf4e47cef16889bf10b25",
+      "path": "/tmp/novelops-planning-boundary-pr35-398b648f",
+      "app_tree": "4981daaa11d5f855189e996fb2fe1cc732ad73f6",
+      "frontend_tree": "d66ed69f208a22a065740d5e50c7c4f46b169bd7",
+      "previous_published_head": "6ed10a82eca686222c59943cc1e3c367a8294e69",
+      "offline_passed": 689,
+      "integration_deselected": 10,
+      "existing_warnings": 1,
+      "ruff": "passed",
+      "totals": {
+        "covered_lines": 3573,
+        "num_statements": 3678,
+        "percent_covered": 96.15885416666667,
+        "percent_covered_display": "96.16",
+        "missing_lines": 105,
+        "excluded_lines": 11,
+        "percent_statements_covered": 97.14518760195759,
+        "percent_statements_covered_display": "97.15",
+        "num_branches": 930,
+        "num_partial_branches": 68,
+        "covered_branches": 858,
+        "missing_branches": 72,
+        "percent_branches_covered": 92.25806451612904,
+        "percent_branches_covered_display": "92.26"
+      },
+      "planning_module": {
+        "covered_lines": 389,
+        "num_statements": 389,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 98,
+        "num_partial_branches": 0,
+        "covered_branches": 98,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "planning_named_executable_entries": {
+        "covered": 29,
+        "total": 29
+      },
+      "whole_named_executable_entries": {
+        "covered": 347,
+        "total": 353,
+        "unentered": [
+          [
+            "app/api/deps.py",
+            "get_settings"
+          ],
+          [
+            "app/api/routes/health.py",
+            "health"
+          ],
+          [
+            "app/api/routes/health.py",
+            "status"
+          ],
+          [
+            "app/api/routes/workflows.py",
+            "decision"
+          ],
+          [
+            "app/feishu/repositories/story_states.py",
+            "StoryStatesRepo.find_by_book"
+          ],
+          [
+            "app/pipeline/worker.py",
+            "WorkerLoop._resolve_record_id"
+          ]
+        ],
+        "zero_executable_statement_declarations": [
+          [
+            "app/generation.py",
+            "ModelProvider.complete"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get_many"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.list"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.ensure"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.update"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.delete"
+          ]
+        ],
+        "scope": "Independent named function entry diagnostic; not full-project Function100%."
+      },
+      "test_file_sha256": "369bde7633bec9372a968ce15da57145824d9caace3b8b029d207794d1fb7cf6"
+    },
+    {
+      "pr": 36,
+      "branch": "codex/zen-40-chapter-loop",
+      "source_commit": "f6775d064686d3b86258cf8902afd6fdbf81bf6f",
+      "path": "/tmp/novelops-planning-boundary-pr36-f6775d06",
+      "app_tree": "1d35af63c897f4d8dfdb1bfcbee8621b5287c9d9",
+      "frontend_tree": "684a63431603401a9eee9282681cd982e19a8a24",
+      "previous_published_head": "14340ad947e3a8fa5cf1d27f924330ad37689751",
+      "offline_passed": 762,
+      "integration_deselected": 10,
+      "existing_warnings": 1,
+      "ruff": "passed",
+      "totals": {
+        "covered_lines": 4051,
+        "num_statements": 4199,
+        "percent_covered": 95.18848266717181,
+        "percent_covered_display": "95.19",
+        "missing_lines": 148,
+        "excluded_lines": 11,
+        "percent_statements_covered": 96.47535127411288,
+        "percent_statements_covered_display": "96.48",
+        "num_branches": 1080,
+        "num_partial_branches": 100,
+        "covered_branches": 974,
+        "missing_branches": 106,
+        "percent_branches_covered": 90.18518518518519,
+        "percent_branches_covered_display": "90.19"
+      },
+      "planning_module": {
+        "covered_lines": 389,
+        "num_statements": 389,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 98,
+        "num_partial_branches": 0,
+        "covered_branches": 98,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "planning_named_executable_entries": {
+        "covered": 29,
+        "total": 29
+      },
+      "whole_named_executable_entries": {
+        "covered": 388,
+        "total": 397,
+        "unentered": [
+          [
+            "app/api/deps.py",
+            "get_settings"
+          ],
+          [
+            "app/api/routes/chapter_loop.py",
+            "versions"
+          ],
+          [
+            "app/api/routes/chapter_loop.py",
+            "read"
+          ],
+          [
+            "app/api/routes/chapter_loop.py",
+            "lock_final"
+          ],
+          [
+            "app/api/routes/health.py",
+            "health"
+          ],
+          [
+            "app/api/routes/health.py",
+            "status"
+          ],
+          [
+            "app/api/routes/workflows.py",
+            "decision"
+          ],
+          [
+            "app/feishu/repositories/story_states.py",
+            "StoryStatesRepo.find_by_book"
+          ],
+          [
+            "app/pipeline/worker.py",
+            "WorkerLoop._resolve_record_id"
+          ]
+        ],
+        "zero_executable_statement_declarations": [
+          [
+            "app/generation.py",
+            "ModelProvider.complete"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get_many"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.list"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.ensure"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.update"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.delete"
+          ]
+        ],
+        "scope": "Independent named function entry diagnostic; not full-project Function100%."
+      },
+      "test_file_sha256": "369bde7633bec9372a968ce15da57145824d9caace3b8b029d207794d1fb7cf6"
+    },
+    {
+      "pr": 37,
+      "branch": "codex/zen-41-chapter-review-desk",
+      "source_commit": "c270db45d241e457cc6ba19f07dd3c134381d0af",
+      "path": "/tmp/novelops-planning-boundary-pr37-c270db45",
+      "app_tree": "88b2cf4d2300fedeb016e38c45b232f4346e789c",
+      "frontend_tree": "5d1da703d2d9709d195bfe4e900e05038adcf7fd",
+      "previous_published_head": "26da33e3fb7942cc2d3fc17ed7bc50c5d7de4130",
+      "offline_passed": 818,
+      "integration_deselected": 10,
+      "existing_warnings": 1,
+      "ruff": "passed",
+      "totals": {
+        "covered_lines": 4282,
+        "num_statements": 4418,
+        "percent_covered": 95.68165596002855,
+        "percent_covered_display": "95.68",
+        "missing_lines": 136,
+        "excluded_lines": 11,
+        "percent_statements_covered": 96.92168401991852,
+        "percent_statements_covered_display": "96.92",
+        "num_branches": 1186,
+        "num_partial_branches": 98,
+        "covered_branches": 1080,
+        "missing_branches": 106,
+        "percent_branches_covered": 91.06239460370995,
+        "percent_branches_covered_display": "91.06"
+      },
+      "planning_module": {
+        "covered_lines": 389,
+        "num_statements": 389,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 98,
+        "num_partial_branches": 0,
+        "covered_branches": 98,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "planning_named_executable_entries": {
+        "covered": 29,
+        "total": 29
+      },
+      "whole_named_executable_entries": {
+        "covered": 403,
+        "total": 408,
+        "unentered": [
+          [
+            "app/api/deps.py",
+            "get_settings"
+          ],
+          [
+            "app/api/routes/health.py",
+            "health"
+          ],
+          [
+            "app/api/routes/health.py",
+            "status"
+          ],
+          [
+            "app/feishu/repositories/story_states.py",
+            "StoryStatesRepo.find_by_book"
+          ],
+          [
+            "app/pipeline/worker.py",
+            "WorkerLoop._resolve_record_id"
+          ]
+        ],
+        "zero_executable_statement_declarations": [
+          [
+            "app/generation.py",
+            "ModelProvider.complete"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get_many"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.list"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.ensure"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.update"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.delete"
+          ]
+        ],
+        "scope": "Independent named function entry diagnostic; not full-project Function100%."
+      },
+      "test_file_sha256": "369bde7633bec9372a968ce15da57145824d9caace3b8b029d207794d1fb7cf6"
+    }
+  ],
+  "verification_scope": "Prior exact commit archives689/762/818 passed; app/tests/frontend/config unchanged. The new native flow used the combinedPR37 source only; ancestor branches are not claimed to have the full descendant runtime.",
+  "observer_failures": [
+    {
+      "attempt": "diagnostic_v1",
+      "result": "Intentionally stopped before write to correct TraceID-vs-StepRunID metadata;exit130,0writes,old443exact."
+    },
+    {
+      "attempt": "diagnostic_v2",
+      "result": "Guard rejected an existing projection ensure during startup;0writes,old443exact. Not a product failure."
+    },
+    {
+      "attempt": "diagnostic_v3",
+      "result": "Reused proven guard: existingensureallow_createFalse+exactbaseline;one diagnosticArtifact saved,replayed without writes."
+    }
+  ],
+  "skill_update": {
+    "skill": "/Users/zen/.codex/skills/issue-pr-delivery/SKILL.md",
+    "before_sha256": "063949e1cda767baa8108eacf5290685d740e7706736b96d3284ebbd0242e6e5",
+    "after_sha256": "538a8ae537535482b545d21cdea6275e39315ac3c961938dc7c6905d8b608fbe",
+    "backup": "/tmp/novelops-20261020-issue-pr-delivery-before-native-evidence.md",
+    "scope": "Two narrowly scoped acceptance-probe/evidence bullets;frontmatter,metadata,policy unchanged",
+    "behavioral_evidence": [
+      "Native diagnostic v3 reused actual baselineensure allow_createFalse,443old exact,one diagnosticArtifact,zero modelcalls,exactreplaynoextra write",
+      "ActualStepRunID crosschecked against failedCriticTrace;raw rejectedresponse kept without businessCriticReport or successlink",
+      "Sharedmodel budget observed4actualrequests;duplicate+20concurrent guardtest bounded4;no phase reset"
+    ],
+    "validation": "Skill is valid!"
+  },
+  "requirement_inventory": {
+    "original_issues": 13,
+    "linear_criteria": 61,
+    "github_additional_checks": 51,
+    "original_scopes_and_user_constraints_apply": true,
+    "final_audit_complete": false
+  },
+  "next_paid_work": {
+    "authorization_received": false,
+    "new_request_sent": false,
+    "proposal": "/tmp/novelops-20261020-history-followup-proposal.json",
+    "proposed_additional_max": 4,
+    "proposed_global_max_if_approved": 8,
+    "preview_sha256": "412302d5284e9baa77a68394dd9ea0f5ea5732371f994cc0e2eb056765c45697"
+  },
+  "limits": [
+    "FullprojectS/L/F/B100% not achieved:backend4282/4418statements,1080/1186branches;403/408independentnamedentries;frontend94.69/97.14/94.69/95.11%.",
+    "Writer996Han meets length but violates postcostmemory andomitsnextrecorddeadline. No semantic pass is declared.",
+    "Critic raw text intendedpass but its malformedJSON was rejected; it was never a validCriticReport or acceptedpolicy-pass.",
+    "Fourrequestcap consumed. No further paid call until newauthorization; no automatic retry, JSON repair, prose edit or manual promotion.",
+    "No new publiccollection,mainmerge,deployment orissueDone. Modelcost isconfigured estimate,notbill."
+  ],
+  "no_merge_deploy_done": true
+}
