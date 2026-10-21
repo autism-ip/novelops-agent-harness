@@ -1,3 +1,8 @@
+/**
+ * [INPUT]: Real creative workbench with controlled HTTP/storage and held requests.
+ * [OUTPUT]: Exact command ownership after settling immediate React effect work.
+ * [POS]: ZEN-36 contract gate; held history/context/writes remain pending; assertions/retries unchanged.
+ */
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { HotspotsWorkbench } from "../src/components/hotspots/workbench";
@@ -70,7 +75,7 @@ beforeEach(() => {
   Object.defineProperty(HTMLDialogElement.prototype, "close", { configurable: true, value: function () { this.removeAttribute("open"); this.dispatchEvent(new Event("close")); } });
 });
 afterEach(() => { cleanup(); sessionStorage.clear(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
-async function open() { fireEvent.click(await screen.findByRole("button", { name: row.title })); return screen.findByRole("dialog", { name: "Hotspot details" }); }
+async function open() { fireEvent.click(await screen.findByRole("button", { name: row.title })); const dialog = await screen.findByRole("dialog", { name: "Hotspot details" }); await act(async () => {}); return dialog; }
 for (const kind of ["titles", "covers"] as const) {
   test(`${kind}: one command owns context preparation, persistence and POST`, async () => {
     const store = fixture(); store.holdContexts(); render(<HotspotsWorkbench />); const dialog = await open();
