@@ -1,7 +1,7 @@
 """
 [INPUT]: 依赖 PipelineEngine 的 get_runnable_steps / complete_step / fail_step，
          依赖 PipelineRunsRepo 的 find_by_status，依赖 StepRunsRepo 的 update
-[OUTPUT]: 对外提供 WorkerLoop 类——lease-based step claiming 与执行循环
+[OUTPUT]: 对外提供 WorkerLoop 类——lease-based step claiming、按 record_id 父流程转换与执行循环
 [POS]: pipeline 包的执行引擎，被启动脚本或测试消费，编排 step 的 claim/execute/complete 生命周期
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
@@ -160,9 +160,10 @@ class WorkerLoop:
         # Transition pipeline to "running" on first claim
         pipeline_run_id = step.get("pipeline_run_id", "")
         if pipeline_run_id:
-            pipeline = self._engine._pipeline_repo.get(pipeline_run_id)
+            pipeline = self._engine._pipeline_repo.find_by_business_key(
+                pipeline_run_id=pipeline_run_id)
             if pipeline and pipeline.get("status") == "pending":
-                self._engine._pipeline_repo.update(pipeline_run_id, {
+                self._engine._pipeline_repo.update(pipeline["record_id"], {
                     "status": "running",
                     "updated_at": datetime.now(timezone.utc).isoformat(),
                 })

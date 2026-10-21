@@ -7,10 +7,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """NovelOps backend settings — loaded from env vars / .env file."""
+    """NovelOps backend settings — environment overrides local dotenv files."""
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=(".env", ".env.local"),
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",
@@ -22,6 +22,26 @@ class Settings(BaseSettings):
     # --- Feishu Bitable ---
     FEISHU_APP_ID: str = ""
     FEISHU_APP_SECRET: str = ""
+    FEISHU_APP_TOKEN: str = ""
+    FEISHU_TABLE_ID_AGENTS: str = ""
+    FEISHU_TABLE_ID_AGENT_STATES: str = ""
+    FEISHU_TABLE_ID_AGENT_RUNS: str = ""
+    FEISHU_TABLE_ID_PIPELINE_RUNS: str = ""
+    FEISHU_TABLE_ID_STEP_RUNS: str = ""
+    FEISHU_TABLE_ID_HOTSPOTS: str = ""
+    FEISHU_TABLE_ID_HOTSPOT_ANALYSES: str = ""
+    FEISHU_TABLE_ID_TITLE_CANDIDATES: str = ""
+    FEISHU_TABLE_ID_COVER_PLANS: str = ""
+    FEISHU_TABLE_ID_BOOKS: str = ""
+    FEISHU_TABLE_ID_STORY_STATES: str = ""
+    FEISHU_TABLE_ID_CHAPTER_BRIEFS: str = ""
+    FEISHU_TABLE_ID_CHAPTER_VERSIONS: str = ""
+    FEISHU_TABLE_ID_REVIEW_REPORTS: str = ""
+    FEISHU_TABLE_ID_REVISION_TASKS: str = ""
+    FEISHU_TABLE_ID_AGENT_TEAM_SNAPSHOTS: str = ""
+    FEISHU_TABLE_ID_APPROVAL_EVENTS: str = ""
+    FEISHU_TABLE_ID_ARTIFACTS: str = ""
+    FEISHU_TABLE_ID_TRACES: str = ""
 
     # --- LLM ---
     LLM_API_KEY: str = ""
@@ -37,6 +57,12 @@ class Settings(BaseSettings):
 
     # --- Derived (set by create_app) ---
     APP_VERSION: str = "0.1.0"
+
+    # One backend process; persistent POST-intent markers survive restarts.
+    HARNESS_ENABLED: bool = False
+    HARNESS_JOURNAL_DIR: str = ".runtime/intents"
+    HARNESS_POLL_INTERVAL: float = 1.0
+    HARNESS_MAX_RETRIES: int = 3
 
     @field_validator("BACKEND_API_KEY")
     @classmethod

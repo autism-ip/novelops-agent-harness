@@ -1,16 +1,19 @@
 """
 [INPUT]: 依赖 FastAPI 的 APIRouter/Depends/HTTPException，依赖 Pydantic 的 BaseModel，
-         依赖 app.config.settings、app.feishu.client.FeishuClient、
+         依赖 app.state.settings、app.feishu.client.FeishuClient、contextlib，
          app.feishu.repositories.pipeline_runs.PipelineRunsRepo、
          app.feishu.repositories.step_runs.StepRunsRepo、
          app.feishu.table_map.TableMapConfig、
          app.pipeline.engine.PipelineEngine、app.pipeline.models.StepDef
 [OUTPUT]: 对外提供 router（POST /pipelines、GET /pipelines/{id}、GET /pipelines/{id}/steps）
-[POS]: api.routes 包的管线端点模块，封装 PipelineEngine 生命周期和安全业务键查询，被 routes/__init__.py 注册到 api_router
+[POS]: api.routes 包的兼容管线端点；使用应用配置并在请求结束/异常时关闭客户端，保持 v0.2 创建禁用与安全业务键查询
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
 
 from __future__ import annotations
+
+from collections.abc import Iterator
+from contextlib import contextmanager
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
@@ -60,9 +63,22 @@ def _get_client(settings: Settings) -> FeishuClient:
     return FeishuClient(settings.FEISHU_APP_ID, settings.FEISHU_APP_SECRET)
 
 
-def _get_config() -> TableMapConfig:
-    """Build table-map config from env."""
-    return TableMapConfig()
+def _get_config(settings: Settings) -> TableMapConfig:
+    """Use this app's resolved settings, including dotenv and explicit overrides."""
+    return TableMapConfig(app_token=settings.FEISHU_APP_TOKEN, table_ids={
+        name: getattr(settings, "FEISHU_TABLE_ID_" + name.upper())
+        for name in ("pipeline_runs", "step_runs")
+    })
+
+
+@contextmanager
+def _client_context(settings: Settings) -> Iterator[tuple[FeishuClient, TableMapConfig]]:
+    """Own one request's client through setup, repository IO and error handling."""
+    client = _get_client(settings)
+    try:
+        yield client, _get_config(settings)
+    finally:
+        client._http.close()
 
 
 def _build_pipeline_repo(client: FeishuClient, config: TableMapConfig) -> PipelineRunsRepo:
@@ -79,12 +95,12 @@ def _build_step_repo(client: FeishuClient, config: TableMapConfig) -> StepRunsRe
     )
 
 
-def get_engine(request: Request) -> PipelineEngine:
-    """FastAPI dependency — returns a PipelineEngine with real repos."""
-    settings = request.app.state.settings
-    client = _get_client(settings)
-    config = _get_config()
-    return PipelineEngine(_build_pipeline_repo(client, config), _build_step_repo(client, config))
+def get_engine(request: Request) -> Iterator[PipelineEngine]:
+    """Keep real repos available until the endpoint finishes, then release IO."""
+    if getattr(request.app.state, "kernel", None) is not None:
+        raise HTTPException(410, "Use /api/workflows for v0.2 execution")
+    with _client_context(request.app.state.settings) as (client, config):
+        yield PipelineEngine(_build_pipeline_repo(client, config), _build_step_repo(client, config))
 
 
 # ============================================================
@@ -133,21 +149,19 @@ async def get_pipeline(
 
     Returns 404 if pipeline_run_id does not exist.
     """
-    settings = request.app.state.settings
-    client = _get_client(settings)
-    config = _get_config()
-    pipeline_repo = _build_pipeline_repo(client, config)
-    step_repo = _build_step_repo(client, config)
+    with _client_context(request.app.state.settings) as (client, config):
+        pipeline_repo = _build_pipeline_repo(client, config)
+        step_repo = _build_step_repo(client, config)
 
-    try:
-        pipeline = pipeline_repo.find_by_business_key(pipeline_run_id=pipeline_run_id)
-    except DuplicateKey as exc:
-        raise HTTPException(status_code=409, detail="Duplicate pipeline run ID") from exc
-    if pipeline is None:
-        raise HTTPException(status_code=404, detail="Pipeline run not found")
+        try:
+            pipeline = pipeline_repo.find_by_business_key(pipeline_run_id=pipeline_run_id)
+        except DuplicateKey as exc:
+            raise HTTPException(status_code=409, detail="Duplicate pipeline run ID") from exc
+        if pipeline is None:
+            raise HTTPException(status_code=404, detail="Pipeline run not found")
 
-    pipeline["step_runs"] = step_repo.find_by_pipeline(pipeline_run_id)
-    return pipeline
+        pipeline["step_runs"] = step_repo.find_by_pipeline(pipeline_run_id)
+        return pipeline
 
 
 @router.get("/{pipeline_run_id}/steps")
@@ -156,8 +170,6 @@ async def list_step_runs(
     request: Request,
 ) -> list[dict]:
     """List all step runs belonging to a pipeline run."""
-    settings = request.app.state.settings
-    client = _get_client(settings)
-    config = _get_config()
-    step_repo = _build_step_repo(client, config)
-    return step_repo.find_by_pipeline(pipeline_run_id)
+    with _client_context(request.app.state.settings) as (client, config):
+        step_repo = _build_step_repo(client, config)
+        return step_repo.find_by_pipeline(pipeline_run_id)

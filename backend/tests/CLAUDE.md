@@ -2,6 +2,9 @@
 > L2 | 父级: ../CLAUDE.md
 
 成员清单
+test_legacy_pipeline_resources.py: 32项兼容管线API真实路由/映射/引擎门禁；dotenv、显式配置与进程配置隔离，请求客户端成功/失败均关闭，鉴权与v0.2创建禁用先于出站IO，部分创建回滚使用实际record_id且清理失败不假报成功；只控制外部HTTP。
+test_legacy_worker_transport.py: 20项实际旧Worker/Engine/映射仓库HTTP合同；租约、依赖、重试耗尽、失败零写入和ID隔离，明确不代表v0.2调度或分布式安全。
+test_application_boundary_contracts.py: 15项应用配置/鉴权隔离、启动缺表关闭、公开状态故障恢复和独立旧health消费合同；不将未挂载router当作生产探活。
 __init__.py: pytest 包标记。
 conftest.py: 测试环境与 AsyncClient 夹具（pytest_asyncio.fixture），隔离环境变量，TYPE_CHECKING 导入 Settings。
 test_system_endpoints.py: 系统端点行为门禁，验证响应形状、占位状态与不泄密。
@@ -17,8 +20,8 @@ test_domain_exceptions.py: 异常层级门禁，验证 FeishuError 家族继承�
 test_token_retry.py: token 重试门禁，验证 99991663/99991668 触发清 token + 重试一次（3 用例）。
 test_config_failfast.py: 配置 fail-fast 门禁，验证缺失环境变量时 get_table_id 抛 ValueError（4 用例）。
 test_step_status_recordid.py: record_id 门禁，验证 _from_feishu/get/create 均携带 record_id（3 用例）。
-test_pipeline_engine.py: PipelineEngine 行为门禁，验证 create/get_runnable/complete/fail/rollback/validation 生命周期（15 用例）。
-test_worker_loop.py: WorkerLoop 行为门禁，验证 claim/lease/expired/poll/execute/retry 逻辑（17 用例）。
+test_pipeline_engine.py: PipelineEngine 行为门禁，验证 create/get_runnable/complete/fail/rollback/validation 生命周期及父流程 record_id 契约。
+test_worker_loop.py: WorkerLoop 行为门禁，验证 claim/lease/expired/poll/execute/retry 及父流程 record_id 契约。
 test_repository_queries.py: 全部 16 张表的工厂装配和领域查询行为门禁，验证真实映射、表隔离与过滤条件。
 test_step_runs.py: StepRunsRepo 行为门禁，验证 claim_step 业务键→record_id 解析与 find_by_pipeline 字段过滤（4 用例）。
 test_pipeline_api.py: Pipeline API 端点门禁，验证 POST 创建、GET 安全业务键查询、重复 ID 冲突和 404 处理。
@@ -28,3 +31,11 @@ test_feishu_integration.py: 飞书集成门禁（需真实凭证，CI 跳过）�
 测试以 BDD 验收行为为中心：状态值必须精确、密钥不得回显、鉴权必须先于路由缺失返回。门禁允许当前实现缺失时失败；它的职责是定义合格线，而不是替实现兜底。CI 显式排除 integration，保留全部离线断言，要求 app 语句覆盖率至少当前基线 87.82%，上传 coverage XML 与 JUnit 报告；Ruff 同时检查测试代码。不得为过门禁降低覆盖率下限、删除或弱化断言、增加应用代码排除项。
 
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+
+test_runtime_dotenv_tables.py: 五项启动配置行为门禁；文件/进程优先级、完整表注册、配置实例隔离、显式空配置不回退环境和旧接口兼容；合成凭据、无远程API调用。
+
+test_harness_kernel.py: 慢外部handler执行期间列表/详情仍可读取真实running状态；并发新命令仍等待单一writer，保留既有重启、版本审批和模糊写入行为门禁。
+
+test_harness_boundaries.py: 审批身份、严格版本、重复操作者与外部审批证据损坏的行为门禁；真实API/Kernel/存储映射，验证拒绝后无写入、恢复原证据和精确重放。
+
+test_kernel_lifecycle_boundaries.py: 15项内核生命周期边界；运行中注册限制、重复启动、非法定义/转换、404、非审批步骤拒绝、取消保留已完成结果和完成任务重启不重跑。
