@@ -10,6 +10,8 @@ from app.storage import FeishuStorageProvider
 
 
 def build_runtime(settings):
+    if settings.RESEARCH_ENABLED and not (settings.GENERATION_ENABLED and (settings.HOTSPOTS_ENABLED or settings.OPENCLI_ENABLED)):
+        raise ValueError("RESEARCH_ENABLED requires GENERATION_ENABLED and HOTSPOTS_ENABLED or OPENCLI_ENABLED")
     config = TableMapConfig(app_token=settings.FEISHU_APP_TOKEN,
         table_ids={name: getattr(settings, "FEISHU_TABLE_ID_" + name.upper()) for name in FIELD_MAPS})
     if not config.app_token:
@@ -26,6 +28,8 @@ def build_runtime(settings):
             names += ("traces",)
         if settings.GENERATION_ENABLED:
             names += ("artifacts",)
+        if settings.RESEARCH_ENABLED:
+            names += ("hotspot_analyses",)
         repositories = {name: BaseRepository(client, config.app_token, config.get_table_id(name), FIELD_MAPS[name])
                         for name in names}
         storage = FeishuStorageProvider(repositories, {name: next(iter(FIELD_MAPS[name])) for name in names})
@@ -49,7 +53,12 @@ def build_runtime(settings):
                 "openai": ChatProvider("openai", settings.OPENAI_API_KEY),
                 "deepseek": ChatProvider("deepseek", settings.DEEPSEEK_API_KEY)}, kernel.telemetry)
             kernel.semantic = SemanticRuntime(kernel.model_router, kernel.artifacts)
+        if settings.RESEARCH_ENABLED:
+            from app.research import ResearchService
+            kernel.research = ResearchService(kernel, selection_required=settings.RESEARCH_SELECTION_REQUIRED)
         return kernel, client
     except Exception:
+        if "kernel" in locals() and getattr(kernel, "model_router", None):
+            kernel.model_router.close()
         client._http.close()
         raise

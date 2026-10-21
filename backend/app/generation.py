@@ -367,7 +367,8 @@ class ArtifactStore:
 
     def save(self, *, logical_id: str, version: int, artifact_type: str, content: dict,
              context: CallContext, prompt: Prompt, route: str, provider: str, model: str,
-             route_hash: str = "", input_hash: str = "", model_trace_id: str = ""):
+             route_hash: str = "", input_hash: str = "", creator: str = "semantic-runtime",
+             model_trace_id: str = ""):
         if version < 1 or not logical_id or not artifact_type:
             raise ValueError("Artifact type, logical ID and positive version required")
         with self.kernel.writer:
@@ -377,7 +378,7 @@ class ArtifactStore:
                 "run_id":context.run_id,"step_id":context.step_id,"chapter_id":context.chapter_id,
                 "workflow_version":context.workflow_version,"prompt_version":prompt.version,
                 "prompt_hash":digest(prompt.model_dump()),"route":route,"route_hash":route_hash,
-                "provider":provider,"model":model,"creator":"semantic-runtime","input_hash":input_hash}
+                "provider":provider,"model":model,"creator":creator,"input_hash":input_hash}
             if model_trace_id:
                 immutable["model_trace_id"] = model_trace_id
             existing = self.kernel.storage.get("artifacts", aid)

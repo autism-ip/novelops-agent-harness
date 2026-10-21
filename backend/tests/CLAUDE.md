@@ -2,6 +2,7 @@
 > L2 | 父级: ../CLAUDE.md
 
 成员清单
+test_harness_projection.py: 投影读取契约；无投影器不加载未使用步骤，有投影器保留当前类型、最新状态、取消兄弟步骤与投影失败后的无副作用重放恢复。
 test_legacy_pipeline_resources.py: 32项兼容管线API真实路由/映射/引擎门禁；dotenv、显式配置与进程配置隔离，请求客户端成功/失败均关闭，鉴权与v0.2创建禁用先于出站IO，部分创建回滚使用实际record_id且清理失败不假报成功；只控制外部HTTP。
 test_legacy_worker_transport.py: 20项实际旧Worker/Engine/映射仓库HTTP合同；租约、依赖、重试耗尽、失败零写入和ID隔离，明确不代表v0.2调度或分布式安全。
 test_application_boundary_contracts.py: 15项应用配置/鉴权隔离、启动缺表关闭、公开状态故障恢复和独立旧health消费合同；不将未挂载router当作生产探活。
@@ -28,6 +29,8 @@ test_pipeline_api.py: Pipeline API 端点门禁，验证 POST 创建、GET 安�
 test_feishu_integration.py: 飞书集成门禁（需真实凭证，CI 跳过）。
 test_hotspot_ingestion.py: ZEN-33 子进程→adapter→调度器→Feishu transport→API 验收，覆盖批次重放、去重、超时与关闭采集后读取；不等于真实平台验收。
 test_hotspot_controls.py: ZEN-34 人工添加/丢弃鉴权、幂等与冲突、写入超时和重启恢复验收。
+test_research_workflow.py: ZEN-35 schema/风险分流、模型失败、版本审批、投影恢复、批次重放及 API 验收；四阶段批量读取预算、部分产物和跨请求丢弃新鲜性。
+test_research_kernel_contract.py: 动态审批、退修理由、永久失败与终态投影恢复契约。
 ui_fixture_app.py: 仅本机浏览器验收服务；复用真实 API/Harness 与合成 HTTP 存储，提供受鉴权保护的响应丢失/上游失败注入；不进入生产包。
 
 架构决策
