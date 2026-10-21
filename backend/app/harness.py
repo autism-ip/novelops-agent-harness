@@ -350,7 +350,7 @@ class HarnessKernel:
             not isinstance(operator, str) or not operator.strip()):
             raise AmbiguousWrite("Stored approval identity is unreadable or changed")
 
-    def decide(self, step_id, action, expected_version, operator, *, reason=""):
+    def decide(self, step_id, action, expected_version, operator, *, reason="", choice_id=""):
         with self.writer:
             if action not in APPROVAL_ACTIONS:
                 raise ValueError("Unsupported decision")
@@ -371,7 +371,8 @@ class HarnessKernel:
             if previous:
                 self._validate_approval_event(previous, step_id, expected_version)
             if previous and (previous["action"] != action or previous.get("operator") != operator or
-                             previous.get("reason", "") != reason):
+                             previous.get("reason", "") != reason or
+                             previous.get("choice_id", "") != choice_id):
                 raise TransitionConflict("This version already has a different decision")
             target = "success" if action == "approve" else "failed"
             if previous and step["status"] == target:
@@ -386,10 +387,14 @@ class HarnessKernel:
             # even if the domain has changed since it was accepted.
             guard = self.approval_guards.get(step["handler"])
             if guard and not previous:
-                guard(step, action)
+                if choice_id:
+                    guard(step, action, choice_id)
+                else:
+                    guard(step, action)
             self._ensure("approval_events", "approval_id", {"approval_id": approval_id,
                 "target_type": "step_run", "target_id": step_id, "target_version": expected_version,
-                "action": action, "operator": operator, "reason": reason, "created_at": now()})
+                "action": action, "operator": operator, "reason": reason, "choice_id": choice_id,
+                "created_at": now()})
             result = self._transition("step_runs", step_id, target)
             self._refresh_parent(step["pipeline_run_id"])
             return result
@@ -445,7 +450,7 @@ class HarnessKernel:
                         if decision:
                             self._validate_approval_event(decision, sid, step["output_version"])
                             self.decide(sid, decision["action"], step["output_version"], decision["operator"],
-                                        reason=decision.get("reason", ""))
+                                        reason=decision.get("reason", ""), choice_id=decision.get("choice_id", ""))
                 self._refresh_parent(run_id)
 
     @property

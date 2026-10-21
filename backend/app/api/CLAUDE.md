@@ -9,6 +9,7 @@ routes/: 路由注册表与端点实现。
 
 routes/ 成员
 research.py: ZEN-35 研究 context、批量触发、历史与精确步骤/产物审批接口。
+creative.py: ZEN-36 标题候选与封面规划 context、历史、选择及 selected 消费接口。
 __init__.py: api_router 注册中心，挂载 system_router 和 pipelines_router。
 system.py: GET /system/health（探活）、GET /system/status（版本+运行态）、GET /system/config（配置快照）。
 pipelines.py: 保留兼容管线创建和读取；从应用已解析的Settings装配Base/表映射，请求结束或异常均释放飞书客户端；活跃v0.2内核仍禁止旧创建入口。
