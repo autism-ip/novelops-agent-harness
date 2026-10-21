@@ -3,6 +3,8 @@
 
 成员清单
 test_legacy_pipeline_resources.py: 32项兼容管线API真实路由/映射/引擎门禁；dotenv、显式配置与进程配置隔离，请求客户端成功/失败均关闭，鉴权与v0.2创建禁用先于出站IO，部分创建回滚使用实际record_id且清理失败不假报成功；只控制外部HTTP。
+test_legacy_worker_transport.py: 20项实际旧Worker/Engine/映射仓库HTTP合同；租约、依赖、重试耗尽、失败零写入和ID隔离，明确不代表v0.2调度或分布式安全。
+test_application_boundary_contracts.py: 15项应用配置/鉴权隔离、启动缺表关闭、公开状态故障恢复和独立旧health消费合同；不将未挂载router当作生产探活。
 __init__.py: pytest 包标记。
 conftest.py: 测试环境与 AsyncClient 夹具（pytest_asyncio.fixture），隔离环境变量，TYPE_CHECKING 导入 Settings。
 test_system_endpoints.py: 系统端点行为门禁，验证响应形状、占位状态与不泄密。
