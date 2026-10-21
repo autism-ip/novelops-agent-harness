@@ -97,6 +97,20 @@ POST /api/covers/{cover_id}/revise
 
 ## Books
 
+The v0.2 implemented contract uses exact selected artifact IDs and one canonical state. Other endpoints below this block describe older/future planning and are not implemented by ZEN-38.
+
+```http
+GET /api/books/bootstrap-context/{cover_run_id}
+POST /api/books
+GET /api/books
+GET /api/books/{book_id}
+GET /api/books/{book_id}/story-state
+```
+
+`POST /api/books` accepts the `book_id`, `cover_run_id`, `cover_artifact_id`, `title_artifact_id`, and `opportunity_artifact_id` returned by the context endpoint. It returns `{book, state}`. Replaying the exact body recovers the same Book and StoryState v1. A changed or unapproved source returns 409 before a new canonical state is committed.
+
+Legacy/future sketch:
+
 ```http
 POST /api/books
 GET /api/books

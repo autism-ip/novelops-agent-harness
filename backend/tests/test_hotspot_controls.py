@@ -84,7 +84,7 @@ def test_manual_and_discard_work_when_collection_disabled(ingestion):
     assert complete(kernel, response.json()['pipeline_run_id'])['status'] == 'completed'
     assert len(storage.list('hotspots')) == 1
     assert client.get('/api/hotspots/capabilities', headers=HEADERS).json() == {
-        'fetch': False, 'manual_add': True, 'discard': True, 'analyze': False, 'creative': False}
+        'fetch': False, 'manual_add': True, 'discard': True, 'analyze': False, 'creative': False, 'books': False}
     assert client.post('/api/hotspots/missing/discard', headers=HEADERS,
                        json={'request_key': 'missing', 'expected_status': 'new'}).status_code == 404
     client.close()

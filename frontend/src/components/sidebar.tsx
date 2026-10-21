@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 const NAV_ITEMS = [
   { href: "/", label: "Dashboard" },
   { href: "/hotspots", label: "Hotspots" },
+  { href: "/books", label: "Books" },
   { href: "/pipelines", label: "Pipelines" },
   { href: "/agents", label: "Agents" },
 ];

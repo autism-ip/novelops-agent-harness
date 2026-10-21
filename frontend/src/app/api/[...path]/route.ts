@@ -8,6 +8,9 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/session";
 
+// Allow bounded Feishu source verification and idempotent book writes.
+export const maxDuration = 120;
+
 const BACKEND_URL = process.env.BACKEND_API_URL || "http://localhost:8000";
 const BACKEND_KEY = process.env.BACKEND_API_KEY || "";
 

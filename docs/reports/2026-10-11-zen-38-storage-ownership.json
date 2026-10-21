@@ -1,0 +1,88 @@
+{
+  "date": "2026-10-11",
+  "issue": "ZEN-38",
+  "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/32",
+  "requirement_event": "Creating one Book must preserve a prior or concurrently saved exact command and allow deliberate recovery after checking Books.",
+  "verified": [
+    "Native Storage read denial retains valid and malformed bytes with zero HTTP requests; public recheck recovers exact POST retry.",
+    "Storage denial after rendering prevents context reads and POST.",
+    "Denied or changed storage during actual delayed context GET prevents replacement and POST.",
+    "Confirmed POST cannot delete newer command bytes.",
+    "Public checked-Books clearance handles valid uncertain intent and native DOMException failure."
+  ],
+  "tests": {
+    "red": "7 failed, 10 passed: /tmp/novelops-book-storage-read-red.log",
+    "targeted": "17 passed",
+    "full": "97 passed",
+    "commands": [
+      "npm --prefix frontend run test:coverage",
+      "npm --prefix frontend run check"
+    ],
+    "gate": "lint, typecheck and production build passed with Node 24",
+    "coverage": {
+      "lines": {
+        "total": 598,
+        "covered": 541,
+        "skipped": 0,
+        "pct": 90.46
+      },
+      "statements": {
+        "total": 667,
+        "covered": 593,
+        "skipped": 0,
+        "pct": 88.9
+      },
+      "functions": {
+        "total": 193,
+        "covered": 160,
+        "skipped": 0,
+        "pct": 82.9
+      },
+      "branches": {
+        "total": 672,
+        "covered": 582,
+        "skipped": 0,
+        "pct": 86.6
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "book_component_coverage": {
+      "lines": {
+        "total": 48,
+        "covered": 48,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 11,
+        "covered": 11,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 57,
+        "covered": 55,
+        "skipped": 0,
+        "pct": 96.49
+      },
+      "branches": {
+        "total": 51,
+        "covered": 49,
+        "skipped": 0,
+        "pct": 96.07
+      }
+    }
+  },
+  "limitations": [
+    "Whole-source frontend coverage remains below required 100%.",
+    "Browser/runtime verification of this latest change remains pending.",
+    "Tests control native fetch/Storage boundaries; no real model/Base request was made."
+  ],
+  "skill_assessment": "Existing issue-pr-delivery and TDD workflows cover this failure family; no new skill needed.",
+  "done": false
+}
