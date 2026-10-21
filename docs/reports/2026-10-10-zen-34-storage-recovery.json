@@ -1,0 +1,62 @@
+{
+  "issue": "ZEN-34",
+  "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/28",
+  "scope": "Native hotspot workbench request storage recovery; controlled external fetch responses, actual components and ApiClient",
+  "expected_events": [
+    "Read failure blocks all new/replay writes until explicit storage recheck",
+    "Corrupt intent failed clearance preserves byte-for-byte data and exposes cause",
+    "API rejection + failed clearance preserves both causes, releases lock, retains exact replay identity",
+    "Committed write + failed clearance replays same key with one workflow"
+  ],
+  "red": {
+    "tests_failed": 5,
+    "unhandled_native_errors": 2,
+    "log": "/tmp/novelops-storage-red.log"
+  },
+  "green": {
+    "native_contract_cases": 5,
+    "whole_frontend_tests": 47,
+    "coverage": {
+      "lines": {
+        "total": 405,
+        "covered": 365,
+        "skipped": 0,
+        "pct": 90.12
+      },
+      "statements": {
+        "total": 432,
+        "covered": 388,
+        "skipped": 0,
+        "pct": 89.81
+      },
+      "functions": {
+        "total": 122,
+        "covered": 100,
+        "skipped": 0,
+        "pct": 81.96
+      },
+      "branches": {
+        "total": 287,
+        "covered": 265,
+        "skipped": 0,
+        "pct": 92.33
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "lint_types_production_build": "passed Node 24"
+  },
+  "retained_failures": [
+    "Initial output path was rooted incorrectly and produced no test file; corrected before genuine red run",
+    "Initial success attempt referenced missing test helper and DOMException was rendered as a connection failure; helper corrected and runtime storage reason preserved without weakening assertions",
+    "Initial full lint stopped at unused within import before helper correction; final zero-warning gate passed"
+  ],
+  "runtime_browser": "pending after downstream propagation",
+  "full_goal_complete": false,
+  "coverage_100": false,
+  "external_deployment_or_real_provider_claim": false
+}
