@@ -1,0 +1,349 @@
+{
+  "date": "2026-10-19",
+  "goal_complete": false,
+  "issues": [
+    "ZEN-40",
+    "ZEN-41"
+  ],
+  "prs": [
+    "https://github.com/autism-ip/novelops-agent-harness/pull/36",
+    "https://github.com/autism-ip/novelops-agent-harness/pull/37"
+  ],
+  "owning_fix_commit": "22b9cc5e3769965b0baa5f1fe97463db5c8c02eb",
+  "supplemental_test_commit": "fcf05ae8b7b2bb56b8f534becdbd0ce070de0f80",
+  "original_requirement_event": "Exact chapter/context/source versions and deterministic failures must prevent invalid promotion/finalization without overwriting prior ChapterVersions.",
+  "reproduction": {
+    "initial_domain_faults_failed": 12,
+    "initial_contract_controls_passed": 10,
+    "additional_boolean_identity_failures": 2,
+    "boolean_state_version_control_passed": 1,
+    "weakening_assertions_or_thresholds": false,
+    "rejected_selection_failure": 1
+  },
+  "implementation": "Before positional dereference or review projection, validate four ordered source refs, verifier ref, exact typed book/chapter/state/source-version/snapshot/brief/version identities, run and chapter identity. Ambiguity raises AmbiguousWrite. Generic Artifact integrity checks remain. The foundation final verifier also rejects a changed reject decision; the descendant preserves its configured high-value review policy for holding the original verified candidate.",
+  "behavioral_evidence": {
+    "new_cases": 31,
+    "domain_metadata_fault_cases": 16,
+    "manifest_cases": 3,
+    "selection_projection_cases": 7,
+    "additional_policy_evidence_and_replay_cases": 5,
+    "core_services_mocked": false,
+    "transport": "Stateful Feishu HTTP boundary fixture with actual client, repositories, storage, ModelRouter, ArtifactStore, chapter service and kernel. Model outputs are controlled fixtures.",
+    "failures_read_only": true,
+    "after_reconciliation_same_selection_and_version_count": true,
+    "additional_model_calls_on_reconciliation": 0,
+    "no_new_native_or_genuine_model_execution_in_this_slice": true
+  },
+  "gates": [
+    {
+      "pr": 36,
+      "source_commit": "41d2bcc2747f612d521a12623a1f5ca211438166",
+      "app_tree": "fa73e1b15324ed7b64c7bb862fb8621f0d0a8856",
+      "offline_passed": 638,
+      "optional_integration_deselected": 10,
+      "existing_warning_count": 1,
+      "totals": {
+        "covered_lines": 3930,
+        "num_statements": 4130,
+        "percent_covered": 93.39258114374034,
+        "percent_covered_display": "93.39",
+        "missing_lines": 200,
+        "excluded_lines": 11,
+        "percent_statements_covered": 95.15738498789347,
+        "percent_statements_covered_display": "95.16",
+        "num_branches": 1046,
+        "num_partial_branches": 134,
+        "covered_branches": 904,
+        "missing_branches": 142,
+        "percent_branches_covered": 86.4244741873805,
+        "percent_branches_covered_display": "86.42"
+      },
+      "named_executable_function_entries": {
+        "covered": 387,
+        "total": 396,
+        "unentered": [
+          [
+            "app/api/deps.py",
+            "get_settings"
+          ],
+          [
+            "app/api/routes/chapter_loop.py",
+            "versions"
+          ],
+          [
+            "app/api/routes/chapter_loop.py",
+            "read"
+          ],
+          [
+            "app/api/routes/chapter_loop.py",
+            "lock_final"
+          ],
+          [
+            "app/api/routes/health.py",
+            "health"
+          ],
+          [
+            "app/api/routes/health.py",
+            "status"
+          ],
+          [
+            "app/api/routes/workflows.py",
+            "decision"
+          ],
+          [
+            "app/feishu/repositories/story_states.py",
+            "StoryStatesRepo.find_by_book"
+          ],
+          [
+            "app/pipeline/worker.py",
+            "WorkerLoop._resolve_record_id"
+          ]
+        ],
+        "zero_executable_statement_declarations": [
+          [
+            "app/generation.py",
+            "ModelProvider.complete"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get_many"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.list"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.ensure"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.update"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.delete"
+          ]
+        ],
+        "definition": "Named coverage.py function entries with num_statements > 0, entered iff its body has covered lines; zero-statement Protocol declarations are listed separately. Not a whole-project four-metric 100% claim."
+      },
+      "chapter_module": {
+        "covered_lines": 428,
+        "num_statements": 466,
+        "percent_covered": 88.53820598006645,
+        "percent_covered_display": "88.54",
+        "missing_lines": 38,
+        "excluded_lines": 0,
+        "percent_statements_covered": 91.84549356223177,
+        "percent_statements_covered_display": "91.85",
+        "num_branches": 136,
+        "num_partial_branches": 29,
+        "covered_branches": 105,
+        "missing_branches": 31,
+        "percent_branches_covered": 77.20588235294117,
+        "percent_branches_covered_display": "77.21"
+      },
+      "final_verify": {
+        "covered_lines": 44,
+        "num_statements": 44,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 20,
+        "num_partial_branches": 0,
+        "covered_branches": 20,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "generation_module": {
+        "covered_lines": 313,
+        "num_statements": 313,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 3,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 80,
+        "num_partial_branches": 0,
+        "covered_branches": 80,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "ruff": "passed"
+    },
+    {
+      "pr": 37,
+      "source_commit": "e586d5f6f66d10feb0217fb2929b42b1c32bda90",
+      "app_tree": "8c109a6dbe6037e10492ecbf7d19bf1c9b663bf0",
+      "offline_passed": 694,
+      "optional_integration_deselected": 10,
+      "existing_warning_count": 1,
+      "totals": {
+        "covered_lines": 4165,
+        "num_statements": 4347,
+        "percent_covered": 94.17864289612515,
+        "percent_covered_display": "94.18",
+        "missing_lines": 182,
+        "excluded_lines": 11,
+        "percent_statements_covered": 95.81320450885669,
+        "percent_statements_covered_display": "95.81",
+        "num_branches": 1150,
+        "num_partial_branches": 128,
+        "covered_branches": 1012,
+        "missing_branches": 138,
+        "percent_branches_covered": 88.0,
+        "percent_branches_covered_display": "88.00"
+      },
+      "named_executable_function_entries": {
+        "covered": 402,
+        "total": 407,
+        "unentered": [
+          [
+            "app/api/deps.py",
+            "get_settings"
+          ],
+          [
+            "app/api/routes/health.py",
+            "health"
+          ],
+          [
+            "app/api/routes/health.py",
+            "status"
+          ],
+          [
+            "app/feishu/repositories/story_states.py",
+            "StoryStatesRepo.find_by_book"
+          ],
+          [
+            "app/pipeline/worker.py",
+            "WorkerLoop._resolve_record_id"
+          ]
+        ],
+        "zero_executable_statement_declarations": [
+          [
+            "app/generation.py",
+            "ModelProvider.complete"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.get_many"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.list"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.ensure"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.update"
+          ],
+          [
+            "app/storage.py",
+            "StorageProvider.delete"
+          ]
+        ],
+        "definition": "Named coverage.py function entries with num_statements > 0, entered iff its body has covered lines; zero-statement Protocol declarations are listed separately. Not a whole-project four-metric 100% claim."
+      },
+      "chapter_module": {
+        "covered_lines": 617,
+        "num_statements": 656,
+        "percent_covered": 91.2751677852349,
+        "percent_covered_display": "91.28",
+        "missing_lines": 39,
+        "excluded_lines": 0,
+        "percent_statements_covered": 94.0548780487805,
+        "percent_statements_covered_display": "94.05",
+        "num_branches": 238,
+        "num_partial_branches": 35,
+        "covered_branches": 199,
+        "missing_branches": 39,
+        "percent_branches_covered": 83.61344537815125,
+        "percent_branches_covered_display": "83.61"
+      },
+      "final_verify": {
+        "covered_lines": 47,
+        "num_statements": 47,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 20,
+        "num_partial_branches": 0,
+        "covered_branches": 20,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "generation_module": {
+        "covered_lines": 313,
+        "num_statements": 313,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100.00",
+        "missing_lines": 0,
+        "excluded_lines": 3,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100.00",
+        "num_branches": 80,
+        "num_partial_branches": 0,
+        "covered_branches": 80,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100.00"
+      },
+      "ruff": "passed"
+    }
+  ],
+  "frontend": {
+    "tree_unchanged": "5d1da703d2d9709d195bfe4e900e05038adcf7fd",
+    "local_tests_not_rerun": true,
+    "prior_same_tree_tests": 343,
+    "prior_same_tree_statement_line_function_branch": [
+      94.69,
+      97.14,
+      94.69,
+      95.11
+    ]
+  },
+  "external_data": {
+    "known_owned_records_checkpoint": 408,
+    "no_new_external_writes_in_this_slice": true,
+    "no_new_collection_or_model_calls": true,
+    "existing_paid_outputs_preserved": true
+  },
+  "review": {
+    "before_fix_publication": "All 13 original PR refs/base chain/current effective CI verified; no new review feedback, zero unresolved threads.",
+    "after_fix_publication": "Recheck exact new heads, all review sources and CI before delivery."
+  },
+  "limits": [
+    "Whole application and whole-project coverage still below 100%; per-criterion final audit pending.",
+    "Real DeepSeek routine chapter automatic-pass event remains unobserved.",
+    "Domain checks detect inconsistent durable metadata, not malicious rewriting of an entire trusted graph.",
+    "No provider timing, production SLA, original outage cause or invoice conclusions."
+  ],
+  "skill_assessment": {
+    "reused": "issue-pr-delivery; existing TDD and security/integrity workflows",
+    "new_skill_needed": false,
+    "reason": "Exact domain provenance, fail-closed projection and idempotent recovery are already covered by existing workflow; no new tool abstraction required."
+  },
+  "no_main_merge_deploy_or_done": true,
+  "coverage_configuration_or_ignore_changes": false
+}

@@ -1,0 +1,922 @@
+{
+  "date": "2026-10-22",
+  "goal_complete": false,
+  "scope": {
+    "original_issues_and_prs": 13,
+    "linear_criteria": 61,
+    "github_additional_checks": 51,
+    "preserved": true
+  },
+  "owner": {
+    "linear": "ZEN-40",
+    "github_issue": 13,
+    "pr": 36
+  },
+  "descendant": {
+    "linear": "ZEN-41",
+    "github_issue": 14,
+    "pr": 37
+  },
+  "new_cases": 34,
+  "red_commit": "c3b28fcd",
+  "green_commit": "411bf2cb279cd72ad2b71b2d50abd0a43699bba0",
+  "bounded_read_commit": "9c4438d7a49fe05641a5a8f14a1286b04982f11c",
+  "branch_gates": [
+    {
+      "pr": 36,
+      "source_commit": "9c4438d7a49fe05641a5a8f14a1286b04982f11c",
+      "path": "/tmp/novelops-finalization-pr36-9c4438d7",
+      "app_tree": "3291dd73ff0bffe0c7866555b81342806fba6e9a",
+      "tests_tree": "b2245a93cfd45afefee3c019fd7572c71adf5b17",
+      "config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+      "frontend_tree": "cece0c6392d48a9faff23216fa1dcb05c2ded51b",
+      "offline_passed": 938,
+      "integration_deselected": 10,
+      "gate": {
+        "pr": 36,
+        "source_commit": "9c4438d7a49fe05641a5a8f14a1286b04982f11c",
+        "started_at": 1792637802.261646,
+        "commands": {
+          "ruff": [
+            "/tmp/novelops-ruff-20261008/bin/ruff",
+            "check",
+            "app",
+            "tests"
+          ],
+          "tests": [
+            "/Users/zen/miniconda3/bin/python",
+            "-m",
+            "pytest",
+            "tests",
+            "-q",
+            "--tb=short",
+            "-m",
+            "not integration",
+            "--cov=app",
+            "--cov-branch",
+            "--cov-report=term-missing",
+            "--cov-report=json:/tmp/novelops-20261022-pr36-finalization-v2-coverage.json",
+            "--junitxml=/tmp/novelops-20261022-pr36-finalization-v2-junit.xml"
+          ]
+        },
+        "ruff_exit": 0,
+        "tests_exit": 0,
+        "finished_at": 1792638031.2906501
+      },
+      "coverage": {
+        "covered_lines": 4145,
+        "num_statements": 4218,
+        "percent_covered": 97.4368639276291,
+        "percent_covered_display": "97.44",
+        "missing_lines": 73,
+        "excluded_lines": 11,
+        "percent_statements_covered": 98.26932195353248,
+        "percent_statements_covered_display": "98.27",
+        "num_branches": 1088,
+        "num_partial_branches": 59,
+        "covered_branches": 1025,
+        "missing_branches": 63,
+        "percent_branches_covered": 94.2095588235294,
+        "percent_branches_covered_display": "94.21"
+      },
+      "frontend_prior_result": {
+        "pr": 36,
+        "source_commit": "580cb4c21d6e3b073460eac6093909e247c3df4c",
+        "commands": {
+          "coverage": [
+            "/opt/homebrew/bin/npm",
+            "run",
+            "test:coverage"
+          ],
+          "lint": [
+            "/opt/homebrew/bin/npm",
+            "run",
+            "lint"
+          ],
+          "types": [
+            "/opt/homebrew/bin/npm",
+            "run",
+            "typecheck"
+          ]
+        },
+        "exits": {
+          "coverage": 0,
+          "lint": 0,
+          "types": 0
+        },
+        "build": "Local canonical build blocked by observed Turbopack port EPERM; required exact published head CI build remains pending. No alternate builder or skipped CI gate.",
+        "coverage": {
+          "lines": {
+            "total": 884,
+            "covered": 845,
+            "skipped": 0,
+            "pct": 95.58
+          },
+          "statements": {
+            "total": 1033,
+            "covered": 965,
+            "skipped": 0,
+            "pct": 93.41
+          },
+          "functions": {
+            "total": 286,
+            "covered": 263,
+            "skipped": 0,
+            "pct": 91.95
+          },
+          "branches": {
+            "total": 1208,
+            "covered": 1120,
+            "skipped": 0,
+            "pct": 92.71
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        }
+      },
+      "frontend_evidence_reused_by_identical_tree": true,
+      "new_frontend_run_this_wave": false
+    },
+    {
+      "pr": 37,
+      "source_commit": "64008dbc3c5ae18594101ad62070eaf4283dee09",
+      "path": "/tmp/novelops-finalization-pr37-64008dbc",
+      "app_tree": "aa3b80b32edc080aded7cc8ebd7f2a2b0e3c7cb6",
+      "tests_tree": "59423f93c214a571736f7cb5f78dff654866de88",
+      "config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+      "frontend_tree": "c2537d65cd5a5e5093a868fc2fcd6c968c24dff1",
+      "offline_passed": 994,
+      "integration_deselected": 10,
+      "gate": {
+        "pr": 37,
+        "source_commit": "64008dbc3c5ae18594101ad62070eaf4283dee09",
+        "started_at": 1792637935.870903,
+        "commands": {
+          "ruff": [
+            "/tmp/novelops-ruff-20261008/bin/ruff",
+            "check",
+            "app",
+            "tests"
+          ],
+          "tests": [
+            "/Users/zen/miniconda3/bin/python",
+            "-m",
+            "pytest",
+            "tests",
+            "-q",
+            "--tb=short",
+            "-m",
+            "not integration",
+            "--cov=app",
+            "--cov-branch",
+            "--cov-report=term-missing",
+            "--cov-report=json:/tmp/novelops-20261022-pr37-finalization-v2-coverage.json",
+            "--junitxml=/tmp/novelops-20261022-pr37-finalization-v2-junit.xml",
+            "-p",
+            "tests.function_entry_coverage"
+          ]
+        },
+        "ruff_exit": 0,
+        "tests_exit": 0,
+        "finished_at": 1792638483.222392
+      },
+      "coverage": {
+        "covered_lines": 4375,
+        "num_statements": 4437,
+        "percent_covered": 97.7979044574676,
+        "percent_covered_display": "97.80",
+        "missing_lines": 62,
+        "excluded_lines": 11,
+        "percent_statements_covered": 98.60265945458643,
+        "percent_statements_covered_display": "98.60",
+        "num_branches": 1194,
+        "num_partial_branches": 56,
+        "covered_branches": 1132,
+        "missing_branches": 62,
+        "percent_branches_covered": 94.80737018425461,
+        "percent_branches_covered_display": "94.81"
+      },
+      "frontend_prior_result": {
+        "pr": 37,
+        "source_commit": "d547cfd4e59c7345081bcfb3ee41c35aac462462",
+        "commands": {
+          "coverage": [
+            "/opt/homebrew/bin/npm",
+            "run",
+            "test:coverage"
+          ],
+          "lint": [
+            "/opt/homebrew/bin/npm",
+            "run",
+            "lint"
+          ],
+          "types": [
+            "/opt/homebrew/bin/npm",
+            "run",
+            "typecheck"
+          ]
+        },
+        "exits": {
+          "coverage": 0,
+          "lint": 0,
+          "types": 0
+        },
+        "build": "Local canonical build blocked by observed Turbopack port EPERM; required exact published head CI build remains pending. No alternate builder or skipped CI gate.",
+        "coverage": {
+          "lines": {
+            "total": 1017,
+            "covered": 988,
+            "skipped": 0,
+            "pct": 97.14
+          },
+          "statements": {
+            "total": 1207,
+            "covered": 1143,
+            "skipped": 0,
+            "pct": 94.69
+          },
+          "functions": {
+            "total": 339,
+            "covered": 321,
+            "skipped": 0,
+            "pct": 94.69
+          },
+          "branches": {
+            "total": 1432,
+            "covered": 1362,
+            "skipped": 0,
+            "pct": 95.11
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        }
+      },
+      "frontend_evidence_reused_by_identical_tree": true,
+      "new_frontend_run_this_wave": false
+    }
+  ],
+  "current_backend_coverage": {
+    "covered_lines": 4375,
+    "num_statements": 4437,
+    "percent_covered": 97.7979044574676,
+    "percent_covered_display": "97.80",
+    "missing_lines": 62,
+    "excluded_lines": 11,
+    "percent_statements_covered": 98.60265945458643,
+    "percent_statements_covered_display": "98.60",
+    "num_branches": 1194,
+    "num_partial_branches": 56,
+    "covered_branches": 1132,
+    "missing_branches": 62,
+    "percent_branches_covered": 94.80737018425461,
+    "percent_branches_covered_display": "94.81"
+  },
+  "previous_backend_coverage": {
+    "covered_lines": 4359,
+    "num_statements": 4434,
+    "percent_covered": 97.33475479744136,
+    "percent_covered_display": "97.33",
+    "missing_lines": 75,
+    "excluded_lines": 11,
+    "percent_statements_covered": 98.3085250338295,
+    "percent_statements_covered_display": "98.31",
+    "num_branches": 1194,
+    "num_partial_branches": 69,
+    "covered_branches": 1119,
+    "missing_branches": 75,
+    "percent_branches_covered": 93.71859296482413,
+    "percent_branches_covered_display": "93.72"
+  },
+  "raw_function_profile": {
+    "metric": "raw Python function entry coverage: all named definitions and lambdas",
+    "total": 428,
+    "entered": 421,
+    "percent": 98.3644859813084,
+    "lambdas_total": 11,
+    "lambdas_entered": 11,
+    "unmatched_calls": [
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/__init__.py', '<module>', 1, None)",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/deps.py', '<module>', 1, (1, 1, 0, 43))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/middleware.py', '<module>', 1, (1, 1, 0, 31))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/middleware.py', 'APIKeyMiddleware', 8, (9, 12, 4, 7))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/__init__.py', '<module>', 1, (1, 1, 0, 26))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/books.py', '<module>', 1, (1, 1, 0, 69))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/chapter_loop.py', '<module>', 1, (1, 1, 0, 74))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/chapter_loop.py', 'FinalLock', 20, (21, 21, 22, 27))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/chapter_loop.py', 'ReviewDecision', 36, (37, 37, 12, 19))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/chapter_loop.py', 'ReviewTarget', 27, (28, 28, 18, 23))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/chapter_loop.py', 'RevisionRequest', 41, (42, 42, 17, 28))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/creative.py', '<module>', 1, (1, 1, 0, 63))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/creative.py', 'Decision', 20, (21, 21, 19, 24))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/health.py', '<module>', 1, (1, 1, 0, 34))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/hotspots.py', '<module>', 1, (1, 1, 0, 74))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/hotspots.py', 'DiscardBody', 30, (31, 31, 19, 29))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/hotspots.py', 'FetchBody', 20, (21, 21, 19, 29))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/hotspots.py', 'ManualBody', 26, (27, 27, 23, 28))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/observability.py', '<module>', 1, (1, 1, 0, 80))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/pipelines.py', '<module>', 1, (1, 11, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/pipelines.py', 'CreatePipelineBody', 46, (47, 47, 4, 43))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/pipelines.py', 'StepDefBody', 38, (39, 39, 4, 53))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/research.py', '<module>', 1, (1, 1, 0, 82))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/research.py', 'AnalysisDecision', 25, (26, 26, 19, 29))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/research.py', 'Batch', 20, (21, 21, 23, 28))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/story_planning.py', '<module>', 1, (1, 1, 0, 79))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/story_planning.py', 'BibleDecision', 20, (21, 21, 19, 24))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/system.py', '<module>', 1, (1, 1, 0, 50))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/workflows.py', '<module>', 1, (1, 1, 0, 56))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/workflows.py', 'DecisionBody', 36, (37, 37, 12, 19))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/workflows.py', 'StepBody', 19, (20, 20, 20, 25))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/workflows.py', 'WorkflowBody', 28, (29, 29, 23, 28))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/api/routes/workflows.py', 'create.<locals>.<genexpr>', 48, (48, 49, 11, 32))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/books.py', '<module>', 1, (1, 1, 0, 73))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/books.py', 'BookService', 72, (73, 77, 4, 60))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/books.py', 'BookService.bootstrap.<locals>.<genexpr>', 155, (155, 155, 18, 72))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/books.py', 'BookService.bootstrap.<locals>.<genexpr>', 168, (168, 168, 18, 70))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/books.py', 'BookService.context.<locals>.<genexpr>', 117, (117, 117, 36, 96))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/books.py', 'BootstrapRequest', 13, (14, 14, 19, 29))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/books.py', 'StoryContextProvider', 37, (38, 38, 4, 71))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/books.py', 'StoryStateContent', 22, (23, 23, 19, 29))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'ChapterLoopService', 190, (191, 191, 54, 55))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'ChapterLoopService._assert_projected_versions.<locals>.<genexpr>', 285, (285, 285, 14, 92))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'ChapterLoopService._live.<locals>.<genexpr>', 403, (403, 403, 44, 85))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'ChapterLoopService._materialize.<locals>.<genexpr>', 563, (563, 563, 14, 73))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'ChapterLoopService._snapshot.<locals>.<genexpr>', 353, (353, 353, 17, 58))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'ChapterLoopService._step.<locals>.<genexpr>', 440, (440, 440, 19, 77))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'ChapterLoopService.context.<locals>.<genexpr>', 305, (305, 305, 44, 83))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'ChapterLoopService.decide_review.<locals>.<genexpr>', 897, (897, 898, 31, 124))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'ChapterLoopService.enqueue.<locals>.<genexpr>', 328, (328, 330, 18, 58))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'ChapterLoopService.final_verify.<locals>.<genexpr>', 679, (679, 680, 15, 59))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'ChapterLoopService.request_revision.<locals>.<genexpr>', 1020, (1020, 1020, 18, 101))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'ChapterLoopService.versions.<locals>.<genexpr>', 766, (766, 766, 38, 84))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'ChapterRequest', 85, (86, 86, 19, 24))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'Constraints', 79, (80, 80, 38, 43))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'CriticInput', 160, (161, 161, 14, 18))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'Critique', 138, (139, 139, 14, 49))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'Critique.actionable_revision.<locals>.<genexpr>', 154, (154, 155, 75, 105))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'Dimension', 133, (134, 134, 17, 22))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'Draft', 106, (107, 107, 22, 27))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'DraftInput', 122, (123, 123, 32, 37))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'ModelDraft', 114, (116, 116, 19, 29))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', 'Strict', 75, (76, 76, 19, 29))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/chapter_loop.py', '_chapter_direction.<locals>.<genexpr>', 185, (185, 185, 33, 81))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/config.py', '<module>', 1, (1, 1, 0, 54))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/config.py', 'Settings', 9, (10, 10, 4, 81))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/constants.py', '<module>', 1, (1, 1, 0, 33))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/creative.py', '<module>', 1, (1, 1, 0, 75))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/creative.py', 'CoverInput', 101, (102, 102, 17, 21))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/creative.py', 'CoverPlan', 69, (70, 70, 22, 26))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/creative.py', 'CoverSet', 83, (84, 84, 34, 39))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/creative.py', 'CreativeRequest', 108, (109, 109, 25, 30))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/creative.py', 'CreativeService', 116, (117, 131, 4, 61))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/creative.py', 'CreativeService.candidates.<locals>.<genexpr>', 251, (251, 251, 23, 87))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/creative.py', 'CreativeService.decide.<locals>.<genexpr>', 345, (345, 345, 24, 119))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/creative.py', 'CreativeService.project.<locals>.<genexpr>', 395, (395, 395, 18, 67))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/creative.py', 'CreativeService.read.<locals>.<genexpr>', 332, (332, 332, 24, 78))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/creative.py', 'Strict', 39, (40, 40, 19, 29))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/creative.py', 'TitleCandidate', 43, (44, 44, 11, 20))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/creative.py', 'TitleInput', 94, (95, 95, 17, 21))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/creative.py', 'TitleSet', 58, (59, 59, 39, 44))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/creative.py', 'normalized.<locals>.<genexpr>', 32, (32, 32, 18, 96))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/evals.py', '<module>', 1, (1, 1, 0, 87))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/evals.py', 'Chapter', 37, (38, 38, 19, 24))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/evals.py', 'ChapterBrief', 32, (33, 33, 16, 21))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/evals.py', 'Continuity', 42, (43, 43, 16, 25))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/evals.py', 'FixtureProvider', 72, (73, 75, 4, 30))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/evals.py', 'OfflineTrace', 54, (55, 55, 4, 64))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/evals.py', 'OfflineTrace.finish.<locals>.<genexpr>', 65, (65, 65, 12, 69))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/evals.py', 'Opportunity', 21, (22, 22, 19, 24))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/evals.py', 'Rewrite', 46, (47, 47, 19, 24))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/evals.py', 'StoryBible', 27, (28, 28, 19, 24))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/evals.py', 'StrictOutput', 17, (18, 18, 19, 29))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/evals.py', 'compare.<locals>.<genexpr>', 121, (121, 121, 34, 66))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/evals.py', 'compare.<locals>.<genexpr>', 122, (122, 122, 39, 73))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/evals.py', 'compare.<locals>.<genexpr>', 123, (123, 123, 43, 78))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/evals.py', 'evaluate_live.<locals>.<genexpr>', 158, (158, 158, 34, 70))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/evals.py', 'evaluate_live.<locals>.<genexpr>', 159, (159, 159, 39, 77))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/__init__.py', '<module>', 1, (1, 1, 0, 39))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/client.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/client.py', 'FeishuAPIError', 40, (41, 41, 4, 84))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/client.py', 'FeishuAuthError', 28, (29, 29, 4, 73))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/client.py', 'FeishuClient', 62, (63, 71, 4, 7))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/client.py', 'FeishuError', 24, (25, 25, 4, 36))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/client.py', 'FeishuNotFoundError', 32, (33, 33, 4, 52))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/__init__.py', '<module>', 1, (1, 1, 0, 72))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/agent_runs.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/agent_runs.py', 'AgentRunsRepo', 19, (20, 20, 4, 45))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/agent_states.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/agent_states.py', 'AgentStatesRepo', 19, (20, 20, 4, 47))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/agent_team_snapshots.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/agent_team_snapshots.py', 'AgentTeamSnapshotsRepo', 19, (20, 20, 4, 54))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/agents.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/agents.py', 'AgentsRepo', 19, (20, 20, 4, 42))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/approval_events.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/approval_events.py', 'ApprovalEventsRepo', 19, (20, 20, 4, 50))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/base.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/base.py', 'BaseRepository', 21, (22, 26, 4, 7))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/base.py', 'BaseRepository.conditional_update.<locals>.<genexpr>', 258, (258, 258, 33, 84))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/base.py', 'BaseRepository.get_many_by_key.<locals>.<genexpr>', 174, (174, 174, 14, 87))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/base.py', 'BaseRepository.get_many_by_key.<locals>.<genexpr>', 201, (201, 202, 34, 94))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/base.py', 'BaseRepository.get_many_by_key.<locals>.<genexpr>', 204, (204, 204, 43, 75))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/base.py', 'BaseRepository.update.<locals>.<genexpr>', 239, (239, 239, 14, 52))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/books.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/books.py', 'BooksRepo', 19, (20, 20, 4, 41))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/chapter_briefs.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/chapter_briefs.py', 'ChapterBriefsRepo', 19, (20, 20, 4, 49))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/chapter_versions.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/chapter_versions.py', 'ChapterVersionsRepo', 19, (20, 20, 4, 51))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/cover_plans.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/cover_plans.py', 'CoverPlansRepo', 19, (20, 20, 4, 46))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/factory.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/hotspot_analyses.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/hotspot_analyses.py', 'HotspotAnalysesRepo', 19, (20, 20, 4, 51))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/hotspots.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/hotspots.py', 'HotspotsRepo', 19, (20, 20, 4, 44))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/pipeline_runs.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/pipeline_runs.py', 'PipelineRunsRepo', 19, (20, 20, 4, 48))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/review_reports.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/review_reports.py', 'ReviewReportsRepo', 19, (20, 20, 4, 49))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/revision_tasks.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/revision_tasks.py', 'RevisionTasksRepo', 19, (20, 20, 4, 49))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/step_runs.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/step_runs.py', 'StepRunsRepo', 19, (20, 20, 4, 44))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/story_states.py', '<module>', 1, (1, 1, 0, 67))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/story_states.py', 'StoryStatesRepo', 9, (10, 11, 4, 81))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/title_candidates.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/repositories/title_candidates.py', 'TitleCandidatesRepo', 19, (20, 20, 4, 51))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/table_map.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/feishu/table_map.py', 'TableMapConfig', 300, (301, 305, 4, 7))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', '<module>', 1, (1, 1, 0, 81))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'Artifact', 28, (29, 29, 19, 29))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'ArtifactIntegrityError', 331, (332, 332, 4, 76))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'ArtifactStore', 335, (336, 337, 4, 28))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'CallContext', 74, (76, 76, 12, 15))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'ChatProvider', 110, (111, 111, 4, 83))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'Completion', 83, (85, 85, 13, 16))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'GenerationResult', 92, (94, 94, 12, 21))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'ModelFailure', 99, (100, 103, 4, 34))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'ModelProvider', 106, (107, 107, 4, 77))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'ModelRouter', 254, (256, 256, 26, 30))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'Prompt', 22, (23, 23, 19, 29))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'Route', 53, (54, 54, 19, 29))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'Route.bounded_call.<locals>.<genexpr>', 66, (66, 66, 27, 86))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'SemanticRuntime', 400, (401, 401, 4, 82))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'TraceRecorder', 160, (161, 162, 4, 28))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'TraceRecorder.link_artifact.<locals>.<genexpr>', 198, (198, 199, 23, 91))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'TraceRecorder.link_artifact.<locals>.<genexpr>', 200, (200, 200, 23, 85))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'TraceRecorder.recover.<locals>.<genexpr>', 221, (223, 223, 35, 90))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'TraceRecorder.usage.<locals>.<genexpr>', 247, (247, 247, 21, 100))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'TraceRecorder.usage.<locals>.<genexpr>', 251, (251, 251, 29, 66))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'TraceRecorder.usage.<locals>.total.<locals>.<genexpr>', 244, (244, 244, 18, 54))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/generation.py', 'TraceRecorder.usage.<locals>.total.<locals>.<genexpr>', 246, (246, 246, 22, 46))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/harness.py', '<module>', 1, (1, 1, 0, 77))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/harness.py', 'CreationJournal', 50, (51, 55, 4, 7))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/harness.py', 'HarnessKernel', 96, (98, 98, 40, 41))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/harness.py', 'HarnessKernel._refresh_parent.<locals>.<genexpr>', 260, (260, 260, 29, 63))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/harness.py', 'HarnessKernel._validate_approval_event.<locals>.<genexpr>', 348, (348, 348, 15, 75))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/harness.py', 'InvalidHandlerOutput', 36, (37, 37, 4, 72))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/harness.py', 'PermanentStepFailure', 40, (41, 41, 4, 79))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/harness.py', 'StepResult', 44, (46, 46, 13, 17))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/harness.py', 'TransitionConflict', 32, (33, 33, 4, 8))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/hotspot_controls.py', '<module>', 1, (1, 1, 0, 81))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/hotspot_controls.py', 'HotspotControls', 28, (29, 33, 4, 62))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/hotspot_controls.py', 'HotspotControls.add.<locals>.<genexpr>', 60, (60, 60, 18, 94))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/hotspot_controls.py', 'ManualInput', 11, (12, 12, 19, 29))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/hotspots.py', '<module>', 1, (1, 1, 0, 84))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/hotspots.py', 'HotspotRecord', 22, (23, 23, 19, 29))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/hotspots.py', 'HotspotService', 60, (61, 61, 62, 66))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/hotspots.py', 'HotspotService.persist.<locals>.<genexpr>', 114, (114, 114, 27, 80))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/hotspots.py', 'HotspotService.persist.<locals>.<genexpr>', 142, (142, 142, 22, 103))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/hotspots.py', 'IngestionInput', 16, (17, 17, 19, 29))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/main.py', '<module>', 1, (1, 1, 0, 52))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/pipeline/__init__.py', '<module>', 1, (1, 1, 0, 79))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/pipeline/engine.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/pipeline/engine.py', 'PipelineEngine', 23, (24, 28, 4, 7))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/pipeline/engine.py', 'PipelineEngine.complete_step.<locals>.<genexpr>', 187, (187, 187, 18, 67))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/pipeline/models.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/pipeline/models.py', 'PipelineDef', 32, (34, 34, 4, 64))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/pipeline/models.py', 'StepDef', 18, (20, 20, 4, 57))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/pipeline/worker.py', '<module>', 1, (1, 7, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/pipeline/worker.py', 'WorkerLoop', 23, (24, 29, 4, 7))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/research.py', '<module>', 1, (1, 5, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/research.py', 'AnalysisRequest', 51, (52, 52, 22, 27))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/research.py', 'Opportunity', 32, (33, 33, 13, 17))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/research.py', 'ResearchInput', 59, (60, 60, 12, 18))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/research.py', 'ResearchService', 112, (113, 113, 53, 57))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/research.py', 'ResearchService.decide.<locals>.<genexpr>', 345, (345, 345, 26, 75))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/research.py', 'ResearchService.get.<locals>.<genexpr>', 321, (321, 321, 18, 62))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/research.py', 'ResearchService.get.<locals>.<genexpr>', 323, (323, 323, 20, 64))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/research.py', 'ResearchService.get.<locals>.<genexpr>', 328, (328, 328, 54, 145))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/research.py', 'ResearchService.project.<locals>.<genexpr>', 379, (379, 379, 14, 63))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/research.py', 'ResearchService.risk.<locals>.<genexpr>', 268, (268, 268, 36, 74))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/research.py', 'ReviewInput', 65, (66, 66, 12, 18))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/research.py', 'RiskAssessment', 24, (25, 25, 11, 18))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/research.py', 'Source', 42, (43, 43, 16, 20))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/research.py', 'Strict', 20, (21, 21, 19, 29))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/runtime.py', '<module>', 1, (1, 1, 0, 74))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/runtime.py', 'build_runtime.<locals>.<genexpr>', 31, (31, 31, 57, 113))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/storage.py', '<module>', 1, (1, 5, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/storage.py', 'AmbiguousWrite', 27, (28, 28, 4, 78))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/storage.py', 'DuplicateKey', 23, (24, 24, 4, 8))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/storage.py', 'FeishuStorageProvider', 40, (41, 46, 4, 7))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/storage.py', 'FeishuStorageProvider.update.<locals>.<genexpr>', 131, (131, 131, 47, 110))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/storage.py', 'MissingRecord', 19, (20, 20, 4, 8))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/storage.py', 'StorageError', 15, (16, 16, 4, 8))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/storage.py', 'StorageProvider', 31, (32, 32, 4, 70))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/story_planning.py', '<module>', 1, (1, 1, 0, 91))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/story_planning.py', 'BibleContent', 48, (49, 49, 13, 17))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/story_planning.py', 'BibleInput', 66, (67, 67, 11, 15))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/story_planning.py', 'BibleRequest', 80, (81, 81, 19, 24))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/story_planning.py', 'BriefDraft', 58, (59, 59, 18, 22))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/story_planning.py', 'BriefInput', 73, (74, 74, 14, 18))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/story_planning.py', 'BriefRequest', 89, (90, 90, 19, 24))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/story_planning.py', 'StoryPlanningService', 98, (99, 99, 4, 83))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/story_planning.py', 'StoryPlanningService._live.<locals>.<genexpr>', 229, (229, 229, 30, 71))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/story_planning.py', 'StoryPlanningService.commit_bible.<locals>.<genexpr>', 327, (327, 327, 14, 70))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/story_planning.py', 'StoryPlanningService.decide_bible.<locals>.<genexpr>', 339, (339, 339, 24, 78))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/story_planning.py', 'StoryPlanningService.prior_final_chapters.<locals>.<genexpr>', 355, (355, 356, 18, 57))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/story_planning.py', 'StoryPlanningService.prior_final_chapters.<locals>.<genexpr>', 361, (361, 361, 24, 60))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/story_planning.py', 'StoryPlanningService.prior_final_chapters.<locals>.<genexpr>', 377, (377, 378, 23, 59))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/story_planning.py', 'StoryPlanningService.prior_final_chapters.<locals>.<genexpr>', 393, (393, 393, 23, 83))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/story_planning.py', 'StoryPlanningService.prior_final_chapters.<locals>.<genexpr>', 395, (395, 396, 23, 102))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/story_planning.py', 'StoryPlanningService.read.<locals>.<genexpr>', 535, (535, 535, 24, 78))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/story_planning.py', 'StoryPlanningService.snapshot.<locals>.<genexpr>', 424, (424, 424, 29, 70))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/story_planning.py', 'Strict', 44, (45, 45, 19, 29))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/tools/__init__.py', '<module>', 1, (1, 8, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/tools/adapters/__init__.py', '<module>', 1, (1, 8, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/tools/adapters/douyin_hotspots.py', '<module>', 1, (1, 8, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/tools/adapters/douyin_hotspots.py', 'DouyinAdapterResult', 28, (30, 30, 4, 52))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/tools/adapters/douyin_hotspots.py', 'DouyinHotspotAdapter', 41, (42, 46, 4, 7))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/tools/errors.py', '<module>', 1, (1, 8, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/tools/errors.py', 'OpenCLIError', 11, (12, 12, 4, 55))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/tools/errors.py', 'OpenCLIExitError', 27, (28, 28, 4, 56))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/tools/errors.py', 'OpenCLIOutputError', 45, (46, 46, 4, 74))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/tools/errors.py', 'OpenCLITimeoutError', 19, (20, 20, 4, 53))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/tools/runner.py', '<module>', 1, (1, 8, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/tools/runner.py', 'OpenCLIResult', 25, (27, 32, 4, 7))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/tools/runner.py', 'OpenCLIRunner', 45, (46, 50, 4, 7))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/tools/schemas.py', '<module>', 1, (1, 8, 0, 3))",
+      "('/private/tmp/novelops-finalization-pr37-64008dbc/backend/app/tools/schemas.py', 'DouyinHotspotRecord', 15, (17, 21, 4, 7))"
+    ],
+    "pytest_exitstatus": 0,
+    "missing": [
+      {
+        "file": "generation.py",
+        "name": "ModelProvider.complete",
+        "line": 107,
+        "source_position": [
+          107,
+          107,
+          74,
+          77
+        ]
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.get",
+        "line": 32,
+        "source_position": [
+          32,
+          32,
+          67,
+          70
+        ]
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.get_many",
+        "line": 33,
+        "source_position": [
+          33,
+          33,
+          83,
+          86
+        ]
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.list",
+        "line": 34,
+        "source_position": [
+          34,
+          34,
+          76,
+          79
+        ]
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.ensure",
+        "line": 35,
+        "source_position": [
+          35,
+          35,
+          89,
+          92
+        ]
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.update",
+        "line": 36,
+        "source_position": [
+          36,
+          36,
+          77,
+          80
+        ]
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.delete",
+        "line": 37,
+        "source_position": [
+          37,
+          37,
+          63,
+          66
+        ]
+      }
+    ],
+    "definition_scope": "every app Python source including unimported modules and Protocol declarations; module/class bodies and compiler-generated comprehensions are not source functions"
+  },
+  "function_scope_diagnostic": {
+    "uncalled_declarations": [
+      {
+        "file": "generation.py",
+        "name": "ModelProvider.complete",
+        "line": 107,
+        "protocol_ellipsis_declaration": true
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.get",
+        "line": 32,
+        "protocol_ellipsis_declaration": true
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.get_many",
+        "line": 33,
+        "protocol_ellipsis_declaration": true
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.list",
+        "line": 34,
+        "protocol_ellipsis_declaration": true
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.ensure",
+        "line": 35,
+        "protocol_ellipsis_declaration": true
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.update",
+        "line": 36,
+        "protocol_ellipsis_declaration": true
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.delete",
+        "line": 37,
+        "protocol_ellipsis_declaration": true
+      }
+    ],
+    "raw_metric_unchanged": true,
+    "executable_named_or_lambda_gap": 0,
+    "not_a_whole_project_100_claim": true
+  },
+  "frontend": {
+    "current_tests_reused": 343,
+    "coverage": {
+      "lines": {
+        "total": 1017,
+        "covered": 988,
+        "skipped": 0,
+        "pct": 97.14
+      },
+      "statements": {
+        "total": 1207,
+        "covered": 1143,
+        "skipped": 0,
+        "pct": 94.69
+      },
+      "functions": {
+        "total": 339,
+        "covered": 321,
+        "skipped": 0,
+        "pct": 94.69
+      },
+      "branches": {
+        "total": 1432,
+        "covered": 1362,
+        "skipped": 0,
+        "pct": 95.11
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "changed": false
+  },
+  "requirement_events": {
+    "confirmed_old_defect": "Same chapter/version duplicate projection from unrelated run: context503 but final-lock200, persisted status/locked_at/locked_by changed. Controlled external HTTP fixture, not real Base corruption.",
+    "fixed_behavior": "First finalization and existing final replay refuse whole-chapter projection/artifact ambiguity before mutation; restored evidence permits same command and exact replay.",
+    "native_boundary": "Real configured app and Base reads with in-memory response-only duplicate injection; healthy existing chapter1v9 replay200, injected duplicate503, restored replay200; no remote corruption or first-finalization claim.",
+    "second_chapter_semantic_and_critic_success": false
+  },
+  "native": {
+    "source": {
+      "pr": 37,
+      "source_commit": "64008dbc3c5ae18594101ad62070eaf4283dee09",
+      "path": "/tmp/novelops-finalization-pr37-64008dbc",
+      "app_tree": "aa3b80b32edc080aded7cc8ebd7f2a2b0e3c7cb6",
+      "tests_tree": "59423f93c214a571736f7cb5f78dff654866de88",
+      "config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+      "frontend_tree": "c2537d65cd5a5e5093a868fc2fcd6c968c24dff1"
+    },
+    "status": "real_base_readonly_final_replay_and_injected_response_refusal_verified",
+    "baseline_count": 452,
+    "baseline_exact_before": 452,
+    "baseline_exact_after": 452,
+    "baseline_hash_before": "e4716d101a7ad946ed579bfc0740443e70cd87297a561a9517a7b7330aca5162",
+    "baseline_hash_after": "e4716d101a7ad946ed579bfc0740443e70cd87297a561a9517a7b7330aca5162",
+    "injected_responses": 1,
+    "model_attempts": 0,
+    "external_record_mutations": 0,
+    "clients_closed": true,
+    "server_running_after_exit": false,
+    "scheduler_running_after_exit": false,
+    "lifespan": "off; no scheduler or generation"
+  },
+  "observer_failure": {
+    "artifact": "/tmp/novelops-20261022-finalization-native-preflight-failure.json",
+    "cause": "Obsolete local table-map artifact absent; before external I/O. All clients closed,zero requests; corrected to actual resolved runtime table IDs.",
+    "secondary_cleanup_NameError_preserved": true
+  },
+  "native_http_results": [
+    {
+      "label": "healthy_existing_final_replay",
+      "status": 200,
+      "response_faults": 0
+    },
+    {
+      "label": "foreign_run_duplicate_response_refused",
+      "status": 503,
+      "response_faults": 1
+    },
+    {
+      "label": "original_response_restored_exact_replay",
+      "status": 200,
+      "response_faults": 0
+    }
+  ],
+  "security": {
+    "api_key_and_review_gates_preserved": true,
+    "production_change": "Existing projection consistency guard before finalization/replay, operation-scoped fresh version read reuse; no auth/env/route/config/dependency changes.",
+    "new_models": 0,
+    "new_base_rows": 0,
+    "shared_budget_used": 4,
+    "shared_budget_cap": 4,
+    "additional_authorization_received": false,
+    "no_private_prose_or_credentials_in_report": true
+  },
+  "review": {
+    "fresh_13_issue_scope_unchanged": true,
+    "all_linear_in_review": true,
+    "fresh_13_pr_read": true,
+    "new_feedback": false,
+    "unresolved_threads": 0,
+    "published_head_ci": "Pending after report creation; verified separately in PR body/final checkpoint."
+  },
+  "skill": {
+    "reused": [
+      "issue-pr-delivery",
+      "tdd-workflow",
+      "security-review",
+      "lark-base"
+    ],
+    "new_or_changed_this_wave": false,
+    "assessment": "Existing red-at-intended-assertion, external fault restoration, same-command recovery and independent branch guidance directly cover this case; no new abstraction required."
+  },
+  "limitations": [
+    "All applicable whole-project S/L/F/B100 not yet achieved; raw seven Protocol ellipsis declarations remain disclosed and uncalled.",
+    "Real second chapter remains failed; paid request budget4/4 consumed, extra authorization pending.",
+    "Native probe uses no lifespan/scheduler; it proves retained final replay and response-fault refusal, not new generation/first-finalization on real Base.",
+    "No new browser/UI run; unchanged frontend evidence reused.",
+    "Local canonical Turbopack build EPERM remains unresolved; require exact published-head GitHub Production build and quality gate.",
+    "No PR merged, main deployment or issue Done."
+  ],
+  "evidence": [
+    {
+      "path": "/tmp/novelops-20261022-projection-red-v2.log",
+      "sha256": "ac917e7a0efdc1a1b42826ba88ae22c40334c0ec5f1599aa1c9fcc593953da7b"
+    },
+    {
+      "path": "/tmp/novelops-20261022-projection-defect-review.json",
+      "sha256": "c2147f88e286b23fe3dfd1053c21fe83897f302b40bb36efde21010429b3d2f6"
+    },
+    {
+      "path": "/tmp/novelops-20261022-finalization-matrix.log",
+      "sha256": "5f303d718ed92e30af2982f580690505b551a4fde2495fa720e24dfbccd557d2"
+    },
+    {
+      "path": "/tmp/novelops-20261022-command-boundaries.log",
+      "sha256": "70679414d379c351baba2ef32137f48af1394e61e119ea3f1477344cf9091a07"
+    },
+    {
+      "path": "/tmp/novelops-20261022-pr37-finalization-tests.log",
+      "sha256": "fe11ba100aec569cbde2ece1c2b13098a071ed8dd84f37c31c0d83b34e9715b6"
+    },
+    {
+      "path": "/tmp/novelops-20261022-finalization-root-bounded.log",
+      "sha256": "5287a5a0b815e0b87ce3dd7d0b51dcc2856fb06999348142fe67212a68c4ebbf"
+    },
+    {
+      "path": "/tmp/novelops-20261022-finalization-native.json",
+      "sha256": "653adf6960f0a35dee1423b9784220de20d1355deea717425a973b1a6e77b6fe"
+    },
+    {
+      "path": "/tmp/novelops-20261022-finalization-native-preflight-failure.json",
+      "sha256": "44cc6aaf61a3ad335e7f2d2e75ee934eacd29e9c9fe5d4cfe52be61fd2a31707"
+    },
+    {
+      "path": "/tmp/novelops-20261022-finalization-native-preflight-failure.log",
+      "sha256": "a277dfcf4247ee780b2eb7c6f2ab9e7555e8703a80d18bbbfb9d68a0f34f8357"
+    },
+    {
+      "path": "/tmp/novelops-20261022-finalization-native-checkpoint-preflight-v2.json",
+      "sha256": "7fadab9d72d69ee275c1e5fbbb900320ecbb42ca69136f61ac731f5ee868b22d"
+    },
+    {
+      "path": "/tmp/novelops-20261022-finalization-prepublish-prs.json",
+      "sha256": "4cc395ddfc464e3444545e56d495407bc6760a7052fe5fa650bf2a57301a9505"
+    },
+    {
+      "path": "/tmp/novelops-20261022-finalization-linear-current.json",
+      "sha256": "74fb4d3a2fb17d7fd364bd7c320e40f6fa94d8659217c93a41514aafaabeaa3f"
+    },
+    {
+      "path": "/tmp/novelops-20261022-finalization-github-issues.json",
+      "sha256": "90fa98ac45545e713a224050369401e9a2bbf0345f7c5472d75dcf5ee5acec18"
+    },
+    {
+      "path": "/tmp/novelops-20261022-pr36-finalization-v2-result.json",
+      "sha256": "736708503c9239470cab6ed2077c1cfaface517f97dc0aa7a1ac31ca3fa458fb"
+    },
+    {
+      "path": "/tmp/novelops-20261022-pr36-finalization-v2-coverage.json",
+      "sha256": "29dc25b153f474ddad6ac379b9b02b7fdf015021d9a4175bc254fb96fe49a105"
+    },
+    {
+      "path": "/tmp/novelops-20261022-pr36-finalization-v2-junit.xml",
+      "sha256": "5c5b4aadee1b687b1c69b0621c5ace01b4910942db5ecdd1198d8e36d78833e1"
+    },
+    {
+      "path": "/tmp/novelops-20261022-pr36-finalization-v2-ruff.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "/tmp/novelops-20261022-pr36-finalization-v2-tests.log",
+      "sha256": "72277b4f312c621dafa75c58a69b4975b6a899fcebc130a24f2dd139ef799e81"
+    },
+    {
+      "path": "/tmp/novelops-20261022-pr37-finalization-v2-result.json",
+      "sha256": "eea442a53ff9bd5474bfea0be6a65b87f4543d2559d10f54b64979054f1268a8"
+    },
+    {
+      "path": "/tmp/novelops-20261022-pr37-finalization-v2-coverage.json",
+      "sha256": "704e495badbf9ad5d00fa8823796b268457c5af7a97789221e551875ea3d5975"
+    },
+    {
+      "path": "/tmp/novelops-20261022-pr37-finalization-v2-junit.xml",
+      "sha256": "4ea30aae7839f3c3a8f96da5d5f2400be11e0d514e2b48e2a514ed91ef4a46ba"
+    },
+    {
+      "path": "/tmp/novelops-20261022-pr37-finalization-v2-ruff.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "/tmp/novelops-20261022-pr37-finalization-v2-tests.log",
+      "sha256": "791e72ac4620cf7206e8c71312bd048b81b3736d51fee4f58d25721a33fa0167"
+    },
+    {
+      "path": "/tmp/novelops-20261022-pr37-finalization-v2-functions.json",
+      "sha256": "ca8658d0a0e488b1c392e8e71b06b61b5af1f7c04aecb9764b1d0cc6bc191023"
+    }
+  ]
+}
