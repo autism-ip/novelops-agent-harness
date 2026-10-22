@@ -1,4 +1,9 @@
-"""Versioned chapter workflows with request-scoped immutable review reads."""
+"""
+[INPUT]: Kernel, immutable artifacts, model routes and chapter/version projections.
+[OUTPUT]: Verified workflows, immutable review reads and editorial decisions; ambiguous projections refuse finalization and replay.
+[POS]: ZEN-40 chapter orchestration and ZEN-41 human review/revision consumption boundary.
+[PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+"""
 from __future__ import annotations
 
 import json
@@ -1030,6 +1035,9 @@ class ChapterLoopService:
             if pending_revision and pending_revision.get("status") == "open":
                 raise TransitionConflict("Open revision intent must be reconciled first")
             existing = self._lock(book_id, chapter_no)
+            # A duplicate from another run is omitted by read(current_run).
+            # Check the whole chapter before a new final lock or locked replay.
+            self._assert_projected_versions(book_id, chapter_no, self._versions(book_id, chapter_no))
             if existing:
                 if (existing["version_id"] == version_id and existing.get("artifact_id") == artifact_id and
                     existing["version_no"] == version_no and existing.get("locked_by") == operator.strip()):

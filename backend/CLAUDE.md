@@ -21,7 +21,7 @@ app/research.py: ZEN-35 版本化 ResearchAgent、保守风险策略、精确版
 app/creative.py: ZEN-36 标题候选与封面方向生成、逐项 Artifacts、版本选择与飞书投影；候选按业务 ID 批量重新读取，保留顺序与完整性校验，缺失时不返回部分集合，选择步骤复用本次同一组 ID；完整已选视图与选项由同一次新鲜读取返回，保留种类、终态、当前性和精确选择校验。
 app/books.py: ZEN-38 精确来源建书与 canonical StoryState，ready 重放兼容后续状态版本；同次单写者操作复用完整已审批/已选视图，不重复解析相同链路，每次重新核验来源。
 app/story_planning.py: ZEN-39 StoryBible 人工审批与确定性状态补丁、不可变 StoryContextSnapshot、版本化 ChapterBrief；资格检查仅展开最新版本，历史列表保留完整读取。
-app/chapter_loop.py: ZEN-40 精确源章节闭环；ZEN-41 选择性人审、版本化审阅命令、先持久化再解关卡的 RevisionTask 恢复和最终锁定；审稿响应按业务 ID 批量校验产物并复用本次版本行，决策和刷新重新读取；审批重放将飞书省略的可选空备注按空字符串比较，其他身份和非空备注冲突保持拒绝。 人工三类约束完整传入Critic并在后续Rewrite中保持顶层优先，Critic建议独立保留。
+app/chapter_loop.py: ZEN-40 精确源章节闭环；ZEN-41 选择性人审、版本化审阅命令、先持久化再解关卡的 RevisionTask 恢复和最终锁定；审稿响应按业务 ID 批量校验产物并复用本次版本行，决策和刷新重新读取；审批重放将飞书省略的可选空备注按空字符串比较，其他身份和非空备注冲突保持拒绝。 人工三类约束完整传入Critic并在后续Rewrite中保持顶层优先，Critic建议独立保留。 首次定稿和锁定重放均核验整章版本投影与产物一致性，歧义拒绝写入。
 app/api/routes/story_planning.py: ZEN-39 精确版本上下文、触发、历史、审批和 eligible brief 接口。
 app/api/routes/chapter_loop.py: ZEN-40 章节生成与历史；ZEN-41 审阅详情、精确决策、退修和 final-lock 接口。
 app/api/routes/research.py: 鉴权批量分析、历史、审批/拒绝/退修与 approved 消费契约。
