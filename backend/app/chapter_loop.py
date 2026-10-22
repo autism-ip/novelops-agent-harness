@@ -1,6 +1,6 @@
 """
 [INPUT]: Kernel, immutable artifacts, model routes and chapter/version projections.
-[OUTPUT]: Verified workflows, immutable review reads and editorial decisions; ambiguous projections refuse finalization and replay.
+[OUTPUT]: Verified workflows and immutable editorial review; finalization/replay validate one operation-scoped version read and refuse ambiguity.
 [POS]: ZEN-40 chapter orchestration and ZEN-41 human review/revision consumption boundary.
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
@@ -285,8 +285,9 @@ class ChapterLoopService:
         if any(row.get("artifact_id") and row["version_no"] not in seen for row in versions):
             raise AmbiguousWrite("Projected ChapterVersion artifact missing")
 
-    def _lock(self, book_id: str, chapter_no: int) -> dict | None:
-        final = [row for row in self._versions(book_id, chapter_no) if row["status"] == "final"]
+    def _lock(self, book_id: str, chapter_no: int, *, _version_rows=None) -> dict | None:
+        versions = _version_rows if _version_rows is not None else self._versions(book_id, chapter_no)
+        final = [row for row in versions if row["status"] == "final"]
         if len(final) > 1:
             raise AmbiguousWrite("Multiple final ChapterVersions")
         return final[0] if final else None
@@ -1034,10 +1035,12 @@ class ChapterLoopService:
                 "revision_tasks", stable_id("RT-", "chapter-revision/" + version_id))
             if pending_revision and pending_revision.get("status") == "open":
                 raise TransitionConflict("Open revision intent must be reconciled first")
-            existing = self._lock(book_id, chapter_no)
+            versions = self._versions(book_id, chapter_no)
+            existing = self._lock(book_id, chapter_no, _version_rows=versions)
             # A duplicate from another run is omitted by read(current_run).
             # Check the whole chapter before a new final lock or locked replay.
-            self._assert_projected_versions(book_id, chapter_no, self._versions(book_id, chapter_no))
+            # Reuse only this operation's fresh rows; no cross-request cache.
+            self._assert_projected_versions(book_id, chapter_no, versions)
             if existing:
                 if (existing["version_id"] == version_id and existing.get("artifact_id") == artifact_id and
                     existing["version_no"] == version_no and existing.get("locked_by") == operator.strip()):
@@ -1046,7 +1049,7 @@ class ChapterLoopService:
             runs = self._runs(book_id, chapter_no)
             if not runs or runs[-1]["status"] != "completed":
                 raise TransitionConflict("Latest chapter run is not completed")
-            view = self.read(runs[-1]["pipeline_run_id"])
+            view = self.read(runs[-1]["pipeline_run_id"], _version_rows=versions)
             selected = view["selected"]
             if (not view["current"] or not selected or selected["artifact_id"] != artifact_id or
                 selected["version"] != version_no or
