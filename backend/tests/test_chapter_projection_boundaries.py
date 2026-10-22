@@ -83,3 +83,108 @@ def test_final_lock_refuses_same_number_projection_from_an_unrelated_run(chapter
         assert provider.calls == model_calls
     finally:
         api.close()
+
+
+FAULTS = [
+    ("duplicate_projection", "Duplicate ChapterVersion number"),
+    ("duplicate_artifact", "ChapterVersion artifact identity changed"),
+    ("artifact_logical_id", "ChapterVersion artifact identity changed"),
+    ("artifact_id", "ChapterVersion artifact identity changed"),
+    ("artifact_number", "ChapterVersion artifact identity changed"),
+    ("missing_projection", "Unprojected ChapterVersion artifact"),
+    ("projection_artifact", "Unprojected ChapterVersion artifact"),
+    ("missing_artifact", "Projected ChapterVersion artifact missing"),
+    ("multiple_finals", "Multiple final ChapterVersions"),
+]
+
+
+def corrupt_projection(kernel, transport, version, fault):
+    """Inject external persisted state, bypassing application write validation."""
+    cv_repo = kernel.storage._repos["chapter_versions"]
+    ar_repo = kernel.storage._repos["artifacts"]
+    cv_id, cv = raw_record(kernel, transport, "chapter_versions", "version_id", version["version_id"])
+    ar_id, artifact = raw_record(kernel, transport, "artifacts", "artifact_id", version["artifact_id"])
+    cv_fields, ar_fields = cv_repo._field_map, ar_repo._field_map
+    if fault in {"duplicate_projection", "multiple_finals"}:
+        shadow = copy.deepcopy(cv)
+        shadow["record_id"] = "rec-external-shadow"
+        shadow["fields"].update({cv_fields["version_id"]: "CV-" + "d" * 32,
+                                 cv_fields["run_id"]: "PR-" + "d" * 32})
+        if fault == "multiple_finals":
+            cv["fields"][cv_fields["status"]] = "final"
+            shadow["fields"].update({cv_fields["version_no"]: 2, cv_fields["status"]: "final"})
+        else:
+            shadow["fields"][cv_fields["status"]] = "candidate"
+        transport.tables[cv_repo._table_id][shadow["record_id"]] = shadow
+    elif fault == "duplicate_artifact":
+        shadow = copy.deepcopy(artifact)
+        shadow["record_id"] = "rec-external-artifact"
+        shadow["fields"][ar_fields["artifact_id"]] = "AR-" + "d" * 32
+        transport.tables[ar_repo._table_id][shadow["record_id"]] = shadow
+    elif fault.startswith("artifact_"):
+        field, value = {"artifact_logical_id": ("logical_id", "books/foreign/chapters/1/versions"),
+                        "artifact_id": ("artifact_id", "AR-" + "d" * 32),
+                        "artifact_number": ("version", 2)}[fault]
+        artifact["fields"][ar_fields[field]] = value
+    elif fault == "missing_projection":
+        del transport.tables[cv_repo._table_id][cv_id]
+    elif fault == "projection_artifact":
+        cv["fields"][cv_fields["artifact_id"]] = "AR-" + "d" * 32
+    elif fault == "missing_artifact":
+        del transport.tables[ar_repo._table_id][ar_id]
+    else:
+        raise AssertionError(fault)
+
+
+@pytest.mark.parametrize("fault,message", FAULTS)
+@pytest.mark.parametrize("locked_replay", [False, True], ids=["first-finalization", "locked-replay"])
+def test_finalization_refuses_external_ambiguity_and_recovers_exactly(chapter, fault, message,
+                                                                   locked_replay, tmp_path):
+    kernel, provider, book_id = chapter
+    view = pass_run(kernel, provider, book_id)
+    version = view["versions"][0]
+    command = {key: version[key] for key in ("version_id", "artifact_id", "version_no")}
+    command["operator"] = "synthetic-editor"
+    transport = transport_of(kernel)
+    api = api_for(kernel)
+    path = f"/api/books/{book_id}/chapters/1/final-lock"
+    try:
+        if locked_replay:
+            healthy = api.post(path, headers=HEADERS, json=command)
+            assert healthy.status_code == 200 and healthy.json()["status"] == "final"
+        baseline = copy.deepcopy(transport.tables)
+        artifact_before = kernel.artifacts.get(version["artifact_id"])
+        corrupt_projection(kernel, transport, version, fault)
+        corrupt = copy.deepcopy(transport.tables)
+        calls, model_calls = len(transport.calls), list(provider.calls)
+        response = api.post(path, headers=HEADERS, json=command)
+        (tmp_path / "refusal.json").write_text(json.dumps({
+            "fault": fault, "locked_replay": locked_replay, "status": response.status_code,
+            "body": response.json(), "before": corrupt, "after": transport.tables}, indent=2))
+        assert response.status_code == 503, response.text
+        assert response.json() == {"detail": "AmbiguousWrite", "reconciliation_required": True}
+        with pytest.raises(AmbiguousWrite, match=message):
+            kernel.chapter_loop.lock_final(book_id, 1, **command)
+        assert transport.tables == corrupt
+        readonly(transport.calls[calls:])
+        assert provider.calls == model_calls
+
+        # Repair only the external fixture, then exercise the unchanged public command.
+        transport.tables = copy.deepcopy(baseline)
+        restored = api.post(path, headers=HEADERS, json=command)
+        assert restored.status_code == 200, restored.text
+        final = restored.json()
+        assert final["status"] == "final" and final["locked_by"] == command["operator"]
+        assert all(final[key] == command[key] for key in ("version_id", "artifact_id", "version_no"))
+        if locked_replay:
+            assert final == healthy.json() and transport.tables == baseline
+        final_state = copy.deepcopy(transport.tables)
+        calls = len(transport.calls)
+        replay = api.post(path, headers=HEADERS, json=command)
+        assert replay.status_code == 200 and replay.json() == final
+        assert transport.tables == final_state
+        readonly(transport.calls[calls:])
+        assert kernel.artifacts.get(version["artifact_id"]) == artifact_before
+        assert provider.calls == model_calls
+    finally:
+        api.close()

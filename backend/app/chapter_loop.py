@@ -1,4 +1,9 @@
-"""Versioned chapter generation, critique, bounded rewrite and final lock."""
+"""
+[INPUT]: Kernel, immutable artifacts, model routes and chapter/version projections.
+[OUTPUT]: Verified versioned chapter workflows; ambiguous projections refuse finalization and replay.
+[POS]: ZEN-40 chapter orchestration and exact-source consumption boundary.
+[PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+"""
 from __future__ import annotations
 
 import json
@@ -742,6 +747,9 @@ class ChapterLoopService:
             if not operator.strip():
                 raise ValueError("Operator is required")
             existing = self._lock(book_id, chapter_no)
+            # A duplicate from another run is omitted by read(current_run).
+            # Check the whole chapter before a new final lock or locked replay.
+            self._assert_projected_versions(book_id, chapter_no, self._versions(book_id, chapter_no))
             if existing:
                 if (existing["version_id"] == version_id and existing.get("artifact_id") == artifact_id and
                     existing["version_no"] == version_no and existing.get("locked_by") == operator.strip()):
