@@ -430,6 +430,16 @@ test("idle eligible-brief reads use a minute budget and explicit chapter refresh
 });
 
 
+test("chapter selection exposes its focused review route without triggering generation", async () => {
+  const transport = await open();
+  expect(screen.getByRole("link", { name: "Open review desk" }).getAttribute("href")).toBe(`/books/${book}/chapters/1/review`);
+  fireEvent.change(screen.getByLabelText("Chapter number"), { target: { value: "2" } });
+  expect(screen.getByRole("link", { name: "Open review desk" }).getAttribute("href")).toBe(`/books/${book}/chapters/2/review`);
+  fireEvent.change(screen.getByLabelText("Chapter number"), { target: { value: "0" } });
+  expect(screen.queryByRole("link", { name: "Open review desk" })).toBeNull();
+  expect(writes(transport)).toHaveLength(0);
+});
+
 test.each([{ detail: "Backend service is unavailable. Check the service, then refresh." }, { detail: "Storage verification failed" }, "Unavailable", { detail: 123 }])(
   "generation503 distinguishes an outage from explicit feature configuration (%j)", async body => {
     const transport = vi.fn((input: unknown, init: RequestInit)=>Promise.resolve(String(input).endsWith("/generation/latest")
