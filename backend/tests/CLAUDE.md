@@ -41,6 +41,7 @@ test_story_planning.py: ZEN-39 API 与 Harness 门禁，覆盖人工审批、状
 test_chapter_loop.py: ZEN-40 章节生成、结构化 Critic、条件改写、硬规则/成本门禁、重试与最终锁定验收；人工约束在Critic和自动Rewrite中的完整性（每类1项/20项）、旧版本不可变与调用次数验收。
 test_review_prerequisites.py: 审稿台前置能力缺失时先鉴权、明确503且零外部读取/写入；Bible、Brief及正文生成请求与URL目标不一致时422且零模型调用。
 test_chapter_review_integrity.py: ZEN-41 审稿失败关闭契约；空白操作者、远程版本来源损坏、不可重放修订意图和精确终锁重放，经真实 API/仓储验证安全错误、零写入、零新增模型调用及恢复后原产物一致。
+test_editorial_projection_commands.py: 审稿读取已拒绝的外部重复投影不得被批准命令绕过；保存HTTP前后原始状态，验证安全拒绝、零写入与模型次数不变。
 test_chapter_review.py: ZEN-41 选择性关卡、精确 HTTP 审阅/退修、RevisionTask 恢复、历史与终锁、响应读取数量和跨刷新完整性门禁；包含空备注被远程省略后的批准/拒绝零写入重放及冲突保护，以及生产装配缺少 RevisionTasks 表配置时启动失败、已配置时按实际表 ID 查询的回归。
 
 test_chapter_projection_boundaries.py: 章节投影歧义的HTTP拒绝与恢复合同；外部重复版本不得绕过定稿完整性检查，保留旧版本和模型调用次数，不作为真实模型语义验收。
