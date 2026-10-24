@@ -39,6 +39,7 @@ test_story_history_contract.py: ZEN-39 产品历史 API 的鉴权空历史零生
 test_story_planning.py: ZEN-39 API 与 Harness 门禁，覆盖人工审批、状态版本、不可变快照、brief 资格、历史读取数量上限、禁止回退旧提纲和中断恢复。
 test_chapter_loop.py: ZEN-40 章节生成、结构化 Critic、条件改写、硬规则/成本门禁、重试与最终锁定验收；人工约束在Critic和自动Rewrite中的完整性（每类1项/20项）、旧版本不可变与调用次数验收。
 test_chapter_projection_boundaries.py: 章节投影歧义的HTTP拒绝与恢复合同；外部重复版本不得绕过定稿完整性检查，保留旧版本和模型调用次数，不作为真实模型语义验收。
+test_final_proof_consumption.py: 定稿必须消费选定正文的当前Critic与确定性验证证据；外部缺失、引用/哈希变更或验证后正文改变时拒绝写入，恢复后同命令定稿并精确只读重放。
 test_chapter_command_boundaries.py: 初始/退修命令、占用版本精确重放、运行中重复触发和不可执行Critic退修的行为合同；构造配置失败单独标注，均不替代真实模型语义验收。
 
 架构决策
