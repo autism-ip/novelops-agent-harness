@@ -335,3 +335,42 @@ def test_later_fresh_run_read_refuses_stale_initial_editorial_target(chapter, op
     finally:
         client.event_hooks["response"].remove(one_stale_run_response)
         api.close()
+
+
+@pytest.mark.parametrize("field", ["content_hash", "review_report_id", "verifier_artifact_id"])
+@pytest.mark.parametrize("operation", ["approve", "reject", "revision"])
+def test_projection_provenance_rejected_by_review_cannot_be_consumed_by_command(chapter, field, operation, tmp_path):
+    kernel, provider, book_id = chapter
+    view = pass_run(kernel, provider, book_id)
+    command = target(view)
+    transport = transport_of(kernel)
+    baseline = copy.deepcopy(transport.tables)
+    repo = kernel.storage._repos["chapter_versions"]
+    _, row = raw_record(kernel, transport, "chapter_versions", "version_id", command["version_id"])
+    row["fields"][repo._field_map[field]] = "changed-hash" if field == "content_hash" else command["artifact_id"]
+    before, calls, model_calls = copy.deepcopy(transport.tables), len(transport.calls), list(provider.calls)
+    command.update({"constraints": {"must_change": ["Clarify the dialogue"]}} if operation == "revision" else {
+        "action": operation})
+    api = api_for(kernel)
+    path = f"/api/books/{book_id}/chapters/1"
+    suffix = "/review/" + ("revision" if operation == "revision" else "decision")
+    try:
+        unreadable = api.get(path + "/review", headers=HEADERS)
+        assert unreadable.status_code == 503, unreadable.text
+        refused = api.post(path + suffix, headers=HEADERS, json=command)
+        (tmp_path / "editorial-provenance-observation.json").write_text(json.dumps({
+            "field": field, "operation": operation, "read_status": unreadable.status_code,
+            "command_status": refused.status_code, "body": refused.json(), "before": before,
+            "after": transport.tables, "model_calls_before": model_calls,
+            "model_calls_after": provider.calls}, indent=2))
+        assert refused.status_code == 503, refused.text
+        assert refused.json() == {"detail": "AmbiguousWrite", "reconciliation_required": True}
+        assert transport.tables == before
+        readonly(transport.calls[calls:])
+        transport.tables = copy.deepcopy(baseline)
+        accepted = api.post(path + suffix, headers=HEADERS, json=command)
+        assert accepted.status_code == (201 if operation == "revision" else 200), accepted.text
+        assert kernel.artifacts.get(view["selected"]["artifact_id"]) == view["selected"]
+        assert provider.calls == model_calls
+    finally:
+        api.close()
