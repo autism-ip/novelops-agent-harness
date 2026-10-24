@@ -1,6 +1,6 @@
 """
 [INPUT]: Kernel, immutable artifacts, model routes and chapter/version projections.
-[OUTPUT]: Verified workflows and immutable editorial review; finalization/replay validate one operation-scoped version read and refuse ambiguity.
+[OUTPUT]: Verified workflows and editorial decisions; whole-chapter ambiguity refuses review commands and finalization.
 [POS]: ZEN-40 chapter orchestration and ZEN-41 human review/revision consumption boundary.
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
@@ -373,12 +373,12 @@ class ChapterLoopService:
             prompt=CONTEXT_PROMPT, route="deterministic", provider="", model="",
             input_hash=digest(content), creator="chapter-context-builder")
 
-    def _live(self, run: dict, manifest: dict, *, _artifact_get=None) -> tuple[dict, dict]:
+    def _live(self, run: dict, manifest: dict, *, _artifact_get=None, _run_rows=None) -> tuple[dict, dict]:
         req = manifest["request"]
         state = self.kernel.books.context_provider.get(req["book_id"])["state"]
         brief, planning, planning_request = self.kernel.story_planning.eligible_brief(
             req["book_id"], req["chapter_no"], _with_source=True)
-        runs = self._runs(req["book_id"], req["chapter_no"])
+        runs = _run_rows if _run_rows is not None else self._runs(req["book_id"], req["chapter_no"])
         if (state["artifact_id"] != req["state_artifact_id"] or state["version"] != req["state_version"] or
             state["content_hash"] != manifest["state_hash"] or
             brief["artifact_id"] != req["brief_artifact_id"] or brief["version"] != req["brief_version"] or
@@ -712,7 +712,7 @@ class ChapterLoopService:
         required = self._human_review_required(req, report["content"])
         return StepResult(payload, requires_approval=True) if required else payload
 
-    def read(self, run_id: str, *, _artifact_get=None, _version_rows=None) -> dict:
+    def read(self, run_id: str, *, _artifact_get=None, _version_rows=None, _run_rows=None) -> dict:
         with self.kernel.writer:
             get_artifact = _artifact_get or self.kernel.artifacts.get
             run = self.kernel.get(run_id)
@@ -738,7 +738,7 @@ class ChapterLoopService:
             version_summaries = [{"version_id": row["version_id"], "version_no": row["version_no"],
                                   "status": row["status"]} for row in reversed(all_versions)]
             try:
-                self._live(run, manifest, _artifact_get=get_artifact)
+                self._live(run, manifest, _artifact_get=get_artifact, _run_rows=_run_rows)
                 current = True
             except (TransitionConflict, MissingRecord):
                 current = False
@@ -854,7 +854,8 @@ class ChapterLoopService:
         runs = self._runs(book_id, chapter_no)
         if not runs or runs[-1]["pipeline_run_id"] != run_id:
             raise TransitionConflict("Review must target the latest chapter run")
-        view = self.read(run_id)
+        version_rows = self._versions(book_id, chapter_no)
+        view = self.read(run_id, _version_rows=version_rows, _run_rows=runs)
         selected = view["selected"]
         if (not view["current"] or not selected or selected["artifact_id"] != artifact_id or
             selected["version"] != version_no or
@@ -869,6 +870,9 @@ class ChapterLoopService:
                 stable_id("AP-", gate["step_run_id"] + "/" + str(gate["output_version"]))))
         if view["run"]["status"] not in {"completed", "awaiting_approval"} and not rejected_gate:
             raise TransitionConflict("Chapter run is not ready for editorial review")
+        # Retain the global business-key lookup above: chapter-filtered rows
+        # cannot reveal duplicate version IDs belonging to another book.
+        self._assert_projected_versions(book_id, chapter_no, version_rows)
         return view, row, gate
 
     def decide_review(self, book_id: str, chapter_no: int, *, run_id: str,
