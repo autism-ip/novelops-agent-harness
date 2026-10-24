@@ -373,12 +373,12 @@ class ChapterLoopService:
             prompt=CONTEXT_PROMPT, route="deterministic", provider="", model="",
             input_hash=digest(content), creator="chapter-context-builder")
 
-    def _live(self, run: dict, manifest: dict, *, _artifact_get=None, _run_rows=None) -> tuple[dict, dict]:
+    def _live(self, run: dict, manifest: dict, *, _artifact_get=None) -> tuple[dict, dict]:
         req = manifest["request"]
         state = self.kernel.books.context_provider.get(req["book_id"])["state"]
         brief, planning, planning_request = self.kernel.story_planning.eligible_brief(
             req["book_id"], req["chapter_no"], _with_source=True)
-        runs = _run_rows if _run_rows is not None else self._runs(req["book_id"], req["chapter_no"])
+        runs = self._runs(req["book_id"], req["chapter_no"])
         if (state["artifact_id"] != req["state_artifact_id"] or state["version"] != req["state_version"] or
             state["content_hash"] != manifest["state_hash"] or
             brief["artifact_id"] != req["brief_artifact_id"] or brief["version"] != req["brief_version"] or
@@ -712,7 +712,7 @@ class ChapterLoopService:
         required = self._human_review_required(req, report["content"])
         return StepResult(payload, requires_approval=True) if required else payload
 
-    def read(self, run_id: str, *, _artifact_get=None, _version_rows=None, _run_rows=None) -> dict:
+    def read(self, run_id: str, *, _artifact_get=None, _version_rows=None) -> dict:
         with self.kernel.writer:
             get_artifact = _artifact_get or self.kernel.artifacts.get
             run = self.kernel.get(run_id)
@@ -738,7 +738,7 @@ class ChapterLoopService:
             version_summaries = [{"version_id": row["version_id"], "version_no": row["version_no"],
                                   "status": row["status"]} for row in reversed(all_versions)]
             try:
-                self._live(run, manifest, _artifact_get=get_artifact, _run_rows=_run_rows)
+                self._live(run, manifest, _artifact_get=get_artifact)
                 current = True
             except (TransitionConflict, MissingRecord):
                 current = False
@@ -855,7 +855,29 @@ class ChapterLoopService:
         if not runs or runs[-1]["pipeline_run_id"] != run_id:
             raise TransitionConflict("Review must target the latest chapter run")
         version_rows = self._versions(book_id, chapter_no)
-        view = self.read(run_id, _version_rows=version_rows, _run_rows=runs)
+        _, manifest = self._manifest(runs[-1])
+        req = manifest["request"]
+        critique_id = stable_id("AR-", self._logical(req, "critique") + "/" + str(req["version"]))
+        history_ids = {row.get(field) for row in version_rows
+                       for field in ("artifact_id", "review_report_id", "verifier_artifact_id")
+                       if row.get(field)}
+        artifacts, batch_ids = {}, None
+
+        def get_review_artifact(artifact_id):
+            nonlocal batch_ids
+            if batch_ids is None:
+                # The first ID comes from the actual final-step output, never
+                # the caller's claimed target. Batch only immutable payloads;
+                # _live still freshly rechecks current runs and final locks.
+                batch_ids = {artifact_id, critique_id, *history_ids}
+                artifacts.update(self.kernel.artifacts.get_many(sorted(batch_ids)))
+            if artifact_id in batch_ids:
+                if artifact_id not in artifacts:
+                    raise MissingRecord(artifact_id)
+                return artifacts[artifact_id]
+            return self.kernel.artifacts.get(artifact_id)
+
+        view = self.read(run_id, _version_rows=version_rows, _artifact_get=get_review_artifact)
         selected = view["selected"]
         if (not view["current"] or not selected or selected["artifact_id"] != artifact_id or
             selected["version"] != version_no or
@@ -873,6 +895,7 @@ class ChapterLoopService:
         # Retain the global business-key lookup above: chapter-filtered rows
         # cannot reveal duplicate version IDs belonging to another book.
         self._assert_projected_versions(book_id, chapter_no, version_rows)
+        self.versions(book_id, chapter_no, _version_rows=version_rows, _artifact_get=get_review_artifact)
         return view, row, gate
 
     def decide_review(self, book_id: str, chapter_no: int, *, run_id: str,
