@@ -286,3 +286,52 @@ def test_revision_recovers_exact_intent_after_remote_commit_and_unavailable_read
         client.event_hooks["request"].remove(unavailable_readback)
         client.event_hooks["response"].remove(committed_response_lost)
         api.close()
+
+
+@pytest.mark.parametrize("operation", ["decision", "revision"])
+def test_later_fresh_run_read_refuses_stale_initial_editorial_target(chapter, operation, tmp_path):
+    kernel, provider, book_id = chapter
+    old = pass_run(kernel, provider, book_id)
+    newer = kernel.chapter_loop.enqueue(kernel.chapter_loop.context(book_id, 1))
+    assert newer["status"] == "pending"
+    transport = transport_of(kernel)
+    client = kernel.storage._repos["pipeline_runs"]._client._http
+    repo = kernel.storage._repos["pipeline_runs"]
+    hidden = []
+
+    def one_stale_run_response(response):
+        req = response.request
+        if hidden or req.method != "GET" or not req.url.path.endswith(f"/tables/{repo._table_id}/records"):
+            return
+        response.read()
+        data = response.json()
+        items = data["data"]["items"]
+        removed = [row for row in items if row["fields"].get(repo._field_map["pipeline_run_id"]) == newer["pipeline_run_id"]]
+        assert len(removed) == 1
+        data["data"]["items"] = [row for row in items if row not in removed]
+        response._content = json.dumps(data).encode()
+        response.headers["content-length"] = str(len(response._content))
+        hidden.append(newer["pipeline_run_id"])
+
+    before, calls, model_calls = copy.deepcopy(transport.tables), len(transport.calls), list(provider.calls)
+    client.event_hooks["response"].append(one_stale_run_response)
+    command = target(old)
+    command.update({"action": "approve"} if operation == "decision" else {
+        "constraints": {"must_change": ["Clarify the dialogue"]}})
+    api = api_for(kernel)
+    try:
+        response = api.post(f"/api/books/{book_id}/chapters/1/review/{operation}", headers=HEADERS, json=command)
+        (tmp_path / "stale-run-observation.json").write_text(json.dumps({
+            "operation": operation, "hidden_first_run": hidden, "actual_newer_run": newer["pipeline_run_id"],
+            "status": response.status_code, "body": response.json(), "before": before,
+            "after": transport.tables, "model_calls_before": model_calls,
+            "model_calls_after": provider.calls}, indent=2))
+        assert hidden == [newer["pipeline_run_id"]]
+        assert response.status_code == 409 and response.json() == {
+            "detail": "Review must name the current verified ChapterVersion"}
+        assert transport.tables == before
+        readonly(transport.calls[calls:])
+        assert provider.calls == model_calls
+    finally:
+        client.event_hooks["response"].remove(one_stale_run_response)
+        api.close()
