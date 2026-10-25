@@ -18,7 +18,8 @@ pytest_plugins = ("tests.test_creative_workflow", "tests.test_story_planning")
 
 
 @pytest.mark.parametrize("fault", ["projection_hash", "report_reference", "missing_report", "missing_verifier",
-                                  "verifier_false", "changed_prose", "wrong_report_type"])
+                                  "verifier_false", "changed_prose", "wrong_report_type", "version_source_refs",
+                                  "version_source_identity", "invalid_report_schema", "invalid_draft_schema"])
 def test_final_lock_cannot_promote_a_version_with_broken_verification_evidence(chapter, fault, tmp_path):
     kernel, provider, book_id = chapter
     view = pass_run(kernel, provider, book_id)
@@ -32,6 +33,7 @@ def test_final_lock_cannot_promote_a_version_with_broken_verification_evidence(c
     _, projected = raw_record(kernel, transport, "chapter_versions", "version_id", version["version_id"])
     report_id = view["critique"]["artifact_id"]
     verifier_id = view["selected"]["content"]["verification_artifact_id"]
+    draft_id = view["selected"]["source_refs"][2]
     if fault == "projection_hash":
         projected["fields"][cv_repo._field_map["content_hash"]] = "changed-hash"
     elif fault == "report_reference":
@@ -42,18 +44,28 @@ def test_final_lock_cannot_promote_a_version_with_broken_verification_evidence(c
         del transport.tables[ar_repo._table_id][physical_id]
     else:
         target_id = {"verifier_false": verifier_id, "changed_prose": command["artifact_id"],
-                     "wrong_report_type": report_id}[fault]
+                     "wrong_report_type": report_id, "version_source_refs": command["artifact_id"],
+                     "version_source_identity": command["artifact_id"], "invalid_report_schema": report_id,
+                     "invalid_draft_schema": draft_id}[fault]
         _, artifact = raw_record(kernel, transport, "artifacts", "artifact_id", target_id)
         payload = json.loads(artifact["fields"][ar_repo._field_map["payload_json"]])
         if fault == "verifier_false":
             payload["content"]["passed"] = False
         elif fault == "changed_prose":
             payload["content"]["prose"] += " A later unverified change."
+        elif fault == "version_source_refs":
+            payload["source_refs"] = payload["source_refs"][:-1]
+        elif fault == "version_source_identity":
+            payload["content"]["state_version"] += 1
+        elif fault == "invalid_report_schema":
+            payload["content"]["pacing"]["score"] = -1
+        elif fault == "invalid_draft_schema":
+            payload["content"]["prose"] = ""
         else:
             payload["artifact_type"] = "ChapterVerification"
         payload["content_hash"] = digest(payload["content"])
         artifact["fields"][ar_repo._field_map["payload_json"]] = encode(payload)
-        if fault == "changed_prose":
+        if fault in {"changed_prose", "version_source_identity"}:
             projected["fields"][cv_repo._field_map["content_hash"]] = payload["content_hash"]
     before, calls, model_calls = copy.deepcopy(transport.tables), len(transport.calls), list(provider.calls)
     api = api_for(kernel)
