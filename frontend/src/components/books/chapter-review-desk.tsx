@@ -57,7 +57,7 @@ export function ChapterReviewDesk({ bookId, chapterNo, refresh, onChanged, headi
   const key = `novelops.chapter-review.pending.${bookId}.${chapterNo}`;
   const pendingRaw = useSyncExternalStore(subscribe, () => saved(key), () => null);
   const storageUnavailable = pendingRaw === STORAGE_UNAVAILABLE;
-  const pending = parsePendingReview(storageUnavailable ? null : pendingRaw);
+  const pending = parsePendingReview(storageUnavailable ? null : pendingRaw, { bookId, chapterNo });
   const [revision, setRevision] = useState(0);
   const [working, setWorking] = useState(false);
   const [error, setError] = useState<string | null>(null);

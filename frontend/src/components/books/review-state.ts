@@ -4,7 +4,7 @@ const domainId = (value: unknown, prefix: string) =>
 const version = (value: unknown) =>
   typeof value === "number" && Number.isSafeInteger(value) && value >= 1;
 
-export function parsePendingReview(value: string | null): PendingReview | null {
+export function parsePendingReview(value: string | null, scope?: { bookId: string; chapterNo: number }): PendingReview | null {
   try {
     const parsed: unknown = JSON.parse(value ?? "null");
     if (!parsed || typeof parsed !== "object") return null;
@@ -12,6 +12,9 @@ export function parsePendingReview(value: string | null): PendingReview | null {
     if (typeof command.path !== "string" || !command.body || typeof command.body !== "object") return null;
     const path = /^\/api\/books\/(BK-[a-f0-9]{32})\/chapters\/([1-9]\d*)\/(review\/(decision|revision)|final-lock)$/.exec(command.path);
     if (!path) return null;
+    const chapterNo = Number(path[2]);
+    if (!Number.isSafeInteger(chapterNo) || chapterNo > 10000 ||
+        scope && (path[1] !== scope.bookId || chapterNo !== scope.chapterNo)) return null;
     const body = command.body as Record<string, unknown>;
     if (!domainId(body.version_id, "CV") || !domainId(body.artifact_id, "AR") ||
         !version(body.version_no) || typeof body.operator !== "string" || !body.operator.trim()) return null;
