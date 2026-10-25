@@ -98,3 +98,7 @@ eligible brief 是只读来源，在空闲状态改为上一请求结算后60秒
 工作流滚动测试在正文进入DOM后继续等待实际React effect完成；正向仍要求指定参数恰好一次，刷新/桌面/返回列表的零额外滚动断言在act清空待执行效果后核验。不得用“正文已出现”推断异步滚动效果已执行，不替换生产effect或增加测试重试掩盖竞态。
 
 审稿待重放命令必须同时匹配当前审稿台的Book和章节，且章节号保持1–10000的规范范围。其他Book/章节的合法命令也不能在本页重放：保留原字节，要求检查历史后清理；同范围的批准/拒绝/退修/终锁保留原目标与署名，支持边界章节。真实组件、sessionStorage与ApiClient的HTTP边界回归见`tests/chapter-review-scope.test.tsx`。
+
+章节生成待重放意图必须属于当前Book，路径和正文的章节须匹配且在1–10000范围；整本书工作台仍可重放本书其他章节的原命令，不随当前输入框重建目标。跨书或越界意图保留原字节，检查历史后才清理；真实组件/Storage/ApiClient合同见`tests/chapter-generation-scope.test.tsx`。
+
+规划待重放意图须属于当前Book，Brief章节保持1–10000范围，并保留本书其他章节的原请求。不含Book路径的StoryBible决策若不在本书已读历史中，显式重试先用原run只读接口核对Book/run身份，再提交原命令；读取失败或身份不符均保留字节且不POST。异步读取后仍重新校验本地存储所有权。合同见`tests/story-planning-scope.test.tsx`。

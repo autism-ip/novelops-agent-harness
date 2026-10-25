@@ -3,7 +3,7 @@ const id = (value: unknown, prefix: string) =>
   typeof value === "string" && new RegExp(`^${prefix}-[a-f0-9]{32}$`).test(value);
 const positive = (value: unknown) => typeof value === "number" && Number.isSafeInteger(value) && value >= 1;
 
-export function parsePendingChapter(value: string | null): PendingChapter | null {
+export function parsePendingChapter(value: string | null, bookId?: string): PendingChapter | null {
   try {
     const parsed: unknown = JSON.parse(value ?? "null");
     if (!parsed || typeof parsed !== "object") return null;
@@ -11,7 +11,9 @@ export function parsePendingChapter(value: string | null): PendingChapter | null
     if (typeof command.path !== "string" || !command.body || typeof command.body !== "object") return null;
     const body = command.body as Record<string, unknown>;
     const path = /^\/api\/books\/(BK-[a-f0-9]{32})\/chapters\/([1-9]\d*)\/generations$/.exec(command.path);
-    if (!path || body.book_id !== path[1] || body.chapter_no !== Number(path[2]) ||
+    if (!path || !positive(Number(path[2])) || Number(path[2]) > 10000 ||
+        bookId !== undefined && path[1] !== bookId ||
+        body.book_id !== path[1] || body.chapter_no !== Number(path[2]) ||
         !positive(body.version) || !positive(body.start_version_no) ||
         !positive(body.state_version) || !positive(body.brief_version) ||
         !id(body.state_artifact_id, "AR") || !id(body.brief_artifact_id, "AR")) return null;

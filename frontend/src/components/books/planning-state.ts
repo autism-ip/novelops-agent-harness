@@ -2,7 +2,7 @@ export type PendingPlan = { path: string; body: Record<string, unknown> };
 const positiveInt = (value: unknown): value is number =>
   typeof value === "number" && Number.isSafeInteger(value) && value >= 1;
 
-export function parsePendingPlan(value: string | null): PendingPlan | null {
+export function parsePendingPlan(value: string | null, bookId?: string): PendingPlan | null {
   try {
     const parsed: unknown = JSON.parse(value ?? "null");
     if (!parsed || typeof parsed !== "object") return null;
@@ -10,11 +10,14 @@ export function parsePendingPlan(value: string | null): PendingPlan | null {
     if (typeof command.path !== "string" || !command.body || typeof command.body !== "object") return null;
     const body = command.body as Record<string, unknown>;
     const bible = /^\/api\/books\/(BK-[a-f0-9]{32})\/bibles$/.exec(command.path);
-    if (bible) return body.book_id === bible[1] && /^AR-[a-f0-9]{32}$/.test(String(body.base_state_artifact_id)) &&
+    if (bible) return (bookId === undefined || bible[1] === bookId) &&
+      body.book_id === bible[1] && /^AR-[a-f0-9]{32}$/.test(String(body.base_state_artifact_id)) &&
       positiveInt(body.base_version) && positiveInt(body.version) &&
       ["initial", "major"].includes(String(body.change_scope)) ? { path: command.path, body } : null;
     const brief = /^\/api\/books\/(BK-[a-f0-9]{32})\/chapters\/([1-9]\d*)\/briefs$/.exec(command.path);
-    if (brief) return body.book_id === brief[1] && Number(body.chapter_no) === Number(brief[2]) &&
+    if (brief) return (bookId === undefined || brief[1] === bookId) &&
+      Number.isSafeInteger(Number(brief[2])) && Number(brief[2]) <= 10000 &&
+      body.book_id === brief[1] && Number(body.chapter_no) === Number(brief[2]) &&
       /^AR-[a-f0-9]{32}$/.test(String(body.state_artifact_id)) &&
       positiveInt(body.state_version) && positiveInt(body.version) ? { path: command.path, body } : null;
     const decision = /^\/api\/story-planning\/runs\/PR-[a-f0-9]{32}\/decision$/.test(command.path);
