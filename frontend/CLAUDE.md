@@ -89,3 +89,5 @@ eligible brief 是只读来源，在空闲状态改为上一请求结算后60秒
 工作流观察页：`workflow-monitor.tsx` 让 `/pipelines` 与 `/agents` 通过受保护GET读取真实WorkflowRun及选中步骤，20条本地分页，未知/失败不显示假空；Agents仅展示所选流程的agent步骤，不新建独立AgentState。选中后焦点进入详情；异步内容到达后只在超出可见范围时定位一次，返回列表或轮询/刷新不会反复滚动。窄屏可直接阅读并返回流程列表。`health-indicator.tsx` 复用有界读取，分开显示HTTP与调度器状态/最后tick；`workflow-status-pages.test.tsx` 覆盖正常、失败恢复、401、缺步骤/分类和分页。所有操作只读。
 
 工作流滚动测试在正文进入DOM后继续等待实际React effect完成；正向仍要求指定参数恰好一次，刷新/桌面/返回列表的零额外滚动断言在act清空待执行效果后核验。不得用“正文已出现”推断异步滚动效果已执行，不替换生产effect或增加测试重试掩盖竞态。
+
+章节生成待重放意图必须属于当前Book，路径和正文的章节须匹配且在1–10000范围；整本书工作台仍可重放本书其他章节的原命令，不随当前输入框重建目标。跨书或越界意图保留原字节，检查历史后才清理；真实组件/Storage/ApiClient合同见`tests/chapter-generation-scope.test.tsx`。

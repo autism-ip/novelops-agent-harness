@@ -55,7 +55,7 @@ export function ChapterGeneration({ bookId }: { bookId: string }) {
   const key = `novelops.chapter-generation.pending.${bookId}`;
   const pendingRaw = useSyncExternalStore(subscribe, () => saved(key), () => null);
   const storageUnavailable = pendingRaw === STORAGE_UNAVAILABLE;
-  const pending = parsePendingChapter(storageUnavailable ? null : pendingRaw);
+  const pending = parsePendingChapter(storageUnavailable ? null : pendingRaw, bookId);
   const runs = useResource<ChapterRun | null>(validChapter ? `${root}/generation/latest` : null,
     revision, 5000, pollWhileActive, GENERATION_TIMEOUT_MS);
   const brief = useResource<Artifact>(validChapter ? `${root}/brief/eligible` : null, revision, 60_000, undefined, GENERATION_TIMEOUT_MS);
