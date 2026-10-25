@@ -52,7 +52,7 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
   const key = `novelops.story-planning.pending.${bookId}`;
   const pendingRaw = useSyncExternalStore(subscribe, () => saved(key), () => null);
   const storageUnavailable = pendingRaw === STORAGE_UNAVAILABLE;
-  const pending = parsePendingPlan(storageUnavailable ? null : pendingRaw);
+  const pending = parsePendingPlan(storageUnavailable ? null : pendingRaw, bookId);
   const [revision, setRevision] = useState(0);
   const [working, setWorking] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -103,6 +103,14 @@ export function StoryPlanning({ bookId, approvedBible }: { bookId: string; appro
     try {
       assertStorage(pendingRaw);
       const command = typeof request === "function" ? await request() : request;
+      const decision = /^\/api\/story-planning\/runs\/(PR-[a-f0-9]{32})\/decision$/.exec(command.path);
+      if (pendingRaw && decision && !bibles.data?.some(item => item.run.pipeline_run_id === decision[1])) {
+        const ownership = await api.get<{
+          run?: { pipeline_run_id?: string }; request?: { book_id?: string }
+        } | null>(command.path.replace(/\/decision$/, ""), PLANNING_TIMEOUT_MS);
+        if (ownership?.run?.pipeline_run_id !== decision[1] || ownership?.request?.book_id !== bookId)
+          throw new Error("Saved planning decision does not match this Book and run. Check the original Book history before retrying.");
+      }
       assertStorage(pendingRaw);
       const ownedRaw = JSON.stringify(command);
       setSaved(key, ownedRaw);
