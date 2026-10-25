@@ -1,6 +1,6 @@
 """
 [INPUT]: Kernel, immutable artifacts, model routes and chapter/version projections.
-[OUTPUT]: Verified workflows and editorial decisions; whole-chapter ambiguity refuses review commands and finalization.
+[OUTPUT]: Verified workflows and editorial decisions; review and finalization consume current, exact-source proof.
 [POS]: ZEN-40 chapter orchestration and ZEN-41 human review/revision consumption boundary.
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 """
@@ -1053,6 +1053,41 @@ class ChapterLoopService:
             task = self.kernel.storage.update("revision_tasks", task_id, {"status": "queued"})
             return {"task": task, "run": run}
 
+    def _assert_final_evidence(self, view: dict, get_artifact) -> None:
+        selected, report, req = view["selected"], view["critique"], view["request"]
+        try:
+            refs = selected["source_refs"]
+            if len(refs) != 4:
+                raise ValueError("Invalid version source references")
+            snapshot = get_artifact(view["snapshot_artifact_id"])
+            brief = get_artifact(req["brief_artifact_id"])
+            draft = get_artifact(refs[2])
+            verification = get_artifact(selected["content"]["verification_artifact_id"])
+            expected_content = {key: req[key] for key in (
+                "book_id", "chapter_no", "state_artifact_id", "state_version", "source_version_id")}
+            expected_content.update(version_no=selected["version"], snapshot_artifact_id=snapshot["artifact_id"],
+                                    brief_artifact_id=brief["artifact_id"])
+            run_id = stable_id("PR-", self.identity(req["book_id"], req["chapter_no"], req["version"]))
+            original_id = stable_id("AR-", self._logical(req, "versions") + "/" + str(self._number(req)))
+            Critique.model_validate(report["content"])
+            checked = self._verify(draft, snapshot, brief)
+            if (selected["artifact_type"] != "ChapterVersion" or selected["run_id"] != run_id or
+                selected["chapter_id"] != f'{req["book_id"]}/{req["chapter_no"]}' or
+                any(type(selected["content"].get(key)) is not type(value) or selected["content"].get(key) != value
+                    for key, value in expected_content.items()) or
+                any(selected["content"].get(key) != draft["content"].get(key) for key in Draft.model_fields) or
+                refs != [snapshot["artifact_id"], brief["artifact_id"], draft["artifact_id"], verification["artifact_id"]] or
+                report["artifact_type"] != "CriticReport" or report["run_id"] != run_id or
+                report["chapter_id"] != selected["chapter_id"] or
+                report["source_refs"] != [snapshot["artifact_id"], brief["artifact_id"], original_id] or
+                verification["artifact_type"] != "ChapterVerification" or verification["run_id"] != run_id or
+                verification["chapter_id"] != selected["chapter_id"] or
+                verification["source_refs"] != refs[:3] or
+                checked["passed"] is not True or verification["content"] != checked):
+                raise ValueError("Selected prose no longer has its exact verification proof")
+        except (MissingRecord, PermanentStepFailure, ValueError, KeyError, TypeError, IndexError):
+            raise TransitionConflict("ChapterVersion is not ready for final lock") from None
+
     def lock_final(self, book_id: str, chapter_no: int, *, version_id: str,
                    artifact_id: str, version_no: int, operator: str) -> dict:
         with self.kernel.writer:
@@ -1076,7 +1111,27 @@ class ChapterLoopService:
             runs = self._runs(book_id, chapter_no)
             if not runs or runs[-1]["status"] != "completed":
                 raise TransitionConflict("Latest chapter run is not completed")
-            view = self.read(runs[-1]["pipeline_run_id"], _version_rows=versions)
+            _, manifest = self._manifest(runs[-1])
+            req = manifest["request"]
+            report_id = stable_id("AR-", self._logical(req, "critique") + "/" + str(req["version"]))
+            artifacts, batch_ids = {}, None
+
+            def get_final_artifact(artifact_id):
+                nonlocal batch_ids
+                if batch_ids is None:
+                    # Load the actual final-step selection first; its immutable
+                    # refs and Critic then share one validated batch read.
+                    actual = self.kernel.artifacts.get(artifact_id)
+                    artifacts[artifact_id] = actual
+                    batch_ids = {artifact_id, report_id, manifest["snapshot_id"], req["brief_artifact_id"],
+                                 *actual["source_refs"]}
+                    artifacts.update(self.kernel.artifacts.get_many(sorted(batch_ids - {artifact_id})))
+                if artifact_id not in artifacts:
+                    raise MissingRecord(artifact_id)
+                return artifacts[artifact_id]
+
+            view = self.read(runs[-1]["pipeline_run_id"], _version_rows=versions,
+                             _artifact_get=get_final_artifact)
             selected = view["selected"]
             if (not view["current"] or not selected or selected["artifact_id"] != artifact_id or
                 selected["version"] != version_no or
@@ -1084,7 +1139,11 @@ class ChapterLoopService:
                 raise TransitionConflict("Final lock must name the current verified ChapterVersion")
             row = self.kernel.storage.get("chapter_versions", version_id)
             if (not row or row.get("status") not in {"review", "approved"} or row.get("artifact_id") != artifact_id or
+                row.get("content_hash") != selected["content_hash"] or
+                row.get("run_id") != selected["run_id"] or not view["critique"] or
+                row.get("review_report_id") != view["critique"]["artifact_id"] or
                 row.get("verifier_artifact_id") != selected["content"]["verification_artifact_id"]):
                 raise TransitionConflict("ChapterVersion is not ready for final lock")
+            self._assert_final_evidence(view, get_final_artifact)
             return self.kernel.storage.update("chapter_versions", version_id,
                 {"status": "final", "locked_at": now(), "locked_by": operator.strip()})

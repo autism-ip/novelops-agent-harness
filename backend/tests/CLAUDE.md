@@ -45,6 +45,7 @@ test_editorial_projection_commands.py: 44项审稿命令与退修恢复合同；
 test_chapter_review.py: ZEN-41 选择性关卡、精确 HTTP 审阅/退修、RevisionTask 恢复、历史与终锁、响应读取数量和跨刷新完整性门禁；包含空备注被远程省略后的批准/拒绝零写入重放及冲突保护，以及生产装配缺少 RevisionTasks 表配置时启动失败、已配置时按实际表 ID 查询的回归。
 
 test_chapter_projection_boundaries.py: 章节投影歧义的HTTP拒绝与恢复合同；外部重复版本不得绕过定稿完整性检查，保留旧版本和模型调用次数，不作为真实模型语义验收。
+test_final_proof_consumption.py: 定稿必须消费选定正文的当前Critic与确定性验证证据；外部缺失、引用/哈希变更或验证后正文改变时拒绝写入，恢复后同命令定稿并精确只读重放。
 test_chapter_command_boundaries.py: 初始/退修命令、占用版本精确重放、运行中重复触发和不可执行Critic退修的行为合同；构造配置失败单独标注，均不替代真实模型语义验收。
 
 架构决策
