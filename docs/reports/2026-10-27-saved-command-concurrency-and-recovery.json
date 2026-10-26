@@ -1,0 +1,583 @@
+{
+  "date": "2026-10-27",
+  "classification": "progress;whole_goal_incomplete",
+  "original_scope": {
+    "issues_prs": 13,
+    "linear_criteria": 61,
+    "github_extra_checks": 51,
+    "unchanged": true
+  },
+  "owners": [
+    {
+      "linear": "ZEN-38",
+      "pr": 32,
+      "new_cases": 1,
+      "behavior": "Saved book command simultaneous replay/clear and recovery"
+    },
+    {
+      "linear": "ZEN-39",
+      "pr": 35,
+      "new_cases": 1,
+      "behavior": "Saved planning command simultaneous replay/clear and recovery"
+    },
+    {
+      "linear": "ZEN-40",
+      "pr": 36,
+      "new_cases": 1,
+      "behavior": "Saved generation command simultaneous replay/clear and recovery"
+    },
+    {
+      "linear": "ZEN-41",
+      "pr": 37,
+      "new_cases": 1,
+      "behavior": "Saved editorial decision simultaneous replay/clear and recovery"
+    }
+  ],
+  "propagated_original_prs": [
+    32,
+    34,
+    35,
+    36,
+    37
+  ],
+  "new_cases": 4,
+  "existing_correct_behavior": true,
+  "artificial_RED_claimed": false,
+  "gates": [
+    {
+      "pr": 32,
+      "source": {
+        "pr": 32,
+        "source_commit": "df205ed933411cbe4cb6a99be653c2a4453ba7c2",
+        "frontend_tree": "af93b4bc6f39fb264cee2161014f77548bba500e",
+        "frontend_src_tree": "663f32cc3ef6e897e339db58bed19a91bacb4830",
+        "frontend_tests_tree": "317a1aea198885bd620066b7c3d7e04bc7214937",
+        "app_tree": "415cb2dd5e79bfa073f85a14239526312fdde38c",
+        "tests_tree": "804af4b74a6fe66b393b2932ccc0aa8d8d6d4f7f",
+        "config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "backend_reused_source": "b65d592a8c95243e30d613c54dadee3996b83661"
+      },
+      "frontend_passed": 104,
+      "coverage": {
+        "lines": {
+          "total": 601,
+          "covered": 544,
+          "skipped": 0,
+          "pct": 90.51
+        },
+        "statements": {
+          "total": 671,
+          "covered": 599,
+          "skipped": 0,
+          "pct": 89.26
+        },
+        "functions": {
+          "total": 193,
+          "covered": 160,
+          "skipped": 0,
+          "pct": 82.9
+        },
+        "branches": {
+          "total": 677,
+          "covered": 589,
+          "skipped": 0,
+          "pct": 87
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "backend_reused_passed": 739,
+      "backend_app_tests_config_exact_reuse": true,
+      "exits": {
+        "coverage": 0,
+        "lint": 0,
+        "types": 0
+      }
+    },
+    {
+      "pr": 34,
+      "source": {
+        "pr": 34,
+        "source_commit": "fbb147d1c2c627c8d2582d4a61d8a6a2d82b2e7d",
+        "frontend_tree": "fa62313ef87b27cf7de57c240136433a93bd65f4",
+        "frontend_src_tree": "a8c3c2f2ae8e8897781d1791763e16130c806036",
+        "frontend_tests_tree": "1a362c99c1dc554fe58fb2a8da28735a9dde8240",
+        "app_tree": "415cb2dd5e79bfa073f85a14239526312fdde38c",
+        "tests_tree": "804af4b74a6fe66b393b2932ccc0aa8d8d6d4f7f",
+        "config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "backend_reused_source": "6611cc276814fb63d24abe20f3f34a18a902d937"
+      },
+      "frontend_passed": 202,
+      "coverage": {
+        "lines": {
+          "total": 684,
+          "covered": 669,
+          "skipped": 0,
+          "pct": 97.8
+        },
+        "statements": {
+          "total": 777,
+          "covered": 748,
+          "skipped": 0,
+          "pct": 96.26
+        },
+        "functions": {
+          "total": 216,
+          "covered": 207,
+          "skipped": 0,
+          "pct": 95.83
+        },
+        "branches": {
+          "total": 841,
+          "covered": 773,
+          "skipped": 0,
+          "pct": 91.91
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "backend_reused_passed": 739,
+      "backend_app_tests_config_exact_reuse": true,
+      "exits": {
+        "coverage": 0,
+        "lint": 0,
+        "types": 0
+      }
+    },
+    {
+      "pr": 35,
+      "source": {
+        "pr": 35,
+        "source_commit": "bebf32a81c7bf0cddddfc2cc104848634dccdcb6",
+        "frontend_tree": "c47b6bb62c18947e7f599480f2bab92a6c94c763",
+        "frontend_src_tree": "a0cd977f49032e8deab18b5ec1ec30758f15c857",
+        "frontend_tests_tree": "170886c0342494c5dbe03c05feefaea85ac65bd6",
+        "app_tree": "579faeddca10df5b4f366f671944c5213a3fb7ee",
+        "tests_tree": "283922e1c27c6f77df39041fd1659272a5db084c",
+        "config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "backend_reused_source": "8fb1711e36c805cfca69937dfa8c68c0bb6ae69e"
+      },
+      "frontend_passed": 285,
+      "coverage": {
+        "lines": {
+          "total": 801,
+          "covered": 790,
+          "skipped": 0,
+          "pct": 98.62
+        },
+        "statements": {
+          "total": 926,
+          "covered": 899,
+          "skipped": 0,
+          "pct": 97.08
+        },
+        "functions": {
+          "total": 257,
+          "covered": 250,
+          "skipped": 0,
+          "pct": 97.27
+        },
+        "branches": {
+          "total": 1070,
+          "covered": 1010,
+          "skipped": 0,
+          "pct": 94.39
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "backend_reused_passed": 831,
+      "backend_app_tests_config_exact_reuse": true,
+      "exits": {
+        "coverage": 0,
+        "lint": 0,
+        "types": 0
+      }
+    },
+    {
+      "pr": 36,
+      "source": {
+        "pr": 36,
+        "source_commit": "a7c070afad1b1269425f5b7f50a788041be95ba1",
+        "frontend_tree": "722c534b1d4ff6fe4fb67d25a586c5d43a84eca1",
+        "frontend_src_tree": "92824ecbd4d8f097a5b0a0b4a803db86df062c3f",
+        "frontend_tests_tree": "9da814906a523f04d58b03f20b51e0e879ee444f",
+        "app_tree": "5528b330f8d38b71e31c1a224e598da92a470a0b",
+        "tests_tree": "fea3e9b4824f5135406f6629e263fcdf4857ed11",
+        "config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "backend_reused_source": "29a916b027b0d69e25b486e0480051a234dd2d15"
+      },
+      "frontend_passed": 346,
+      "coverage": {
+        "lines": {
+          "total": 891,
+          "covered": 880,
+          "skipped": 0,
+          "pct": 98.76
+        },
+        "statements": {
+          "total": 1041,
+          "covered": 1013,
+          "skipped": 0,
+          "pct": 97.31
+        },
+        "functions": {
+          "total": 288,
+          "covered": 281,
+          "skipped": 0,
+          "pct": 97.56
+        },
+        "branches": {
+          "total": 1231,
+          "covered": 1169,
+          "skipped": 0,
+          "pct": 94.96
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "backend_reused_passed": 949,
+      "backend_app_tests_config_exact_reuse": true,
+      "exits": {
+        "coverage": 0,
+        "lint": 0,
+        "types": 0
+      }
+    },
+    {
+      "pr": 37,
+      "source": {
+        "pr": 37,
+        "source_commit": "30f9454f75d61a3b8779a6ce6c81defb1421600e",
+        "frontend_tree": "b55be893cc21b72598cd938893bd3425b768cb2e",
+        "frontend_src_tree": "9ae22538925a84260a902f7738d24c339348f232",
+        "frontend_tests_tree": "badd0d0f662f3f164dbb3474548c68bb9f38b0e9",
+        "app_tree": "931d4a65b46ee1a37474e19283c9e9269dd93c81",
+        "tests_tree": "010a6d3fe3a0afe27943c3aef0309d7a241f643d",
+        "config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "backend_reused_source": "da4efc995c8bb319568497ce96e3fa706a5f208c"
+      },
+      "frontend_passed": 439,
+      "coverage": {
+        "lines": {
+          "total": 1027,
+          "covered": 1027,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 1218,
+          "covered": 1198,
+          "skipped": 0,
+          "pct": 98.35
+        },
+        "functions": {
+          "total": 341,
+          "covered": 341,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branches": {
+          "total": 1462,
+          "covered": 1421,
+          "skipped": 0,
+          "pct": 97.19
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "backend_reused_passed": 1049,
+      "backend_app_tests_config_exact_reuse": true,
+      "exits": {
+        "coverage": 0,
+        "lint": 0,
+        "types": 0
+      }
+    }
+  ],
+  "implementation": {
+    "production_changes": [],
+    "shared_helper_owner": 32,
+    "native_DOM_batch": "retry.click();retry.click();clear.click() in actual React components/hooks/ApiClient/storage",
+    "assertions": [
+      "Held first POST: one original path/body, original compact JSON retained, controls disabled",
+      "503 error: same raw bytes retained, retry available",
+      "Explicit retry: identical path/body, pending cleared only after success, no fresh context/bootstrap-context read"
+    ],
+    "no_private_handler_or_disabled_attribute_mutation": true,
+    "scope": "Component/HTTP controlled transport tests; no real Base or model operation"
+  },
+  "native": {
+    "space": 4,
+    "page": "p1",
+    "current_source": "30f9454f75d61a3b8779a6ce6c81defb1421600e",
+    "reused_runtime_archive_source": "f551197fff10740f57ccf11bcd2c279b7bf67d19",
+    "archive_product_src_files_verified": 44,
+    "archive_src_config_package_lock_files_verified": 48,
+    "actual_Next_development_login_session_proxy_and_Chromium": true,
+    "synthetic_local_HTTP_backend_only": true,
+    "cases": [
+      {
+        "label": "book",
+        "viewport": {
+          "width": 1280,
+          "height": 900,
+          "mobile": false
+        },
+        "path": "/api/books",
+        "same_turn_post_count": 1,
+        "unknown_status": 503,
+        "bytes_retained_until_explicit_retry": true,
+        "exact_path_body_twice": true,
+        "recovery_status": 201,
+        "pending_cleared_on_ack": true,
+        "no_context_read": true,
+        "no_horizontal_overflow": true
+      },
+      {
+        "label": "planning",
+        "viewport": {
+          "width": 1280,
+          "height": 900,
+          "mobile": false
+        },
+        "path": "/api/books/BK-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/bibles",
+        "same_turn_post_count": 1,
+        "unknown_status": 503,
+        "bytes_retained_until_explicit_retry": true,
+        "exact_path_body_twice": true,
+        "recovery_status": 201,
+        "pending_cleared_on_ack": true,
+        "no_context_read": true,
+        "no_horizontal_overflow": true
+      },
+      {
+        "label": "generation",
+        "viewport": {
+          "width": 1280,
+          "height": 900,
+          "mobile": false
+        },
+        "path": "/api/books/BK-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/chapters/1/generations",
+        "same_turn_post_count": 1,
+        "unknown_status": 503,
+        "bytes_retained_until_explicit_retry": true,
+        "exact_path_body_twice": true,
+        "recovery_status": 201,
+        "pending_cleared_on_ack": true,
+        "no_context_read": true,
+        "no_horizontal_overflow": true
+      },
+      {
+        "label": "review",
+        "viewport": {
+          "width": 1280,
+          "height": 900,
+          "mobile": false
+        },
+        "path": "/api/books/BK-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/chapters/1/review/decision",
+        "same_turn_post_count": 1,
+        "unknown_status": 503,
+        "bytes_retained_until_explicit_retry": true,
+        "exact_path_body_twice": true,
+        "recovery_status": 200,
+        "pending_cleared_on_ack": true,
+        "no_context_read": true,
+        "no_horizontal_overflow": true
+      },
+      {
+        "label": "book",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "mobile": true
+        },
+        "path": "/api/books",
+        "same_turn_post_count": 1,
+        "unknown_status": 503,
+        "bytes_retained_until_explicit_retry": true,
+        "exact_path_body_twice": true,
+        "recovery_status": 201,
+        "pending_cleared_on_ack": true,
+        "no_context_read": true,
+        "no_horizontal_overflow": true
+      },
+      {
+        "label": "planning",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "mobile": true
+        },
+        "path": "/api/books/BK-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/bibles",
+        "same_turn_post_count": 1,
+        "unknown_status": 503,
+        "bytes_retained_until_explicit_retry": true,
+        "exact_path_body_twice": true,
+        "recovery_status": 201,
+        "pending_cleared_on_ack": true,
+        "no_context_read": true,
+        "no_horizontal_overflow": true
+      },
+      {
+        "label": "generation",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "mobile": true
+        },
+        "path": "/api/books/BK-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/chapters/1/generations",
+        "same_turn_post_count": 1,
+        "unknown_status": 503,
+        "bytes_retained_until_explicit_retry": true,
+        "exact_path_body_twice": true,
+        "recovery_status": 201,
+        "pending_cleared_on_ack": true,
+        "no_context_read": true,
+        "no_horizontal_overflow": true
+      },
+      {
+        "label": "review",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "mobile": true
+        },
+        "path": "/api/books/BK-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/chapters/1/review/decision",
+        "same_turn_post_count": 1,
+        "unknown_status": 503,
+        "bytes_retained_until_explicit_retry": true,
+        "exact_path_body_twice": true,
+        "recovery_status": 200,
+        "pending_cleared_on_ack": true,
+        "no_context_read": true,
+        "no_horizontal_overflow": true
+      }
+    ],
+    "synthetic_posts_total": 16,
+    "fresh_context_requests": 0,
+    "cookie_cleanup": {
+      "synthetic_signature_verified": true,
+      "exact_host_name_path_deleted": 1,
+      "own_host_after": 0,
+      "profile_wide_clear": false,
+      "page_blank": true
+    },
+    "baseline_owned_host_cookies": 0,
+    "runtime_stopped": true,
+    "helper_terminal_exit0": true,
+    "next_exit": 0,
+    "backend_thread_alive": false,
+    "no_real_Base_model_or_business_persistence_proof": true
+  },
+  "observer_corrections": {
+    "pre_probe_observer_failures": [
+      {
+        "stage": "Post-login wait",
+        "failure": "Ambiguous same-title desktop/mobile button selector; login succeeded",
+        "business_posts": 0,
+        "correction": "Observed page then selected exactly one visible button without changing its DOM"
+      },
+      {
+        "stage": "Before browser script execution",
+        "failure": "Top-level await in direct eval SyntaxError",
+        "business_posts": 0,
+        "correction": "Wrapped source in async function; no scenario had executed"
+      }
+    ],
+    "product_changes": 0,
+    "artificial_RED_claimed": false
+  },
+  "backend_terminal": {
+    "statement_line_covered": 4429,
+    "statement_line_total": 4488,
+    "statement_line_pct": 98.69,
+    "branch_covered": 1147,
+    "branch_total": 1208,
+    "branch_pct": 94.95,
+    "raw_function_entered": 424,
+    "raw_function_total": 431,
+    "unentered_protocol_declarations": 7,
+    "existing_exclusions_unchanged": 11,
+    "original_opt_in_integration_deselected_per_branch": 10
+  },
+  "review": {
+    "fresh_linear13_unchanged": true,
+    "fresh_github13_no_new_feedback_unresolved0": true,
+    "postpublish_exact_head_CI_build_and_bodies_pending": true
+  },
+  "skills": {
+    "reused": [
+      "issue-pr-delivery",
+      "tdd-workflow",
+      "security-review",
+      "ego-browser"
+    ],
+    "new_or_updated": false,
+    "assessment": "Existing rules cover exact replay, owning branch propagation and runtime evidence boundaries. Shared test helper belongs to project test suite; no new generic skill required",
+    "Ego_Lite_update_available": "Current0.5.1.13;userinformed;noupgradeperformed",
+    "Linear_agent_context": "Advertised tool returned Toolnotfound; fresh get_issue and actual code used"
+  },
+  "safety": {
+    "model_cap": 4,
+    "model_used": 4,
+    "model_remaining": 0,
+    "additional_authorization_received": false,
+    "expired_model_reservation_not_reset_or_recreated": true,
+    "new_model_requests": 0,
+    "new_real_Base_rows": 0,
+    "new_real_business_writes": 0,
+    "userenv_changed": false,
+    "main_merged": false,
+    "deployed": false,
+    "marked_done": false,
+    "coverage_ignores_thresholds_timeouts_and_prior_assertions_unchanged": true
+  },
+  "limitations": [
+    "All applicable project S/L/F/B100 not reached",
+    "Original61+51final independent requirement event audit incomplete",
+    "Realchapter2semantic/Critic and routine pass still unverified; no additional paid calls allowed",
+    "Actual browser proof uses synthetic local HTTP acknowledgements, not real Base approval or generation",
+    "Postpublish exact-head CI/build/reviews/bodies must be verified separately"
+  ],
+  "evidence_sha256": {
+    "novelops-20261027-replay-concurrency-sources.json": "cd09355ee06f07e5bc8033e8260266b7fa1b3357341fb484614efbc139c357d4",
+    "novelops-20261027-replay-concurrency-gates.json": "afa0e70749585cf1400c9a7412f8a12ea6e9c51705d6062d8ce68a57ca1090a5",
+    "novelops-20261027-replay-concurrency-linear.json": "5289929c570b03a01072286da4da7e1e644a0850b6a5ebb17e9b62115e114ec5",
+    "novelops-20261027-replay-concurrency-prepush-prepublish.json": "f486c784bcc2145e10a33a8effea8ceb712e678a90d0462d92ce4a21b40555ed",
+    "novelops-20261027-replay-concurrency-native-browser.json": "075c9371bb16381148c17abf3d233a40bcd9c0d62257a398bc1c11856975ef17",
+    "novelops-20261027-replay-concurrency-native-runtime.json": "2144f120995c3c39033eb4893423d49c760deea7f2cb5404a838db00f231764b",
+    "novelops-20261027-replay-concurrency-observer-corrections.json": "ec92ff02e46ce32b17850e322163655de185fdf553f9a6ce69902e1f9fdd2a26",
+    "novelops-20261027-replay-concurrency-split-focused.log": "f85d02d5158408c97c204699102542366a3be230a3440c921a10e09404d9ce6c",
+    "novelops-20261027-replay-concurrency-pr32-test-results.json": "6710c7548032d51ebdb7c6dba4739dbc093ff5c26001fff32d8bde3c072637aa",
+    "novelops-20261027-replay-concurrency-pr32-coverage/coverage-summary.json": "daa7f1df91333414232eb3170dfe1185a31cc30d64b8015b48ffcdc9bb09f86e",
+    "novelops-20261027-replay-concurrency-pr34-test-results.json": "4ce406aee743d8b800e1567c1589b1a82dfecb1d280c36b8707127cc5a022319",
+    "novelops-20261027-replay-concurrency-pr34-coverage/coverage-summary.json": "fc23d99f433590770f7cc4980073bb21c7abb86c71d6f170b31c4a505abe5b8c",
+    "novelops-20261027-replay-concurrency-pr35-test-results.json": "e6b521cc1be848a361f148e4a3af6fdab9779e0e08b00ff6fce9d6c04b18c48c",
+    "novelops-20261027-replay-concurrency-pr35-coverage/coverage-summary.json": "6e023d0132ef299e511a571dfbf625d0effb8ea165aa2254ac88b739457890e8",
+    "novelops-20261027-replay-concurrency-pr36-test-results.json": "1bbf21c21293d28fb7f934f4c47dd52a764b4633f7f1622fb653c1fd1903f5d7",
+    "novelops-20261027-replay-concurrency-pr36-coverage/coverage-summary.json": "8439cbac9a159306fc17e55f8c1961702aa37692932dba99d67640d2a98c4a94",
+    "novelops-20261027-replay-concurrency-pr37-test-results.json": "59c9cbfd2b6ea15c6ff66b3171b24408f0603aa4c43e999ba2f13d878d7ef681",
+    "novelops-20261027-replay-concurrency-pr37-coverage/coverage-summary.json": "f6400febf269b4b99e2ad898fdc27de375aae30390e1837025900261bcc8d2cc"
+  }
+}
