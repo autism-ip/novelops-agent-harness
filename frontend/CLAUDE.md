@@ -83,3 +83,5 @@ planning 请求读存储失败时使用独立不可用状态与公开重查。�
 工作流滚动测试在正文进入DOM后继续等待实际React effect完成；正向仍要求指定参数恰好一次，刷新/桌面/返回列表的零额外滚动断言在act清空待执行效果后核验。不得用“正文已出现”推断异步滚动效果已执行，不替换生产effect或增加测试重试掩盖竞态。
 
 规划待重放意图须属于当前Book，Brief章节保持1–10000范围，并保留本书其他章节的原请求。不含Book路径的StoryBible决策若不在本书已读历史中，显式重试先用原run只读接口核对Book/run身份，再提交原命令；读取失败或身份不符均保留字节且不POST。异步读取后仍重新校验本地存储所有权。合同见`tests/story-planning-scope.test.tsx`。
+
+规划待重放命令的ID、动作与change_scope必须是规范字符串，Brief的chapter_no必须是与路径相同的数值；不得通过String/Number把数组、布尔值或字符串章节号转成合法身份。错误类型保留原字节、禁止POST，检查历史后才清理。真实组件/Storage/ApiClient回归见`tests/story-planning-saved-types.test.tsx`。
