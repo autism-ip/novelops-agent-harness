@@ -102,3 +102,5 @@ eligible brief 是只读来源，在空闲状态改为上一请求结算后60秒
 章节生成待重放意图必须属于当前Book，路径和正文的章节须匹配且在1–10000范围；整本书工作台仍可重放本书其他章节的原命令，不随当前输入框重建目标。跨书或越界意图保留原字节，检查历史后才清理；真实组件/Storage/ApiClient合同见`tests/chapter-generation-scope.test.tsx`。
 
 规划待重放意图须属于当前Book，Brief章节保持1–10000范围，并保留本书其他章节的原请求。不含Book路径的StoryBible决策若不在本书已读历史中，显式重试先用原run只读接口核对Book/run身份，再提交原命令；读取失败或身份不符均保留字节且不POST。异步读取后仍重新校验本地存储所有权。合同见`tests/story-planning-scope.test.tsx`。
+
+规划待重放命令的ID、动作与change_scope必须是规范字符串，Brief的chapter_no必须是与路径相同的数值；不得通过String/Number把数组、布尔值或字符串章节号转成合法身份。错误类型保留原字节、禁止POST，检查历史后才清理。真实组件/Storage/ApiClient回归见`tests/story-planning-saved-types.test.tsx`。
