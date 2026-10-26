@@ -1,0 +1,386 @@
+{
+  "date": "2026-10-26",
+  "classification": "progress;whole_goal_incomplete",
+  "owners": [
+    {
+      "linear": "ZEN-107",
+      "pr": 34,
+      "new_cases": 16
+    },
+    {
+      "linear": "ZEN-41",
+      "pr": 37,
+      "new_cases": 2
+    }
+  ],
+  "propagated_original_prs": [
+    34,
+    35,
+    36,
+    37
+  ],
+  "original_scope": {
+    "issues_prs": 13,
+    "linear_criteria": 61,
+    "github_extra_checks": 51,
+    "unchanged": true
+  },
+  "new_cases": 18,
+  "gates": [
+    {
+      "pr": 34,
+      "source": {
+        "pr": 34,
+        "source_commit": "ae40326d8fd0578a2f6f08527bb98bcab80d6ecc",
+        "frontend_tree": "00bd83ae15558191ad62486146c3ed99917044bb",
+        "frontend_src_tree": "a8c3c2f2ae8e8897781d1791763e16130c806036",
+        "frontend_tests_tree": "087e66adbad32b694e17ad687c38bea7d020f940",
+        "app_tree": "415cb2dd5e79bfa073f85a14239526312fdde38c",
+        "tests_tree": "804af4b74a6fe66b393b2932ccc0aa8d8d6d4f7f",
+        "config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "backend_reused_source": "6611cc276814fb63d24abe20f3f34a18a902d937"
+      },
+      "frontend_passed": 199,
+      "coverage": {
+        "lines": {
+          "total": 684,
+          "covered": 669,
+          "skipped": 0,
+          "pct": 97.8
+        },
+        "statements": {
+          "total": 777,
+          "covered": 745,
+          "skipped": 0,
+          "pct": 95.88
+        },
+        "functions": {
+          "total": 216,
+          "covered": 206,
+          "skipped": 0,
+          "pct": 95.37
+        },
+        "branches": {
+          "total": 841,
+          "covered": 771,
+          "skipped": 0,
+          "pct": 91.67
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "backend_reused_passed": 739,
+      "backend_app_tests_config_exact_reuse": true,
+      "product_src_same_as_previous_published": true,
+      "frontend_changed_files": [
+        "frontend/tests/analysis-card-presentation.test.tsx",
+        "frontend/tests/hotspots-surface-contract.test.tsx"
+      ],
+      "exits": {
+        "coverage": 0,
+        "lint": 0,
+        "types": 0
+      }
+    },
+    {
+      "pr": 35,
+      "source": {
+        "pr": 35,
+        "source_commit": "b41c280481d57ad2ef908a4f416339911f8eb6da",
+        "frontend_tree": "ee413ccbb8f9208fc92fe7148820bebda64850cc",
+        "frontend_src_tree": "40566b5db142d5650f5e5e5ea0976a49171e80e7",
+        "frontend_tests_tree": "6d7b8ebc6cb66d46a669d2d4c465655e0143c7b5",
+        "app_tree": "579faeddca10df5b4f366f671944c5213a3fb7ee",
+        "tests_tree": "283922e1c27c6f77df39041fd1659272a5db084c",
+        "config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "backend_reused_source": "8fb1711e36c805cfca69937dfa8c68c0bb6ae69e"
+      },
+      "frontend_passed": 261,
+      "coverage": {
+        "lines": {
+          "total": 799,
+          "covered": 788,
+          "skipped": 0,
+          "pct": 98.62
+        },
+        "statements": {
+          "total": 924,
+          "covered": 891,
+          "skipped": 0,
+          "pct": 96.42
+        },
+        "functions": {
+          "total": 256,
+          "covered": 248,
+          "skipped": 0,
+          "pct": 96.87
+        },
+        "branches": {
+          "total": 1066,
+          "covered": 1001,
+          "skipped": 0,
+          "pct": 93.9
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "backend_reused_passed": 831,
+      "backend_app_tests_config_exact_reuse": true,
+      "product_src_same_as_previous_published": true,
+      "frontend_changed_files": [
+        "frontend/tests/analysis-card-presentation.test.tsx",
+        "frontend/tests/hotspots-surface-contract.test.tsx"
+      ],
+      "exits": {
+        "coverage": 0,
+        "lint": 0,
+        "types": 0
+      }
+    },
+    {
+      "pr": 36,
+      "source": {
+        "pr": 36,
+        "source_commit": "5e5173e3c349203b7295ee66c51be74748d661ea",
+        "frontend_tree": "a82a466b9995a536a2dac118978b735c27e20089",
+        "frontend_src_tree": "de599da824eb3ab821e5d29289777c76ebb3822b",
+        "frontend_tests_tree": "ccf1c0d82f5ca9d136da70083cf56f53c417bfad",
+        "app_tree": "5528b330f8d38b71e31c1a224e598da92a470a0b",
+        "tests_tree": "fea3e9b4824f5135406f6629e263fcdf4857ed11",
+        "config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "backend_reused_source": "29a916b027b0d69e25b486e0480051a234dd2d15"
+      },
+      "frontend_passed": 313,
+      "coverage": {
+        "lines": {
+          "total": 889,
+          "covered": 878,
+          "skipped": 0,
+          "pct": 98.76
+        },
+        "statements": {
+          "total": 1039,
+          "covered": 1001,
+          "skipped": 0,
+          "pct": 96.34
+        },
+        "functions": {
+          "total": 287,
+          "covered": 279,
+          "skipped": 0,
+          "pct": 97.21
+        },
+        "branches": {
+          "total": 1227,
+          "covered": 1156,
+          "skipped": 0,
+          "pct": 94.21
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "backend_reused_passed": 949,
+      "backend_app_tests_config_exact_reuse": true,
+      "product_src_same_as_previous_published": true,
+      "frontend_changed_files": [
+        "frontend/tests/analysis-card-presentation.test.tsx",
+        "frontend/tests/hotspots-surface-contract.test.tsx"
+      ],
+      "exits": {
+        "coverage": 0,
+        "lint": 0,
+        "types": 0
+      }
+    },
+    {
+      "pr": 37,
+      "source": {
+        "pr": 37,
+        "source_commit": "65e715c10f7229f5504763b43e6b94c841df5645",
+        "frontend_tree": "34b72d6473389a87bcfc589cdeb35845746c12da",
+        "frontend_src_tree": "75f93db896adc20cbacf62dc18b9ba5f3f963e97",
+        "frontend_tests_tree": "ec86fc0df168d5f4da90f07a1914f7e64571c675",
+        "app_tree": "931d4a65b46ee1a37474e19283c9e9269dd93c81",
+        "tests_tree": "010a6d3fe3a0afe27943c3aef0309d7a241f643d",
+        "config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "backend_reused_source": "da4efc995c8bb319568497ce96e3fa706a5f208c"
+      },
+      "frontend_passed": 405,
+      "coverage": {
+        "lines": {
+          "total": 1025,
+          "covered": 1025,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 1216,
+          "covered": 1184,
+          "skipped": 0,
+          "pct": 97.36
+        },
+        "functions": {
+          "total": 340,
+          "covered": 339,
+          "skipped": 0,
+          "pct": 99.7
+        },
+        "branches": {
+          "total": 1458,
+          "covered": 1406,
+          "skipped": 0,
+          "pct": 96.43
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "backend_reused_passed": 1049,
+      "backend_app_tests_config_exact_reuse": true,
+      "product_src_same_as_previous_published": true,
+      "frontend_changed_files": [
+        "frontend/tests/analysis-card-presentation.test.tsx",
+        "frontend/tests/chapter-editorial-parent-refresh.test.tsx",
+        "frontend/tests/hotspots-surface-contract.test.tsx"
+      ],
+      "exits": {
+        "coverage": 0,
+        "lint": 0,
+        "types": 0
+      }
+    }
+  ],
+  "requirements_and_evidence": [
+    {
+      "requirement": "Partial or absent research artifacts keep real source/version/status and truthful risk/provenance display",
+      "implementation": "Unchanged actual AnalysisCard",
+      "test": "12typed-presentationcases",
+      "event_verified": "Actual DOM fields,collapsed details,risk rule flags/assessments/uncertainty,matching action/step human review copy;no HTTP started by card",
+      "boundary": "Component presentation;notnew real Base/model evidence"
+    },
+    {
+      "requirement": "Responsive selection and workflow inspection preserve identities and recovery intent",
+      "implementation": "Unchanged actual HotspotsWorkbench/hooks/ApiClient",
+      "test": "4componentHTTPcontracts",
+      "event_verified": "Desktop/mobile checkbox state stays synchronized;discarded/deselected items excluded;only chosen source prepared and POSTed once with durable exact bytes;nativecancel preservesunknowncommand;recent reads show exact run/steps/errors/analysis,hide unrelated type andgracefullyshowfuturehotspottypenosteps",
+      "boundary": "Controlled externalHTTP andJSDOMnative-dialogpolyfill;notactualnew browser/productionrun"
+    },
+    {
+      "requirement": "Nested editorial approve/final-lock refreshes generation parent without generating another draft",
+      "implementation": "Unchanged actual ChapterGeneration+ChapterReviewDesk+hooks+ApiClient",
+      "test": "2fullnestedcomponentcontracts",
+      "event_verified": "During heldPOST exact originalversion/signature persists;after success parentlatest/brief/review reread once,approved/final statusvisible,commandcleared,no generation/context or generationPOST",
+      "boundary": "Local controlledHTTP;not real Base decision"
+    }
+  ],
+  "new_product_changes": 0,
+  "coverage_configuration_thresholds_assertions_timeouts_unchanged": true,
+  "no_fake_red_for_existing_correct_contracts": true,
+  "observer_notes": {
+    "new_ui_cases": 16,
+    "new_parent_refresh_cases": 2,
+    "first_setup_failed_cases": 4,
+    "first_setup_reason": "JSDOM lacks native showModal; failed before product execution. Install and restore only boundary polyfill like existing tests.",
+    "second_observer_failure": "Recent-list test used Opportunity research instead of actual Research story opportunities. Also classified future_hotspot_workflow as a hotspot category, but actual filter requires hotspot_ prefix; corrected fixture to hotspot_future_workflow and separately assert unrelated type omitted. No product defect or fabricated RED.",
+    "original_assertions_timeouts_config_unchanged": true,
+    "new_product_changes": 0,
+    "ui_draft_commit": "4fc4cb80e35a11064040fe921800489dd72e8c3c",
+    "parent_draft_commit": "48f14872c1a422a8391405fe283d4cbfca08421f",
+    "observed_at": 1792977671.4122188
+  },
+  "prior_branch_observation_correction": "Two prior varying research outcomes correspond to content||risk||opportunity,not loading expression. Current typed absent/risk-only cases assert actual displayed results. Scheduling cause unproven;no coverageunion.",
+  "runtime_evidence": {
+    "new_actual_browser_checks": 0,
+    "new_native_server_checks": 0,
+    "previous_report": "2026-10-26-workspace-command-scope.md",
+    "same_product_src_verified_each_branch": true,
+    "previous_actual_browser_cases": 50,
+    "previous_actual_native_ownership_GET200": true,
+    "previous_current_historical_unchanged": [
+      454,
+      452
+    ],
+    "source_qualified_reuse_only": true
+  },
+  "backend_terminal": {
+    "statement_line_covered": 4429,
+    "statement_line_total": 4488,
+    "statement_line_pct": 98.69,
+    "branch_covered": 1147,
+    "branch_total": 1208,
+    "branch_pct": 94.95,
+    "raw_function_entered": 424,
+    "raw_function_total": 431,
+    "unentered_protocol_declarations": 7,
+    "existing_exclusions_unchanged": 11,
+    "original_opt_in_integration_deselected_per_branch": 10
+  },
+  "review": {
+    "fresh_linear13_unchanged": true,
+    "fresh_github13_scope_and_feedback_unchanged": true,
+    "postpublish_exact_head_CI_build_and_bodies_pending": true
+  },
+  "tooling": {
+    "cli_mcp_checked_before_external_reads": true,
+    "linear_get_issue_worked": true,
+    "linear_get_agent_context": "advertised capability returned Tool get_agent_context not found; no fieldnotes received;actual code and freshissues used",
+    "skills_reused": [
+      "issue-pr-delivery",
+      "tdd-workflow"
+    ],
+    "new_skill_or_update": false,
+    "reason": "Existing workflow covers this test-only evidence wave;no new reusable procedure needed"
+  },
+  "approval_service": "First fullfourbranchgate rejected beforeexecution for automaticreview quota;userreplied restore thencontinue;formalretry succeeded. No bypass.",
+  "safety": {
+    "model_cap": 4,
+    "model_used": 4,
+    "model_remaining": 0,
+    "additional_authorization_received": false,
+    "new_model_requests": 0,
+    "new_Base_rows": 0,
+    "new_actual_business_writes": 0,
+    "userenv_changed": false,
+    "main_merged": false,
+    "deployed": false,
+    "marked_done": false
+  },
+  "limitations": [
+    "Wholeproject applicableS/L/F/B100notreached",
+    "Original61+51 requirements final independent eventaudit incomplete",
+    "Real chapter2 quality/Critic failure and routine success pending;no more paid calls authorized",
+    "New checks use realcomponents andcontrolledHTTP;not new browser/deployment/APIlimits proof",
+    "Canonical productionbuild must succeed at exact newlypublishedhead;local TurbopackEPERM history not discarded"
+  ],
+  "evidence_sha256": {
+    "novelops-20261026-analysis-surface-sources.json": "53db1fd5bdde0850ba966ef3dcec5d16646e27e49a1626bc9c30d58b4bc0a92e",
+    "novelops-20261026-analysis-surface-gates.json": "000940a15cdfa97bea4f7e8f6e244740a41e1b928ae499864cd40c41e1a6587f",
+    "novelops-20261026-analysis-surface-linear.json": "5289929c570b03a01072286da4da7e1e644a0850b6a5ebb17e9b62115e114ec5",
+    "novelops-20261026-analysis-surface-prepublish.json": "d1eefcfb6f3fb8e7c28c82871342dba48100345aa228c937730fd8e633a7ee73",
+    "novelops-20261026-analysis-surface-observer-notes.json": "f5aaf8c2ca1b51ccc6d0e3f4e7142ba380b791b09be02509e11d9f9ed5f2568a",
+    "novelops-20261026-final-scope-final-verified.json": "fe03e1ae1b4d4bee44a37673d849c71435621fdeb537497e5361ec4b4ecd9d20",
+    "novelops-20261026-analysis-surface-pr34-test-results.json": "042244600b4c2fd5ba43268d8c3c640630f940ca06b50ca6f0d34fe42266efb0",
+    "novelops-20261026-analysis-surface-pr34-coverage/coverage-summary.json": "52876880c2688df903e00d213d49b33ce44c7a8ea7a1ec91e4a52808820185fd",
+    "novelops-20261026-analysis-surface-pr35-test-results.json": "86a9cba623e03d9208ba9b332dd2b022fab1ce0645f4f6fe5d60a19e3f61353c",
+    "novelops-20261026-analysis-surface-pr35-coverage/coverage-summary.json": "96b7a8ab4c2b7197668737db58d5e8cd5720a3dc8161cc98cf232864dd5b795e",
+    "novelops-20261026-analysis-surface-pr36-test-results.json": "5756d4d6896485fbb3aef9a215e61251f57fc39d87af201fe9d6ab17266b9a64",
+    "novelops-20261026-analysis-surface-pr36-coverage/coverage-summary.json": "3fdda29de82f1ad854d218e33ff735642008031539ba9d3f4ca8f4a97155afd5",
+    "novelops-20261026-analysis-surface-pr37-test-results.json": "d49ce350124a2cbc130041980de68602fd06689741752cd5455752cc4fe41363",
+    "novelops-20261026-analysis-surface-pr37-coverage/coverage-summary.json": "662dd3cc0d0e068f5534c7c7405af9787ee5c4ea5831db423b7ab8206c7b7c6d"
+  }
+}
