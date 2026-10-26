@@ -1,0 +1,557 @@
+{
+  "date": "2026-10-26",
+  "classification": "progress; whole goal incomplete",
+  "original_scope": {
+    "issues_and_original_prs": 13,
+    "linear_criteria": 61,
+    "github_extra_checks": 51,
+    "unchanged": true
+  },
+  "owners": [
+    {
+      "linear": "ZEN-107",
+      "pr": 34
+    },
+    {
+      "linear": "ZEN-39",
+      "github_issue": 12,
+      "pr": 35
+    },
+    {
+      "linear": "ZEN-40",
+      "github_issue": 13,
+      "pr": 36
+    },
+    {
+      "linear": "ZEN-41",
+      "github_issue": 14,
+      "pr": 37
+    }
+  ],
+  "new_cases": {
+    "shared_ui": 7,
+    "planning": 12,
+    "generation": 6,
+    "review": 19,
+    "total": 44
+  },
+  "red_commits": {
+    "35": [
+      "e508598",
+      "c6478bd"
+    ],
+    "36": [
+      "2ca2a52"
+    ],
+    "37": [
+      "4c407515"
+    ]
+  },
+  "green_commits": {
+    "35": "69b732c588ff004596159e0a076479e98fb11c96",
+    "36": "b6dde03",
+    "37": "62c9165503dc29c0ac07bb9f2896b78f0a0529d7"
+  },
+  "merged_source": "d6bce6c668ff469658d2c2cfad43392a0afcb56c",
+  "gates": [
+    {
+      "pr": 34,
+      "source": {
+        "pr": 34,
+        "source_commit": "5846ff5d746bd256669138e970271bfd79aa0359",
+        "frontend_tree": "0b9823fb7698707056e385a34d7ff9adde4841fc",
+        "frontend_src_tree": "a8c3c2f2ae8e8897781d1791763e16130c806036",
+        "frontend_tests_tree": "8387a2d5df8269c1f65789a159f291cb37c227df",
+        "app_tree": "415cb2dd5e79bfa073f85a14239526312fdde38c",
+        "tests_tree": "804af4b74a6fe66b393b2932ccc0aa8d8d6d4f7f",
+        "config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "backend_reused_source": "6611cc276814fb63d24abe20f3f34a18a902d937"
+      },
+      "frontend_passed": 183,
+      "coverage": {
+        "lines": {
+          "total": 684,
+          "covered": 665,
+          "skipped": 0,
+          "pct": 97.22
+        },
+        "statements": {
+          "total": 777,
+          "covered": 739,
+          "skipped": 0,
+          "pct": 95.1
+        },
+        "functions": {
+          "total": 216,
+          "covered": 201,
+          "skipped": 0,
+          "pct": 93.05
+        },
+        "branches": {
+          "total": 841,
+          "covered": 757,
+          "skipped": 0,
+          "pct": 90.01
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "backend_reused_passed": 739,
+      "backend_reuse_reason": "Exact owning branch app/tests/config tree hashes match prior complete gate",
+      "commands": {
+        "coverage": [
+          "/opt/homebrew/bin/npm",
+          "run",
+          "test:coverage",
+          "--",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=PRIVATE_EVIDENCE/novelops-20261026-final-scope-pr34-test-results.json",
+          "--coverage.reporter=text",
+          "--coverage.reporter=json-summary",
+          "--coverage.reporter=json",
+          "--coverage.reportsDirectory=PRIVATE_EVIDENCE/novelops-20261026-final-scope-pr34-coverage"
+        ],
+        "lint": [
+          "/opt/homebrew/bin/npm",
+          "run",
+          "lint"
+        ],
+        "types": [
+          "/opt/homebrew/bin/npm",
+          "run",
+          "typecheck"
+        ]
+      },
+      "serial_recheck": false
+    },
+    {
+      "pr": 35,
+      "source": {
+        "pr": 35,
+        "source_commit": "5ef6520e3e2933f14390d09a47a28cb9ddb917ec",
+        "frontend_tree": "139c53c5f2954a735b09384b7e3f81d92559ee10",
+        "frontend_src_tree": "40566b5db142d5650f5e5e5ea0976a49171e80e7",
+        "frontend_tests_tree": "fc26971714543b919898518827206d70a268829a",
+        "app_tree": "579faeddca10df5b4f366f671944c5213a3fb7ee",
+        "tests_tree": "283922e1c27c6f77df39041fd1659272a5db084c",
+        "config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "backend_reused_source": "8fb1711e36c805cfca69937dfa8c68c0bb6ae69e"
+      },
+      "frontend_passed": 245,
+      "coverage": {
+        "lines": {
+          "total": 799,
+          "covered": 784,
+          "skipped": 0,
+          "pct": 98.12
+        },
+        "statements": {
+          "total": 924,
+          "covered": 885,
+          "skipped": 0,
+          "pct": 95.77
+        },
+        "functions": {
+          "total": 256,
+          "covered": 243,
+          "skipped": 0,
+          "pct": 94.92
+        },
+        "branches": {
+          "total": 1066,
+          "covered": 987,
+          "skipped": 0,
+          "pct": 92.58
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "backend_reused_passed": 831,
+      "backend_reuse_reason": "Exact owning branch app/tests/config tree hashes match prior complete gate",
+      "commands": {
+        "coverage": [
+          "/opt/homebrew/bin/npm",
+          "run",
+          "test:coverage",
+          "--",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=PRIVATE_EVIDENCE/novelops-20261026-final-scope-pr35-test-results.json",
+          "--coverage.reporter=text",
+          "--coverage.reporter=json-summary",
+          "--coverage.reporter=json",
+          "--coverage.reportsDirectory=PRIVATE_EVIDENCE/novelops-20261026-final-scope-pr35-coverage"
+        ],
+        "lint": [
+          "/opt/homebrew/bin/npm",
+          "run",
+          "lint"
+        ],
+        "types": [
+          "/opt/homebrew/bin/npm",
+          "run",
+          "typecheck"
+        ]
+      },
+      "serial_recheck": false
+    },
+    {
+      "pr": 36,
+      "source": {
+        "pr": 36,
+        "source_commit": "d6fce3af1f460e3c79552a822255e804d865ec6c",
+        "frontend_tree": "b3512665f77f99904a3bb0f6ebca119282cfdf47",
+        "frontend_src_tree": "de599da824eb3ab821e5d29289777c76ebb3822b",
+        "frontend_tests_tree": "d1dd8558959aa68e392ceda666ebc50dc28c9805",
+        "app_tree": "5528b330f8d38b71e31c1a224e598da92a470a0b",
+        "tests_tree": "fea3e9b4824f5135406f6629e263fcdf4857ed11",
+        "config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "backend_reused_source": "29a916b027b0d69e25b486e0480051a234dd2d15"
+      },
+      "frontend_passed": 297,
+      "coverage": {
+        "lines": {
+          "total": 889,
+          "covered": 874,
+          "skipped": 0,
+          "pct": 98.31
+        },
+        "statements": {
+          "total": 1039,
+          "covered": 995,
+          "skipped": 0,
+          "pct": 95.76
+        },
+        "functions": {
+          "total": 287,
+          "covered": 274,
+          "skipped": 0,
+          "pct": 95.47
+        },
+        "branches": {
+          "total": 1227,
+          "covered": 1142,
+          "skipped": 0,
+          "pct": 93.07
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "backend_reused_passed": 949,
+      "backend_reuse_reason": "Exact owning branch app/tests/config tree hashes match prior complete gate",
+      "commands": {
+        "coverage": [
+          "/opt/homebrew/bin/npm",
+          "run",
+          "test:coverage",
+          "--",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=PRIVATE_EVIDENCE/novelops-20261026-final-scope-pr36-test-results.json",
+          "--coverage.reporter=text",
+          "--coverage.reporter=json-summary",
+          "--coverage.reporter=json",
+          "--coverage.reportsDirectory=PRIVATE_EVIDENCE/novelops-20261026-final-scope-pr36-coverage"
+        ],
+        "lint": [
+          "/opt/homebrew/bin/npm",
+          "run",
+          "lint"
+        ],
+        "types": [
+          "/opt/homebrew/bin/npm",
+          "run",
+          "typecheck"
+        ]
+      },
+      "serial_recheck": false
+    },
+    {
+      "pr": 37,
+      "source": {
+        "pr": 37,
+        "source_commit": "9531e666c4d9f8b2006012174c744dcfd1af923a",
+        "frontend_tree": "dcc56393f8afc7e70fb96538f3e3641d675d5398",
+        "frontend_src_tree": "75f93db896adc20cbacf62dc18b9ba5f3f963e97",
+        "frontend_tests_tree": "bfc05070f20e1ac31d301b972186c6cc6832e490",
+        "app_tree": "931d4a65b46ee1a37474e19283c9e9269dd93c81",
+        "tests_tree": "010a6d3fe3a0afe27943c3aef0309d7a241f643d",
+        "config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "backend_reused_source": "da4efc995c8bb319568497ce96e3fa706a5f208c"
+      },
+      "frontend_passed": 387,
+      "coverage": {
+        "lines": {
+          "total": 1025,
+          "covered": 1020,
+          "skipped": 0,
+          "pct": 99.51
+        },
+        "statements": {
+          "total": 1216,
+          "covered": 1176,
+          "skipped": 0,
+          "pct": 96.71
+        },
+        "functions": {
+          "total": 340,
+          "covered": 332,
+          "skipped": 0,
+          "pct": 97.64
+        },
+        "branches": {
+          "total": 1458,
+          "covered": 1393,
+          "skipped": 0,
+          "pct": 95.54
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "backend_reused_passed": 1049,
+      "backend_reuse_reason": "Exact owning branch app/tests/config tree hashes match prior complete gate",
+      "commands": {
+        "coverage": [
+          "/opt/homebrew/bin/npm",
+          "run",
+          "test:coverage",
+          "--",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=PRIVATE_EVIDENCE/novelops-20261026-final-scope-pr37-test-results.json",
+          "--coverage.reporter=text",
+          "--coverage.reporter=json-summary",
+          "--coverage.reporter=json",
+          "--coverage.reportsDirectory=PRIVATE_EVIDENCE/novelops-20261026-final-scope-pr37-coverage"
+        ],
+        "lint": [
+          "/opt/homebrew/bin/npm",
+          "run",
+          "lint"
+        ],
+        "types": [
+          "/opt/homebrew/bin/npm",
+          "run",
+          "typecheck"
+        ]
+      },
+      "serial_recheck": false
+    }
+  ],
+  "backend_terminal_coverage": {
+    "statement_line": {
+      "covered": 4429,
+      "total": 4488,
+      "percent": 98.69
+    },
+    "branches": {
+      "covered": 1147,
+      "total": 1208,
+      "percent": 94.95
+    },
+    "raw_function_entries": {
+      "entered": 424,
+      "total": 431,
+      "unentered_protocol_declarations": 7
+    },
+    "unchanged_existing_excluded_lines": 11,
+    "original_opt_in_integration_deselected": 10,
+    "source_app_tests_config_exact_reuse": true
+  },
+  "shared_ui_test_only_commit": "5846ff5d746bd256669138e970271bfd79aa0359",
+  "final_frontend_src_equals_workspace_browser_source": true,
+  "frontend_configuration_unchanged": true,
+  "first_parallel_frontend_results": [
+    {
+      "pr": 35,
+      "passed": 237,
+      "failed": 1
+    },
+    {
+      "pr": 36,
+      "passed": 289,
+      "failed": 1
+    },
+    {
+      "pr": 37,
+      "passed": 380,
+      "failed": 0
+    }
+  ],
+  "parallel_failure": "Existing unchanged pagination test reached original5000ms timeout; failed logs/JSON retained. One full original-config serial recheck per failed ancestor passed; no increasedtimeout,assertionchange,skip,sourcechange or rootrerun.",
+  "observer_corrections": [
+    {
+      "kind": "GET default",
+      "detail": "RequestInit.method omitted is nativeGET; corrected observer to new Request(...).method and revalidated same8REDfailures beforeGREEN",
+      "not_product_defect": true
+    },
+    {
+      "kind": "Vitest JSON schema",
+      "detail": "JSON retained STACK_TRACE_ERROR rather than timeout text; crosschecked testname,duration and rawconsole5000ms message before boundedserial execution",
+      "not_product_defect": true
+    },
+    {
+      "kind": "initial default sandbox startup",
+      "detail": "Vite generated-cache writeEPERM stopped beforetests; formalapproved execution reached actual businessRED assertions",
+      "not_product_red": true
+    }
+  ],
+  "browser": {
+    "space": 4,
+    "actual_next_dev": true,
+    "actual_login_session_proxy": true,
+    "synthetic_http_backend_only": true,
+    "review": {
+      "source": "62c9165503dc29c0ac07bb9f2896b78f0a0529d7",
+      "cases": 25,
+      "foreign_refusals": 16,
+      "matching_exact_posts": 9,
+      "consumed_review_sources_identical_at_final_source": true
+    },
+    "workspace": {
+      "source": "d6bce6c668ff469658d2c2cfad43392a0afcb56c",
+      "cases": 25,
+      "scope_refusals": 14,
+      "matching_exact_posts": 11,
+      "explicit503_ownership_recoveries": 2,
+      "fresh_context_requests": 0
+    },
+    "viewports": [
+      {
+        "width": 1280,
+        "height": 900
+      },
+      {
+        "width": 390,
+        "height": 844
+      }
+    ],
+    "no_horizontal_overflow_in_refusal_checks": true,
+    "local_servers_stopped": true,
+    "owned_test_cookie_cleanup": "Exact domain/path deletion only after synthetic signature verification,including URI decoding; no profile-wide clearing",
+    "ego_lite_update_notice": "Available; no upgrade performed"
+  },
+  "real_api_ownership": {
+    "backend_source_commit": "da4efc995c8bb319568497ce96e3fa706a5f208c",
+    "current_frontend_source": "d6bce6c668ff469658d2c2cfad43392a0afcb56c",
+    "ownership": {
+      "run_id": "PR-f78248c9daf2836f544cf18397804083",
+      "book_id": "BK-612ff5ad0bfaaed202baf9fe0acf390f",
+      "latency_ms": 9604.513833066449,
+      "current": false,
+      "kind": "bible"
+    },
+    "status": 200,
+    "known_current_before_after": [
+      454,
+      454
+    ],
+    "known_historical_before_after": [
+      452,
+      452
+    ],
+    "model_attempts": 0,
+    "business_write_attempts": 0,
+    "clients_closed": true,
+    "scheduler_stopped": true,
+    "temporary_probe_config": "Explicit local probe key,flags,measured tableIDs; userenv unchanged; not deployment-readiness proof"
+  },
+  "requirement_event_result": {
+    "foreign_scope_replay_no_request": "Verified actual product-page foreground HTTP boundary with synthetic local server",
+    "same_scope_replay_exact_request": "Verified including own chapter3 while chapter fields remain1",
+    "opaque_run_lookup_actual_identity": "Verified actual application identity/Uvicorn/Feishu read under120s withoutwrites/models",
+    "real_paid_generation_or_new_Base_decision": "Not performed or claimed"
+  },
+  "review": {
+    "prepublish13_exact_heads": true,
+    "new_feedback": false,
+    "unresolved_threads": 0,
+    "postpublish_exact_head_gates_builds_and_body_audit_pending": true
+  },
+  "model_budget": {
+    "current_history_phase_cap": 4,
+    "spent": 4,
+    "remaining": 0,
+    "new_calls": 0,
+    "additional_authorization_received": false,
+    "expired_reservation_journal_not_reset_or_recreated": true
+  },
+  "safety": {
+    "new_real_Base_rows": 0,
+    "userenv_changed": false,
+    "main_merged": false,
+    "deployed": false,
+    "marked_done": false,
+    "real_prose_or_credentials_committed": false,
+    "coverage_ignore_assertions_thresholds_timeouts_unchanged": true
+  },
+  "skill": {
+    "skill": "issue-pr-delivery",
+    "before_sha256": "d45e9710409ff7583983843547e5da4b970e201d5c534d9e35ac7fabb3b86a2b",
+    "after_sha256": "a05ab30f3e83891b3f732c87d600a6b7ff07bbc01044507af6fabb43175b1cf7",
+    "scope": "storage-key ownership and opaque-run read before browser replay",
+    "behavior_evidence": [
+      "novelops-20261026-review-scope-browser.json",
+      "novelops-20261026-workspace-scope-browser.json"
+    ],
+    "updated_at": 1792952649.78201,
+    "validator_exit": 0,
+    "validator_output": "Skill is valid!",
+    "new_skill_created": false
+  },
+  "limitations": [
+    "Whole project applicableS/L/F/B100% not reached",
+    "Complete independent original61+51business acceptance still pending",
+    "Real chapter2 semantic/Critic success still pending; no newpaid authorization",
+    "Native product UI proof uses Nextdevelopment andsynthetic backend; canonical production build must be verified at exact published head",
+    "Previously observed local canonical Turbopack buildEPERM retained; no alternate builder or CIweakening"
+  ],
+  "evidence_sha256": {
+    "novelops-20261026-final-scope-sources.json": "ece9a9c94342a10d8fe5904bebab6ee9362f660cf12d547d17a8cabe9e360b80",
+    "novelops-20261026-final-scope-gates.json": "8d50813e3bf99ef3473e6a3ee0df5801e2f00efdb6bfeeddf3309a0f92bb8885",
+    "novelops-20261026-command-scope-sources.json": "c2c9959d40eb8f0ec9d71c2d0e252d0cba1dd66316f804904d68b61b7c405ec8",
+    "novelops-20261026-command-scope-final-gates.json": "93e8a2a4f8abc9e59044a6173d79a18e545fa8f38e05894f5d2c69529efd6bf8",
+    "novelops-20261025-review-scope-red.log": "38d05905dca855b78171b2c9e812cae977cc41e6e062cf3b87bfca449de2dd0a",
+    "novelops-20261025-review-scope-green.log": "043983d1e7be75050d024133b288cdcc5b6d6587e00aef7a0113be0b3c4e57a5",
+    "novelops-20261026-generation-scope-red.log": "bb040b7440648766399ca503c9f6d9bdb6f3fc37cb398a850137664c581c5038",
+    "novelops-20261026-generation-scope-green.log": "e01b24265b527e9a465e1fd881393beeeaf09954b312b12ba8dfafd2bb8a6dc2",
+    "novelops-20261026-planning-scope-corrected-red.log": "deb53ea708a82c9421caa1c03d7202de394a5f0ac68974a6ca1323dde10d871c",
+    "novelops-20261026-planning-scope-green-v2.log": "2c71214a1d084569b30ccb787fbe4931a57d08ffad1f0c69ca00077956990438",
+    "novelops-20261026-planning-scope-green.log": "6c04b5903fd7f8537492fd179e2cafd53a5239d61dc831ff31c0e8a2c04083a4",
+    "novelops-20261026-review-scope-browser.json": "a356f520f16b26cdfdb32db0562847284000cba6002abaa10c3a12fb6636b141",
+    "novelops-20261026-workspace-scope-browser.json": "2be0c3833c19c691a9ac34045cd3ec527b5738b1116b4f1ef8e940f71ff5c72d",
+    "novelops-20261026-planning-ownership-native-readonly.json": "dbe26218bfb1e1549e49fc8cedaf327b5ed0ee6c52580213533d3fb10a729101",
+    "novelops-20261026-review-scope-linear.json": "f1052b99295f181c2cb269a8488a8f4ef096feb2359c5345587235e29684f0e5",
+    "novelops-20261026-workspace-scope-prepublish.json": "8ef83e335181a0178ad0422332cdecd4e2af593f6a4e9ea19807a992b975f1a7",
+    "novelops-20261026-skill-command-scope-change.json": "3ad33e0b6a5cbd0d19c4b33c7288c2b57ffcf08062b5cc85e46a6d4675b080b4",
+    "novelops-20261026-final-scope-pr34-test-results.json": "9780d98194ddeff819fcd4a7b0e1e20b0d0a9a47adb514628e3f02cdf9bc869f",
+    "novelops-20261026-final-scope-pr34-coverage/coverage-summary.json": "5b93a9bfbccba94a8dca95054f0db39db8dab0d2d47d771ddf259629be089c98",
+    "novelops-20261026-final-scope-pr35-test-results.json": "1d29f7dab4386a741962f73b9a4fd9fc3d678b85b11acfc6badf8338e9092a93",
+    "novelops-20261026-final-scope-pr35-coverage/coverage-summary.json": "a0ff079d293e3eff57d2cd489f4804d4369127d29bceb41004e4ac09fad3f891",
+    "novelops-20261026-final-scope-pr36-test-results.json": "5d0e5552962f1ba8359e7e2f46dad3c4cf6445f70f17d58862400b1d0fe999d9",
+    "novelops-20261026-final-scope-pr36-coverage/coverage-summary.json": "ed1ea784372e0622e70aba628dbfedb58359bfb0e29b1352cd226992f1a0ae9a",
+    "novelops-20261026-final-scope-pr37-test-results.json": "846e09cb46f61467b63ff6c79457c28d1a0c9293cde51818132ca1fcc66cd59e",
+    "novelops-20261026-final-scope-pr37-coverage/coverage-summary.json": "1b7538703dbe8ed59e74192c02e2701c43f6aa3fdd197909c541c78e48412c1a",
+    "novelops-20261026-command-scope-pr35-test-results.json": "821c067215fed99b243256c09c37c8bb7beea6f0c37f4e12aafff220bb9ade5f",
+    "novelops-20261026-command-scope-pr35-coverage.log": "0f30dc3cd6f168410b75c080a5d275d4257fe00caeb089895bc5f37b2fb8a9d1",
+    "novelops-20261026-command-scope-pr36-test-results.json": "c7380437736d818fda426ba434cc44f2d1a5a467b766f27f50aed7df40144a1c",
+    "novelops-20261026-command-scope-pr36-coverage.log": "5a06856921b10a71d251f4441147d1f7eec3d9f3971c24c4ab114f8fe2aa27c3"
+  }
+}
