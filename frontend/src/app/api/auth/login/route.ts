@@ -1,6 +1,6 @@
 /**
  * [INPUT]: 依赖环境变量 AUTH_PASSWORD，消费 @/lib/session 的 signSessionToken
- * [OUTPUT]: POST /api/auth/login — 签发 session_token cookie
+ * [OUTPUT]: POST /api/auth/login — 签发 session_token cookie，配置或签名失败返回 503
  * [POS]: api/auth/login 的登录端点，被浏览器端 client.ts 消费
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
@@ -44,7 +44,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const token = await signSessionToken("authenticated", SESSION_TTL);
+  let token: string;
+  try {
+    token = await signSessionToken("authenticated", SESSION_TTL);
+  } catch {
+    return NextResponse.json(
+      { detail: "Server configuration error" },
+      { status: 503 }
+    );
+  }
 
   const response = NextResponse.json({ detail: "Login successful" });
   response.cookies.set("session_token", token, {

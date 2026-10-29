@@ -152,6 +152,8 @@ jobs:
         run: npm ci
       - name: ESLint (zero warnings)
         run: npm run lint
+      - name: Frontend behavior contracts
+        run: npm test
       - name: Generate route types and check TypeScript
         run: npm run typecheck
       - name: Production build

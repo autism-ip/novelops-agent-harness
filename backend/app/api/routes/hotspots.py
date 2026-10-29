@@ -1,10 +1,11 @@
-"""Authenticated ingestion trigger and hotspot read contract for ZEN-33."""
+"""Authenticated hotspot reads, collection and durable manual controls."""
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 
 from app.api.routes.workflows import get_kernel
+from app.hotspot_controls import ManualInput
 
 router = APIRouter()
 
@@ -20,6 +21,31 @@ class FetchBody(BaseModel):
     model_config = ConfigDict(extra="forbid")
     request_key: str = Field(min_length=1, max_length=200)
     limit: int = Field(default=50, ge=30, le=50)
+
+
+class ManualBody(ManualInput):
+    request_key: str = Field(min_length=1, max_length=200, pattern=r"\S")
+
+
+class DiscardBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    request_key: str = Field(min_length=1, max_length=200, pattern=r"\S")
+    expected_status: Literal["new", "normalized", "analyzed", "approved", "discarded"]
+
+
+@router.get("/capabilities")
+def capabilities(hotspots=Depends(service)):
+    return {"fetch": hotspots.collection_enabled, "manual_add": True, "discard": True, "analyze": False}
+
+
+@router.post("/manual", status_code=201)
+def manual(body: ManualBody, hotspots=Depends(service)):
+    return hotspots.controls.enqueue_add(body.request_key, body.model_dump(exclude={"request_key"}))
+
+
+@router.post("/{hotspot_id}/discard", status_code=201)
+def discard(hotspot_id: str, body: DiscardBody, hotspots=Depends(service)):
+    return hotspots.controls.enqueue_discard(hotspot_id, body.request_key, body.expected_status)
 
 
 @router.post("/fetch", status_code=201)
