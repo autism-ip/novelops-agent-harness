@@ -1,0 +1,1105 @@
+{
+  "date": "2026-10-29",
+  "started_date": "2026-10-27",
+  "classification": "progress;whole_goal_incomplete",
+  "original_scope": {
+    "issues_prs": 13,
+    "linear_criteria": 61,
+    "github_extra_checks": 51,
+    "unchanged": true
+  },
+  "new_cases": 10,
+  "owners": [
+    {
+      "linear": "ZEN-33",
+      "pr": 27,
+      "new_cases": 5,
+      "files": [
+        "backend/tests/test_hotspot_numeric_transport.py"
+      ],
+      "behavior": "Numeric aliases through real local subprocess/runner/adapter/kernel/storage HTTP/API;raw source retained"
+    },
+    {
+      "linear": "ZEN-34",
+      "pr": 28,
+      "new_cases": 5,
+      "files": [
+        "backend/tests/test_manual_hotspot_identity.py"
+      ],
+      "behavior": "External manual source/title/url conflicts and duplicate dedupe identity block without hotspot writes;queued discard of deleted target never resurrects it",
+      "security_dependency_patch": true
+    }
+  ],
+  "propagated_original_prs": [
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    34,
+    35,
+    36,
+    37
+  ],
+  "gates": [
+    {
+      "pr": 27,
+      "current_pre_report_source": "39d62e5a3617d4c8858323fe2a8160b8292790b3",
+      "backend_frozen_source": "39d62e5a3617d4c8858323fe2a8160b8292790b3",
+      "backend_app_tree": "653910e5b04566180484321f807b3eb6ebd387ec",
+      "backend_tests_tree": "9ac49b0617542f2f078409f3f561ab07186dc357",
+      "backend_config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+      "backend_passed": 624,
+      "backend_coverage": {
+        "covered_lines": 2274,
+        "num_statements": 2278,
+        "percent_covered": 99.581589958159,
+        "percent_covered_display": "99.58",
+        "missing_lines": 4,
+        "excluded_lines": 11,
+        "percent_statements_covered": 99.82440737489026,
+        "percent_statements_covered_display": "99.82",
+        "num_branches": 590,
+        "num_partial_branches": 8,
+        "covered_branches": 582,
+        "missing_branches": 8,
+        "percent_branches_covered": 98.64406779661017,
+        "percent_branches_covered_display": "98.64"
+      },
+      "backend_ruff_exit": 0,
+      "backend_tests_exit": 0,
+      "original_opt_in_integration_deselected": 10,
+      "backend_exact_code_and_test_reuse_root37": false,
+      "backend_root37_only_non_executable_difference": [],
+      "frontend": {
+        "test_script": "Not configured in this original scope;no script added",
+        "exits": {
+          "lint": 0,
+          "typecheck": 0,
+          "build": 0
+        },
+        "canonical_local_build_passed": true,
+        "coverage": null,
+        "frontend_passed": null,
+        "next": "16.2.7"
+      }
+    },
+    {
+      "pr": 28,
+      "current_pre_report_source": "f1e50c9c6e708ff333cb4c6dc922fec23469e6f3",
+      "backend_frozen_source": "dff25e0892c0351d166e6d0edaa4ac9f53a65ab5",
+      "backend_app_tree": "4daa9b7927656d97d0767f2792405248e2e106ad",
+      "backend_tests_tree": "039ab8d0b52f73d8f39327d89ab22bebf88aeaf5",
+      "backend_config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+      "backend_passed": 638,
+      "backend_coverage": {
+        "covered_lines": 2345,
+        "num_statements": 2349,
+        "percent_covered": 99.59308240081384,
+        "percent_covered_display": "99.59",
+        "missing_lines": 4,
+        "excluded_lines": 11,
+        "percent_statements_covered": 99.8297147722435,
+        "percent_statements_covered_display": "99.83",
+        "num_branches": 600,
+        "num_partial_branches": 8,
+        "covered_branches": 592,
+        "missing_branches": 8,
+        "percent_branches_covered": 98.66666666666667,
+        "percent_branches_covered_display": "98.67"
+      },
+      "backend_ruff_exit": 0,
+      "backend_tests_exit": 0,
+      "original_opt_in_integration_deselected": 10,
+      "backend_exact_code_and_test_reuse_root37": false,
+      "backend_root37_only_non_executable_difference": [],
+      "frontend": {
+        "source_commit": "f1e50c9c6e708ff333cb4c6dc922fec23469e6f3",
+        "frontend_tree": "3a61dce1e662a0c6de3fbdf57c9c9fef5b32b3a5",
+        "frontend_passed": 47,
+        "coverage": {
+          "lines": {
+            "total": 405,
+            "covered": 365,
+            "skipped": 0,
+            "pct": 90.12
+          },
+          "statements": {
+            "total": 432,
+            "covered": 388,
+            "skipped": 0,
+            "pct": 89.81
+          },
+          "functions": {
+            "total": 122,
+            "covered": 100,
+            "skipped": 0,
+            "pct": 81.96
+          },
+          "branches": {
+            "total": 287,
+            "covered": 265,
+            "skipped": 0,
+            "pct": 92.33
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "exits": {
+          "audit-all": 0,
+          "audit-production": 0,
+          "coverage": 0,
+          "lint": 0,
+          "types": 0,
+          "build": 0
+        },
+        "canonical_local_build_passed": true,
+        "next": "16.4.3",
+        "exact_owner28_tracked_byte_reuse": true
+      }
+    },
+    {
+      "pr": 29,
+      "current_pre_report_source": "8e306e36b31bb89b7987ae28a06297cf70ecee62",
+      "backend_frozen_source": "815ea751760d61f114ac169c72a770878bbb5fd3",
+      "backend_app_tree": "a9cd86d281c8c4e471e77732067a6a6c6d29c859",
+      "backend_tests_tree": "9922cd9eb954355df3feec97ef306bdc32595ba0",
+      "backend_config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+      "backend_passed": 678,
+      "backend_coverage": {
+        "covered_lines": 2717,
+        "num_statements": 2737,
+        "percent_covered": 98.77800407331975,
+        "percent_covered_display": "98.78",
+        "missing_lines": 20,
+        "excluded_lines": 11,
+        "percent_statements_covered": 99.26927292656192,
+        "percent_statements_covered_display": "99.27",
+        "num_branches": 700,
+        "num_partial_branches": 22,
+        "covered_branches": 678,
+        "missing_branches": 22,
+        "percent_branches_covered": 96.85714285714286,
+        "percent_branches_covered_display": "96.86"
+      },
+      "backend_ruff_exit": 0,
+      "backend_tests_exit": 0,
+      "original_opt_in_integration_deselected": 10,
+      "backend_exact_code_and_test_reuse_root37": false,
+      "backend_root37_only_non_executable_difference": [],
+      "frontend": {
+        "source_commit": "8e306e36b31bb89b7987ae28a06297cf70ecee62",
+        "frontend_tree": "dbc620ead6b2bfd315d2aca77ef5ac5e63fd10fd",
+        "frontend_passed": 51,
+        "coverage": {
+          "lines": {
+            "total": 444,
+            "covered": 395,
+            "skipped": 0,
+            "pct": 88.96
+          },
+          "statements": {
+            "total": 475,
+            "covered": 419,
+            "skipped": 0,
+            "pct": 88.21
+          },
+          "functions": {
+            "total": 135,
+            "covered": 106,
+            "skipped": 0,
+            "pct": 78.51
+          },
+          "branches": {
+            "total": 368,
+            "covered": 314,
+            "skipped": 0,
+            "pct": 85.32
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "exits": {
+          "coverage": 0,
+          "lint": 0,
+          "types": 0,
+          "build": 0
+        },
+        "canonical_local_build_passed": true,
+        "next": "16.4.3",
+        "exact_owner28_tracked_byte_reuse": false
+      }
+    },
+    {
+      "pr": 30,
+      "current_pre_report_source": "a02e687626774c366658de4e765de54868ccf247",
+      "backend_frozen_source": "3017a519514105a4b79bb058589831271e89b92f",
+      "backend_app_tree": "4ad9fba2ea072f15c6a954d0a5d79208c6413412",
+      "backend_tests_tree": "c8b78fd5b0d4d3e9a88ceba81dbf2d27ad46ea52",
+      "backend_config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+      "backend_passed": 706,
+      "backend_coverage": {
+        "covered_lines": 3048,
+        "num_statements": 3079,
+        "percent_covered": 98.3691431529899,
+        "percent_covered_display": "98.37",
+        "missing_lines": 31,
+        "excluded_lines": 11,
+        "percent_statements_covered": 98.99317960376746,
+        "percent_statements_covered_display": "98.99",
+        "num_branches": 784,
+        "num_partial_branches": 32,
+        "covered_branches": 752,
+        "missing_branches": 32,
+        "percent_branches_covered": 95.91836734693878,
+        "percent_branches_covered_display": "95.92"
+      },
+      "backend_ruff_exit": 0,
+      "backend_tests_exit": 0,
+      "original_opt_in_integration_deselected": 10,
+      "backend_exact_code_and_test_reuse_root37": false,
+      "backend_root37_only_non_executable_difference": [],
+      "frontend": {
+        "source_commit": "a02e687626774c366658de4e765de54868ccf247",
+        "frontend_tree": "01d4b58cb559cf15e9ea399ff72f08fbbd379f8a",
+        "frontend_passed": 65,
+        "coverage": {
+          "lines": {
+            "total": 467,
+            "covered": 425,
+            "skipped": 0,
+            "pct": 91
+          },
+          "statements": {
+            "total": 502,
+            "covered": 452,
+            "skipped": 0,
+            "pct": 90.03
+          },
+          "functions": {
+            "total": 145,
+            "covered": 121,
+            "skipped": 0,
+            "pct": 83.44
+          },
+          "branches": {
+            "total": 453,
+            "covered": 406,
+            "skipped": 0,
+            "pct": 89.62
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "exits": {
+          "coverage": 0,
+          "lint": 0,
+          "types": 0,
+          "build": 0
+        },
+        "canonical_local_build_passed": true,
+        "next": "16.4.3",
+        "exact_owner28_tracked_byte_reuse": false
+      }
+    },
+    {
+      "pr": 31,
+      "current_pre_report_source": "eea634eb02df8532177845cae28244019891dfc8",
+      "backend_frozen_source": "cf8845c2c0b0361577011e139537ea95a247590b",
+      "backend_app_tree": "4ad9fba2ea072f15c6a954d0a5d79208c6413412",
+      "backend_tests_tree": "c8b78fd5b0d4d3e9a88ceba81dbf2d27ad46ea52",
+      "backend_config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+      "backend_passed": 706,
+      "backend_coverage": {
+        "covered_lines": 3048,
+        "num_statements": 3079,
+        "percent_covered": 98.3691431529899,
+        "percent_covered_display": "98.37",
+        "missing_lines": 31,
+        "excluded_lines": 11,
+        "percent_statements_covered": 98.99317960376746,
+        "percent_statements_covered_display": "98.99",
+        "num_branches": 784,
+        "num_partial_branches": 32,
+        "covered_branches": 752,
+        "missing_branches": 32,
+        "percent_branches_covered": 95.91836734693878,
+        "percent_branches_covered_display": "95.92"
+      },
+      "backend_ruff_exit": 0,
+      "backend_tests_exit": 0,
+      "original_opt_in_integration_deselected": 10,
+      "backend_exact_code_and_test_reuse_root37": false,
+      "backend_root37_only_non_executable_difference": [],
+      "frontend": {
+        "source_commit": "eea634eb02df8532177845cae28244019891dfc8",
+        "frontend_tree": "638e093a8b5e4f8b15f2e54cd835ac095aa717b6",
+        "frontend_passed": 79,
+        "coverage": {
+          "lines": {
+            "total": 527,
+            "covered": 485,
+            "skipped": 0,
+            "pct": 92.03
+          },
+          "statements": {
+            "total": 583,
+            "covered": 528,
+            "skipped": 0,
+            "pct": 90.56
+          },
+          "functions": {
+            "total": 172,
+            "covered": 147,
+            "skipped": 0,
+            "pct": 85.46
+          },
+          "branches": {
+            "total": 568,
+            "covered": 521,
+            "skipped": 0,
+            "pct": 91.72
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "exits": {
+          "coverage": 0,
+          "lint": 0,
+          "types": 0,
+          "build": 0
+        },
+        "canonical_local_build_passed": true,
+        "next": "16.4.3",
+        "exact_owner28_tracked_byte_reuse": false
+      }
+    },
+    {
+      "pr": 32,
+      "current_pre_report_source": "5ce2aca60bf6816c9dc69e3b54e19fcaf2076af8",
+      "backend_frozen_source": "33be3e93bfea429bf38a965e15f1593754752662",
+      "backend_app_tree": "415cb2dd5e79bfa073f85a14239526312fdde38c",
+      "backend_tests_tree": "95400f16d3c1d9a453d011f6718801a52656b387",
+      "backend_config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+      "backend_passed": 749,
+      "backend_coverage": {
+        "covered_lines": 3212,
+        "num_statements": 3247,
+        "percent_covered": 98.28136508715934,
+        "percent_covered_display": "98.28",
+        "missing_lines": 35,
+        "excluded_lines": 11,
+        "percent_statements_covered": 98.92208192177395,
+        "percent_statements_covered_display": "98.92",
+        "num_branches": 826,
+        "num_partial_branches": 35,
+        "covered_branches": 791,
+        "missing_branches": 35,
+        "percent_branches_covered": 95.76271186440678,
+        "percent_branches_covered_display": "95.76"
+      },
+      "backend_ruff_exit": 0,
+      "backend_tests_exit": 0,
+      "original_opt_in_integration_deselected": 10,
+      "backend_exact_code_and_test_reuse_root37": false,
+      "backend_root37_only_non_executable_difference": [],
+      "frontend": {
+        "source_commit": "5ce2aca60bf6816c9dc69e3b54e19fcaf2076af8",
+        "frontend_tree": "487ef7f9b5d31677c32c2ce37e3ccf964dbdee78",
+        "frontend_passed": 104,
+        "coverage": {
+          "lines": {
+            "total": 601,
+            "covered": 544,
+            "skipped": 0,
+            "pct": 90.51
+          },
+          "statements": {
+            "total": 671,
+            "covered": 599,
+            "skipped": 0,
+            "pct": 89.26
+          },
+          "functions": {
+            "total": 193,
+            "covered": 160,
+            "skipped": 0,
+            "pct": 82.9
+          },
+          "branches": {
+            "total": 677,
+            "covered": 589,
+            "skipped": 0,
+            "pct": 87
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "exits": {
+          "coverage": 0,
+          "lint": 0,
+          "types": 0,
+          "build": 0
+        },
+        "canonical_local_build_passed": true,
+        "next": "16.4.3",
+        "exact_owner28_tracked_byte_reuse": false
+      }
+    },
+    {
+      "pr": 34,
+      "current_pre_report_source": "87fac51031a89cd4d0e1c0ba30be2bb0924fb1fb",
+      "backend_frozen_source": "da27ef9e5ef1d5816d4b24e7715bd15e13d09c4e",
+      "backend_app_tree": "415cb2dd5e79bfa073f85a14239526312fdde38c",
+      "backend_tests_tree": "95400f16d3c1d9a453d011f6718801a52656b387",
+      "backend_config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+      "backend_passed": 749,
+      "backend_coverage": {
+        "covered_lines": 3212,
+        "num_statements": 3247,
+        "percent_covered": 98.28136508715934,
+        "percent_covered_display": "98.28",
+        "missing_lines": 35,
+        "excluded_lines": 11,
+        "percent_statements_covered": 98.92208192177395,
+        "percent_statements_covered_display": "98.92",
+        "num_branches": 826,
+        "num_partial_branches": 35,
+        "covered_branches": 791,
+        "missing_branches": 35,
+        "percent_branches_covered": 95.76271186440678,
+        "percent_branches_covered_display": "95.76"
+      },
+      "backend_ruff_exit": 0,
+      "backend_tests_exit": 0,
+      "original_opt_in_integration_deselected": 10,
+      "backend_exact_code_and_test_reuse_root37": false,
+      "backend_root37_only_non_executable_difference": [],
+      "frontend": {
+        "source_commit": "87fac51031a89cd4d0e1c0ba30be2bb0924fb1fb",
+        "frontend_tree": "990be2558deb9330298e7091d265fe40b49918f0",
+        "frontend_passed": 202,
+        "coverage": {
+          "lines": {
+            "total": 684,
+            "covered": 669,
+            "skipped": 0,
+            "pct": 97.8
+          },
+          "statements": {
+            "total": 777,
+            "covered": 748,
+            "skipped": 0,
+            "pct": 96.26
+          },
+          "functions": {
+            "total": 216,
+            "covered": 207,
+            "skipped": 0,
+            "pct": 95.83
+          },
+          "branches": {
+            "total": 841,
+            "covered": 773,
+            "skipped": 0,
+            "pct": 91.91
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "exits": {
+          "coverage": 0,
+          "lint": 0,
+          "types": 0,
+          "build": 0
+        },
+        "canonical_local_build_passed": true,
+        "next": "16.4.3",
+        "exact_owner28_tracked_byte_reuse": false
+      }
+    },
+    {
+      "pr": 35,
+      "current_pre_report_source": "e233a59953e68cc7ae6450cc39d8606c8795d4b5",
+      "backend_frozen_source": "8e1fd6917f8d925d04107445bf2830afa3f79283",
+      "backend_app_tree": "579faeddca10df5b4f366f671944c5213a3fb7ee",
+      "backend_tests_tree": "140efa2c4b053cabd3c61c7eabb87217bdd2e2ee",
+      "backend_config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+      "backend_passed": 841,
+      "backend_coverage": {
+        "covered_lines": 3659,
+        "num_statements": 3694,
+        "percent_covered": 98.46718480138169,
+        "percent_covered_display": "98.47",
+        "missing_lines": 35,
+        "excluded_lines": 11,
+        "percent_statements_covered": 99.0525175961018,
+        "percent_statements_covered_display": "99.05",
+        "num_branches": 938,
+        "num_partial_branches": 36,
+        "covered_branches": 902,
+        "missing_branches": 36,
+        "percent_branches_covered": 96.16204690831556,
+        "percent_branches_covered_display": "96.16"
+      },
+      "backend_ruff_exit": 0,
+      "backend_tests_exit": 0,
+      "original_opt_in_integration_deselected": 10,
+      "backend_exact_code_and_test_reuse_root37": false,
+      "backend_root37_only_non_executable_difference": [],
+      "frontend": {
+        "source_commit": "e233a59953e68cc7ae6450cc39d8606c8795d4b5",
+        "frontend_tree": "d0f5fa26712cfad9730dc8817cec6ea5ba03d3d5",
+        "frontend_passed": 285,
+        "coverage": {
+          "lines": {
+            "total": 801,
+            "covered": 790,
+            "skipped": 0,
+            "pct": 98.62
+          },
+          "statements": {
+            "total": 926,
+            "covered": 899,
+            "skipped": 0,
+            "pct": 97.08
+          },
+          "functions": {
+            "total": 257,
+            "covered": 250,
+            "skipped": 0,
+            "pct": 97.27
+          },
+          "branches": {
+            "total": 1070,
+            "covered": 1010,
+            "skipped": 0,
+            "pct": 94.39
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "exits": {
+          "coverage": 0,
+          "lint": 0,
+          "types": 0,
+          "build": 0
+        },
+        "canonical_local_build_passed": true,
+        "next": "16.4.3",
+        "exact_owner28_tracked_byte_reuse": false
+      }
+    },
+    {
+      "pr": 36,
+      "current_pre_report_source": "bd00b1c8538f5dfe62f39860901c8891148535ba",
+      "backend_frozen_source": "2c4eb251a87253293eee70a1528334aaaed965e9",
+      "backend_app_tree": "5528b330f8d38b71e31c1a224e598da92a470a0b",
+      "backend_tests_tree": "fafdaf35ce6b6d444d67f72d21d2a6f014ddd39b",
+      "backend_config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+      "backend_passed": 959,
+      "backend_coverage": {
+        "covered_lines": 4192,
+        "num_statements": 4253,
+        "percent_covered": 97.81267526640494,
+        "percent_covered_display": "97.81",
+        "missing_lines": 61,
+        "excluded_lines": 11,
+        "percent_statements_covered": 98.56571831648249,
+        "percent_statements_covered_display": "98.57",
+        "num_branches": 1096,
+        "num_partial_branches": 54,
+        "covered_branches": 1040,
+        "missing_branches": 56,
+        "percent_branches_covered": 94.8905109489051,
+        "percent_branches_covered_display": "94.89"
+      },
+      "backend_ruff_exit": 0,
+      "backend_tests_exit": 0,
+      "original_opt_in_integration_deselected": 10,
+      "backend_exact_code_and_test_reuse_root37": false,
+      "backend_root37_only_non_executable_difference": [],
+      "frontend": {
+        "source_commit": "bd00b1c8538f5dfe62f39860901c8891148535ba",
+        "frontend_tree": "fec846199d10917b625a2a8ea69d558be023fe61",
+        "frontend_passed": 346,
+        "coverage": {
+          "lines": {
+            "total": 891,
+            "covered": 880,
+            "skipped": 0,
+            "pct": 98.76
+          },
+          "statements": {
+            "total": 1041,
+            "covered": 1013,
+            "skipped": 0,
+            "pct": 97.31
+          },
+          "functions": {
+            "total": 288,
+            "covered": 281,
+            "skipped": 0,
+            "pct": 97.56
+          },
+          "branches": {
+            "total": 1231,
+            "covered": 1169,
+            "skipped": 0,
+            "pct": 94.96
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "exits": {
+          "coverage": 0,
+          "lint": 0,
+          "types": 0,
+          "build": 0
+        },
+        "canonical_local_build_passed": true,
+        "next": "16.4.3",
+        "exact_owner28_tracked_byte_reuse": false
+      }
+    },
+    {
+      "pr": 37,
+      "current_pre_report_source": "5abdc7572acba6dcdb6f8573b7d0d269f41b08b5",
+      "backend_frozen_source": "4eb15bd7179625ec42c0aa1c4e623455a7f88f3b",
+      "backend_app_tree": "931d4a65b46ee1a37474e19283c9e9269dd93c81",
+      "backend_tests_tree": "c19424604bfbd0f9a12e2021ac7a642e38fb9300",
+      "backend_config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+      "backend_passed": 1059,
+      "backend_coverage": {
+        "covered_lines": 4438,
+        "num_statements": 4488,
+        "percent_covered": 98.15660112359551,
+        "percent_covered_display": "98.16",
+        "missing_lines": 50,
+        "excluded_lines": 11,
+        "percent_statements_covered": 98.88591800356507,
+        "percent_statements_covered_display": "98.89",
+        "num_branches": 1208,
+        "num_partial_branches": 51,
+        "covered_branches": 1153,
+        "missing_branches": 55,
+        "percent_branches_covered": 95.44701986754967,
+        "percent_branches_covered_display": "95.45"
+      },
+      "backend_ruff_exit": 0,
+      "backend_tests_exit": 0,
+      "original_opt_in_integration_deselected": 10,
+      "backend_exact_code_and_test_reuse_root37": true,
+      "backend_root37_only_non_executable_difference": [
+        "backend/tests/CLAUDE.md"
+      ],
+      "frontend": {
+        "source_commit": "5abdc7572acba6dcdb6f8573b7d0d269f41b08b5",
+        "frontend_tree": "65d6c200a4d30e3beb06ce3389bae7a7d14ea542",
+        "frontend_passed": 439,
+        "coverage": {
+          "lines": {
+            "total": 1027,
+            "covered": 1027,
+            "skipped": 0,
+            "pct": 100
+          },
+          "statements": {
+            "total": 1218,
+            "covered": 1198,
+            "skipped": 0,
+            "pct": 98.35
+          },
+          "functions": {
+            "total": 341,
+            "covered": 341,
+            "skipped": 0,
+            "pct": 100
+          },
+          "branches": {
+            "total": 1462,
+            "covered": 1421,
+            "skipped": 0,
+            "pct": 97.19
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        },
+        "exits": {
+          "coverage": 0,
+          "lint": 0,
+          "types": 0,
+          "build": 0
+        },
+        "canonical_local_build_passed": true,
+        "next": "16.4.3",
+        "exact_owner28_tracked_byte_reuse": false
+      }
+    }
+  ],
+  "implementation": {
+    "backend_application_changes": [],
+    "frontend_application_changes": [],
+    "frontend_runtime_dependency_changed": true,
+    "frontend_changed_files": [
+      "frontend/package.json",
+      "frontend/package-lock.json"
+    ],
+    "backend_test_inventory_updated": true,
+    "numeric_source_cases": [
+      "Canonical integer strings become integer rank/heat",
+      "Invalid strings,decimal strings,float/list/object aliases default0",
+      "Raw original JSON,stable identity,normalized status and exact1 create preserved"
+    ],
+    "manual_source_cases": [
+      "Conflicting source/title/url with same dedupe key blocks and keeps all rows unchanged",
+      "Duplicate dedupe identity blocks without picking a row or creating another",
+      "Target deleted after enqueue ends MissingRecord failed within existing retry bound,does not resurrect source"
+    ],
+    "write_counter_scope": "Hotspot record mutations only;POST search is read-only;workflow/trace progress writes remain real in controlled transport",
+    "business_code_unchanged_correct_behavior": true,
+    "no_artificial_test_RED": true,
+    "runtime_boundaries": "Actual local subprocess/API/kernel/repos with controlled Feishu HTTP;no new real public-source/Base/model proof"
+  },
+  "security": {
+    "red_commit": "3a033bd5e1a4c7142fda9832490edcf1308f6645",
+    "green_commit": "f1e50c9c6e708ff333cb4c6dc922fec23469e6f3",
+    "red_type": "Actual npm audit exit1 and official affected dependency range;no exploit executed or compromise claim",
+    "red_next": "16.3.6",
+    "target_direct_versions": {
+      "next": "16.4.3",
+      "eslint-config-next": "16.4.3",
+      "vitest": "4.1.12",
+      "@vitest/coverage-v8": "4.1.12"
+    },
+    "target_indirect_versions": {
+      "undici": "7.30.1",
+      "zod": "4.6.7",
+      "sharp": "0.35.5",
+      "@vitest/mocker": "4.1.12"
+    },
+    "complete_audit": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "production_audit": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "scope": "Original28and8descendants have identical package/lock dependency graph;zero reported registry vulnerabilities for that graph at observation time",
+    "legacy_pr27_production_audit": {
+      "info": 0,
+      "low": 0,
+      "moderate": 1,
+      "high": 4,
+      "critical": 1,
+      "total": 6
+    },
+    "legacy_ancestor_limit": "Original27 keeps its historical Next16.2.7 package;not independently deployment-ready. Security patch takes effect from original28;no standalone deployment/merge approval is made.",
+    "official_sources": [
+      "https://github.com/vercel/next.js/security/advisories/GHSA-2464-fhr4-w9xw",
+      "https://github.com/vercel/next.js/security/advisories/GHSA-673q-mjm6-r5xr",
+      "https://github.com/vitest-dev/vitest/security/advisories/GHSA-qxg6-89mg-rqv8",
+      "https://github.com/nodejs/undici/security/advisories/GHSA-2m5v-pch6-74hx",
+      "https://github.com/colinhacks/zod/commit/a0ebf970f2d752e5f58527cd2942ff48be4f46bd"
+    ],
+    "Ref_docs_search": "No results;version-matched bundled Next docs read and official vendor advisories/registry metadata verified",
+    "no_audit_force_overrides_global_upgrade_or_auth_changes": true,
+    "no_exploitability_or_universal_security_claim": true
+  },
+  "native": {
+    "actual_patched_Next_production_build_start_login_secure_session_proxy_Chromium": true,
+    "source": "5abdc7572acba6dcdb6f8573b7d0d269f41b08b5",
+    "space": 4,
+    "page": "p1",
+    "cases": 8,
+    "viewports": [
+      [
+        1280,
+        900
+      ],
+      [
+        390,
+        844
+      ]
+    ],
+    "exact_synthetic_posts": 16,
+    "unknown503_one_initial_post_per_case": true,
+    "same_saved_path_body_and_bytes_preserved_until_explicit_retry_ack": true,
+    "fresh_context_requests": 0,
+    "no_horizontal_overflow": true,
+    "synthetic_local_HTTP_backend_only": true,
+    "no_real_Base_model_or_business_persistence_proof": true,
+    "archive_product_src_files_exact": 44,
+    "archive_src_config_lock_files_exact": 48,
+    "cookie_cleanup": {
+      "synthetic_signature_verified": true,
+      "exact_host_name_path_deleted": 1,
+      "own_host_after": 0,
+      "profile_wide_clear": false,
+      "page_blank": true
+    },
+    "helper_terminal_exit0": true,
+    "next_exit": 143,
+    "termination": "Requested SIGTERM after all8 cases verified;Next reports128+15;helper exited0",
+    "backend_thread_alive": false,
+    "runtime_stopped": true,
+    "page_blank": true,
+    "Ego_not_upgraded": true
+  },
+  "coverage": {
+    "frontend": {
+      "lines": {
+        "total": 1027,
+        "covered": 1027,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 1218,
+        "covered": 1198,
+        "skipped": 0,
+        "pct": 98.35
+      },
+      "functions": {
+        "total": 341,
+        "covered": 341,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 1462,
+        "covered": 1421,
+        "skipped": 0,
+        "pct": 97.19
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "backend": {
+      "covered_lines": 4438,
+      "num_statements": 4488,
+      "percent_covered": 98.15660112359551,
+      "percent_covered_display": "98.16",
+      "missing_lines": 50,
+      "excluded_lines": 11,
+      "percent_statements_covered": 98.88591800356507,
+      "percent_statements_covered_display": "98.89",
+      "num_branches": 1208,
+      "num_partial_branches": 51,
+      "covered_branches": 1153,
+      "missing_branches": 55,
+      "percent_branches_covered": 95.44701986754967,
+      "percent_branches_covered_display": "95.45"
+    },
+    "backend_raw_function_entries": {
+      "total": 431,
+      "entered": 424,
+      "percent": 98.37587006960557,
+      "lambdas_total": 11,
+      "lambdas_entered": 11,
+      "missing": [
+        {
+          "file": "generation.py",
+          "name": "ModelProvider.complete",
+          "line": 107,
+          "source_position": [
+            107,
+            107,
+            74,
+            77
+          ]
+        },
+        {
+          "file": "storage.py",
+          "name": "StorageProvider.get",
+          "line": 32,
+          "source_position": [
+            32,
+            32,
+            67,
+            70
+          ]
+        },
+        {
+          "file": "storage.py",
+          "name": "StorageProvider.get_many",
+          "line": 33,
+          "source_position": [
+            33,
+            33,
+            83,
+            86
+          ]
+        },
+        {
+          "file": "storage.py",
+          "name": "StorageProvider.list",
+          "line": 34,
+          "source_position": [
+            34,
+            34,
+            76,
+            79
+          ]
+        },
+        {
+          "file": "storage.py",
+          "name": "StorageProvider.ensure",
+          "line": 35,
+          "source_position": [
+            35,
+            35,
+            89,
+            92
+          ]
+        },
+        {
+          "file": "storage.py",
+          "name": "StorageProvider.update",
+          "line": 36,
+          "source_position": [
+            36,
+            36,
+            77,
+            80
+          ]
+        },
+        {
+          "file": "storage.py",
+          "name": "StorageProvider.delete",
+          "line": 37,
+          "source_position": [
+            37,
+            37,
+            63,
+            66
+          ]
+        }
+      ]
+    },
+    "backend_missing_branch_arcs": 55,
+    "backend_partially_covered_branch_points": 51,
+    "all_applicable_metrics100": false,
+    "original_exclusions_thresholds_assertions_timeouts_unchanged": true,
+    "protocol_declarations_not_called_for_coverage": true
+  },
+  "observer_setup_corrections": {
+    "frontend_preflight": "Original27locksNext16.2.7andhasnoVitestscript;lockmismatchcaughtbeforedependencyreuse;installedexactownlockandusedownlint/types/build",
+    "backend_pre_collection": "Original27/28lackoptionalrootfunction-entryplugin;initialrunnerrequestedmissingpluginandcollected0tests. Archivedlogsandcorrectedrunnerselectsrepository-ownscope;rawrootfunctionprofile remainsunchanged",
+    "product_changes": 0,
+    "test_assertions_or_quality_threshold_changes": 0,
+    "artificial_RED_claimed": false,
+    "observed_at": 1793036614.8889449
+  },
+  "documentation_merge_conflict": "Original29test inventory conflict resolved by keeping entire original inventory plus both new27/28 entries;no product/test conflict",
+  "skills": {
+    "skill": "issue-pr-delivery",
+    "updated": true,
+    "purpose": "Per-branch package-lock/script/optional-profiler inventory and exact consumed-byte gate reuse",
+    "format_validation": "quick_validate.py:Skill is valid!",
+    "failure_paths_verified": [
+      "Original27lock mismatch rejected before wrong dependency reuse;own lock lint/types/build passed",
+      "Original27/28 missing optional root profiler rejected before test collection;own repository scopes passed624/638 without changing scripts/config/thresholds"
+    ],
+    "success_paths_verified": [
+      "Root1059gate reused only after all backend consumed runtime/test/config bytes matched;only tests/CLAUDE.md differed",
+      "All9patched frontend scopes verified;owner47 exact tracked frontend bytes matched before reuse"
+    ],
+    "skill_sha256": "c63bd6a4d20285b78352e9bf73446727b0b21b375f2fa8743ef51263d210afd9",
+    "observed_at": 1793239797.086059
+  },
+  "review": {
+    "all13_linear_descriptions_updatedAt_status_unchanged": true,
+    "all13_prepublication_GitHub_refs_main_and_feedback_unchanged": true,
+    "postpublication_exact_head_CI_build_review_body_audit_pending": true,
+    "Linear_agent_context": "Advertised MCP returned Toolnotfound;actual get_issue/code/evidence used"
+  },
+  "safety": {
+    "new_model_requests": 0,
+    "new_real_Base_rows": 0,
+    "new_actual_business_writes": 0,
+    "paid_cap": 4,
+    "paid_used": 4,
+    "paid_remaining": 0,
+    "additional_paid_authorization_received": false,
+    "expired_ledger_not_reset_or_recreated": true,
+    "user_secret_env_files_changed": false,
+    "main_merged": false,
+    "deployed": false,
+    "marked_done": false
+  },
+  "limitations": [
+    "WholeprojectapplicableS/L/F/B100 not reached",
+    "Original61+51final independent requirement event adjudication remains pending",
+    "Realchapter2continuity/deadline/Critic and routine-pass events not proven; no additional model calls authorized",
+    "Browser/HTTP fixture observations do not establish real Base/model/deployed-platform behavior",
+    "Legacy original27frontend vulnerability remains until dependency original28 is applied;earlier branches not independently deployment-ready",
+    "Registry zero audit finding is scoped to locked graph and observation time,not proof of no possible vulnerabilities",
+    "New published head requires independent actual CI quality/build/review/body verification"
+  ],
+  "evidence_sha256": {
+    "novelops-20261027-hotspot-boundaries-sources.json": "ed30450eac9ab8766e726dc290c8cea118700b53261d62f06b617907086c0e30",
+    "novelops-20261027-hotspot-boundaries-gates.json": "ef33f55455e7b8ec84e6f7ce6166ce16b92cf81cf5dd130fb9e4980506e48618",
+    "novelops-20261027-hotspot-boundaries-gate-setup-corrections.json": "5d98b6bc792ccab7c2ed7b8348b247a31f39afda33085d0bb5d1f9e542bc7fd4",
+    "novelops-20261029-next-security-integrated.json": "9db3e6ae5c6c236f22445774296067da88e24a153f23bb1253048c38a7a62796",
+    "novelops-20261029-next-security-sources.json": "d59c12298cf84a2f28fe09806a028db7dc9433e06945c5df31be86bc4a9d5642",
+    "novelops-20261029-next-security-gates.json": "624286c9c063b89338ad49acbac1ac124a134c143b85d4189391f137128f1166",
+    "novelops-20261029-next-security-native-browser.json": "4f9f0d5678d1010cf48be3e9621eb623f217c22abc7bcaf4eaef2377244d8b9e",
+    "novelops-20261029-next-security-native-runtime.json": "31dad778294b8a9ce358a867a7c962c558a2960133441375177eedef98a84d54",
+    "novelops-20261029-next-security-audit-all-final.json": "84d94b0d5e2d44f97781bc22a96fd5f3e039259c0c46550e7d2fac7643d0ee1b",
+    "novelops-20261029-next-security-audit-production-final.json": "718be078c7814e03a206f27cd4ada11132d4e3cd2a8c4cdccb8ddd7e06019448",
+    "novelops-20261029-hotspot-security-skill-update.json": "c0eeffecc9fcf7f5c56239c907dc8a6a6b7bf5e5ca97a6ac1aed91d44a893cbd",
+    "novelops-20261029-hotspot-security-prepublish.json": "c4ce8862108a0e3b8f78eb9fa8ac240e85257da7a0d03819682646ef793e4847",
+    "novelops-20261029-hotspot-security-linear.json": "5289929c570b03a01072286da4da7e1e644a0850b6a5ebb17e9b62115e114ec5"
+  }
+}
