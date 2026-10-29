@@ -32,6 +32,19 @@ test("human research gates do not lock all hotspot controls indefinitely", () =>
   assert.equal(workflowBusy({ pipeline_type: "hotspot_research_v1", status: "running" }), true);
   assert.equal(workflowBusy({ pipeline_type: "hotspot_ingestion_v1", status: "awaiting_approval" }), true);
   assert.equal(workflowBusy({ pipeline_type: "hotspot_research_v1", status: "completed" }), false);
+  assert.equal(workflowBusy({ pipeline_type: "title_candidates_v1", status: "awaiting_approval" }), false);
+  assert.equal(workflowBusy({ pipeline_type: "cover_plans_v1", status: "awaiting_approval" }), false);
+});
+
+test("creative generation and exact candidate choice survive uncertain responses", () => {
+  const generation = { path: "/api/creative/titles", body: { request_key: "key", source_run_id: "PR-approved",
+    source_artifact_id: "AR-approved", version: 2 } };
+  const decision = { path: "/api/creative/runs/PR-title/decision", body: { request_key: "key", step_id: "SR-select",
+    artifact_id: "AR-candidate", expected_version: 1, action: "approve", operator: "editor" } };
+  assert.deepEqual(parsePending(JSON.stringify(generation)), generation);
+  assert.deepEqual(parsePending(JSON.stringify(decision)), decision);
+  assert.equal(parsePending(JSON.stringify({ ...generation, body: { ...generation.body, version: "2" } })), null);
+  assert.equal(parsePending(JSON.stringify({ ...decision, body: { ...decision.body, expected_version: "1" } })), null);
 });
 
 test("an authentication rejection after an uncertain submission never drops its key", () => {

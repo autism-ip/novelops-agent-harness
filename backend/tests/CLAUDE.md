@@ -33,6 +33,7 @@ test_hotspot_ingestion.py: ZEN-33 子进程→adapter→调度器→Feishu trans
 test_hotspot_controls.py: ZEN-34 人工添加/丢弃鉴权、幂等与冲突、写入超时和重启恢复验收。
 test_research_workflow.py: ZEN-35 schema/风险分流、模型失败、版本审批、投影恢复、批次重放及 API 验收；四阶段批量读取预算、部分产物和跨请求丢弃新鲜性。
 test_research_kernel_contract.py: 动态审批、退修理由、永久失败与终态投影恢复契约。
+test_creative_workflow.py: ZEN-36 十至二十标题/三至五封面、模型输出验证、精确选择、版本及失败契约；批量只读查询、候选顺序、跨请求篡改/缺失拒绝契约；部分投影失败后同一选择重放补齐且不重复审批事件或模型调用；完整已选视图仍拒绝未选、错误种类和丢弃来源。
 ui_fixture_app.py: 仅本机浏览器验收服务；复用真实 API/Harness 与合成 HTTP 存储，提供受鉴权保护的响应丢失/上游失败注入；不进入生产包。
 
 架构决策
@@ -43,6 +44,8 @@ ui_fixture_app.py: 仅本机浏览器验收服务；复用真实 API/Harness 与
 test_eval_cli_contract.py: 实际 CLI/router/provider 的 16 项行为用例；仅控制出站 HTTP，验证参数、fixture 边界、失败分类、约束检测、资源关闭、用量隔离与报告不泄露凭据/正文。
 
 test_model_instructions.py: 两家 provider 的显式用户指令、空指令、来源不变、请求/输入哈希、渲染选择器重放冲突及非法字段零调用的8项边界门禁。
+
+test_consumption_api.py: 机会 approved 与标题/封面 selected 的 HTTP 消费边界；鉴权、缺失/未选拒绝、精确产物、跨请求丢弃/篡改拒绝，重复只读不调用模型。5项用例使用实际API/kernel/存储适配器及受控HTTP，不包含服务lifespan或真实模型质量。
 
 test_runtime_dotenv_tables.py: 五项启动配置行为门禁；文件/进程优先级、完整表注册、配置实例隔离、显式空配置不回退环境和旧接口兼容；合成凭据、无远程API调用。
 
