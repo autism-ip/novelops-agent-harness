@@ -1,0 +1,34 @@
+{
+  "owner": "ZEN-34",
+  "original_pr": 28,
+  "owning_source": "dff25e0892c0351d166e6d0edaa4ac9f53a65ab5",
+  "classification": "Manual/static RED;actual npm audit output. No exploit executed, no claim of observed compromise.",
+  "scope": "Exact owning28 package and lock equal actual audited root package/lock",
+  "command": [
+    "/opt/homebrew/bin/npm",
+    "audit",
+    "--omit=dev",
+    "--json",
+    "--cache",
+    "/tmp/novelops-audit-cache-root-production"
+  ],
+  "exit": 1,
+  "production_vulnerabilities": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 1,
+    "total": 1
+  },
+  "installed_next": "16.3.6",
+  "target_next": "16.4.3",
+  "official_patched_minimum": "16.4.1",
+  "advisories": [
+    "https://github.com/vercel/next.js/security/advisories/GHSA-2464-fhr4-w9xw",
+    "https://github.com/vercel/next.js/security/advisories/GHSA-673q-mjm6-r5xr"
+  ],
+  "requirement": "Production dependency audit has no known critical Next advisory; actual product tests, auth/proxy and runtime must remain valid.",
+  "scope_limit": "Dependency-range evidence is not exploitability proof or production deployment evidence",
+  "evidence_sha256": "369d824241748a2c18ad69e7553a6565e8c6c43cb5077058a7d1755d90da97b8"
+}
