@@ -1,0 +1,404 @@
+{
+  "date": "2026-10-26",
+  "classification": "progress;whole_goal_incomplete",
+  "original_scope": {
+    "issues_prs": 13,
+    "linear_criteria": 61,
+    "github_extra_checks": 51,
+    "unchanged": true
+  },
+  "owners": [
+    {
+      "linear": "ZEN-107",
+      "pr": 34,
+      "new_cases": 2,
+      "behavior": "ActualSSRprerenderneverreadsprivatebrowsertabrecoverystate"
+    },
+    {
+      "linear": "ZEN-39",
+      "pr": 35,
+      "new_cases": 20,
+      "behavior": "CanonicalscalarplanningcommandsbeforeanyPOST;10actualcomponent/HTTPcasesand10envelopeunits"
+    },
+    {
+      "linear": "ZEN-40",
+      "pr": 36,
+      "new_cases": 8,
+      "behavior": "3actualcomponentmalformedbodyrefusalsand5constraintparserunits"
+    }
+  ],
+  "propagated_original_prs": [
+    34,
+    35,
+    36,
+    37
+  ],
+  "new_cases": 30,
+  "red": {
+    "original_owner_commit": "585e2abe3fcc18cc57a96671493064f94e888d53",
+    "failed": 10,
+    "passed": 10,
+    "assertion": "ActualinvalidtypedoutgoingPOSTwasobservedatcontrolledHTTPboundary",
+    "not_claimed": "No real Base corruption orwrites wereperformed"
+  },
+  "green_original_owner_commit": "64b53cd15c5af4e38db17215d87af428d38a235d",
+  "planning_focused_passed": 80,
+  "chapter_focused_passed": 60,
+  "gates": [
+    {
+      "pr": 34,
+      "source": {
+        "pr": 34,
+        "source_commit": "0e51d798cffea5c0b6f178578ab7d7e765546d59",
+        "frontend_tree": "08d903f5d188733552bd1156df3590d59d3d6e57",
+        "frontend_src_tree": "a8c3c2f2ae8e8897781d1791763e16130c806036",
+        "frontend_tests_tree": "b450736988e85ebf15fe40ec5cac3963c1c90524",
+        "app_tree": "415cb2dd5e79bfa073f85a14239526312fdde38c",
+        "tests_tree": "804af4b74a6fe66b393b2932ccc0aa8d8d6d4f7f",
+        "config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "backend_reused_source": "6611cc276814fb63d24abe20f3f34a18a902d937"
+      },
+      "frontend_passed": 201,
+      "coverage": {
+        "lines": {
+          "total": 684,
+          "covered": 669,
+          "skipped": 0,
+          "pct": 97.8
+        },
+        "statements": {
+          "total": 777,
+          "covered": 746,
+          "skipped": 0,
+          "pct": 96.01
+        },
+        "functions": {
+          "total": 216,
+          "covered": 207,
+          "skipped": 0,
+          "pct": 95.83
+        },
+        "branches": {
+          "total": 841,
+          "covered": 771,
+          "skipped": 0,
+          "pct": 91.67
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "backend_reused_passed": 739,
+      "backend_app_tests_config_exact_reuse": true,
+      "exits": {
+        "coverage": 0,
+        "lint": 0,
+        "types": 0
+      }
+    },
+    {
+      "pr": 35,
+      "source": {
+        "pr": 35,
+        "source_commit": "ba92e679bc60a303ac1106a4ce21edc69cd64e20",
+        "frontend_tree": "e7db7d93140060a01aa22155b2432c86e44cf633",
+        "frontend_src_tree": "a0cd977f49032e8deab18b5ec1ec30758f15c857",
+        "frontend_tests_tree": "6c09763864ee96f61bdd1da1b7f0169a00295ac4",
+        "app_tree": "579faeddca10df5b4f366f671944c5213a3fb7ee",
+        "tests_tree": "283922e1c27c6f77df39041fd1659272a5db084c",
+        "config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "backend_reused_source": "8fb1711e36c805cfca69937dfa8c68c0bb6ae69e"
+      },
+      "frontend_passed": 283,
+      "coverage": {
+        "lines": {
+          "total": 801,
+          "covered": 790,
+          "skipped": 0,
+          "pct": 98.62
+        },
+        "statements": {
+          "total": 926,
+          "covered": 895,
+          "skipped": 0,
+          "pct": 96.65
+        },
+        "functions": {
+          "total": 257,
+          "covered": 250,
+          "skipped": 0,
+          "pct": 97.27
+        },
+        "branches": {
+          "total": 1070,
+          "covered": 1006,
+          "skipped": 0,
+          "pct": 94.01
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "backend_reused_passed": 831,
+      "backend_app_tests_config_exact_reuse": true,
+      "exits": {
+        "coverage": 0,
+        "lint": 0,
+        "types": 0
+      }
+    },
+    {
+      "pr": 36,
+      "source": {
+        "pr": 36,
+        "source_commit": "f607d8e44cc22cf4d7f6667b0aaa1b06d4a69363",
+        "frontend_tree": "3e63a951e06b7ee1cc99605276b638cf391ceafc",
+        "frontend_src_tree": "92824ecbd4d8f097a5b0a0b4a803db86df062c3f",
+        "frontend_tests_tree": "56bb6ed932e7f4f8af0ba463577baca9fb209edf",
+        "app_tree": "5528b330f8d38b71e31c1a224e598da92a470a0b",
+        "tests_tree": "fea3e9b4824f5135406f6629e263fcdf4857ed11",
+        "config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "backend_reused_source": "29a916b027b0d69e25b486e0480051a234dd2d15"
+      },
+      "frontend_passed": 343,
+      "coverage": {
+        "lines": {
+          "total": 891,
+          "covered": 880,
+          "skipped": 0,
+          "pct": 98.76
+        },
+        "statements": {
+          "total": 1041,
+          "covered": 1007,
+          "skipped": 0,
+          "pct": 96.73
+        },
+        "functions": {
+          "total": 288,
+          "covered": 281,
+          "skipped": 0,
+          "pct": 97.56
+        },
+        "branches": {
+          "total": 1231,
+          "covered": 1163,
+          "skipped": 0,
+          "pct": 94.47
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "backend_reused_passed": 949,
+      "backend_app_tests_config_exact_reuse": true,
+      "exits": {
+        "coverage": 0,
+        "lint": 0,
+        "types": 0
+      }
+    },
+    {
+      "pr": 37,
+      "source": {
+        "pr": 37,
+        "source_commit": "f551197fff10740f57ccf11bcd2c279b7bf67d19",
+        "frontend_tree": "69560c18cd24ff2db796c53e51c92e3583385e2c",
+        "frontend_src_tree": "9ae22538925a84260a902f7738d24c339348f232",
+        "frontend_tests_tree": "cbcd8411201ec088ed895207b0115b3710cc00cb",
+        "app_tree": "931d4a65b46ee1a37474e19283c9e9269dd93c81",
+        "tests_tree": "010a6d3fe3a0afe27943c3aef0309d7a241f643d",
+        "config_blob": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "backend_reused_source": "da4efc995c8bb319568497ce96e3fa706a5f208c"
+      },
+      "frontend_passed": 435,
+      "coverage": {
+        "lines": {
+          "total": 1027,
+          "covered": 1027,
+          "skipped": 0,
+          "pct": 100
+        },
+        "statements": {
+          "total": 1218,
+          "covered": 1190,
+          "skipped": 0,
+          "pct": 97.7
+        },
+        "functions": {
+          "total": 341,
+          "covered": 341,
+          "skipped": 0,
+          "pct": 100
+        },
+        "branches": {
+          "total": 1462,
+          "covered": 1413,
+          "skipped": 0,
+          "pct": 96.64
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "backend_reused_passed": 1049,
+      "backend_app_tests_config_exact_reuse": true,
+      "exits": {
+        "coverage": 0,
+        "lint": 0,
+        "types": 0
+      }
+    }
+  ],
+  "implementation": {
+    "production_changed_files": [
+      "frontend/src/components/books/planning-state.ts"
+    ],
+    "ids": "RequireactualstringbeforeAR/SRidentityregex",
+    "action_and_change_scope": "Requireactualstringandallowedvalue",
+    "brief_chapter": "Numericbodyidentitymuststrictlyequalcanonicalnumericpathchapter",
+    "no_normalization": "Invalidbytesretaineduntilhistorycheck;no String/Numbercoercion orcurrentformsubstitution",
+    "preserved": "ExistingBook/range/version/operator/source/feedback/ownership-readandpost-readstoragechecks"
+  },
+  "native": {
+    "space": 4,
+    "page": "p1",
+    "source": "f551197fff10740f57ccf11bcd2c279b7bf67d19",
+    "actual_Next_development_login_session_proxy_and_Chromium": true,
+    "synthetic_local_backend_only": true,
+    "cases": 40,
+    "refusals": 28,
+    "canonical_exact_posts": 12,
+    "opaque_valid_decision_GET_POST_order_verified": true,
+    "viewports": [
+      {
+        "width": 1280,
+        "height": 900
+      },
+      {
+        "width": 390,
+        "height": 844
+      }
+    ],
+    "all_refusals_no_horizontal_overflow": true,
+    "original_bytes_preserved_until_history_check": true,
+    "fresh_context_requests": 0,
+    "cookie_cleanup": {
+      "own_host_baseline": 0,
+      "synthetic_signature_verified": true,
+      "exact_host_name_path_deleted": 1,
+      "own_host_after": 0,
+      "profile_wide_clear": false,
+      "page_blank": true
+    },
+    "runtime_stopped": true,
+    "next_exit": 0,
+    "backend_thread_alive": false,
+    "consumed_product_files_exact": 44,
+    "own35_parser_component_blobs_equal_runtime": true,
+    "no_new_real_Base_model_or_deployment_proof": true
+  },
+  "startup_failure": {
+    "stage": "Beforebrowserorbackendbusinessrequests",
+    "first_next_exit": 1,
+    "first_requests": 0,
+    "backend_closed": true,
+    "cause": "Turbopack refuses node_modules symlink outside archivefilesystemroot",
+    "correction": "Copy same installed dependencies physically inside new immutablearchive;lockfileexact;unchangedcanonicalTurbopack/config/productcode",
+    "first_logs_retained": true,
+    "not_product_RED": true
+  },
+  "backend_terminal": {
+    "statement_line_covered": 4429,
+    "statement_line_total": 4488,
+    "statement_line_pct": 98.69,
+    "branch_covered": 1147,
+    "branch_total": 1208,
+    "branch_pct": 94.95,
+    "raw_function_entered": 424,
+    "raw_function_total": 431,
+    "unentered_protocol_declarations": 7,
+    "existing_exclusions_unchanged": 11,
+    "original_opt_in_integration_deselected_per_branch": 10
+  },
+  "security_review": {
+    "typed_allowlists_and_exact_replay_identity": true,
+    "raw_bytes_not_rebound_or_destroyed": true,
+    "no_production_auth_dependency_or_secret_changes": true,
+    "backend_validation_not_replaced": true,
+    "synthetic_cookie_only_verified_before_scoped_delete": true
+  },
+  "review": {
+    "fresh_linear13_unchanged": true,
+    "fresh_github13_no_new_feedback_unresolved0": true,
+    "postpublish_exact_head_CI_build_and_bodies_pending": true
+  },
+  "skills": {
+    "reused": [
+      "issue-pr-delivery",
+      "tdd-workflow",
+      "security-review",
+      "ego-browser"
+    ],
+    "new_or_updated": false,
+    "assessment": "Existing typed-input,scope,replay andruntime-boundary workflows apply;nonew reusableprocedure beyondtheseexistingrules",
+    "Ego_Lite_update_available": "Current0.5.1.13;userinformed;noupgradeperformed",
+    "Linear_agent_context": "AdvertisedtoolreturnedToolnotfound;freshget_issueandactualcodeused"
+  },
+  "safety": {
+    "model_cap": 4,
+    "model_used": 4,
+    "model_remaining": 0,
+    "additional_authorization_received": false,
+    "expired_model_reservation_not_reset_or_recreated": true,
+    "new_model_requests": 0,
+    "new_real_Base_rows": 0,
+    "new_real_business_writes": 0,
+    "userenv_changed": false,
+    "main_merged": false,
+    "deployed": false,
+    "marked_done": false,
+    "coverage_ignores_thresholds_timeouts_and_prior_assertions_unchanged": true
+  },
+  "limitations": [
+    "WholeprojectapplicableS/L/F/B100notreached",
+    "Original61+51finalindependentrequirementeventauditincomplete",
+    "Realchapter2semantic/Criticandroutinepassstillunverified;noadditionalpaidcallsallowed",
+    "Actualbrowserproofforfrontendreplayuseslocalsyntheticbackend;notnewrealBaseapprovalorpaidgeneration",
+    "Canonicalproductionbuildmustpassataccuratenewpublishedhead;localstartupcorrectiondoesnotproveplatformdeploymentlimits"
+  ],
+  "evidence_sha256": {
+    "novelops-20261026-planning-types-sources.json": "003b783139d25e54ce82b839b9be1b5431f8f100d5523e9c9849391ff6d3e5ac",
+    "novelops-20261026-planning-types-gates.json": "91b524dc99d49f30a457ab143f71bd9451a858136c57682462779cf2cd23b80c",
+    "novelops-20261026-planning-types-linear.json": "5289929c570b03a01072286da4da7e1e644a0850b6a5ebb17e9b62115e114ec5",
+    "novelops-20261026-planning-types-prepush-prepublish.json": "011a6063906fb81d304bf458db4a2a6ebe3ce8a1d566646cf258b4c49d1a9854",
+    "novelops-20261026-planning-types-red.log": "9778b527ee9e8302998302e05c45d70f5312d0fc859e39f8262145e171050b74",
+    "novelops-20261026-planning-types-green.log": "1e0194ff6c5c600aedc31f6a5b861a230ba5962676477fae08f90b3d30b0e6df",
+    "novelops-20261026-chapter-envelope-green.log": "abbd2295e28a99b26c4fbf64e29c2dca36ed203c1d91bd638fb5613652119750",
+    "novelops-20261026-planning-types-native-v2-browser.json": "71238610a912c2d24a1b10ac0014fbec5b3199719591c60decf0307dc9d755d7",
+    "novelops-20261026-planning-types-native-v2-runtime.json": "022d8ff6c9cb262fa795706d20d1335a63409dbf271186e6bf4f86ab9c0d37f7",
+    "novelops-20261026-planning-types-native-v2-cookie-baseline.json": "a45cdb7fa38587afd3e7ba6605deb90b70f043ed32d0bbc2948e3108e80134e4",
+    "novelops-20261026-planning-types-runtime.json": "0d9af63114c2b2f242c26d3f064ac4bace4ef22006662cc06ec8e760e6cfe05c",
+    "novelops-20261026-planning-types-next-dev.log": "d93675ae27a759cc2a78e4bdf46159553b8276908d2d21f64ce662513a6ed022",
+    "novelops-20261026-planning-types-pr34-test-results.json": "3fe147c20f7a3c309518f6fe9fa901809e68a8e2b2c30c9431a31c35da58b5d0",
+    "novelops-20261026-planning-types-pr34-coverage/coverage-summary.json": "fd81fbfb5bc25b935f5e6b4978d03eec28fd1de6df056a7516b8fc19382ca28a",
+    "novelops-20261026-planning-types-pr35-test-results.json": "72d050fa0800eba59fac5c7d624109425becde15f36679b98abec53587a4ba6a",
+    "novelops-20261026-planning-types-pr35-coverage/coverage-summary.json": "54d9d7c2f62a99360b1844f2a899fc01f0ad3b6504047dadb7e3057d43078dae",
+    "novelops-20261026-planning-types-pr36-test-results.json": "1ae270837e9167d653bbffac0670a6a9e3cc8d675da2aad620b37193dabb9264",
+    "novelops-20261026-planning-types-pr36-coverage/coverage-summary.json": "d1c4d6e8ad55c535e74b7ccaea8da8e9a50764e9a9fcc8d29b8d4027d62ee228",
+    "novelops-20261026-planning-types-pr37-test-results.json": "52ebab8bd7c0a44ca0de369bb0d6a69be367608d4e6a360568441348d00a1507",
+    "novelops-20261026-planning-types-pr37-coverage/coverage-summary.json": "9fc2e36867964ed205b04f9e9f7dd25e908d32ad884438ba4b49900577d320ec"
+  }
+}

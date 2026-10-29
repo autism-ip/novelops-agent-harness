@@ -4,7 +4,8 @@ import { api, ApiError } from "@/api/client";
 
 export function errorMessage(error: unknown): string {
   if (error instanceof ApiError) {
-    if (error.status === 401) return "Sign in to view and manage hotspots.";
+    if (error.status === 401) return "Sign in to continue in this workspace.";
+    if (error.status === 0 && error.body === "Request cancelled") return "Request cancelled. Refresh to retry.";
     if (error.status === 0)
       return "Request timed out. Retry the same request to check its outcome.";
     if (
@@ -26,6 +27,7 @@ export function useResource<T>(
   revision: number,
   pollMs = 0,
   onData?: (data: T) => boolean,
+  timeoutMs = 10_000,
 ) {
   const key = `${path}:${revision}`;
   const [result, setResult] = useState<{
@@ -36,28 +38,37 @@ export function useResource<T>(
   useEffect(() => {
     if (!path) return;
     let live = true;
+    let failures = 0;
+    const controller = new AbortController();
     let timer: ReturnType<typeof setTimeout>;
     async function load() {
       let repeat = true;
       try {
-        const data = await api.get<T>(path!);
+        const data = await api.get<T>(path!, timeoutMs, controller.signal);
+        failures = 0;
         if (live) {
           setResult({ key, data });
           repeat = onData?.(data) ?? true;
         }
       } catch (error) {
         if (live) setResult({ key, error });
-        if (error instanceof ApiError && error.status === 401) repeat = false;
+        failures += 1;
+        const transient = !(error instanceof ApiError) || error.status === 0 || error.status === 429 || error.status >= 500;
+        repeat = failures < 3 && transient;
       } finally {
-        if (live && pollMs && repeat) timer = setTimeout(load, pollMs);
+        if (live && pollMs && repeat) {
+          const delay = failures ? Math.max(pollMs, Math.min(pollMs * 2 ** (failures - 1), 60_000)) : pollMs;
+          timer = setTimeout(load, delay);
+        }
       }
     }
     void load();
     return () => {
       live = false;
+      controller.abort();
       clearTimeout(timer);
     };
-  }, [path, key, pollMs, onData]);
+  }, [path, key, pollMs, onData, timeoutMs]);
   return {
     data: result?.key === key ? result.data : undefined,
     error: result?.key === key ? result.error : undefined,

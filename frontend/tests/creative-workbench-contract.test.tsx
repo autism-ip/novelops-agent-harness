@@ -71,11 +71,13 @@ function fixture(options: { titleSelected?: boolean; historical?: boolean; holdH
     discardSource: () => { available = false; }, rejectWrite: (status: number) => { writeStatus = status; }, rejectContext: (status: number) => { contextStatus = status; }, interruptWrite: () => { interrupt = true; } };
 }
 beforeEach(() => {
+  vi.stubGlobal("matchMedia", () => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() }));
+  Object.defineProperty(HTMLDialogElement.prototype, "show", { configurable: true, value: function () { this.setAttribute("open", ""); } });
   Object.defineProperty(HTMLDialogElement.prototype, "showModal", { configurable: true, value: function () { this.setAttribute("open", ""); } });
   Object.defineProperty(HTMLDialogElement.prototype, "close", { configurable: true, value: function () { this.removeAttribute("open"); this.dispatchEvent(new Event("close")); } });
 });
 afterEach(() => { cleanup(); sessionStorage.clear(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
-async function open() { fireEvent.click(await screen.findByRole("button", { name: row.title })); const dialog = await screen.findByRole("dialog", { name: "Hotspot details" }); await act(async () => {}); return dialog; }
+async function open() { const table = await screen.findByRole("table"); fireEvent.click(await within(table).findByRole("button", { name: row.title })); const dialog = await screen.findByRole("dialog", { name: "Hotspot details" }); await act(async () => {}); return dialog; }
 for (const kind of ["titles", "covers"] as const) {
   test(`${kind}: one command owns context preparation, persistence and POST`, async () => {
     const store = fixture(); store.holdContexts(); render(<HotspotsWorkbench />); const dialog = await open();
@@ -93,7 +95,7 @@ for (const kind of ["titles", "covers"] as const) {
 for (const status of [401, 409, 503]) {
   test(`context ${status} never persists or submits and allows a fresh retry`, async () => {
     const store = fixture(); store.rejectContext(status); render(<HotspotsWorkbench />); const dialog = await open(); const button = await within(dialog).findByRole("button", { name: "Generate next title version" });
-    fireEvent.click(button); await screen.findAllByText(status === 401 ? "Sign in to view and manage hotspots." : "Source context unavailable");
+    fireEvent.click(button); await screen.findAllByText(status === 401 ? "Sign in to continue in this workspace." : "Source context unavailable");
     expect(store.commands).toHaveLength(0); expect(sessionStorage.getItem(storageKey)).toBeNull(); expect((button as HTMLButtonElement).disabled).toBe(false);
     store.rejectContext(200); fireEvent.click(button); await waitFor(() => expect(store.commands).toHaveLength(1)); expect(store.contexts).toHaveLength(2);
   });

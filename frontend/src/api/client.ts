@@ -1,6 +1,6 @@
 /**
  * [INPUT]: 依赖 app/api/[...path]/route.ts 的服务端代理（注入 x-api-key）
- * [OUTPUT]: 对外提供 ApiError、涵盖响应正文的默认十秒请求及可指定限时的 GET/POST
+ * [OUTPUT]: 对外提供 ApiError、涵盖响应正文的默认十秒请求、可取消的 GET 及精确 POST
  * [POS]: api 模块的 HTTP 通信层，被所有业务 hook 消费；浏览器端走服务端代理，不携带 API key
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
@@ -41,6 +41,10 @@ export function createApiClient({ baseUrl, apiKey }: ApiClientOptions) {
     }
 
     const controller = new AbortController()
+    const callerSignal = options?.signal
+    const cancel = () => controller.abort()
+    if (callerSignal?.aborted) cancel()
+    else callerSignal?.addEventListener("abort", cancel, { once: true })
     const timeout = setTimeout(() => controller.abort(), timeoutMs)
 
     try {
@@ -63,16 +67,17 @@ export function createApiClient({ baseUrl, apiKey }: ApiClientOptions) {
       return await res.json() as T
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") {
-        throw new ApiError(0, "Request timeout")
+        throw new ApiError(0, callerSignal?.aborted ? "Request cancelled" : "Request timeout")
       }
       throw error
     } finally {
       clearTimeout(timeout)
+      callerSignal?.removeEventListener("abort", cancel)
     }
   }
 
   return {
-    get: <T>(path: string, timeoutMs?: number) => request<T>(path, undefined, timeoutMs),
+    get: <T>(path: string, timeoutMs?: number, signal?: AbortSignal) => request<T>(path, { signal }, timeoutMs),
     post: <T>(path: string, body: unknown, timeoutMs?: number) =>
       request<T>(path, { method: "POST", body: JSON.stringify(body) }, timeoutMs),
   }

@@ -52,17 +52,17 @@ export function CreativeResults({ kind, sourceRunId, revision, submit, disabled,
     {error && <p role="alert">{error}</p>}
     {result.error != null && <p role="alert">{errorMessage(result.error)}</p>}
     {result.loading && <p role="status">Loading {kind}…</p>}
-    {result.data?.map(state => <div key={state.run.pipeline_run_id} className="space-y-3 rounded border p-3">
+    {result.data?.map(state => <div key={state.run.pipeline_run_id} className="surface-soft space-y-3 p-4">
       <h5 className="font-medium">Version {state.request.version} · {state.run.status}</h5>
       {!state.current && <p className="text-amber-700">Historical version: selection is disabled.</p>}
       {state.decision?.action === "revise" && <p>Revision requested: {state.decision.reason}</p>}
       {state.decision?.action === "reject" && <p>Rejected{state.decision.reason ? `: ${state.decision.reason}` : "."}</p>}
       {state.current && state.run.status === "awaiting_approval" && <div className="space-y-2">
         <label className="block text-sm">Editor name
-          <input className="mt-1 block w-full rounded border p-2" value={operator} onChange={event => setOperator(event.target.value)} maxLength={100} required />
+          <input className="mt-1.5 block w-full px-3 py-2" value={operator} onChange={event => setOperator(event.target.value)} maxLength={100} required />
         </label>
         <label className="block text-sm">Decision note or revision request
-          <textarea className="mt-1 block w-full rounded border p-2" value={reason} onChange={event => setReason(event.target.value)} maxLength={4000} rows={2} />
+          <textarea className="mt-1.5 block w-full px-3 py-2" value={reason} onChange={event => setReason(event.target.value)} maxLength={4000} rows={2} />
         </label>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" disabled={disabled || !operator.trim()} onClick={() => void decide(state, "revise")}>Request revision</Button>
