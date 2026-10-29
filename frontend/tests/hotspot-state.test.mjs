@@ -47,6 +47,24 @@ test("creative generation and exact candidate choice survive uncertain responses
   assert.equal(parsePending(JSON.stringify({ ...decision, body: { ...decision.body, expected_version: "1" } })), null);
 });
 
+test("human decisions retain exact gates, versions and revision feedback", () => {
+  for (const path of ["/api/analyses/PR-source/decision", "/api/creative/runs/PR-titles/decision"]) {
+    const body = { request_key: "fixed", step_id: "SR-gate", artifact_id: "AR-choice",
+      expected_version: 2, action: "approve", operator: "editor", reason: "" };
+    assert.deepEqual(parsePending(JSON.stringify({ path, body })), { path, body });
+    const research = path.startsWith("/api/analyses/");
+    const revised = { ...body, action: "revise", artifact_id: research ? body.artifact_id : "", reason: "Improve the hook" };
+    const rejected = { ...body, action: "reject", artifact_id: research ? body.artifact_id : "" };
+    assert.deepEqual(parsePending(JSON.stringify({ path, body: revised })), { path, body: revised });
+    assert.deepEqual(parsePending(JSON.stringify({ path, body: rejected })), { path, body: rejected });
+    for (const invalid of [{ ...body, expected_version: 0 }, { ...body, artifact_id: "" },
+      { ...body, operator: " " }, { ...revised, artifact_id: research ? "" : "AR-stale" },
+      { ...revised, reason: " " }, { ...body, action: "override" }]) {
+      assert.equal(parsePending(JSON.stringify({ path, body: invalid })), null);
+    }
+  }
+});
+
 test("an authentication rejection after an uncertain submission never drops its key", () => {
   for (const status of [401, 404, 409, 422]) {
     assert.equal(canClearRejected(status, false), true);
