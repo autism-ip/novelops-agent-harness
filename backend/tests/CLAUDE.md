@@ -37,17 +37,25 @@ test_research_kernel_contract.py: 动态审批、退修理由、永久失败与�
 test_creative_workflow.py: ZEN-36 十至二十标题/三至五封面、模型输出验证、精确选择、版本及失败契约；批量只读查询、候选顺序、跨请求篡改/缺失拒绝契约；部分投影失败后同一选择重放补齐且不重复审批事件或模型调用；完整已选视图仍拒绝未选、错误种类和丢弃来源。
 test_book_bootstrap.py: ZEN-38 单书/状态幂等和初始化恢复；上下文读取预算、精确来源、远程丢弃后拒绝和纯读取零生成。
 ui_fixture_app.py: 仅本机浏览器验收服务；复用真实 API/Harness 与合成 HTTP 存储，提供受鉴权保护的响应丢失/上游失败注入；不进入生产包。
+test_story_history_contract.py: ZEN-39 产品历史 API 的鉴权空历史零生成，以及故事升级后新旧 Bible/Brief 来源、顺序、资格和不可变快照的 HTTP 验收。
+test_story_planning.py: ZEN-39 API 与 Harness 门禁，覆盖人工审批、状态版本、不可变快照、brief 资格、历史读取数量上限、禁止回退旧提纲和中断恢复。
 
 架构决策
 测试以 BDD 验收行为为中心：状态值必须精确、密钥不得回显、鉴权必须先于路由缺失返回。门禁允许当前实现缺失时失败；它的职责是定义合格线，而不是替实现兜底。CI 显式排除 integration，保留全部离线断言，要求 app 语句覆盖率至少当前基线 87.82%，上传 coverage XML 与 JUnit 报告；Ruff 同时检查测试代码。不得为过门禁降低覆盖率下限、删除或弱化断言、增加应用代码排除项。
 
 [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
 
+规划编辑指令 HTTP 回归：初始Bible、重大变更、Brief均覆盖未鉴权401、伪造内部字段422且零run/调用、原样feedback映射、不可变来源及人工设定门；模型语义服从另由真实验收核实。
+
 test_eval_cli_contract.py: 实际 CLI/router/provider 的 16 项行为用例；仅控制出站 HTTP，验证参数、fixture 边界、失败分类、约束检测、资源关闭、用量隔离与报告不泄露凭据/正文。
+
+规划合同冻结回归覆盖 Bible/Brief：排队后提示词版本变化须 blocked，零模型调用、冻结定义不变、无新增生成产物与规范变更，精确请求重放不创建新任务。
 
 test_model_instructions.py: 两家 provider 的显式用户指令、空指令、来源不变、请求/输入哈希、渲染选择器重放冲突及非法字段零调用的8项边界门禁。
 
 test_consumption_api.py: 机会 approved 与标题/封面 selected 的 HTTP 消费边界；鉴权、缺失/未选拒绝、精确产物、跨请求丢弃/篡改拒绝，重复只读不调用模型。5项用例使用实际API/kernel/存储适配器及受控HTTP，不包含服务lifespan或真实模型质量。
+
+三种鉴权编辑输入HTTP用例同时核验最后user消息逐字等于原始反馈；来源中的同名文本仍仅在完整来源JSON内。
 
 test_runtime_dotenv_tables.py: 五项启动配置行为门禁；文件/进程优先级、完整表注册、配置实例隔离、显式空配置不回退环境和旧接口兼容；合成凭据、无远程API调用。
 
