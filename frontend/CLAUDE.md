@@ -13,6 +13,7 @@ Node 24（`.nvmrc`）。`npm ci` 安装锁定依赖；`npm run check` 依次执�
 
 `src/components/hotspots/editor-identity.ts` 在会话内保存编辑者署名；研究、标题和封面决策共用它。`docs/approval-ui.md` 记录审批版本、退修和冲突行为。
 `src/components/books/story-planning.tsx` 提供 StoryBible 审批与版本化章节 brief 工作台；从读取上下文起锁定操作并显示准备进度，防止重复生成；检查历史后的清除失败保留精确请求并显示存储恢复指引；`planning-state.ts` 校验待重放的精确命令。视觉规范以仓库根目录 `DESIGN.md` 为准，包含响应式圆角卡片与短时动效。
+`src/components/books/chapter-generation.tsx` 提供 ZEN-40 章节生成、Critic 摘要、全版本历史与来源/模型细节；读取上下文起锁定操作并显示准备进度；检查历史后的本地清除失败保留精确命令和存储恢复指引；`chapter-state.ts` 校验待重放章节命令的 Book/章节/源版本身份。
 
 `src/components/books/book-bootstrap.tsx` 从批准来源创建书籍；检查 Books 后的本地清除失败显示原因和恢复指引，并保留原请求，恢复存储后可再次清除。
 
@@ -21,6 +22,8 @@ Node 24（`.nvmrc`）。`npm ci` 安装锁定依赖；`npm run check` 依次执�
 `useResource` 每次路径/刷新周期最多连续失败3次，按原间隔与退避间隔重读，成功重置计数；失败预算耗尽后由现有刷新入口恢复。离开页面/改变路径取消旧GET，ApiClient区分取消和超时，POST未知结果仍保存同一请求。代理不重试上游：读取传输故障503并指引恢复服务，写入/响应正文中断502明确表示结果未知，不误报已失败或已成功；转发传入请求取消信号，不能保证远端工作线程因此停止。
 
 规划面板仅将后端明确的 `Story planning is not configured` 503 合同识别为未配置；其他503显示原始恢复信息。独立“Refresh planning”不生成内容，可恢复配置变更和暂时故障；历史读取中/失败时禁止新付费生成，不显示假空历史，既有待重放命令保留。
+
+章节生成仅把明确 `Chapter loop is not configured` 503 识别为未配置；Brief读取错误显示原恢复信息，不误称缺少批准Bible。只有明确 `No current policy-eligible ChapterBrief` 409 显示补齐提纲指引；运行历史或Brief读取中/失败时禁止新生成，刷新不触发付费流程。
 
 ## 目录结构
 ```
@@ -73,14 +76,21 @@ ZEN-37 的研究退修和标题/封面反馈再生成均通过工作台异步请
 书籍创建的存储读取失败使用独立不可用状态，禁止写入；公开重查后恢复。读取上下文前后及 POST 完成后校验保存字节仍属于当前请求，避免覆盖或清除另一请求。有效未确认请求也可在检查 Books 后释放；操作中禁用清理，原生清理失败显示实际原因并保留字节。回归见 `tests/book-bootstrap-contract.test.tsx`。
 
 planning 请求读存储失败时使用独立不可用状态与公开重查。提交前、异步上下文后、POST 完成后检查保存字节的所有权；变化或不可读时保留原数据并提示，检查历史后的清理也使用相同校验。原生 DOMException 清理原因可见，操作中禁用清理。回归见 `tests/story-planning-contract.test.tsx`。
+
+chapter 请求读存储失败时使用独立不可用状态与公开重查。提交前、异步上下文后、POST 完成后检查保存字节的所有权；变化或不可读时保留原数据并提示，检查历史后的清理也使用相同校验。原生 DOMException 清理原因可见，操作中禁用清理。回归见 `tests/chapter-generation-contract.test.tsx`。
 建书来源核验与幂等 POST 使用各自 120 秒客户端预算，与代理 maxDuration 对齐；超过预算仍保留原请求字节，必须由用户显式重试，不自动重发。测试覆盖实测量级的 23 秒读取、119 秒写入与有界超时恢复。该预算不是部署平台支持或可接受生产延迟的证明。
 
 故事规划历史、上下文与写入采用各自120秒有界预算；轮询仍在上一请求结算后等待5秒，不按墙钟叠加。慢读取不提前中止并排队，提交仍保存同一来源与版本，超时不自动重新生成。
 
+章节生成的上下文、精确触发、最新状态与 eligible brief 采用各自120秒有界请求；真实上下文曾耗时56.41秒。轮询等上一读取结算再等待5秒，终态停止规则不变。慢请求不重建命令或自动付费重试。
 真实手机验收发现慢规划读取与5秒书籍轮询竞争。书籍详情改为读取结算后60秒再轮询，单次120秒有界，并提供原生 Refresh book；稳定或等待人工决策的规划历史停止空闲轮询，只有 creating/pending/running 保持5秒更新。新增 `book-read-budget.test.tsx` 和历史状态回归，慢运行测试继续严格验证不重叠及按时恢复轮询。
+
+eligible brief 是只读来源，在空闲状态改为上一请求结算后60秒读取一次；Refresh chapter 仍立即刷新来源，不会自动生成或提交付费命令。运行中的 generation 状态保持5秒结算后更新，终态/人工门停止规则保留。
 工作流观察页：`workflow-monitor.tsx` 让 `/pipelines` 与 `/agents` 通过受保护GET读取真实WorkflowRun及选中步骤，20条本地分页，未知/失败不显示假空；Agents仅展示所选流程的agent步骤，不新建独立AgentState。选中后焦点进入详情；异步内容到达后只在超出可见范围时定位一次，返回列表或轮询/刷新不会反复滚动。窄屏可直接阅读并返回流程列表。`health-indicator.tsx` 复用有界读取，分开显示HTTP与调度器状态/最后tick；`workflow-status-pages.test.tsx` 覆盖正常、失败恢复、401、缺步骤/分类和分页。所有操作只读。
 
 工作流滚动测试在正文进入DOM后继续等待实际React effect完成；正向仍要求指定参数恰好一次，刷新/桌面/返回列表的零额外滚动断言在act清空待执行效果后核验。不得用“正文已出现”推断异步滚动效果已执行，不替换生产effect或增加测试重试掩盖竞态。
+
+章节生成待重放意图必须属于当前Book，路径和正文的章节须匹配且在1–10000范围；整本书工作台仍可重放本书其他章节的原命令，不随当前输入框重建目标。跨书或越界意图保留原字节，检查历史后才清理；真实组件/Storage/ApiClient合同见`tests/chapter-generation-scope.test.tsx`。
 
 规划待重放意图须属于当前Book，Brief章节保持1–10000范围，并保留本书其他章节的原请求。不含Book路径的StoryBible决策若不在本书已读历史中，显式重试先用原run只读接口核对Book/run身份，再提交原命令；读取失败或身份不符均保留字节且不POST。异步读取后仍重新校验本地存储所有权。合同见`tests/story-planning-scope.test.tsx`。
 

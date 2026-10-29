@@ -39,6 +39,10 @@ test_book_bootstrap.py: ZEN-38 单书/状态幂等和初始化恢复；上下文
 ui_fixture_app.py: 仅本机浏览器验收服务；复用真实 API/Harness 与合成 HTTP 存储，提供受鉴权保护的响应丢失/上游失败注入；不进入生产包。
 test_story_history_contract.py: ZEN-39 产品历史 API 的鉴权空历史零生成，以及故事升级后新旧 Bible/Brief 来源、顺序、资格和不可变快照的 HTTP 验收。
 test_story_planning.py: ZEN-39 API 与 Harness 门禁，覆盖人工审批、状态版本、不可变快照、brief 资格、历史读取数量上限、禁止回退旧提纲和中断恢复。
+test_chapter_loop.py: ZEN-40 章节生成、结构化 Critic、条件改写、硬规则/成本门禁、重试与最终锁定验收；人工约束在Critic和自动Rewrite中的完整性（每类1项/20项）、旧版本不可变与调用次数验收。
+test_chapter_projection_boundaries.py: 章节投影歧义的HTTP拒绝与恢复合同；外部重复版本不得绕过定稿完整性检查，保留旧版本和模型调用次数，不作为真实模型语义验收。
+test_final_proof_consumption.py: 定稿必须消费选定正文的当前Critic与确定性验证证据；外部缺失、引用/哈希变更或验证后正文改变时拒绝写入，恢复后同命令定稿并精确只读重放。
+test_chapter_command_boundaries.py: 初始/退修命令、占用版本精确重放、运行中重复触发和不可执行Critic退修的行为合同；构造配置失败单独标注，均不替代真实模型语义验收。
 
 架构决策
 测试以 BDD 验收行为为中心：状态值必须精确、密钥不得回显、鉴权必须先于路由缺失返回。门禁允许当前实现缺失时失败；它的职责是定义合格线，而不是替实现兜底。CI 显式排除 integration，保留全部离线断言，要求 app 语句覆盖率至少当前基线 87.82%，上传 coverage XML 与 JUnit 报告；Ruff 同时检查测试代码。不得为过门禁降低覆盖率下限、删除或弱化断言、增加应用代码排除项。
@@ -59,6 +63,9 @@ test_consumption_api.py: 机会 approved 与标题/封面 selected 的 HTTP 消�
 
 test_runtime_dotenv_tables.py: 五项启动配置行为门禁；文件/进程优先级、完整表注册、配置实例隔离、显式空配置不回退环境和旧接口兼容；合成凭据、无远程API调用。
 
+章节输入回归新增三种初始角色场景，保留1/20项编辑约束回归；核验最后消息、完整五字段提纲、原始编辑约束和模型建议的不同权限，叙事引用不提升为指令。
+
+章节度量回归验证初始 Critic、自动 Rewrite 及人工退修三阶段实际 HTTP 消息：混合汉字/标点/emoji 的准确范围计数、原稿/当前稿绑定、来源伪造计数不提升、初始 Writer 无虚构计数、Critic/Rewrite 合同升级不静默执行旧排队任务。
 test_harness_kernel.py: 慢外部handler执行期间列表/详情仍可读取真实running状态；并发新命令仍等待单一writer，保留既有重启、版本审批和模糊写入行为门禁。
 
 test_harness_boundaries.py: 审批身份、严格版本、重复操作者与外部审批证据损坏的行为门禁；真实API/Kernel/存储映射，验证拒绝后无写入、恢复原证据和精确重放。
