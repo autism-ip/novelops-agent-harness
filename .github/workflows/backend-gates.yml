@@ -157,9 +157,28 @@ jobs:
       - name: Production build
         run: npm run build
 
+  opencli-adapter:
+    name: Public OpenCLI adapter contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: tools/opencli
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: tools/opencli/package-lock.json
+      - run: npm ci --ignore-scripts
+      - run: npm test
+
   quality-gate:
     name: CI quality gate
-    needs: [workflow-lint, backend-lint, backend-behavior, frontend]
+    needs: [workflow-lint, backend-lint, backend-behavior, frontend, opencli-adapter]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 2
@@ -170,6 +189,7 @@ jobs:
           LINT_RESULT: ${{ needs.backend-lint.result }}
           BACKEND_RESULT: ${{ needs.backend-behavior.result }}
           FRONTEND_RESULT: ${{ needs.frontend.result }}
+          ADAPTER_RESULT: ${{ needs.opencli-adapter.result }}
         run: |
           {
             echo "## CI quality gate"
@@ -177,8 +197,10 @@ jobs:
             echo "- Backend lint: $LINT_RESULT"
             echo "- Backend tests/package: $BACKEND_RESULT"
             echo "- Frontend lint/types/build: $FRONTEND_RESULT"
+            echo "- Public OpenCLI adapter: $ADAPTER_RESULT"
           } >> "$GITHUB_STEP_SUMMARY"
           test "$WORKFLOW_RESULT" = success
           test "$LINT_RESULT" = success
           test "$BACKEND_RESULT" = success
           test "$FRONTEND_RESULT" = success
+          test "$ADAPTER_RESULT" = success

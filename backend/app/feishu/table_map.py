@@ -112,6 +112,7 @@ FIELD_MAPS: dict[str, dict[str, str]] = {
     },
     "hotspots": {
         "hotspot_id":  "hotspot_id",
+        "last_ingestion_run_id": "last_ingestion_run_id",
         "source":      "source",
         "rank":        "rank",
         "title":       "title",
