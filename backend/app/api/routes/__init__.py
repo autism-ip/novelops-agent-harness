@@ -9,6 +9,7 @@ from app.api.routes.observability import router as observability_router
 from app.api.routes.hotspots import router as hotspots_router
 from app.api.routes.research import router as research_router
 from app.api.routes.creative import router as creative_router
+from app.api.routes.books import router as books_router
 
 api_router = APIRouter()
 api_router.include_router(system_router, prefix="/system", tags=["system"])
@@ -18,3 +19,4 @@ api_router.include_router(observability_router, tags=["observability"])
 api_router.include_router(hotspots_router, prefix="/hotspots", tags=["hotspots"])
 api_router.include_router(research_router, tags=["research"])
 api_router.include_router(creative_router, tags=["creative"])
+api_router.include_router(books_router, prefix="/books", tags=["books"])

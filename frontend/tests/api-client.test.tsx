@@ -44,3 +44,62 @@ test("network failures preserve their cause and release the timeout", async () =
   expect(vi.getTimerCount()).toBe(0);
   expect(new ApiError(401, {}).message).toBe("API error 401");
 });
+
+
+test("a stalled success body remains inside the request deadline", async () => {
+  vi.useFakeTimers();
+  const transport = vi.fn((_input: unknown, init: RequestInit) => Promise.resolve(new Response(
+    new ReadableStream({ start(controller) {
+      controller.enqueue(new TextEncoder().encode('{"title":'));
+      init.signal?.addEventListener("abort", () => controller.error(new DOMException("Aborted", "AbortError")));
+    } }), { headers: { "Content-Type": "application/json" } }
+  )));
+  vi.stubGlobal("fetch", transport);
+  const pending = createApiClient({ baseUrl: "" }).get("/api/chapter");
+  const assertion = expect(pending).rejects.toMatchObject({ status: 0, body: "Request timeout" });
+  await vi.advanceTimersByTimeAsync(9_999);
+  expect(transport.mock.calls[0][1].signal?.aborted).toBe(false);
+  await vi.advanceTimersByTimeAsync(1);
+  expect(transport.mock.calls[0][1].signal?.aborted).toBe(true);
+  await assertion;
+  expect(vi.getTimerCount()).toBe(0);
+});
+
+test("a fully received malformed success body preserves its parsing error and clears its timer", async () => {
+  vi.useFakeTimers();
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("invalid json")));
+  await expect(createApiClient({ baseUrl: "" }).get("/api/chapter")).rejects.toBeInstanceOf(SyntaxError);
+  expect(vi.getTimerCount()).toBe(0);
+});
+
+
+test("a slow complete JSON body uses the configured read deadline and returns exact data", async () => {
+  vi.useFakeTimers();
+  vi.stubGlobal("fetch", vi.fn((_input: unknown, init: RequestInit) => Promise.resolve(new Response(
+    new ReadableStream({ start(controller) {
+      controller.enqueue(new TextEncoder().encode('{"title":'));
+      const timer = setTimeout(() => { controller.enqueue(new TextEncoder().encode('"Garden at dawn"}')); controller.close(); }, 26_703);
+      init.signal?.addEventListener("abort", () => { clearTimeout(timer); controller.error(new DOMException("Aborted", "AbortError")); });
+    } })
+  ))));
+  const pending = createApiClient({ baseUrl: "" }).get("/api/chapter", 120_000);
+  await vi.advanceTimersByTimeAsync(26_703);
+  expect(await pending).toEqual({ title: "Garden at dawn" });
+  expect(vi.getTimerCount()).toBe(0);
+});
+
+
+test("a stalled HTTP error body reports timeout rather than a fabricated server error", async () => {
+  vi.useFakeTimers();
+  vi.stubGlobal("fetch", vi.fn((_input: unknown, init: RequestInit) => Promise.resolve(new Response(
+    new ReadableStream({ start(controller) {
+      controller.enqueue(new TextEncoder().encode('{"detail":'));
+      init.signal?.addEventListener("abort", () => controller.error(new DOMException("Aborted", "AbortError")));
+    } }), { status: 502, statusText: "Bad Gateway" }
+  ))));
+  const pending = createApiClient({ baseUrl: "" }).post("/api/chapter", { action: "approve" });
+  const assertion = expect(pending).rejects.toMatchObject({ status: 0, body: "Request timeout" });
+  await vi.advanceTimersByTimeAsync(10_000);
+  await assertion;
+  expect(vi.getTimerCount()).toBe(0);
+});

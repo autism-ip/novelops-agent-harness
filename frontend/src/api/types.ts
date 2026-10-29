@@ -83,6 +83,7 @@ export type HotspotCapabilities = {
   discard: boolean;
   analyze: boolean;
   creative: boolean;
+  books: boolean;
 };
 export type WorkflowRun = {
   pipeline_run_id: string;

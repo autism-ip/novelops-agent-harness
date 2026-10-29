@@ -8,6 +8,7 @@ test_harness_projection.py: 投影读取契约；无投影器不加载未使用�
 test_legacy_pipeline_resources.py: 32项兼容管线API真实路由/映射/引擎门禁；dotenv、显式配置与进程配置隔离，请求客户端成功/失败均关闭，鉴权与v0.2创建禁用先于出站IO，部分创建回滚使用实际record_id且清理失败不假报成功；只控制外部HTTP。
 test_legacy_worker_transport.py: 20项实际旧Worker/Engine/映射仓库HTTP合同；租约、依赖、重试耗尽、失败零写入和ID隔离，明确不代表v0.2调度或分布式安全。
 test_application_boundary_contracts.py: 15项应用配置/鉴权隔离、启动缺表关闭、公开状态故障恢复和独立旧health消费合同；不将未挂载router当作生产探活。
+test_story_states_query_contract.py: 3项StoryStatesRepo实际book_id投影查询合同；不同书籍及字面恶意ID只返回精确记录，表隔离/无写入；不代表canonical状态生成或真实Base验收。
 __init__.py: pytest 包标记。
 conftest.py: 测试环境与 AsyncClient 夹具（pytest_asyncio.fixture），隔离环境变量，TYPE_CHECKING 导入 Settings。
 test_system_endpoints.py: 系统端点行为门禁，验证响应形状、占位状态与不泄密。
@@ -34,6 +35,7 @@ test_hotspot_controls.py: ZEN-34 人工添加/丢弃鉴权、幂等与冲突、�
 test_research_workflow.py: ZEN-35 schema/风险分流、模型失败、版本审批、投影恢复、批次重放及 API 验收；四阶段批量读取预算、部分产物和跨请求丢弃新鲜性。
 test_research_kernel_contract.py: 动态审批、退修理由、永久失败与终态投影恢复契约。
 test_creative_workflow.py: ZEN-36 十至二十标题/三至五封面、模型输出验证、精确选择、版本及失败契约；批量只读查询、候选顺序、跨请求篡改/缺失拒绝契约；部分投影失败后同一选择重放补齐且不重复审批事件或模型调用；完整已选视图仍拒绝未选、错误种类和丢弃来源。
+test_book_bootstrap.py: ZEN-38 单书/状态幂等和初始化恢复；上下文读取预算、精确来源、远程丢弃后拒绝和纯读取零生成。
 ui_fixture_app.py: 仅本机浏览器验收服务；复用真实 API/Harness 与合成 HTTP 存储，提供受鉴权保护的响应丢失/上游失败注入；不进入生产包。
 
 架构决策
