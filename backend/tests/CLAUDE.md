@@ -10,6 +10,7 @@ test_legacy_worker_transport.py: 20项实际旧Worker/Engine/映射仓库HTTP合
 test_application_boundary_contracts.py: 15项应用配置/鉴权隔离、启动缺表关闭、公开状态故障恢复和独立旧health消费合同；不将未挂载router当作生产探活。
 test_story_states_query_contract.py: 3项StoryStatesRepo实际book_id投影查询合同；不同书籍及字面恶意ID只返回精确记录，表隔离/无写入；不代表canonical状态生成或真实Base验收。
 __init__.py: pytest 包标记。
+function_entry_coverage.py: 可显式加载的全 app 函数入口报告插件；含未导入模块、嵌套函数、lambda 和 Protocol 声明，不替代语句/分支覆盖率；输出 coverage-functions.json。
 conftest.py: 测试环境与 AsyncClient 夹具（pytest_asyncio.fixture），隔离环境变量，TYPE_CHECKING 导入 Settings。
 test_system_endpoints.py: 系统端点行为门禁，验证响应形状、占位状态与不泄密。
 test_api_key_guard.py: API key 中间件行为门禁，验证公开端点豁免与私有 API 拦截。
@@ -40,6 +41,11 @@ ui_fixture_app.py: 仅本机浏览器验收服务；复用真实 API/Harness 与
 test_story_history_contract.py: ZEN-39 产品历史 API 的鉴权空历史零生成，以及故事升级后新旧 Bible/Brief 来源、顺序、资格和不可变快照的 HTTP 验收。
 test_story_planning.py: ZEN-39 API 与 Harness 门禁，覆盖人工审批、状态版本、不可变快照、brief 资格、历史读取数量上限、禁止回退旧提纲和中断恢复。
 test_chapter_loop.py: ZEN-40 章节生成、结构化 Critic、条件改写、硬规则/成本门禁、重试与最终锁定验收；人工约束在Critic和自动Rewrite中的完整性（每类1项/20项）、旧版本不可变与调用次数验收。
+test_review_prerequisites.py: 审稿台前置能力缺失时先鉴权、明确503且零外部读取/写入；Bible、Brief及正文生成请求与URL目标不一致时422且零模型调用。
+test_chapter_review_integrity.py: ZEN-41 审稿失败关闭契约；空白操作者、远程版本来源损坏、不可重放修订意图和精确终锁重放，经真实 API/仓储验证安全错误、零写入、零新增模型调用及恢复后原产物一致。
+test_editorial_projection_commands.py: 44项审稿命令与退修恢复合同；整章投影歧义、跨书业务ID碰撞、恢复后的精确重放、退修身份篡改与真实HTTP远端已提交/读回不可用恢复；另3项构造配置明确不作为完整启动验收，均保持原模型预算；首次列表暂旧时仍须后续新鲜检查，拒绝旧版本且零写入。
+test_chapter_review.py: ZEN-41 选择性关卡、精确 HTTP 审阅/退修、RevisionTask 恢复、历史与终锁、响应读取数量和跨刷新完整性门禁；包含空备注被远程省略后的批准/拒绝零写入重放及冲突保护，以及生产装配缺少 RevisionTasks 表配置时启动失败、已配置时按实际表 ID 查询的回归。
+
 test_chapter_projection_boundaries.py: 章节投影歧义的HTTP拒绝与恢复合同；外部重复版本不得绕过定稿完整性检查，保留旧版本和模型调用次数，不作为真实模型语义验收。
 test_final_proof_consumption.py: 定稿必须消费选定正文的当前Critic与确定性验证证据；外部缺失、引用/哈希变更或验证后正文改变时拒绝写入，恢复后同命令定稿并精确只读重放。
 test_chapter_command_boundaries.py: 初始/退修命令、占用版本精确重放、运行中重复触发和不可执行Critic退修的行为合同；构造配置失败单独标注，均不替代真实模型语义验收。

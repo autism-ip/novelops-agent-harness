@@ -1,0 +1,3256 @@
+{
+  "date": "2026-10-19 Asia/Shanghai",
+  "goal_complete": false,
+  "scope": "All 13 original issues and original PRs; preserve every original acceptance criterion",
+  "linear_verified": {
+    "issue_count": 18,
+    "in_review_scope": 13,
+    "old_done": 5,
+    "has_next_page": false,
+    "descriptions_unchanged_since_cached_full_reads": true
+  },
+  "evidence_scope": "Interim requirement -> expected event -> implementation -> test -> runtime report map. Original criteria preserved; not a final criterion-by-criterion completion claim. Reports retain immutable runtime source versions and controlled-vs-real boundaries.",
+  "entries": [
+    {
+      "issue": "ZEN-105",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/23",
+      "linear_updated_at": "2026-09-29T16:10:19.528Z",
+      "original_acceptance_criteria": [
+        "Production-like tests document practical limits and failure behavior for the current single-user workload.",
+        "Repository APIs accept domain IDs and hide `record_id` resolution.",
+        "Ambiguous create cases use business-key reconciliation rather than blind POST retry.",
+        "Feishu implementation can be replaced behind the provider contract without changing core domain logic.",
+        "No second primary database is added unless feasibility tests demonstrate a concrete requirement."
+      ],
+      "expected_event": "真实应用身份完成领域 ID CRUD；v3 可行性和有界读/冲突行为分别测量",
+      "implementation": [
+        "backend/app/storage.py",
+        "backend/app/feishu/repositories/base.py"
+      ],
+      "tests": [
+        "backend/tests/test_storage_provider.py",
+        "backend/tests/test_storage_batch_read.py"
+      ],
+      "runtime_report": "2026-09-30-feishu-storage-provider.md",
+      "evidence_boundary": "真实应用 CRUD/批读；v3 部分为用户身份；模糊写入故障为受控传输",
+      "remaining_or_limits": "平台极限和生产 ACL 不作保证；保留单 writer；全项目覆盖率尚缺",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false,
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/21",
+      "github_updated_at": "2026-09-27T12:29:32Z",
+      "github_body_sha256": "31f1084c6e7565c3741bd054e4dc176142e4672b23fe8590d90956b44e462949",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "Domain-ID/record-ID mismatch tests cover read/update/delete, completion/failure, and rollback; missing/duplicate business keys fail explicitly.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "A create committed remotely before a simulated timeout is reconciled without a second blind POST.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Record measured CRUD/PATCH availability, pagination, batch behavior, history, rate/conflict handling, payload limits, and recovery for representative v0.2 records.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Add transport/provider contract tests and a clearly gated live feasibility suite; distinguish mocks, skipped live checks, and measured results.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Document additive schema rollout/backfill/rollback and legacy snapshot compatibility without introducing a second primary database.",
+          "final_independent_verification": "pending"
+        }
+      ]
+    },
+    {
+      "issue": "ZEN-104",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/24",
+      "linear_updated_at": "2026-09-27T13:11:03.989Z",
+      "original_acceptance_criteria": [
+        "Runnable-step selection has one authoritative code path.",
+        "State changes cannot bypass the state-transition service in new code.",
+        "Single-backend execution works without distributed-worker assumptions.",
+        "Retry/recovery behavior is covered by tests for process restart, tool failure, and ambiguous persistence outcomes.",
+        "Architecture docs and code-level contracts agree on the execution model."
+      ],
+      "expected_event": "唯一内核按显式状态机调度、重启/审批恢复；慢 handler 期间仍能观察已提交进度",
+      "implementation": [
+        "backend/app/harness.py"
+      ],
+      "tests": [
+        "backend/tests/test_harness_kernel.py",
+        "backend/tests/test_harness_projection.py"
+      ],
+      "runtime_report": "2026-10-18-public-hotspots-real-feishu.md",
+      "evidence_boundary": "原生 lifespan 真实采集完成；真实 writer 竞争下四个 GET 完成；恢复故障有受控回归",
+      "remaining_or_limits": "原始 FeishuAPIError 的远程原因仍未确认；残留追踪已在原 PR #25 同日修复，不能由此推断原始故障原因",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false,
+      "additional_runtime_reports": [
+        "2026-10-19-interrupted-trace-recovery.md"
+      ],
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/20",
+      "github_updated_at": "2026-09-27T12:29:36Z",
+      "github_body_sha256": "4312b437d58bf757b8d76908173ff5cbb62f681472b8f06162533f2ad9a68b9b",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "Starting the documented service runs an enqueued deterministic mock/tool workflow without manual `poll_once` calls; shutdown stops cleanly.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Concurrent API actions and scheduler ticks use one writer and enforce valid transitions; approvals are idempotent and version-aware.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Restart before/after persistence, partial run creation, exhausted retries, and tool failures recover or stop with explicit state.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "With domain IDs different from Feishu record IDs, all pipeline/step read/update/rollback paths target the correct records.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Integration tests exercise the real composition boundary, not only repositories replaced by permissive mocks.",
+          "final_independent_verification": "pending"
+        }
+      ],
+      "additional_verification_reports": [
+        "2026-10-21-approval-identity-and-recovery.md"
+      ],
+      "latest_native_event_scope": {
+        "source": "d9153cbefe9d8e5af9c7a4bf9b97d32e34993187",
+        "report": "2026-10-21-approval-identity-and-recovery.md",
+        "actual_outcome": "Approve/reject audit identity, exact replay and post-commit rejection recovery observed on real authorized Base;corrupt-evidence refusal proven with controlled HTTP fixture"
+      }
+    },
+    {
+      "issue": "ZEN-106",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/25",
+      "linear_updated_at": "2026-09-27T13:11:09.678Z",
+      "original_acceptance_criteria": [
+        "At least DeepSeek and OpenAI can be represented behind the same model-provider contract even if only one is configured in local development.",
+        "Every new generated artifact is versioned and traceable to its inputs/model/prompt version.",
+        "Cost/usage metadata can be queried per run and per chapter.",
+        "Evals can compare two prompt/model/workflow variants using the same fixtures.",
+        "New Agent roles or additional model passes require an eval-backed quality/cost justification."
+      ],
+      "expected_event": "生成 Artifact 可追溯，统一路由记录实际模型/usage，允许固定 fixture 比较方案",
+      "implementation": [
+        "backend/app/generation.py",
+        "backend/app/evals.py"
+      ],
+      "tests": [
+        "backend/tests/test_evals.py",
+        "backend/tests/test_eval_cli_contract.py"
+      ],
+      "runtime_report": "2026-10-16-editor-contract-and-eval.md",
+      "evidence_boundary": "真实 DeepSeek 与飞书；当前保留 100 个 Artifact 内容哈希独立重算一致；OpenAI 为传输契约",
+      "remaining_or_limits": "直接模型产物已绑定确认的 trace ID，断链精确重放无重复调用；旧记录未猜测回填；全 app 四项 100% 与最终逐条件核验继续",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false,
+      "additional_runtime_reports": [
+        "2026-10-19-interrupted-trace-recovery.md",
+        "2026-10-19-model-provenance-and-replay.md"
+      ],
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/22",
+      "github_updated_at": "2026-09-27T12:29:27Z",
+      "github_body_sha256": "dd274317caed92cd5109dcf659faa42c308ed231857fcbf70b7136fe81714bea",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "DeepSeek and OpenAI adapters satisfy one contract, including valid output, schema failure, provider failure, retry, and missing configuration.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Artifact metadata records immutable version/source/hash/run/prompt references and survives retry without accidental overwrite.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Usage queries aggregate attempts per run and chapter; mark estimated or unavailable costs explicitly rather than treating missing usage as zero.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Fixed fixtures compare at least two route/prompt/workflow configurations with machine-readable quality/cost/latency results.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Trace APIs expose deterministic tool calls and model calls with failure classes and correlation IDs; sensitive credentials are excluded.",
+          "final_independent_verification": "pending"
+        }
+      ],
+      "additional_verification_reports": [
+        "2026-10-21-approval-identity-and-recovery.md"
+      ]
+    },
+    {
+      "issue": "ZEN-33",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/27",
+      "linear_updated_at": "2026-09-27T18:26:59.125Z",
+      "original_acceptance_criteria": [
+        "A workflow can fetch 30–50 public Douyin hotspot records.",
+        "Normalized records are persisted to Feishu with source, business ID, dedupe hash, status, and capture metadata.",
+        "Duplicate records are reconciled rather than blindly re-created.",
+        "Tool/schema failures are observable through StepRuns and traces.",
+        "Collection and normalization do not require an LLM call."
+      ],
+      "expected_event": "公开 50 条完成入库；同一已保存批次逐条对账，既有记录不重建",
+      "implementation": [
+        "backend/app/hotspots.py"
+      ],
+      "tests": [
+        "backend/tests/test_hotspot_ingestion.py",
+        "backend/tests/test_hotspot_reconciliation_contract.py"
+      ],
+      "runtime_report": "2026-10-19-public-hotspot-reconciliation.md",
+      "evidence_boundary": "真实匿名采集一次；真实应用持久化；已保存批次重放 50 reconciled、0 新增/更新，403 记录不变",
+      "remaining_or_limits": "工具/模式/模糊网络故障为受控测试；更晚真实捕获的元数据更新尚未实测",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false,
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/6",
+      "github_updated_at": "2026-09-27T12:30:16Z",
+      "github_body_sha256": "7be488b1ec1e0175b8d8a9a2294de073f5c3cb101b31f673657d5e22913576fe",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "Replaying the same batch, including after a restart or a committed-but-timed-out create, produces no duplicate hotspots.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Inject timeout, nonzero exit, invalid JSON, malformed records, and storage failure; StepRun/trace exposes the outcome and recovery is bounded.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "A controlled 30–50-record fixture exercises fetch → normalization → persistence → API read. A live source returning fewer records is reported accurately rather than padded.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Report fetched/accepted/rejected/deduplicated counts and keep source provenance; repeated requests use stable business keys.",
+          "final_independent_verification": "pending"
+        }
+      ],
+      "additional_verification_reports": [
+        "2026-10-21-approval-identity-and-recovery.md"
+      ]
+    },
+    {
+      "issue": "ZEN-34",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/28",
+      "linear_updated_at": "2026-09-27T19:06:05.851Z",
+      "original_acceptance_criteria": [
+        "User can view Feishu-backed hotspot records through backend APIs.",
+        "User can trigger the hotspot workflow from the UI.",
+        "User can discard or manually add a hotspot.",
+        "The page is workflow/content-centric and does not expose implementation-specific Agent controls as the primary UX."
+      ],
+      "expected_event": "用户筛选/详情/分页和触发采集可观察真实结果，未知结果可精确重放",
+      "implementation": [
+        "backend/app/hotspot_controls.py",
+        "frontend/src/components/hotspots/workbench.tsx"
+      ],
+      "tests": [
+        "backend/tests/test_hotspot_controls.py",
+        "frontend/tests/hotspots-workbench.test.tsx"
+      ],
+      "runtime_report": "2026-10-18-public-hotspots-real-feishu.md",
+      "evidence_boundary": "真实浏览器到飞书 50 条；桌面/390px 详情与分页通过；手动/丢弃恢复另有受控端到端",
+      "remaining_or_limits": "十秒提交超时仍可能发生，当前按保留命令恢复；不重新写真实公开数据来重复演示丢弃",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false,
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/7",
+      "github_updated_at": "2026-09-27T12:30:12Z",
+      "github_body_sha256": "1f63d2aa28a3a6bc5aa77339565e83c73dc47d34dd8b13024149fda5d4794f4e",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "Empty, loading, filtered, failed, and successful views behave correctly using actual backend payloads.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Manual add/discard persist through the backend and are reflected after refresh; repeated clicks do not create duplicate work.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Fetch/analyze shows a run ID, changing status, and actionable failure details.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Protected operations use the existing session/proxy flow; backend/provider credentials never enter browser configuration.",
+          "final_independent_verification": "pending"
+        }
+      ],
+      "additional_verification_reports": [
+        "2026-10-21-approval-identity-and-recovery.md"
+      ]
+    },
+    {
+      "issue": "ZEN-35",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/29",
+      "linear_updated_at": "2026-09-28T02:48:44.109Z",
+      "original_acceptance_criteria": [
+        "Given a hotspot, the workflow produces a structured opportunity artifact with required fields.",
+        "Invalid model output is rejected or repaired before persistence.",
+        "High-risk or ambiguous items are routed to human review; routine low-risk outputs continue automatically.",
+        "Every run records input refs, output refs, model route, latency, usage, and failure class."
+      ],
+      "expected_event": "热点产生结构化机会 Artifact，风险/选择门控制推进，失败明确可查",
+      "implementation": [
+        "backend/app/research.py"
+      ],
+      "tests": [
+        "backend/tests/test_research_workflow.py",
+        "backend/tests/test_research_kernel_contract.py"
+      ],
+      "runtime_report": "2026-09-28-opportunity-research.md",
+      "evidence_boundary": "保留的真实 DeepSeek/飞书机会和 risk/risk_review；真实 risk_gate 与 selection 已批准",
+      "remaining_or_limits": "低风险自动继续与坏输出验证有受控测试，未把它们称为重复真实质量统计",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false,
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/8",
+      "github_updated_at": "2026-09-27T12:30:08Z",
+      "github_body_sha256": "89918503fde54d7c21abe14ea0a4bafc695b4d99274b34f24cc2e421cd06df02",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "Fixture-driven valid, invalid, high-risk, and ambiguous model outputs exercise validation, bounded repair, failure recording, and approval routing.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Repeated execution retains source-hotspot references and creates deliberate artifact versions without duplicate approval events.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Model/provider failures are traceable and cannot silently advance the workflow.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "A selected hotspot can be analyzed through the authenticated API and returned to the product screen.",
+          "final_independent_verification": "pending"
+        }
+      ],
+      "additional_verification_reports": [
+        "2026-10-21-approval-identity-and-recovery.md"
+      ]
+    },
+    {
+      "issue": "ZEN-36",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/30",
+      "linear_updated_at": "2026-09-28T03:19:07.834Z",
+      "original_acceptance_criteria": [
+        "An approved opportunity can produce at least 10 title candidates.",
+        "A selected title can produce at least 3 cover directions.",
+        "Outputs include source refs, model/prompt version, content hash, and usage metadata.",
+        "Invalid or duplicate outputs are rejected before human review.",
+        "Results are visible and selectable from the product UI."
+      ],
+      "expected_event": "已批准机会生成至少 10 标题、选定标题生成至少 3 封面方向",
+      "implementation": [
+        "backend/app/creative.py"
+      ],
+      "tests": [
+        "backend/tests/test_creative_workflow.py",
+        "frontend/tests/creative-workbench-contract.test.tsx"
+      ],
+      "runtime_report": "2026-10-12-creative-batch-runtime.md",
+      "evidence_boundary": "当前保留真实 20 TitleCandidate、5 CoverPlan；对应两流程 completed、选择门 success",
+      "remaining_or_limits": "标题市场效果/长期模型质量不由数量或 schema 保证；去重/错误为受控测试",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false,
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/9",
+      "github_updated_at": "2026-09-27T12:30:04Z",
+      "github_body_sha256": "356d2c59f814a9ca2ef960e6afa1748eff81fa4da8a1c7d34334ee93f15bc171",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "Validate at least 10 distinct title candidates and at least 3 cover directions for a selected title, with bounded handling of insufficient/invalid model output.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Re-generation preserves prior versions and their approval decisions.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Stale or rejected source artifacts cannot unblock book bootstrap.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Backend responses expose stable business IDs, source versions, and trace references required by the UI.",
+          "final_independent_verification": "pending"
+        }
+      ],
+      "additional_verification_reports": [
+        "2026-10-21-approval-identity-and-recovery.md"
+      ]
+    },
+    {
+      "issue": "ZEN-37",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/31",
+      "linear_updated_at": "2026-09-28T03:42:54.319Z",
+      "original_acceptance_criteria": [
+        "Approved opportunity unblocks title/cover workflow.",
+        "Selected title/cover unblocks book bootstrap.",
+        "Human actions create `ApprovalEvent` records through backend APIs.",
+        "UI focuses on decisions and content rather than exposing internal Agent mechanics."
+      ],
+      "expected_event": "人类对机会/标题/封面做版本化决定，保存 ApprovalEvent 并解锁后续",
+      "implementation": [
+        "frontend/src/components/hotspots/creative-results.tsx",
+        "backend/app/creative.py"
+      ],
+      "tests": [
+        "frontend/tests/creative-workbench-contract.test.tsx",
+        "backend/tests/test_creative_workflow.py"
+      ],
+      "runtime_report": "2026-10-15-selection-recovery.md",
+      "evidence_boundary": "真实批准和已选来源解锁现存 Book；未知响应/精确重放有真实与受控证据，边界见原报告",
+      "remaining_or_limits": "变更选择/失败存储覆盖按各报告 source；未把每种 UI 错误都当真实飞书故障",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false,
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/10",
+      "github_updated_at": "2026-09-27T12:29:59Z",
+      "github_body_sha256": "b1bc76610a197f015313de6537ddb34d7a7625cd2617894949da48c5257cfba3",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "End-to-end opportunity approval unlocks generation, and selecting eligible title/cover versions enables bootstrap.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Repeated submission is idempotent; stale-version/conflicting decisions are rejected and explained.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Loading, empty, authentication failure, backend failure, and regeneration states are visible.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Content comparison and decisions are primary; model/trace details are secondary.",
+          "final_independent_verification": "pending"
+        }
+      ],
+      "additional_verification_reports": [
+        "2026-10-21-approval-identity-and-recovery.md"
+      ]
+    },
+    {
+      "issue": "ZEN-38",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/32",
+      "linear_updated_at": "2026-09-30T13:06:01.094Z",
+      "original_acceptance_criteria": [
+        "Approved inputs can bootstrap a Book and `StoryState v1`.",
+        "StoryState has explicit version, content hash, source refs, and timestamps.",
+        "Agent/runtime code reads canonical StoryState through a context/provider boundary.",
+        "Frontend can display core book/story state without an Agent-centric panel."
+      ],
+      "expected_event": "批准来源 bootstrap Book 与可追溯 canonical StoryState v1",
+      "implementation": [
+        "backend/app/books.py"
+      ],
+      "tests": [
+        "backend/tests/test_book_bootstrap.py",
+        "frontend/tests/book-bootstrap-contract.test.tsx",
+        "backend/tests/test_book_context_integrity.py"
+      ],
+      "runtime_report": "2026-09-28-book-bootstrap.md",
+      "evidence_boundary": "当前真实 ready Book，保留 StoryState v1/v2 和源 refs；恢复/外部变化有受控 E2E",
+      "remaining_or_limits": "不创建独立记忆 Agent；当前运行仍依赖完整 Base schema 和单 writer",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false,
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/11",
+      "github_updated_at": "2026-09-27T12:29:52Z",
+      "github_body_sha256": "dc79faa729ed98107064b108f985f586485a21b04475ae147bcfcce5e16b867a",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "Repeated bootstrap or an interrupted create recovers one Book and one intended initial state version through a stable business key.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Reject missing/stale/unapproved inputs before committing canonical state.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Book and StoryState can be read by business IDs and displayed with source/version references.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Failed partial initialization is reconciled without silently losing provenance or overwriting historical state.",
+          "final_independent_verification": "pending"
+        }
+      ],
+      "additional_verification_reports": [
+        "2026-10-20-book-context-boundaries.md",
+        "2026-10-21-approval-identity-and-recovery.md"
+      ]
+    },
+    {
+      "issue": "ZEN-107",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/34",
+      "linear_updated_at": "2026-09-30T13:07:12.899Z",
+      "original_acceptance_criteria": [
+        "All current routes share the design system at desktop and mobile widths; mobile keeps status and light approval practical without horizontal overflow.",
+        "Hover/tap/focus feedback and small transitions clarify actions, with reduced-motion support.",
+        "Text contrast, semantic structure, keyboard access, and touch target sizing remain usable.",
+        "Browser checks exercise the core hotspot → approval → book path on desktop and mobile.",
+        "One issue-specific PR links this Linear issue and its GitHub counterpart, with screenshots and test evidence."
+      ],
+      "expected_event": "统一顶部导航和列表/决策分栏，桌面与手机维持审批与键盘可用",
+      "implementation": [
+        "frontend/src/components/workflow-monitor.tsx",
+        "frontend/src/app"
+      ],
+      "tests": [
+        "frontend/tests/workflow-status-pages.test.tsx",
+        "frontend/tests/creative-workbench-contract.test.tsx"
+      ],
+      "runtime_report": "2026-10-18-workflow-observation.md",
+      "evidence_boundary": "历史核心热点→审批→书籍受控全链路；新增真实入库、真实 v9 批准定稿；全部路由分次桌面/手机验收",
+      "remaining_or_limits": "不是一次当前完整回放的录像；业务树无更改的测试/报告同步不触发重复视觉微调",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false,
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/33",
+      "github_updated_at": "2026-09-28T15:20:33Z",
+      "github_body_sha256": "e18ab8c469632a0f64279b285a8af90cd51836d8c979fad5753b191e446ffe8e",
+      "github_additional_acceptance_checks": [],
+      "additional_verification_reports": [
+        "2026-10-21-approval-identity-and-recovery.md"
+      ]
+    },
+    {
+      "issue": "ZEN-39",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/35",
+      "linear_updated_at": "2026-09-30T13:06:45.982Z",
+      "original_acceptance_criteria": [
+        "A Book can produce a versioned StoryBible covering premise, protagonist, core conflict, power/gold-finger rules, reader promise, style contract, and forbidden rules.",
+        "ChapterBrief includes opening hook, scene goal, conflict, payoff, ending hook, and source version refs.",
+        "Approved or policy-eligible briefs unblock chapter generation.",
+        "StoryState changes are structured, validated, versioned, and traceable."
+      ],
+      "expected_event": "批准 StoryBible 提交 canonical v2；ChapterBrief 具有源版本并解锁写作",
+      "implementation": [
+        "backend/app/story_planning.py"
+      ],
+      "tests": [
+        "backend/tests/test_story_planning.py",
+        "backend/tests/test_story_history_contract.py",
+        "backend/tests/test_planning_history.py",
+        "backend/tests/test_chapter_history_context.py",
+        "backend/tests/test_planning_editorial_source.py",
+        "backend/tests/test_chapter_editorial_source.py",
+        "backend/tests/test_planning_boundaries.py"
+      ],
+      "runtime_report": "2026-10-18-chapter9-final-and-focused-review.md",
+      "evidence_boundary": "当前保留真实 1 Bible、7 版本 Brief、StoryState v1/v2，最新合格 Brief 驱动已定稿 v9",
+      "remaining_or_limits": "旧错误 Brief 和失败运行保留；不称 schema 通过就代表编辑要求完成",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false,
+      "additional_verification_reports": [
+        "2026-10-19-final-history-context.md",
+        "2026-10-19-planning-editorial-direction.md",
+        "2026-10-20-planning-boundaries.md",
+        "2026-10-20-native-chapter2-format-and-failure.md",
+        "2026-10-21-approval-identity-and-recovery.md"
+      ],
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/12",
+      "github_updated_at": "2026-09-27T12:29:48Z",
+      "github_body_sha256": "9985aae9121091f948abd786d302e472d4f9f789970d841c40c949d077dc5a86",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "Invalid patches, unknown references, and stale base versions cannot mutate canonical StoryState.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Initial Bible and major direction changes wait for approval; policy-eligible routine briefs proceed.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Every brief and snapshot can resolve the exact input state/artifact versions after later state changes.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Regeneration creates new versions and retains prior Bible/brief history.",
+          "final_independent_verification": "pending"
+        }
+      ],
+      "latest_native_event_scope": {
+        "report": "2026-10-20-native-chapter2-format-and-failure.md",
+        "source": "c270db45d241e457cc6ba19f07dd3c134381d0af",
+        "actual_outcome": "Newplanningv2 format/continuity accepted;oldv1 retained"
+      }
+    },
+    {
+      "issue": "ZEN-40",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/36",
+      "linear_updated_at": "2026-09-30T13:06:52.471Z",
+      "original_acceptance_criteria": [
+        "A Book can generate the first 1–3 chapter versions from approved/policy-eligible briefs.",
+        "Every ChapterVersion links to the StoryContextSnapshot and source Artifact versions used.",
+        "Critique is structured and actionable rather than another unconditional full rewrite.",
+        "Deterministic failures prevent persistence/finalization where applicable.",
+        "Model calls record route, prompt version, token usage, estimated cost, latency, and retries.",
+        "The old unconditional `Writer → StyleAgent → AntiAIFlavorAgent → ReviewAgent` chain is not used."
+      ],
+      "expected_event": "Writer→Verifier→Critic→按需 Rewrite→最终验证，追加版本而非覆盖",
+      "implementation": [
+        "backend/app/chapter_loop.py"
+      ],
+      "tests": [
+        "backend/tests/test_chapter_loop.py",
+        "frontend/tests/chapter-generation-contract.test.tsx",
+        "backend/tests/test_chapter_execution_integrity.py",
+        "backend/tests/test_planning_history.py",
+        "backend/tests/test_chapter_history_context.py",
+        "backend/tests/test_planning_editorial_source.py",
+        "backend/tests/test_chapter_editorial_source.py"
+      ],
+      "runtime_report": "2026-10-18-chapter9-final-and-focused-review.md",
+      "evidence_boundary": "真实 9 个章节版本；最终 v9 1591 汉字、独立内容审核合格，旧 8 版本和 9 Artifact 不变",
+      "remaining_or_limits": "1–3 是原验收首批版本范围，不擅自改成必须 3 个章节；质量不可由 schema 或 100% 覆盖保证",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false,
+      "additional_verification_reports": [
+        "2026-10-19-chapter-final-provenance.md",
+        "2026-10-19-final-history-context.md",
+        "2026-10-19-planning-editorial-direction.md",
+        "2026-10-20-native-chapter2-format-and-failure.md",
+        "2026-10-21-approval-identity-and-recovery.md"
+      ],
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/13",
+      "github_updated_at": "2026-09-27T12:29:44Z",
+      "github_body_sha256": "9ba3d2742e8c9a884b3c8fabe4118a2e5744c6d694f64ecf6c81a592d597ec23",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "Generate 1–3 chapters with exact snapshot/source version provenance and per-chapter usage accounting.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Cover pass-without-rewrite, revise, reject, hard-rule failure, provider failure, and rewrite-budget exhaustion.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Each rewrite appends a ChapterVersion; final lock preserves history and rejects stale/conflicting commands.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Restart/retry cannot duplicate the same intended output version or bypass a required human gate.",
+          "final_independent_verification": "pending"
+        }
+      ],
+      "latest_native_event_scope": {
+        "report": "2026-10-20-native-chapter2-format-and-failure.md",
+        "source": "c270db45d241e457cc6ba19f07dd3c134381d0af",
+        "actual_outcome": "Chapter2candidate996Han retained;CriticSchemaFailure;routineFalse;independentproseFalse"
+      }
+    },
+    {
+      "issue": "ZEN-41",
+      "pr": "https://github.com/autism-ip/novelops-agent-harness/pull/37",
+      "linear_updated_at": "2026-09-30T13:07:02.143Z",
+      "original_acceptance_criteria": [
+        "User can approve/finalize or return a chapter through backend APIs.",
+        "RevisionTask is created with explicit constraints and source version.",
+        "Final lock never overwrites older ChapterVersions.",
+        "Human intervention is required for configured high-value gates or anomalies; routine pass cases can proceed automatically according to policy.",
+        "UI is book/chapter-centric rather than Agent-centric."
+      ],
+      "expected_event": "精确退修约束生成 RevisionTask，真实批准/定稿保留旧版本，按策略选择人审",
+      "implementation": [
+        "backend/app/chapter_loop.py",
+        "frontend/src/components/books/chapter-review-desk.tsx"
+      ],
+      "tests": [
+        "backend/tests/test_chapter_review.py",
+        "backend/tests/test_chapter_review_integrity.py",
+        "frontend/tests/chapter-review-contract.test.tsx",
+        "backend/tests/test_chapter_execution_integrity.py",
+        "backend/tests/test_planning_history.py",
+        "backend/tests/test_chapter_history_context.py",
+        "backend/tests/test_planning_editorial_source.py",
+        "backend/tests/test_chapter_editorial_source.py"
+      ],
+      "runtime_report": "2026-10-18-chapter9-final-and-focused-review.md",
+      "evidence_boundary": "实际 UI 退修→真实 DeepSeek→v9 合格→批准/定稿成功；routine 自动 pass 目前为受控浏览器/契约证据",
+      "remaining_or_limits": "真实模型 routine pass 事件尚缺；RevisionTask queued 表示入队进度，API/UI 另查 run_status，无需误改旧记录",
+      "done": false,
+      "final_requirement_by_requirement_audit_complete": false,
+      "additional_verification_reports": [
+        "2026-10-19-chapter-final-provenance.md",
+        "2026-10-19-final-history-context.md",
+        "2026-10-19-planning-editorial-direction.md",
+        "2026-10-20-native-chapter2-format-and-failure.md",
+        "2026-10-21-approval-identity-and-recovery.md"
+      ],
+      "github_issue": "https://github.com/autism-ip/novelops-agent-harness/issues/14",
+      "github_updated_at": "2026-09-27T12:29:40Z",
+      "github_body_sha256": "abee7b5b68e96d3ceb23c83a4cf1e8d16d654cf358e5b8a3c1d94453640ec08b",
+      "github_additional_acceptance_checks": [
+        {
+          "requirement": "Revise creates a task bound to the selected source version and constraints; resulting rewrite appears as a new version.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Approve/reject/regenerate/final-lock refresh persisted state; duplicate clicks and stale-version conflicts are handled.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Final lock leaves every older version accessible and blocks incompatible later mutations.",
+          "final_independent_verification": "pending"
+        },
+        {
+          "requirement": "Routine policy-pass cases can proceed automatically; configured anomalies/gates visibly wait for the user.",
+          "final_independent_verification": "pending"
+        }
+      ],
+      "latest_native_event_scope": {
+        "report": "2026-10-20-native-chapter2-format-and-failure.md",
+        "source": "c270db45d241e457cc6ba19f07dd3c134381d0af",
+        "actual_outcome": "Chapter2candidate996Han retained;CriticSchemaFailure;routineFalse;independentproseFalse"
+      }
+    }
+  ],
+  "current_readonly_integrity": {
+    "retained_rows_freshly_verified_before_and_after": 403,
+    "public_hotspots": 50,
+    "chapter_versions": 9,
+    "artifact_payload_hashes_recomputed": 100,
+    "artifact_type_counts": {
+      "TitleCandidate": 20,
+      "ChapterVersion": 9,
+      "ChapterModelResponse": 10,
+      "ChapterBrief": 7,
+      "ChapterDraft": 8,
+      "ChapterRewriteDraft": 2,
+      "ChapterVerification": 9,
+      "StoryContextSnapshot": 9,
+      "risk": 1,
+      "ChapterBriefDraft": 7,
+      "CoverPlan": 5,
+      "StoryState": 2,
+      "CriticReport": 6,
+      "risk_review": 1,
+      "covers_set": 1,
+      "StoryBible": 1,
+      "opportunity": 1,
+      "titles_set": 1
+    },
+    "old_trace_status_findings": [
+      {
+        "kind": "agent",
+        "handler": "chapter.critic",
+        "trace_status": "running",
+        "run_status": "failed",
+        "step_status": "success",
+        "step_retry_count": 1,
+        "trace_created_at": "2026-10-15T08:35:13.724102+00:00",
+        "model_usage_not_inferred": true
+      }
+    ],
+    "evidence_as_of": "Read-only verification before the single deliberate trace repair; historical running trace finding below is now resolved"
+  },
+  "current_backend_coverage": {
+    "covered_lines": 4359,
+    "num_statements": 4434,
+    "percent_covered": 97.33475479744136,
+    "percent_covered_display": "97.33",
+    "missing_lines": 75,
+    "excluded_lines": 11,
+    "percent_statements_covered": 98.3085250338295,
+    "percent_statements_covered_display": "98.31",
+    "num_branches": 1194,
+    "num_partial_branches": 69,
+    "covered_branches": 1119,
+    "missing_branches": 75,
+    "percent_branches_covered": 93.71859296482413,
+    "percent_branches_covered_display": "93.72"
+  },
+  "current_backend_offline_passed": 960,
+  "frontend_tests": "343 at unchanged frontend tree; not rerun for backend test/report-only changes",
+  "frontend_whole_source_four_metrics": "94.69% statement / 97.14% line / 94.69% function / 95.11% branch; unchanged source evidence from prior exact tree",
+  "open_priorities": [
+    "Meaningful tests for all remaining applicable project metrics to 100%; no exclusions or lowered gates",
+    "Bounded genuine-model routine auto-pass event under actual policy, preserving existing locked chapter",
+    "Complete final per-criterion acceptance and exact-head CI/review audit before Done",
+    "New realplanningv2 passesformat;chapter2v1 retained but failsindependentmemory/deadline review;CriticJSONSchemaFailure preventedpass.4/4modelrequests consumed;additionalpaidproposal pendingauthorization."
+  ],
+  "no_issue_done_merge_or_deploy": true,
+  "current_trace_recovery": {
+    "report": "2026-10-19-interrupted-trace-recovery.md",
+    "native_source_commit": "1ad7aaf79b3c456a6b98e1f29a3140aac4280213",
+    "status": "native_trace_recovery_verified",
+    "known_records_retained": 403,
+    "other_records_unchanged": 402,
+    "deliberately_changed_trace_records": 1,
+    "target_status": "interrupted",
+    "outcome_unknown": true,
+    "model_usage_unchanged": true,
+    "model_calls": 0,
+    "second_recovery_additional_writes": 0,
+    "scheduler_running_after_exit": false
+  },
+  "closed_findings": [
+    {
+      "finding": "Reproduce and fix stale running trace after interrupted/recovered attempt without fabricating usage or replaying paid effects",
+      "status": "Implemented, regression verified and original real trace repaired; original interruption cause remains unproven",
+      "report": "2026-10-19-interrupted-trace-recovery.md"
+    },
+    {
+      "finding": "History-based model provenance could select an old attempt or configured alias",
+      "status": "Red regressions, exact recorded-attempt binding and real DeepSeek/native Feishu event verified",
+      "report": "2026-10-19-model-provenance-and-replay.md"
+    },
+    {
+      "finding": "A committed Artifact followed by output-link failure was not repaired on replay",
+      "status": "Immutable model_trace_id with exact provenance validation and idempotent link repair; no repeated model call",
+      "report": "2026-10-19-model-provenance-and-replay.md"
+    },
+    {
+      "finding": "Self-consistent Artifact hash did not establish selected chapter domain provenance; missing refs could raise IndexError and bool identity could equal integer",
+      "status": "Red regressions then exact typed domain/source verification before reads or promotion; original evidence restore resumes without new model/version",
+      "report": "2026-10-19-chapter-final-provenance.md"
+    },
+    {
+      "finding": "Foundation final verification did not recheck a reject decision after rewrite selection",
+      "status": "Rejected selection stops in ZEN-40; ZEN-41 preserves configured high-value original-candidate human review policy",
+      "report": "2026-10-19-chapter-final-provenance.md"
+    },
+    {
+      "finding": "Planner and chapter context omitted final prose and did not invalidate planning after a relevant final arrived",
+      "status": "Nearest final is frozen with validated exact provenance; changed history invalidates planning and blocks new generation; downstream semantic passes share exact same history",
+      "report": "2026-10-19-final-history-context.md"
+    },
+    {
+      "finding": "Planning-only runtime lacked ChapterVersions reader; extra planning GET exceeded existing remote-read budgets",
+      "status": "Actual build_runtime composition is covered for configured and missing table; same-invocation verified snapshot reuse preserves original request budgets",
+      "report": "2026-10-19-final-history-context.md"
+    },
+    {
+      "finding": "Original full planning direction could be lost after a five-field summary",
+      "status": "Same eligible source read, complete direction and origin request fingerprint frozen; Writer/Critic/Rewrite receive the full contract, including 4000-character boundary",
+      "report": "2026-10-19-planning-editorial-direction.md"
+    },
+    {
+      "finding": "A generic snapshot could relabel itself as legacy and bypass new direction validation",
+      "status": "Run definition independently stores planning request fingerprint; tampered source/downgrade stops before any model; genuine old completed context remains readable",
+      "report": "2026-10-19-planning-editorial-direction.md"
+    }
+  ],
+  "current_model_provenance": {
+    "report": "2026-10-19-model-provenance-and-replay.md",
+    "status": "fresh_persisted_snapshot_and_provider_response_independently_verified",
+    "native_process_exit_code": 0,
+    "source_commit": "76deb6a46ed83977203fa66a8b5d6d1de105e5e3",
+    "baseline_rows_unchanged": 403,
+    "legacy_artifact_read_shapes_unchanged": 100,
+    "new_rows_retained": 5,
+    "total_owned_records_retained": 408,
+    "model_requests": 1,
+    "model_http_status": 200,
+    "model_returned": "deepseek-flash",
+    "model_tokens": {
+      "input_tokens": 147,
+      "output_tokens": 8,
+      "estimated_cost": 5.3700000000000004e-05,
+      "cost_status": "estimated"
+    },
+    "artifact_content_sha256": "7085a6b0c6dde093a8a5b74339023ad9ad6a6f1989af75c18c6e96860313bbeb",
+    "artifact_payload_sha256": "8a0dbe413b922112ac89d5abbe1cd7def66a4b40e5f9eeae7ccd6061ce2b57a4",
+    "raw_provider_response_sha256": "a5471ef8b9e60f588bec751d2ed6baa317d4fae33792950373b125009bd4fbe3",
+    "direct_current_trace_id_confirmed": true,
+    "semantic_history_scans": 0,
+    "exact_replays_additional_model_requests": 0,
+    "exact_replays_additional_writes": 0,
+    "scheduler_running_after_exit": false,
+    "runtime_seconds": 248.716
+  },
+  "current_generation_module_coverage": {
+    "statement_line": "313/313 = 100%",
+    "branch": "80/80 = 100%",
+    "executable_named_functions": "26/26",
+    "unchanged_default_type_protocol_exclusions": 3
+  },
+  "current_chapter_provenance": {
+    "report": "2026-10-19-chapter-final-provenance.md",
+    "new_cases": 31,
+    "pr36_offline_passed": 638,
+    "pr37_offline_passed": 694,
+    "final_verify": {
+      "covered_lines": 47,
+      "num_statements": 47,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100.00",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100.00",
+      "num_branches": 20,
+      "num_partial_branches": 0,
+      "covered_branches": 20,
+      "missing_branches": 0,
+      "percent_branches_covered": 100.0,
+      "percent_branches_covered_display": "100.00"
+    },
+    "external_writes": 0,
+    "new_model_calls": 0
+  },
+  "current_final_history_context": {
+    "report": "2026-10-19-final-history-context.md",
+    "new_behavioral_cases": 40,
+    "branch_tests": [
+      615,
+      678,
+      734
+    ],
+    "native_runtime": {
+      "status": "bounded_native_event_observed",
+      "authorization": "User explicitly approved these synthetic data, exact DeepSeek endpoint, max four requests, zero retries and retained Base evidence after initial automatic-review rejection; no requests/writes preceded approval.",
+      "source": {
+        "commit": "585edb312cff2721ff424a57c52279aea099514a",
+        "app_tree": "be73ac628d9ac513a960f92c97ace5a6f3c0d41c",
+        "path": "/tmp/novelops-history-full-source-585edb31",
+        "backend_tree": "f3d3d87de8611848ca45727b7d061de1039d2e93",
+        "frontend_tree": "5d1da703d2d9709d195bfe4e900e05038adcf7fd",
+        "offline_tests": 734
+      },
+      "provider_destination": "https://api.deepseek.com/chat/completions",
+      "provider_model": "deepseek-flash",
+      "approved_planner_preview_sha256": "2a7c79a8ebf09c06fb416e136e7ae9f51fc5cc30ca8d37418d647a43396f692b",
+      "planner_body_exactly_matches_approved_preview": true,
+      "total_model_requests": 1,
+      "model_retries": 0,
+      "total_new_owned_rows_retained": 9,
+      "known_retained_rows_after": 417,
+      "configured_review_first_n": 1,
+      "configured_review_score_threshold": 3,
+      "phases": [
+        {
+          "phase": "plan",
+          "status": "native_history_plan_verified_after_deterministic_resume",
+          "run_id": "PR-703f8e3af4a325b63676b395a5651aeb",
+          "source_commit": "585edb312cff2721ff424a57c52279aea099514a",
+          "baseline_exact_before": 408,
+          "baseline_exact_after": 408,
+          "new_owned_rows_retained": 9,
+          "snapshot_failures": [],
+          "scheduler_running_after_exit": false,
+          "operation_counts": {
+            "auth": 2,
+            "read": 635,
+            "owned_write": 26
+          },
+          "model_requests": [
+            {
+              "provider": "deepseek",
+              "route": "chapter_planner",
+              "trace_id": "TR-7beb12ef2e7f4a03a34c13e872c44580",
+              "request_sha256": "1b7698b9acabe32f1b522c15af35bdd271690a8d80271454bb7ea22ba09a9272",
+              "sent_at": 1792411321.3806322
+            }
+          ],
+          "model_responses": [
+            {
+              "route": "chapter_planner",
+              "http_status": 200,
+              "sha256": "34ca0c05cbb7598939ebecce50745dd32eec09e2ab5428e1447e6a188e631533",
+              "usage": {
+                "prompt_tokens": 6452,
+                "completion_tokens": 366,
+                "total_tokens": 6818,
+                "prompt_tokens_details": {
+                  "cached_tokens": 0
+                },
+                "prompt_cache_hit_tokens": 0,
+                "prompt_cache_miss_tokens": 6452
+              },
+              "received_at": 1792411325.0388858
+            }
+          ],
+          "replay_http_status": 201,
+          "replay_added_writes": 0,
+          "replay_added_models": 0,
+          "selected_prose_han": null,
+          "usage": null
+        }
+      ],
+      "independent_reviews": {
+        "brief": {
+          "accepted": false,
+          "narrative_continuity_accepted": true,
+          "requested_format_accepted": false,
+          "source_commit": "585edb312cff2721ff424a57c52279aea099514a",
+          "brief_content_hash": "c8cf18922173b4fc97924a129348c5b69d0ff01aa3f66833ec7e5e6f369dd702",
+          "brief_artifact_id": "AR-11a8ad64ab21daaa4dd2d426d5fd09e6",
+          "field_sentence_counts": {
+            "opening_hook": 2,
+            "scene_goal": 1,
+            "conflict": 1,
+            "payoff": 3,
+            "ending_hook": 1
+          },
+          "requested_sentence_range_per_field": [
+            1,
+            2
+          ],
+          "checks": {
+            "third_person_planning": true,
+            "continues_chapter1_v9_copper_key": true,
+            "actual_find_verify_return_planned": true,
+            "return_before_whisper_and_irreversible_loss": true,
+            "new_secret_and_no_recovered_prior_secret": true,
+            "explicit_sleep_then_next_dawn": true,
+            "ledger_only_lost_item_location_deadline": true,
+            "length_range_retained_explicitly": false
+          },
+          "findings": [
+            "Payoff contains three sentences rather than the requested one or two.",
+            "The brief does not explicitly preserve the original 700–1000 Han target; source inspection plus two behavioral regressions confirms Writer/Critic/Rewrite cannot reliably receive the original complete direction."
+          ],
+          "disposition": "Retain original paid planning and provenance. Do not launch chapter generation until original-direction propagation is fixed and this independent acceptance gate is resolved. No content edited, no forced pass, no replacement planning request."
+        }
+      },
+      "routine_pass_observed": false,
+      "observer_startup_correction": {
+        "failure": "Probe guard initially classified an existing projection ensure as a new create; native startup stopped before models or writes.",
+        "operation_counts": {
+          "auth": 1,
+          "read": 67
+        },
+        "model_requests": 0,
+        "record_mutations": 0,
+        "baseline_exact_after": 408,
+        "scheduler_running_after_exit": false,
+        "correction": "Permit the real storage ensure for an exact known baseline ID only with allow_create=False; compare the returned row to the frozen baseline. Existing updates/deletes remain forbidden. Original failed observation retained; same business command IDs used."
+      },
+      "deterministic_resume": {
+        "same_run_id": "PR-703f8e3af4a325b63676b395a5651aeb",
+        "cause": "Probe omitted service traces from its kind/count allowlist; materialize stopped before handler invocation.",
+        "preserved_checkpoint_rows": 7,
+        "model_requests_before_resume": 1,
+        "new_model_requests_during_resume": 0,
+        "model_retries": 0,
+        "harness_recovery_allowance": 1,
+        "meaning": "Only interrupted deterministic service was recovered. Successful Planner was not replayed; provider hooks forbid any model request during resume. This is not zero infrastructure recovery.",
+        "original_failed_observation_retained": true
+      }
+    },
+    "real_read_only": {
+      "source": {
+        "commit": "0886104af65349ead8b2fe62f3e168407cde88d5",
+        "app_tree": "20492e7419ae930f402f4c47bcf2b74ccdd3eb83",
+        "path": "/tmp/novelops-history-full-source-0886104a",
+        "backend_tree": "ab17cf36a3e1009ddf6014fd933963944a6f5b25",
+        "frontend_tree": "5d1da703d2d9709d195bfe4e900e05038adcf7fd",
+        "offline_tests": 732
+      },
+      "status": "verified_read_only",
+      "application_identity": true,
+      "baseline_exact_before": 408,
+      "baseline_exact_after": 408,
+      "prior_final_version": 9,
+      "prior_final_artifact_id": "AR-0c61d88046756776efee02df8c35e1d2",
+      "prior_final_content_hash": "af94593f0881cbde71593f462d40e42668c5ef627ddff9491436e50195bfe819",
+      "operation_counts": {
+        "auth": 1,
+        "read": 41
+      },
+      "record_mutations": 0,
+      "model_requests": 0,
+      "scheduler_started": false,
+      "process_terminal": true
+    }
+  },
+  "current_planning_editorial_direction": {
+    "report": "2026-10-19-planning-editorial-direction.md",
+    "new_behavioral_cases": 12,
+    "branch_tests": [
+      617,
+      690,
+      746
+    ],
+    "original_direction_source_fixed": true,
+    "new_readonly_real_compatibility": {
+      "status": "verified_read_only",
+      "started_at": 1792413592.677257,
+      "source": {
+        "commit": "bef2e38470475794ba09f2a281a96a8399ce9b74",
+        "path": "/tmp/novelops-direction-full-source-bef2e384",
+        "app_tree": "88b2cf4d2300fedeb016e38c45b232f4346e789c",
+        "backend_tree": "8579181ff98d15ad6d564ae635bf44acc18a76bb",
+        "frontend_tree": "5d1da703d2d9709d195bfe4e900e05038adcf7fd",
+        "offline_tests": 746
+      },
+      "model_requests": 0,
+      "mutations": 0,
+      "operations": [
+        "auth",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read",
+        "read"
+      ],
+      "baseline_exact_before": 417,
+      "original_direction_codepoints": 791,
+      "retained_plan_id": "AR-11a8ad64ab21daaa4dd2d426d5fd09e6",
+      "retained_plan_content_hash": "c8cf18922173b4fc97924a129348c5b69d0ff01aa3f66833ec7e5e6f369dd702",
+      "legacy_final_run_id": "PR-a59c70f4418847e7959102df3dd71193",
+      "legacy_final_artifact_id": "AR-0c61d88046756776efee02df8c35e1d2",
+      "legacy_final_content_hash": "af94593f0881cbde71593f462d40e42668c5ef627ddff9491436e50195bfe819",
+      "legacy_selected_version": 9,
+      "baseline_exact_after": 417,
+      "prior_final_artifact_id": "AR-0c61d88046756776efee02df8c35e1d2",
+      "prior_final_content_hash": "af94593f0881cbde71593f462d40e42668c5ef627ddff9491436e50195bfe819",
+      "prior_final_version": 9,
+      "operation_counts": {
+        "auth": 1,
+        "read": 72
+      },
+      "finished_at": 1792413774.8020742,
+      "scheduler_running": false
+    },
+    "new_model_requests": 0,
+    "new_record_mutations": 0
+  },
+  "latest_retained_rows_verified": 452,
+  "last_updated": "2026-10-21 foundation contracts and CI observation repair",
+  "current_book_boundary_verification": {
+    "report": "2026-10-20-book-context-boundaries.md",
+    "new_cases": 32,
+    "production_changes": false,
+    "books_module": {
+      "covered_lines": 124,
+      "num_statements": 124,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100.00",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100.00",
+      "num_branches": 36,
+      "num_partial_branches": 0,
+      "covered_branches": 36,
+      "missing_branches": 0,
+      "percent_branches_covered": 100.0,
+      "percent_branches_covered_display": "100.00"
+    },
+    "books_named_entries": {
+      "covered": 9,
+      "total": 9
+    },
+    "diagnostic_correction": {
+      "original_claim_withdrawn": "Boolean true being accepted as canonical version1 was not reproduced.",
+      "actual_failure": "The original test storage.update arrangement failed while decoding/reconciling a malformed numeric echo; the intended canonical-read assertion was never reached. The fake server had accepted the field, so this does not prove prevention or rollback of an external write.",
+      "corrected_check": "Inject malformed external cells into the HTTP fixture, then assert authenticated API503/FeishuAPIError, no exposed canonical content, unchanged rows, zero new model calls and exact recovery after restoration.",
+      "fixture_correction": "Three initial unmatched-source checks saw a lazy empty-table container allocation. Prime existing empty Book/StoryState tables before the baseline; retain whole-state equality and request-level no-write assertions.",
+      "production_fix_needed_for_this_claim": false
+    },
+    "real_runtime_evidence_scope": {
+      "new_real_model_requests": 0,
+      "new_real_feishu_record_mutations": 0,
+      "new_public_collection": 0,
+      "same_full_application_tree_as_previous_real_verification": true,
+      "previous_source": {
+        "commit": "bef2e38470475794ba09f2a281a96a8399ce9b74",
+        "path": "/tmp/novelops-direction-full-source-bef2e384",
+        "app_tree": "88b2cf4d2300fedeb016e38c45b232f4346e789c",
+        "backend_tree": "8579181ff98d15ad6d564ae635bf44acc18a76bb",
+        "frontend_tree": "5d1da703d2d9709d195bfe4e900e05038adcf7fd",
+        "offline_tests": 746
+      },
+      "previous_retained_rows_exact": 417,
+      "previous_readonly_operation_counts": {
+        "auth": 1,
+        "read": 72
+      },
+      "previous_report": "2026-10-19-planning-editorial-direction.md",
+      "meaning": "Production app and frontend trees are unchanged. Reuse historical real-read proof at its stated source/time; this test-only wave does not claim a fresh live Base corruption/recovery run."
+    }
+  },
+  "requirement_inventory": {
+    "linear_original_acceptance_criteria": 61,
+    "github_explicit_additional_checks": 51,
+    "original_issues": 13,
+    "full_scopes_and_user_constraints_still_apply": true,
+    "final_requirement_by_requirement_audit_complete": false,
+    "correction": "Earlier61-count map listed Linear criteria only. Existing51 explicit GitHub checks are now separately itemized; no requirement is replaced or marked completed."
+  },
+  "verification_findings": [
+    {
+      "finding": "Boolean alias diagnosis did not reach the canonical read; setup update failed decoding/reconciling malformed numeric data",
+      "disposition": "Withdrawn as a product defect; corrected HTTP/API evidence verifies existing refusal and exact recovery.",
+      "report": "2026-10-20-book-context-boundaries.md"
+    },
+    {
+      "finding": "Approval replay/blank actor/corrupt event identity and coerced versions",
+      "status": "fixed_with_offline_and_native_scope_evidence",
+      "report": "2026-10-21-approval-identity-and-recovery.md"
+    },
+    {
+      "finding": "Legacy pipeline API ignored resolved app table configuration and leaked per-request Feishu HTTP clients",
+      "status": "fixed_with32_actual_HTTP_boundary_cases_and_real_readonly_HTTP_acceptance",
+      "report": "2026-10-21-legacy-pipeline-config-and-resources.md"
+    },
+    {
+      "finding": "ActualCI reveal assertion ran beforeReacteffect;fullcoverage creative observer ran before nested immediatehistory effects settled",
+      "disposition": "Test observation corrections on owningPR34 andPR30;unchanged strictassertions/defaultbudgets/production sources;all7scopefrontend gates pass;noCI rerun to hidefailure",
+      "report": "2026-10-21-foundation-boundaries-and-effect-observation.md"
+    }
+  ],
+  "current_planning_boundary_verification": {
+    "report": "2026-10-20-planning-boundaries.md",
+    "new_cases": 40,
+    "production_changes": false,
+    "planning_module": {
+      "covered_lines": 389,
+      "num_statements": 389,
+      "percent_covered": 100.0,
+      "percent_covered_display": "100.00",
+      "missing_lines": 0,
+      "excluded_lines": 0,
+      "percent_statements_covered": 100.0,
+      "percent_statements_covered_display": "100.00",
+      "num_branches": 98,
+      "num_partial_branches": 0,
+      "covered_branches": 98,
+      "missing_branches": 0,
+      "percent_branches_covered": 100.0,
+      "percent_branches_covered_display": "100.00"
+    },
+    "planning_named_entries": {
+      "covered": 29,
+      "total": 29
+    },
+    "test_scope": {
+      "actual_api_core_http_fixture": 29,
+      "registered_guard_handler_contract_http_fixture": 7,
+      "constructor_configuration_actual_kernel": 4,
+      "core_business_methods_replaced": false,
+      "new_native_scheduler_probe": false,
+      "scheduler_control": "Deterministic actual kernel.tick; TestClient lifespan not started to prevent an autonomous scheduler racing frozen snapshots.",
+      "invalid_contract_note": "Three of the seven registered-method checks deliberately supply the wrong workflow or a rejection choice directly to the registered guard/handler; these are defense-boundary contracts, not claims the public API accepted those inputs."
+    },
+    "real_runtime_evidence_scope": {
+      "new_real_model_requests": 0,
+      "new_real_feishu_record_mutations": 0,
+      "new_public_collection": 0,
+      "same_full_app_tree_as_previous_real_readonly": true,
+      "previous_source": {
+        "commit": "bef2e38470475794ba09f2a281a96a8399ce9b74",
+        "path": "/tmp/novelops-direction-full-source-bef2e384",
+        "app_tree": "88b2cf4d2300fedeb016e38c45b232f4346e789c",
+        "backend_tree": "8579181ff98d15ad6d564ae635bf44acc18a76bb",
+        "frontend_tree": "5d1da703d2d9709d195bfe4e900e05038adcf7fd",
+        "offline_tests": 746
+      },
+      "previous_retained_rows_exact": 417,
+      "previous_report": "2026-10-19-planning-editorial-direction.md",
+      "meaning": "Historical live data-read evidence remains attributed to its original source/time; HTTP fixture failures are not a new live Base incident/recovery probe."
+    }
+  },
+  "current_native_chapter2_acceptance": {
+    "report": "2026-10-20-native-chapter2-format-and-failure.md",
+    "source": {
+      "commit": "c270db45d241e457cc6ba19f07dd3c134381d0af",
+      "path": "/tmp/novelops-planning-boundary-pr37-c270db45",
+      "app_tree": "88b2cf4d2300fedeb016e38c45b232f4346e789c",
+      "published_head": "d221096e378d1299010c63e7c107591d6ddcf8af",
+      "offline_tests": 818
+    },
+    "events": {
+      "plan2_format_and_continuity_accepted": true,
+      "original_direction_native_propagation_verified": true,
+      "chapter2_candidate_written_and_retained": true,
+      "critic_schema_failure_refused": true,
+      "valid_CriticReport_created": false,
+      "routine_pass_observed": false,
+      "independent_prose_accepted": false,
+      "chapter2_approved_or_final_locked": false
+    },
+    "retention": {
+      "authorized_base": "https://fcnaul7kb1kf.feishu.cn/base/T8I6buCMoaiLB6srVBrc9i2jnph",
+      "known_before": 417,
+      "new_plan_rows": 9,
+      "new_chapter_rows": 17,
+      "new_diagnostic_rows": 1,
+      "known_after": 444,
+      "old417_exact_after_plan": true,
+      "old426_exact_after_chapter": true,
+      "old443_exact_after_diagnostic": true,
+      "new_artifact_hashes_independently_recomputed": [
+        {
+          "artifact_id": "AR-b29d0ebe13297c5c07ea84f0ac1fca85",
+          "type": "StoryContextSnapshot",
+          "content_hash": "483f82b5fe2917122d31bf1eb2f70004324c8412eb586ae093712bf7c9246e38"
+        },
+        {
+          "artifact_id": "AR-c53599d350b8b38f96a3981593fc3edc",
+          "type": "ChapterBriefDraft",
+          "content_hash": "35cc47d5afbb1a7e7e6f1176a01cb3dbf503497f2225a3ec94462a1ec9658811"
+        },
+        {
+          "artifact_id": "AR-a7fdbf6b0d5ba9365fc8073e3e92649f",
+          "type": "ChapterBrief",
+          "content_hash": "bc4bc90268870ad3465c54a65aeb49a4a4e0feb8032b615cdac6667e27cdb941"
+        },
+        {
+          "artifact_id": "AR-cfca70d675fd1a40c6fdf7bb664e854f",
+          "type": "StoryContextSnapshot",
+          "content_hash": "1c8ae1ef5830707e652ed1c57082a439c9565e4ddd390dbaab90f9e19d3b2ffe"
+        },
+        {
+          "artifact_id": "AR-1b4faeaf40f70e40c4a12f00cbb25caa",
+          "type": "ChapterModelResponse",
+          "content_hash": "199efa41073d588674dd4a406d1f0d5b47fa55e4528b0c68a8ffe21f77b09d4b"
+        },
+        {
+          "artifact_id": "AR-dbd51b864a2b55a76abae4015eca3d76",
+          "type": "ChapterDraft",
+          "content_hash": "314e996b3c8df992f9803ce6c3c9c2f8603634f5bb256ff0c927a16a92a274f7"
+        },
+        {
+          "artifact_id": "AR-188a355b2a6e60afa48eebaf561443da",
+          "type": "ChapterVerification",
+          "content_hash": "0d07eb0099021088ecb70956e0bf025ad75c83a30495450e68008c9e966d29fe"
+        },
+        {
+          "artifact_id": "AR-8028451c8f17a7d87c190df7b6e50861",
+          "type": "ChapterVersion",
+          "content_hash": "fb9a250aad924ebdbef0657503a63a53c45e84bba9ced1b6db1a534917730046"
+        },
+        {
+          "artifact_id": "AR-205d981f2e957fe26c5c9f07a5db472b",
+          "type": "RejectedModelResponseEvidence",
+          "content_hash": "582af1811fc1f83a948442607aa305d387b1b1a1188fc389ef98dfbfca801326"
+        }
+      ]
+    },
+    "global_model_requests": 4,
+    "global_authorized_max": 4,
+    "remaining_model_requests": 0,
+    "writer_han": 996,
+    "critic_contract_failure": "SchemaFailure:JSONExtraData@column1521",
+    "independent_prose_accepted": false,
+    "all_native_helpers_terminal_scheduler_stopped": true,
+    "new_proposal_authorization_received": false
+  },
+  "historical_named_function_entry_diagnostic_before_approval_fix": {
+    "covered": 403,
+    "total": 408,
+    "unentered": [
+      [
+        "app/api/deps.py",
+        "get_settings"
+      ],
+      [
+        "app/api/routes/health.py",
+        "health"
+      ],
+      [
+        "app/api/routes/health.py",
+        "status"
+      ],
+      [
+        "app/feishu/repositories/story_states.py",
+        "StoryStatesRepo.find_by_book"
+      ],
+      [
+        "app/pipeline/worker.py",
+        "WorkerLoop._resolve_record_id"
+      ]
+    ],
+    "zero_executable_statement_declarations": [
+      [
+        "app/generation.py",
+        "ModelProvider.complete"
+      ],
+      [
+        "app/storage.py",
+        "StorageProvider.get"
+      ],
+      [
+        "app/storage.py",
+        "StorageProvider.get_many"
+      ],
+      [
+        "app/storage.py",
+        "StorageProvider.list"
+      ],
+      [
+        "app/storage.py",
+        "StorageProvider.ensure"
+      ],
+      [
+        "app/storage.py",
+        "StorageProvider.update"
+      ],
+      [
+        "app/storage.py",
+        "StorageProvider.delete"
+      ]
+    ],
+    "scope": "Independent named function entry diagnostic; not full-project Function100%."
+  },
+  "current_backend_raw_function_entries": {
+    "metric": "raw Python function entry coverage: all named definitions and lambdas",
+    "total": 428,
+    "entered": 421,
+    "percent": 98.3644859813084,
+    "lambdas_total": 11,
+    "lambdas_entered": 11,
+    "unmatched_calls": [
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/__init__.py', '<module>', 1, None)",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/deps.py', '<module>', 1, (1, 1, 0, 43))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/middleware.py', '<module>', 1, (1, 1, 0, 31))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/middleware.py', 'APIKeyMiddleware', 8, (9, 12, 4, 7))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/__init__.py', '<module>', 1, (1, 1, 0, 26))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/books.py', '<module>', 1, (1, 1, 0, 69))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/chapter_loop.py', '<module>', 1, (1, 1, 0, 74))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/chapter_loop.py', 'FinalLock', 20, (21, 21, 22, 27))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/chapter_loop.py', 'ReviewDecision', 36, (37, 37, 12, 19))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/chapter_loop.py', 'ReviewTarget', 27, (28, 28, 18, 23))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/chapter_loop.py', 'RevisionRequest', 41, (42, 42, 17, 28))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/creative.py', '<module>', 1, (1, 1, 0, 63))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/creative.py', 'Decision', 20, (21, 21, 19, 24))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/health.py', '<module>', 1, (1, 1, 0, 34))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/hotspots.py', '<module>', 1, (1, 1, 0, 74))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/hotspots.py', 'DiscardBody', 30, (31, 31, 19, 29))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/hotspots.py', 'FetchBody', 20, (21, 21, 19, 29))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/hotspots.py', 'ManualBody', 26, (27, 27, 23, 28))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/observability.py', '<module>', 1, (1, 1, 0, 80))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/pipelines.py', '<module>', 1, (1, 11, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/pipelines.py', 'CreatePipelineBody', 46, (47, 47, 4, 43))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/pipelines.py', 'StepDefBody', 38, (39, 39, 4, 53))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/research.py', '<module>', 1, (1, 1, 0, 82))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/research.py', 'AnalysisDecision', 25, (26, 26, 19, 29))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/research.py', 'Batch', 20, (21, 21, 23, 28))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/story_planning.py', '<module>', 1, (1, 1, 0, 79))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/story_planning.py', 'BibleDecision', 20, (21, 21, 19, 24))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/system.py', '<module>', 1, (1, 1, 0, 50))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/workflows.py', '<module>', 1, (1, 1, 0, 56))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/workflows.py', 'DecisionBody', 36, (37, 37, 12, 19))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/workflows.py', 'StepBody', 19, (20, 20, 20, 25))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/workflows.py', 'WorkflowBody', 28, (29, 29, 23, 28))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/api/routes/workflows.py', 'create.<locals>.<genexpr>', 48, (48, 49, 11, 32))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/books.py', '<module>', 1, (1, 1, 0, 73))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/books.py', 'BookService', 72, (73, 77, 4, 60))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/books.py', 'BookService.bootstrap.<locals>.<genexpr>', 155, (155, 155, 18, 72))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/books.py', 'BookService.bootstrap.<locals>.<genexpr>', 168, (168, 168, 18, 70))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/books.py', 'BookService.context.<locals>.<genexpr>', 117, (117, 117, 36, 96))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/books.py', 'BootstrapRequest', 13, (14, 14, 19, 29))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/books.py', 'StoryContextProvider', 37, (38, 38, 4, 71))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/books.py', 'StoryStateContent', 22, (23, 23, 19, 29))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', '<module>', 1, (1, 1, 0, 77))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'ChapterLoopService', 185, (186, 186, 54, 55))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'ChapterLoopService._assert_projected_versions.<locals>.<genexpr>', 280, (280, 280, 14, 92))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'ChapterLoopService._live.<locals>.<genexpr>', 397, (397, 397, 44, 85))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'ChapterLoopService._materialize.<locals>.<genexpr>', 557, (557, 557, 14, 73))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'ChapterLoopService._snapshot.<locals>.<genexpr>', 347, (347, 347, 17, 58))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'ChapterLoopService._step.<locals>.<genexpr>', 434, (434, 434, 19, 77))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'ChapterLoopService.context.<locals>.<genexpr>', 299, (299, 299, 44, 83))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'ChapterLoopService.decide_review.<locals>.<genexpr>', 891, (891, 892, 31, 124))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'ChapterLoopService.enqueue.<locals>.<genexpr>', 322, (322, 324, 18, 58))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'ChapterLoopService.final_verify.<locals>.<genexpr>', 673, (673, 674, 15, 59))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'ChapterLoopService.request_revision.<locals>.<genexpr>', 1014, (1014, 1014, 18, 101))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'ChapterLoopService.versions.<locals>.<genexpr>', 760, (760, 760, 38, 84))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'ChapterRequest', 80, (81, 81, 19, 24))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'Constraints', 74, (75, 75, 38, 43))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'CriticInput', 155, (156, 156, 14, 18))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'Critique', 133, (134, 134, 14, 49))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'Critique.actionable_revision.<locals>.<genexpr>', 149, (149, 150, 75, 105))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'Dimension', 128, (129, 129, 17, 22))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'Draft', 101, (102, 102, 22, 27))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'DraftInput', 117, (118, 118, 32, 37))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'ModelDraft', 109, (111, 111, 19, 29))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', 'Strict', 70, (71, 71, 19, 29))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/chapter_loop.py', '_chapter_direction.<locals>.<genexpr>', 180, (180, 180, 33, 81))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/config.py', '<module>', 1, (1, 1, 0, 54))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/config.py', 'Settings', 9, (10, 10, 4, 81))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/constants.py', '<module>', 1, (1, 1, 0, 33))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/creative.py', '<module>', 1, (1, 1, 0, 75))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/creative.py', 'CoverInput', 101, (102, 102, 17, 21))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/creative.py', 'CoverPlan', 69, (70, 70, 22, 26))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/creative.py', 'CoverSet', 83, (84, 84, 34, 39))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/creative.py', 'CreativeRequest', 108, (109, 109, 25, 30))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/creative.py', 'CreativeService', 116, (117, 131, 4, 61))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/creative.py', 'CreativeService.candidates.<locals>.<genexpr>', 251, (251, 251, 23, 87))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/creative.py', 'CreativeService.decide.<locals>.<genexpr>', 345, (345, 345, 24, 119))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/creative.py', 'CreativeService.project.<locals>.<genexpr>', 395, (395, 395, 18, 67))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/creative.py', 'CreativeService.read.<locals>.<genexpr>', 332, (332, 332, 24, 78))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/creative.py', 'Strict', 39, (40, 40, 19, 29))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/creative.py', 'TitleCandidate', 43, (44, 44, 11, 20))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/creative.py', 'TitleInput', 94, (95, 95, 17, 21))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/creative.py', 'TitleSet', 58, (59, 59, 39, 44))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/creative.py', 'normalized.<locals>.<genexpr>', 32, (32, 32, 18, 96))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/evals.py', '<module>', 1, (1, 1, 0, 87))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/evals.py', 'Chapter', 37, (38, 38, 19, 24))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/evals.py', 'ChapterBrief', 32, (33, 33, 16, 21))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/evals.py', 'Continuity', 42, (43, 43, 16, 25))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/evals.py', 'FixtureProvider', 72, (73, 75, 4, 30))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/evals.py', 'OfflineTrace', 54, (55, 55, 4, 64))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/evals.py', 'OfflineTrace.finish.<locals>.<genexpr>', 65, (65, 65, 12, 69))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/evals.py', 'Opportunity', 21, (22, 22, 19, 24))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/evals.py', 'Rewrite', 46, (47, 47, 19, 24))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/evals.py', 'StoryBible', 27, (28, 28, 19, 24))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/evals.py', 'StrictOutput', 17, (18, 18, 19, 29))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/evals.py', 'compare.<locals>.<genexpr>', 121, (121, 121, 34, 66))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/evals.py', 'compare.<locals>.<genexpr>', 122, (122, 122, 39, 73))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/evals.py', 'compare.<locals>.<genexpr>', 123, (123, 123, 43, 78))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/evals.py', 'evaluate_live.<locals>.<genexpr>', 158, (158, 158, 34, 70))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/evals.py', 'evaluate_live.<locals>.<genexpr>', 159, (159, 159, 39, 77))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/__init__.py', '<module>', 1, (1, 1, 0, 39))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/client.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/client.py', 'FeishuAPIError', 40, (41, 41, 4, 84))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/client.py', 'FeishuAuthError', 28, (29, 29, 4, 73))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/client.py', 'FeishuClient', 62, (63, 71, 4, 7))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/client.py', 'FeishuError', 24, (25, 25, 4, 36))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/client.py', 'FeishuNotFoundError', 32, (33, 33, 4, 52))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/__init__.py', '<module>', 1, (1, 1, 0, 72))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/agent_runs.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/agent_runs.py', 'AgentRunsRepo', 19, (20, 20, 4, 45))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/agent_states.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/agent_states.py', 'AgentStatesRepo', 19, (20, 20, 4, 47))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/agent_team_snapshots.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/agent_team_snapshots.py', 'AgentTeamSnapshotsRepo', 19, (20, 20, 4, 54))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/agents.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/agents.py', 'AgentsRepo', 19, (20, 20, 4, 42))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/approval_events.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/approval_events.py', 'ApprovalEventsRepo', 19, (20, 20, 4, 50))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/base.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/base.py', 'BaseRepository', 21, (22, 26, 4, 7))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/base.py', 'BaseRepository.conditional_update.<locals>.<genexpr>', 258, (258, 258, 33, 84))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/base.py', 'BaseRepository.get_many_by_key.<locals>.<genexpr>', 174, (174, 174, 14, 87))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/base.py', 'BaseRepository.get_many_by_key.<locals>.<genexpr>', 201, (201, 202, 34, 94))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/base.py', 'BaseRepository.get_many_by_key.<locals>.<genexpr>', 204, (204, 204, 43, 75))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/base.py', 'BaseRepository.update.<locals>.<genexpr>', 239, (239, 239, 14, 52))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/books.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/books.py', 'BooksRepo', 19, (20, 20, 4, 41))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/chapter_briefs.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/chapter_briefs.py', 'ChapterBriefsRepo', 19, (20, 20, 4, 49))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/chapter_versions.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/chapter_versions.py', 'ChapterVersionsRepo', 19, (20, 20, 4, 51))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/cover_plans.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/cover_plans.py', 'CoverPlansRepo', 19, (20, 20, 4, 46))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/factory.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/hotspot_analyses.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/hotspot_analyses.py', 'HotspotAnalysesRepo', 19, (20, 20, 4, 51))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/hotspots.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/hotspots.py', 'HotspotsRepo', 19, (20, 20, 4, 44))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/pipeline_runs.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/pipeline_runs.py', 'PipelineRunsRepo', 19, (20, 20, 4, 48))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/review_reports.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/review_reports.py', 'ReviewReportsRepo', 19, (20, 20, 4, 49))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/revision_tasks.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/revision_tasks.py', 'RevisionTasksRepo', 19, (20, 20, 4, 49))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/step_runs.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/step_runs.py', 'StepRunsRepo', 19, (20, 20, 4, 44))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/story_states.py', '<module>', 1, (1, 1, 0, 67))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/story_states.py', 'StoryStatesRepo', 9, (10, 11, 4, 81))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/title_candidates.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/repositories/title_candidates.py', 'TitleCandidatesRepo', 19, (20, 20, 4, 51))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/table_map.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/feishu/table_map.py', 'TableMapConfig', 300, (301, 305, 4, 7))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', '<module>', 1, (1, 1, 0, 81))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'Artifact', 28, (29, 29, 19, 29))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'ArtifactIntegrityError', 331, (332, 332, 4, 76))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'ArtifactStore', 335, (336, 337, 4, 28))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'CallContext', 74, (76, 76, 12, 15))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'ChatProvider', 110, (111, 111, 4, 83))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'Completion', 83, (85, 85, 13, 16))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'GenerationResult', 92, (94, 94, 12, 21))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'ModelFailure', 99, (100, 103, 4, 34))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'ModelProvider', 106, (107, 107, 4, 77))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'ModelRouter', 254, (256, 256, 26, 30))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'Prompt', 22, (23, 23, 19, 29))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'Route', 53, (54, 54, 19, 29))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'Route.bounded_call.<locals>.<genexpr>', 66, (66, 66, 27, 86))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'SemanticRuntime', 400, (401, 401, 4, 82))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'TraceRecorder', 160, (161, 162, 4, 28))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'TraceRecorder.link_artifact.<locals>.<genexpr>', 198, (198, 199, 23, 91))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'TraceRecorder.link_artifact.<locals>.<genexpr>', 200, (200, 200, 23, 85))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'TraceRecorder.recover.<locals>.<genexpr>', 221, (223, 223, 35, 90))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'TraceRecorder.usage.<locals>.<genexpr>', 247, (247, 247, 21, 100))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'TraceRecorder.usage.<locals>.<genexpr>', 251, (251, 251, 29, 66))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'TraceRecorder.usage.<locals>.total.<locals>.<genexpr>', 244, (244, 244, 18, 54))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/generation.py', 'TraceRecorder.usage.<locals>.total.<locals>.<genexpr>', 246, (246, 246, 22, 46))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/harness.py', '<module>', 1, (1, 1, 0, 77))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/harness.py', 'CreationJournal', 50, (51, 55, 4, 7))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/harness.py', 'HarnessKernel', 96, (98, 98, 40, 41))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/harness.py', 'HarnessKernel._refresh_parent.<locals>.<genexpr>', 260, (260, 260, 29, 63))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/harness.py', 'HarnessKernel._validate_approval_event.<locals>.<genexpr>', 348, (348, 348, 15, 75))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/harness.py', 'InvalidHandlerOutput', 36, (37, 37, 4, 72))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/harness.py', 'PermanentStepFailure', 40, (41, 41, 4, 79))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/harness.py', 'StepResult', 44, (46, 46, 13, 17))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/harness.py', 'TransitionConflict', 32, (33, 33, 4, 8))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/hotspot_controls.py', '<module>', 1, (1, 1, 0, 81))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/hotspot_controls.py', 'HotspotControls', 28, (29, 33, 4, 62))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/hotspot_controls.py', 'HotspotControls.add.<locals>.<genexpr>', 60, (60, 60, 18, 94))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/hotspot_controls.py', 'ManualInput', 11, (12, 12, 19, 29))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/hotspots.py', '<module>', 1, (1, 1, 0, 84))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/hotspots.py', 'HotspotRecord', 22, (23, 23, 19, 29))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/hotspots.py', 'HotspotService', 60, (61, 61, 62, 66))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/hotspots.py', 'HotspotService.persist.<locals>.<genexpr>', 114, (114, 114, 27, 80))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/hotspots.py', 'HotspotService.persist.<locals>.<genexpr>', 142, (142, 142, 22, 103))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/hotspots.py', 'IngestionInput', 16, (17, 17, 19, 29))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/main.py', '<module>', 1, (1, 1, 0, 52))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/pipeline/__init__.py', '<module>', 1, (1, 1, 0, 79))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/pipeline/engine.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/pipeline/engine.py', 'PipelineEngine', 23, (24, 28, 4, 7))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/pipeline/engine.py', 'PipelineEngine.complete_step.<locals>.<genexpr>', 187, (187, 187, 18, 67))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/pipeline/models.py', '<module>', 1, (1, 6, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/pipeline/models.py', 'PipelineDef', 32, (34, 34, 4, 64))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/pipeline/models.py', 'StepDef', 18, (20, 20, 4, 57))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/pipeline/worker.py', '<module>', 1, (1, 7, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/pipeline/worker.py', 'WorkerLoop', 23, (24, 29, 4, 7))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/research.py', '<module>', 1, (1, 5, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/research.py', 'AnalysisRequest', 51, (52, 52, 22, 27))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/research.py', 'Opportunity', 32, (33, 33, 13, 17))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/research.py', 'ResearchInput', 59, (60, 60, 12, 18))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/research.py', 'ResearchService', 112, (113, 113, 53, 57))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/research.py', 'ResearchService.decide.<locals>.<genexpr>', 345, (345, 345, 26, 75))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/research.py', 'ResearchService.get.<locals>.<genexpr>', 321, (321, 321, 18, 62))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/research.py', 'ResearchService.get.<locals>.<genexpr>', 323, (323, 323, 20, 64))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/research.py', 'ResearchService.get.<locals>.<genexpr>', 328, (328, 328, 54, 145))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/research.py', 'ResearchService.project.<locals>.<genexpr>', 379, (379, 379, 14, 63))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/research.py', 'ResearchService.risk.<locals>.<genexpr>', 268, (268, 268, 36, 74))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/research.py', 'ReviewInput', 65, (66, 66, 12, 18))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/research.py', 'RiskAssessment', 24, (25, 25, 11, 18))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/research.py', 'Source', 42, (43, 43, 16, 20))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/research.py', 'Strict', 20, (21, 21, 19, 29))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/runtime.py', '<module>', 1, (1, 1, 0, 74))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/runtime.py', 'build_runtime.<locals>.<genexpr>', 31, (31, 31, 57, 113))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/storage.py', '<module>', 1, (1, 5, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/storage.py', 'AmbiguousWrite', 27, (28, 28, 4, 78))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/storage.py', 'DuplicateKey', 23, (24, 24, 4, 8))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/storage.py', 'FeishuStorageProvider', 40, (41, 46, 4, 7))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/storage.py', 'FeishuStorageProvider.update.<locals>.<genexpr>', 131, (131, 131, 47, 110))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/storage.py', 'MissingRecord', 19, (20, 20, 4, 8))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/storage.py', 'StorageError', 15, (16, 16, 4, 8))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/storage.py', 'StorageProvider', 31, (32, 32, 4, 70))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/story_planning.py', '<module>', 1, (1, 1, 0, 91))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/story_planning.py', 'BibleContent', 48, (49, 49, 13, 17))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/story_planning.py', 'BibleInput', 66, (67, 67, 11, 15))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/story_planning.py', 'BibleRequest', 80, (81, 81, 19, 24))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/story_planning.py', 'BriefDraft', 58, (59, 59, 18, 22))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/story_planning.py', 'BriefInput', 73, (74, 74, 14, 18))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/story_planning.py', 'BriefRequest', 89, (90, 90, 19, 24))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/story_planning.py', 'StoryPlanningService', 98, (99, 99, 4, 83))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/story_planning.py', 'StoryPlanningService._live.<locals>.<genexpr>', 229, (229, 229, 30, 71))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/story_planning.py', 'StoryPlanningService.commit_bible.<locals>.<genexpr>', 327, (327, 327, 14, 70))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/story_planning.py', 'StoryPlanningService.decide_bible.<locals>.<genexpr>', 339, (339, 339, 24, 78))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/story_planning.py', 'StoryPlanningService.prior_final_chapters.<locals>.<genexpr>', 355, (355, 356, 18, 57))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/story_planning.py', 'StoryPlanningService.prior_final_chapters.<locals>.<genexpr>', 361, (361, 361, 24, 60))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/story_planning.py', 'StoryPlanningService.prior_final_chapters.<locals>.<genexpr>', 377, (377, 378, 23, 59))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/story_planning.py', 'StoryPlanningService.prior_final_chapters.<locals>.<genexpr>', 393, (393, 393, 23, 83))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/story_planning.py', 'StoryPlanningService.prior_final_chapters.<locals>.<genexpr>', 395, (395, 396, 23, 102))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/story_planning.py', 'StoryPlanningService.read.<locals>.<genexpr>', 535, (535, 535, 24, 78))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/story_planning.py', 'StoryPlanningService.snapshot.<locals>.<genexpr>', 424, (424, 424, 29, 70))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/story_planning.py', 'Strict', 44, (45, 45, 19, 29))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/tools/__init__.py', '<module>', 1, (1, 8, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/tools/adapters/__init__.py', '<module>', 1, (1, 8, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/tools/adapters/douyin_hotspots.py', '<module>', 1, (1, 8, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/tools/adapters/douyin_hotspots.py', 'DouyinAdapterResult', 28, (30, 30, 4, 52))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/tools/adapters/douyin_hotspots.py', 'DouyinHotspotAdapter', 41, (42, 46, 4, 7))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/tools/errors.py', '<module>', 1, (1, 8, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/tools/errors.py', 'OpenCLIError', 11, (12, 12, 4, 55))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/tools/errors.py', 'OpenCLIExitError', 27, (28, 28, 4, 56))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/tools/errors.py', 'OpenCLIOutputError', 45, (46, 46, 4, 74))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/tools/errors.py', 'OpenCLITimeoutError', 19, (20, 20, 4, 53))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/tools/runner.py', '<module>', 1, (1, 8, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/tools/runner.py', 'OpenCLIResult', 25, (27, 32, 4, 7))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/tools/runner.py', 'OpenCLIRunner', 45, (46, 50, 4, 7))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/tools/schemas.py', '<module>', 1, (1, 8, 0, 3))",
+      "('/private/tmp/novelops-foundation-boundary-pr37-d547cfd4/backend/app/tools/schemas.py', 'DouyinHotspotRecord', 15, (17, 21, 4, 7))"
+    ],
+    "pytest_exitstatus": 0,
+    "missing": [
+      {
+        "file": "generation.py",
+        "name": "ModelProvider.complete",
+        "line": 107,
+        "source_position": [
+          107,
+          107,
+          74,
+          77
+        ]
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.get",
+        "line": 32,
+        "source_position": [
+          32,
+          32,
+          67,
+          70
+        ]
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.get_many",
+        "line": 33,
+        "source_position": [
+          33,
+          33,
+          83,
+          86
+        ]
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.list",
+        "line": 34,
+        "source_position": [
+          34,
+          34,
+          76,
+          79
+        ]
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.ensure",
+        "line": 35,
+        "source_position": [
+          35,
+          35,
+          89,
+          92
+        ]
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.update",
+        "line": 36,
+        "source_position": [
+          36,
+          36,
+          77,
+          80
+        ]
+      },
+      {
+        "file": "storage.py",
+        "name": "StorageProvider.delete",
+        "line": 37,
+        "source_position": [
+          37,
+          37,
+          63,
+          66
+        ]
+      }
+    ],
+    "definition_scope": "every app Python source including unimported modules and Protocol declarations; module/class bodies and compiler-generated comprehensions are not source functions"
+  },
+  "current_approval_identity_verification": {
+    "report": "2026-10-21-approval-identity-and-recovery.md",
+    "native": {
+      "source_commit": "d9153cbefe9d8e5af9c7a4bf9b97d32e34993187",
+      "app_tree_matches_final_test_source": true,
+      "native_test_source_before_lifecycle_cases": true,
+      "base_url": "https://fcnaul7kb1kf.feishu.cn/base/T8I6buCMoaiLB6srVBrc9i2jnph",
+      "status": "native_approval_identity_verified",
+      "real_application_credentials": true,
+      "cli_invocations": 0,
+      "baseline_before": 444,
+      "baseline_after": 444,
+      "new_owned_rows_retained": 8,
+      "total_known_rows": 452,
+      "row_counts": {
+        "pipeline_runs": 2,
+        "approval_events": 2,
+        "step_runs": 2,
+        "traces": 2
+      },
+      "verified_decisions": {
+        "approve": {
+          "action": "approve",
+          "approval_id": "AP-f33c960a2c5180772db8884b68d32336",
+          "created_at": "2026-10-21T01:44:33.451316+00:00",
+          "operator": "synthetic-original-editor",
+          "target_id": "SR-26eb45f6a691499bd210a66118f99fb5",
+          "target_type": "step_run",
+          "target_version": 1
+        },
+        "reject": {
+          "action": "reject",
+          "approval_id": "AP-07dbfa70c11a3cf9c5e758950b125817",
+          "created_at": "2026-10-21T01:46:31.322045+00:00",
+          "operator": "synthetic-original-editor",
+          "target_id": "SR-4cb9ff793c53e9cf0f38ed9d49f4812d",
+          "target_type": "step_run",
+          "target_version": 1
+        }
+      },
+      "verified_runs": {
+        "PR-d08205083d74413dcf8e967175bab826": {
+          "created_at": "2026-10-21T01:26:58.956811+00:00",
+          "definition_json": "{\"book_id\":\"\",\"source_hotspot_id\":\"\",\"steps\":[{\"depends_on\":[],\"handler\":\"acceptance.approval_identity\",\"input\":{\"action\":\"approve\",\"synthetic\":true},\"kind\":\"service\",\"requires_approval\":true,\"step_key\":\"review\"}],\"workflow_type\":\"approval_identity_acceptance\"}",
+          "pipeline_run_id": "PR-d08205083d74413dcf8e967175bab826",
+          "pipeline_type": "approval_identity_acceptance",
+          "status": "completed",
+          "updated_at": "2026-10-21T01:44:46.935090+00:00"
+        },
+        "PR-5fdb86fbbfe2300b174c98123476eeec": {
+          "created_at": "2026-10-21T01:45:08.694646+00:00",
+          "definition_json": "{\"book_id\":\"\",\"source_hotspot_id\":\"\",\"steps\":[{\"depends_on\":[],\"handler\":\"acceptance.approval_identity\",\"input\":{\"action\":\"reject\",\"synthetic\":true},\"kind\":\"service\",\"requires_approval\":true,\"step_key\":\"review\"}],\"workflow_type\":\"approval_identity_acceptance\"}",
+          "pipeline_run_id": "PR-5fdb86fbbfe2300b174c98123476eeec",
+          "pipeline_type": "approval_identity_acceptance",
+          "status": "failed",
+          "updated_at": "2026-10-21T01:52:07.061848+00:00"
+        }
+      },
+      "verified_steps": {
+        "SR-26eb45f6a691499bd210a66118f99fb5": {
+          "finished_at": "2026-10-21T01:27:53.672037+00:00",
+          "handler": "acceptance.approval_identity",
+          "input_json": "{\"action\":\"approve\",\"synthetic\":true}",
+          "kind": "service",
+          "output_json": "{\"result\":\"ready\",\"synthetic\":true}",
+          "output_version": 1,
+          "pipeline_run_id": "PR-d08205083d74413dcf8e967175bab826",
+          "requires_approval": true,
+          "retry_count": 0,
+          "started_at": "2026-10-21T01:27:36.038205+00:00",
+          "status": "success",
+          "step_key": "review",
+          "step_run_id": "SR-26eb45f6a691499bd210a66118f99fb5"
+        },
+        "SR-4cb9ff793c53e9cf0f38ed9d49f4812d": {
+          "finished_at": "2026-10-21T01:45:47.303115+00:00",
+          "handler": "acceptance.approval_identity",
+          "input_json": "{\"action\":\"reject\",\"synthetic\":true}",
+          "kind": "service",
+          "output_json": "{\"result\":\"ready\",\"synthetic\":true}",
+          "output_version": 1,
+          "pipeline_run_id": "PR-5fdb86fbbfe2300b174c98123476eeec",
+          "requires_approval": true,
+          "retry_count": 0,
+          "started_at": "2026-10-21T01:45:33.599256+00:00",
+          "status": "failed",
+          "step_key": "review",
+          "step_run_id": "SR-4cb9ff793c53e9cf0f38ed9d49f4812d"
+        }
+      },
+      "http_results": [
+        {
+          "path": "/workflows",
+          "expected": 201,
+          "observed": 201
+        },
+        {
+          "path": "/workflows",
+          "expected": 201,
+          "observed": 201
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "expected": 422,
+          "observed": 422
+        },
+        {
+          "path": "/workflows",
+          "expected": 201,
+          "observed": 201
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "expected": 422,
+          "observed": 422
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "expected": 422,
+          "observed": 422
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "expected": 422,
+          "observed": 422
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "expected": 422,
+          "observed": 422
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "expected": 200,
+          "observed": 200
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "expected": 409,
+          "observed": 409
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "expected": 200,
+          "observed": 200
+        },
+        {
+          "path": "/workflows",
+          "expected": 201,
+          "observed": 201
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "expected": 422,
+          "observed": 422
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "expected": 422,
+          "observed": 422
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "expected": 422,
+          "observed": 422
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "expected": 422,
+          "observed": 422
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "expected": 409,
+          "observed": 409
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "expected": 200,
+          "observed": 200
+        }
+      ],
+      "handler_calls": [
+        "SR-26eb45f6a691499bd210a66118f99fb5",
+        "SR-4cb9ff793c53e9cf0f38ed9d49f4812d"
+      ],
+      "service_instances": [
+        {
+          "started_at": 1792546017.144344,
+          "scheduler_running": true,
+          "stopped_at": 1792546114.631812,
+          "scheduler_running_after_exit": false
+        },
+        {
+          "started_at": 1792546505.258065,
+          "scheduler_running": true,
+          "stopped_at": 1792546562.74991,
+          "scheduler_running_after_exit": false
+        },
+        {
+          "started_at": 1792547036.709302,
+          "scheduler_running": true,
+          "stopped_at": 1792547233.328578,
+          "scheduler_running_after_exit": false
+        },
+        {
+          "started_at": 1792547540.074042,
+          "scheduler_running": true,
+          "stopped_at": 1792547587.236612,
+          "scheduler_running_after_exit": false
+        }
+      ],
+      "prior_observer_failures": [
+        {
+          "checkpoint": "/tmp/novelops-20261021-kernel-approval-native.json",
+          "exit": 1,
+          "cause": "Concurrent checkpoint temp rename without lock",
+          "old444_exact": true,
+          "new_rows_retained": 3,
+          "scheduler_stopped": true
+        },
+        {
+          "checkpoint": "/tmp/novelops-20261021-kernel-approval-native-v2.json",
+          "exit": 1,
+          "cause": "Global mutation counter included legitimate scheduler timestamp updates during an actual422 API response",
+          "old444_exact": true,
+          "new_rows_retained": 3,
+          "scheduler_stopped": true
+        }
+      ],
+      "same_workflow_resumed": true,
+      "save_function_validation": "20threads/200writes/0network",
+      "no_write_api_observations": [
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "status": 422,
+          "operation_begin": 209,
+          "operation_end": 216,
+          "api_writes_before": 1,
+          "api_writes_after": 1,
+          "scheduler_writes_in_window": 1
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "status": 422,
+          "operation_begin": 216,
+          "operation_end": 216,
+          "api_writes_before": 1,
+          "api_writes_after": 1,
+          "scheduler_writes_in_window": 0
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "status": 422,
+          "operation_begin": 216,
+          "operation_end": 216,
+          "api_writes_before": 1,
+          "api_writes_after": 1,
+          "scheduler_writes_in_window": 0
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "status": 422,
+          "operation_begin": 216,
+          "operation_end": 216,
+          "api_writes_before": 1,
+          "api_writes_after": 1,
+          "scheduler_writes_in_window": 0
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "status": 409,
+          "operation_begin": 235,
+          "operation_end": 239,
+          "api_writes_before": 4,
+          "api_writes_after": 4,
+          "scheduler_writes_in_window": 0
+        },
+        {
+          "path": "/workflows/steps/SR-26eb45f6a691499bd210a66118f99fb5/decision",
+          "status": 200,
+          "operation_begin": 239,
+          "operation_end": 247,
+          "api_writes_before": 4,
+          "api_writes_after": 4,
+          "scheduler_writes_in_window": 0
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "status": 422,
+          "operation_begin": 295,
+          "operation_end": 304,
+          "api_writes_before": 7,
+          "api_writes_after": 7,
+          "scheduler_writes_in_window": 1
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "status": 422,
+          "operation_begin": 304,
+          "operation_end": 304,
+          "api_writes_before": 7,
+          "api_writes_after": 7,
+          "scheduler_writes_in_window": 0
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "status": 422,
+          "operation_begin": 304,
+          "operation_end": 304,
+          "api_writes_before": 7,
+          "api_writes_after": 7,
+          "scheduler_writes_in_window": 0
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "status": 422,
+          "operation_begin": 304,
+          "operation_end": 304,
+          "api_writes_before": 7,
+          "api_writes_after": 7,
+          "scheduler_writes_in_window": 0
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "status": 409,
+          "operation_begin": 551,
+          "operation_end": 556,
+          "api_writes_before": 10,
+          "api_writes_after": 10,
+          "scheduler_writes_in_window": 0
+        },
+        {
+          "path": "/workflows/steps/SR-4cb9ff793c53e9cf0f38ed9d49f4812d/decision",
+          "status": 200,
+          "operation_begin": 556,
+          "operation_end": 565,
+          "api_writes_before": 10,
+          "api_writes_after": 10,
+          "scheduler_writes_in_window": 0
+        }
+      ],
+      "mutation_attribution": "HTTP request hook records thread/method/path; invalid/conflicting/exact-replay API must have zero non-scheduler writes. Background timestamp writes are recorded separately, not hidden.",
+      "operation_counts": {
+        "auth": 4,
+        "read": 1040,
+        "owned_write": 32
+      },
+      "model_requests": 0,
+      "global_paid_model_cap": 4,
+      "global_paid_requests_used": 4,
+      "global_paid_remaining": 0,
+      "initial_approve_entry": "Real HTTP decision endpoint",
+      "initial_reject_entry": "Direct actual kernel.decide under its writer for post-commit interruption injection; fresh app startup recovery and exact replay verified over real HTTP",
+      "interrupted_after_durable_event": true,
+      "scheduler_running_after_exit": false,
+      "snapshot_failures": [],
+      "observer_kind": "Real local Uvicorn/HTTP, configured runtime identity, Feishu data; deterministic acceptance handler; post-commit response hook is injected, not an actual OS kill; initial observer failure preserved and same business workflow resumed"
+    },
+    "new_cases": 72,
+    "branch_gates": [
+      {
+        "pr": 24,
+        "branch": "codex/zen-104-harness-kernel",
+        "source_commit": "ebc341e31b3b6de37c1203a84f5611256c56ef66",
+        "previous_published_head": "fb8ac4c9f19946445cf175c1bfca69c5abc87bc2",
+        "app_tree": "b1536def50f4087f124d63036d882047729fe9bd",
+        "tests_tree": "23283d960b833e20d81c5b10a5420a3a36d8a4c1",
+        "frontend_tree": "a4cfe7f58e5c359b04ffe1df77d0a68ccb780936",
+        "coverage_config_tree": "e03f45aeca3b3550ccf8e44a985d84b0c5eef325",
+        "offline_passed": 378,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 1500,
+          "num_statements": 1559,
+          "percent_covered": 95.5177743431221,
+          "percent_covered_display": "95.52",
+          "missing_lines": 59,
+          "excluded_lines": 8,
+          "percent_statements_covered": 96.21552277100706,
+          "percent_statements_covered_display": "96.22",
+          "num_branches": 382,
+          "num_partial_branches": 24,
+          "covered_branches": 354,
+          "missing_branches": 28,
+          "percent_branches_covered": 92.67015706806282,
+          "percent_branches_covered_display": "92.67"
+        },
+        "harness_coverage": {
+          "covered_lines": 311,
+          "num_statements": 313,
+          "percent_covered": 99.06759906759906,
+          "percent_covered_display": "99.07",
+          "missing_lines": 2,
+          "excluded_lines": 0,
+          "percent_statements_covered": 99.36102236421725,
+          "percent_statements_covered_display": "99.36",
+          "num_branches": 116,
+          "num_partial_branches": 2,
+          "covered_branches": 114,
+          "missing_branches": 2,
+          "percent_branches_covered": 98.27586206896552,
+          "percent_branches_covered_display": "98.28"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr24-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr24-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 25,
+        "branch": "codex/zen-106-model-artifacts",
+        "source_commit": "999b67f3137a477192c0ef87738d36b79028a8a0",
+        "previous_published_head": "ffa7081985dbc0696a66bbc22f095a57a043ae77",
+        "app_tree": "cb8d0bc31b3fd15b8412b4674bfe3c3551eed6be",
+        "tests_tree": "886b23e4fd9ae56807abc8d4adc8a3515d8ae931",
+        "frontend_tree": "a4cfe7f58e5c359b04ffe1df77d0a68ccb780936",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 504,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 2004,
+          "num_statements": 2064,
+          "percent_covered": 96.5477114041893,
+          "percent_covered_display": "96.55",
+          "missing_lines": 60,
+          "excluded_lines": 11,
+          "percent_statements_covered": 97.09302325581395,
+          "percent_statements_covered_display": "97.09",
+          "num_branches": 514,
+          "num_partial_branches": 25,
+          "covered_branches": 485,
+          "missing_branches": 29,
+          "percent_branches_covered": 94.3579766536965,
+          "percent_branches_covered_display": "94.36"
+        },
+        "harness_coverage": {
+          "covered_lines": 325,
+          "num_statements": 327,
+          "percent_covered": 99.10913140311804,
+          "percent_covered_display": "99.11",
+          "missing_lines": 2,
+          "excluded_lines": 0,
+          "percent_statements_covered": 99.38837920489297,
+          "percent_statements_covered_display": "99.39",
+          "num_branches": 122,
+          "num_partial_branches": 2,
+          "covered_branches": 120,
+          "missing_branches": 2,
+          "percent_branches_covered": 98.36065573770492,
+          "percent_branches_covered_display": "98.36"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr25-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr25-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 27,
+        "branch": "codex/zen-33-hotspot-ingestion",
+        "source_commit": "18b796cd5d44f6ec519bfa7a05ec5020375b7192",
+        "previous_published_head": "3bc52a0506402dba1d9bd354023852af7c825914",
+        "app_tree": "99fb865e9dad0e6df07a625e7d3902ae4de56f0f",
+        "tests_tree": "b3d41c382416feec16656ec06ee5e7e27c2141f2",
+        "frontend_tree": "a4cfe7f58e5c359b04ffe1df77d0a68ccb780936",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 552,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 2219,
+          "num_statements": 2276,
+          "percent_covered": 97.03419399860432,
+          "percent_covered_display": "97.03",
+          "missing_lines": 57,
+          "excluded_lines": 11,
+          "percent_statements_covered": 97.49560632688927,
+          "percent_statements_covered_display": "97.50",
+          "num_branches": 590,
+          "num_partial_branches": 24,
+          "covered_branches": 562,
+          "missing_branches": 28,
+          "percent_branches_covered": 95.2542372881356,
+          "percent_branches_covered_display": "95.25"
+        },
+        "harness_coverage": {
+          "covered_lines": 325,
+          "num_statements": 327,
+          "percent_covered": 99.10913140311804,
+          "percent_covered_display": "99.11",
+          "missing_lines": 2,
+          "excluded_lines": 0,
+          "percent_statements_covered": 99.38837920489297,
+          "percent_statements_covered_display": "99.39",
+          "num_branches": 122,
+          "num_partial_branches": 2,
+          "covered_branches": 120,
+          "missing_branches": 2,
+          "percent_branches_covered": 98.36065573770492,
+          "percent_branches_covered_display": "98.36"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr27-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr27-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 28,
+        "branch": "codex/zen-34-hotspots-page",
+        "source_commit": "ba3d4b90d74f0597bda44ed7a702dfd121a423d9",
+        "previous_published_head": "50b28d3a7d265164d044a04e3f8e514b6dbc39c6",
+        "app_tree": "c42975e2bec0961109fd5d8839610689f33e5c6c",
+        "tests_tree": "191f4ea7faa9f1138b1c71218ee84935ea379e8c",
+        "frontend_tree": "9fb61e309e7a580b9411178ddb13997cccd4ee61",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 561,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 2287,
+          "num_statements": 2347,
+          "percent_covered": 96.91211401425178,
+          "percent_covered_display": "96.91",
+          "missing_lines": 60,
+          "excluded_lines": 11,
+          "percent_statements_covered": 97.44354495100127,
+          "percent_statements_covered_display": "97.44",
+          "num_branches": 600,
+          "num_partial_branches": 27,
+          "covered_branches": 569,
+          "missing_branches": 31,
+          "percent_branches_covered": 94.83333333333333,
+          "percent_branches_covered_display": "94.83"
+        },
+        "harness_coverage": {
+          "covered_lines": 325,
+          "num_statements": 327,
+          "percent_covered": 99.10913140311804,
+          "percent_covered_display": "99.11",
+          "missing_lines": 2,
+          "excluded_lines": 0,
+          "percent_statements_covered": 99.38837920489297,
+          "percent_statements_covered_display": "99.39",
+          "num_branches": 122,
+          "num_partial_branches": 2,
+          "covered_branches": 120,
+          "missing_branches": 2,
+          "percent_branches_covered": 98.36065573770492,
+          "percent_branches_covered_display": "98.36"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr28-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr28-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 29,
+        "branch": "codex/zen-35-opportunity-research",
+        "source_commit": "ca0fd5f4246554968b9b65da767195bff1e683fb",
+        "previous_published_head": "359a0b386430676b8ac5e4a95943011aec4be799",
+        "app_tree": "f5a63f754693200ffe2605501595c1edca27c71d",
+        "tests_tree": "4211d0e02fe4506fb9839624d6618443cd230b7b",
+        "frontend_tree": "a0a73bbb9351fdc0a84f6e5ee1dc54a24eabdf26",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 601,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 2659,
+          "num_statements": 2735,
+          "percent_covered": 96.47743813682678,
+          "percent_covered_display": "96.48",
+          "missing_lines": 76,
+          "excluded_lines": 11,
+          "percent_statements_covered": 97.22120658135283,
+          "percent_statements_covered_display": "97.22",
+          "num_branches": 700,
+          "num_partial_branches": 41,
+          "covered_branches": 655,
+          "missing_branches": 45,
+          "percent_branches_covered": 93.57142857142857,
+          "percent_branches_covered_display": "93.57"
+        },
+        "harness_coverage": {
+          "covered_lines": 369,
+          "num_statements": 375,
+          "percent_covered": 97.47572815533981,
+          "percent_covered_display": "97.48",
+          "missing_lines": 6,
+          "excluded_lines": 0,
+          "percent_statements_covered": 98.4,
+          "percent_statements_covered_display": "98.40",
+          "num_branches": 140,
+          "num_partial_branches": 7,
+          "covered_branches": 133,
+          "missing_branches": 7,
+          "percent_branches_covered": 95.0,
+          "percent_branches_covered_display": "95.00"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr29-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr29-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 30,
+        "branch": "codex/zen-36-title-cover",
+        "source_commit": "b8d5beead30bd44474767a1069a72075ae27b1c8",
+        "previous_published_head": "63139b99e8fc793ddde4f48ac5d40ba7ea0e13af",
+        "app_tree": "784597d4c7f578edf4d41726f2e51a9463459976",
+        "tests_tree": "c2a36f9c7cc18b43a142822251c1543f09329bc0",
+        "frontend_tree": "49111c240b1818124b9349933db8246785404f18",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 629,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 2990,
+          "num_statements": 3077,
+          "percent_covered": 96.32219632219632,
+          "percent_covered_display": "96.32",
+          "missing_lines": 87,
+          "excluded_lines": 11,
+          "percent_statements_covered": 97.17257068573285,
+          "percent_statements_covered_display": "97.17",
+          "num_branches": 784,
+          "num_partial_branches": 51,
+          "covered_branches": 729,
+          "missing_branches": 55,
+          "percent_branches_covered": 92.98469387755102,
+          "percent_branches_covered_display": "92.98"
+        },
+        "harness_coverage": {
+          "covered_lines": 371,
+          "num_statements": 377,
+          "percent_covered": 97.495183044316,
+          "percent_covered_display": "97.50",
+          "missing_lines": 6,
+          "excluded_lines": 0,
+          "percent_statements_covered": 98.40848806366047,
+          "percent_statements_covered_display": "98.41",
+          "num_branches": 142,
+          "num_partial_branches": 7,
+          "covered_branches": 135,
+          "missing_branches": 7,
+          "percent_branches_covered": 95.07042253521126,
+          "percent_branches_covered_display": "95.07"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr30-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr30-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 31,
+        "branch": "codex/zen-37-approval-ui",
+        "source_commit": "4774fed164319e033062f967d5c5550bee9ead9e",
+        "previous_published_head": "fb5b0f444c30071ec141785d012ad4a5588333c2",
+        "app_tree": "784597d4c7f578edf4d41726f2e51a9463459976",
+        "tests_tree": "c2a36f9c7cc18b43a142822251c1543f09329bc0",
+        "frontend_tree": "800e0fe10869813437708dd586c3fc995ecc6388",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 629,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 2990,
+          "num_statements": 3077,
+          "percent_covered": 96.32219632219632,
+          "percent_covered_display": "96.32",
+          "missing_lines": 87,
+          "excluded_lines": 11,
+          "percent_statements_covered": 97.17257068573285,
+          "percent_statements_covered_display": "97.17",
+          "num_branches": 784,
+          "num_partial_branches": 51,
+          "covered_branches": 729,
+          "missing_branches": 55,
+          "percent_branches_covered": 92.98469387755102,
+          "percent_branches_covered_display": "92.98"
+        },
+        "harness_coverage": {
+          "covered_lines": 371,
+          "num_statements": 377,
+          "percent_covered": 97.495183044316,
+          "percent_covered_display": "97.50",
+          "missing_lines": 6,
+          "excluded_lines": 0,
+          "percent_statements_covered": 98.40848806366047,
+          "percent_statements_covered_display": "98.41",
+          "num_branches": 142,
+          "num_partial_branches": 7,
+          "covered_branches": 135,
+          "missing_branches": 7,
+          "percent_branches_covered": 95.07042253521126,
+          "percent_branches_covered_display": "95.07"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr31-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr31-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 32,
+        "branch": "codex/zen-38-book-bootstrap",
+        "source_commit": "b49e8e6049bf340b8f9a2ef9f7d387141c33500a",
+        "previous_published_head": "b8fed3328655efaf481f409feb579d415b365dfa",
+        "app_tree": "0239084ee6ccc3dae2495e437650733b4cc21d02",
+        "tests_tree": "f7a092cdf21bad80cefcbbc939dede8acbdae68e",
+        "frontend_tree": "7f03c1288009f0c019baa006d4fc1cf6b1db1b1f",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 669,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 3153,
+          "num_statements": 3245,
+          "percent_covered": 96.31540162122329,
+          "percent_covered_display": "96.32",
+          "missing_lines": 92,
+          "excluded_lines": 11,
+          "percent_statements_covered": 97.1648690292758,
+          "percent_statements_covered_display": "97.16",
+          "num_branches": 826,
+          "num_partial_branches": 54,
+          "covered_branches": 768,
+          "missing_branches": 58,
+          "percent_branches_covered": 92.97820823244552,
+          "percent_branches_covered_display": "92.98"
+        },
+        "harness_coverage": {
+          "covered_lines": 371,
+          "num_statements": 377,
+          "percent_covered": 97.495183044316,
+          "percent_covered_display": "97.50",
+          "missing_lines": 6,
+          "excluded_lines": 0,
+          "percent_statements_covered": 98.40848806366047,
+          "percent_statements_covered_display": "98.41",
+          "num_branches": 142,
+          "num_partial_branches": 7,
+          "covered_branches": 135,
+          "missing_branches": 7,
+          "percent_branches_covered": 95.07042253521126,
+          "percent_branches_covered_display": "95.07"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr32-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr32-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 34,
+        "branch": "codex/zen-107-ios-design",
+        "source_commit": "10123a11bca4a199b9442f56885ddcebbd70cda1",
+        "previous_published_head": "94fefddab6d7ed4ce72f349a42b9380dc92d7a84",
+        "app_tree": "0239084ee6ccc3dae2495e437650733b4cc21d02",
+        "tests_tree": "f7a092cdf21bad80cefcbbc939dede8acbdae68e",
+        "frontend_tree": "446af9ab10ebb3cd63c966032bac5ef445c7587f",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 669,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 3153,
+          "num_statements": 3245,
+          "percent_covered": 96.31540162122329,
+          "percent_covered_display": "96.32",
+          "missing_lines": 92,
+          "excluded_lines": 11,
+          "percent_statements_covered": 97.1648690292758,
+          "percent_statements_covered_display": "97.16",
+          "num_branches": 826,
+          "num_partial_branches": 54,
+          "covered_branches": 768,
+          "missing_branches": 58,
+          "percent_branches_covered": 92.97820823244552,
+          "percent_branches_covered_display": "92.98"
+        },
+        "harness_coverage": {
+          "covered_lines": 371,
+          "num_statements": 377,
+          "percent_covered": 97.495183044316,
+          "percent_covered_display": "97.50",
+          "missing_lines": 6,
+          "excluded_lines": 0,
+          "percent_statements_covered": 98.40848806366047,
+          "percent_statements_covered_display": "98.41",
+          "num_branches": 142,
+          "num_partial_branches": 7,
+          "covered_branches": 135,
+          "missing_branches": 7,
+          "percent_branches_covered": 95.07042253521126,
+          "percent_branches_covered_display": "95.07"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr34-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr34-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 35,
+        "branch": "codex/zen-39-story-planning",
+        "source_commit": "582e3af178bfeb259c1c470788ca70bc3d8b2487",
+        "previous_published_head": "e89ee5b33e499415dd06d82cdf0dfac9b1330d53",
+        "app_tree": "5113dd42b11eb1e6b3caf4c9587ee120d474c88f",
+        "tests_tree": "3a458cb1b127a2e5b662a51fad59dedba83e6483",
+        "frontend_tree": "d66ed69f208a22a065740d5e50c7c4f46b169bd7",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 761,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 3600,
+          "num_statements": 3692,
+          "percent_covered": 96.73866090712743,
+          "percent_covered_display": "96.74",
+          "missing_lines": 92,
+          "excluded_lines": 11,
+          "percent_statements_covered": 97.50812567713976,
+          "percent_statements_covered_display": "97.51",
+          "num_branches": 938,
+          "num_partial_branches": 55,
+          "covered_branches": 879,
+          "missing_branches": 59,
+          "percent_branches_covered": 93.71002132196162,
+          "percent_branches_covered_display": "93.71"
+        },
+        "harness_coverage": {
+          "covered_lines": 371,
+          "num_statements": 377,
+          "percent_covered": 97.495183044316,
+          "percent_covered_display": "97.50",
+          "missing_lines": 6,
+          "excluded_lines": 0,
+          "percent_statements_covered": 98.40848806366047,
+          "percent_statements_covered_display": "98.41",
+          "num_branches": 142,
+          "num_partial_branches": 7,
+          "covered_branches": 135,
+          "missing_branches": 7,
+          "percent_branches_covered": 95.07042253521126,
+          "percent_branches_covered_display": "95.07"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr35-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr35-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 36,
+        "branch": "codex/zen-40-chapter-loop",
+        "source_commit": "e4ae8b99f374e04b5135adee1cb4d2677cbfe1ac",
+        "previous_published_head": "522d1fc4226be35a3642f6a939307b6e17e3093b",
+        "app_tree": "85aa8d8c7dfad60f0231643714cd2288e0dbe631",
+        "tests_tree": "fde681875a7c0a7afba0608509f70c072154a56b",
+        "frontend_tree": "684a63431603401a9eee9282681cd982e19a8a24",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 834,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 4078,
+          "num_statements": 4213,
+          "percent_covered": 95.6989247311828,
+          "percent_covered_display": "95.70",
+          "missing_lines": 135,
+          "excluded_lines": 11,
+          "percent_statements_covered": 96.79563256586755,
+          "percent_statements_covered_display": "96.80",
+          "num_branches": 1088,
+          "num_partial_branches": 87,
+          "covered_branches": 995,
+          "missing_branches": 93,
+          "percent_branches_covered": 91.45220588235294,
+          "percent_branches_covered_display": "91.45"
+        },
+        "harness_coverage": {
+          "covered_lines": 371,
+          "num_statements": 377,
+          "percent_covered": 97.495183044316,
+          "percent_covered_display": "97.50",
+          "missing_lines": 6,
+          "excluded_lines": 0,
+          "percent_statements_covered": 98.40848806366047,
+          "percent_statements_covered_display": "98.41",
+          "num_branches": 142,
+          "num_partial_branches": 7,
+          "covered_branches": 135,
+          "missing_branches": 7,
+          "percent_branches_covered": 95.07042253521126,
+          "percent_branches_covered_display": "95.07"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr36-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr36-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      },
+      {
+        "pr": 37,
+        "branch": "codex/zen-41-chapter-review-desk",
+        "source_commit": "4b76da6e043e743edfc8fd13a0f157202ebe7544",
+        "previous_published_head": "3991229b052e65a780c41a315db6eae4dbe6b0e9",
+        "app_tree": "579ddede98322fddf061b21522f075e74552fa93",
+        "tests_tree": "77bd4833a37c341ce20d1ca0dcc597fa2596e19b",
+        "frontend_tree": "5d1da703d2d9709d195bfe4e900e05038adcf7fd",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "offline_passed": 890,
+        "integration_deselected": 10,
+        "warning": "Existing Starlette/httpx deprecation",
+        "ruff_exit": 0,
+        "coverage": {
+          "covered_lines": 4309,
+          "num_statements": 4432,
+          "percent_covered": 96.17845716317099,
+          "percent_covered_display": "96.18",
+          "missing_lines": 123,
+          "excluded_lines": 11,
+          "percent_statements_covered": 97.22472924187726,
+          "percent_statements_covered_display": "97.22",
+          "num_branches": 1194,
+          "num_partial_branches": 84,
+          "covered_branches": 1102,
+          "missing_branches": 92,
+          "percent_branches_covered": 92.29480737018426,
+          "percent_branches_covered_display": "92.29"
+        },
+        "harness_coverage": {
+          "covered_lines": 371,
+          "num_statements": 377,
+          "percent_covered": 97.495183044316,
+          "percent_covered_display": "97.50",
+          "missing_lines": 6,
+          "excluded_lines": 0,
+          "percent_statements_covered": 98.40848806366047,
+          "percent_statements_covered_display": "98.41",
+          "num_branches": 142,
+          "num_partial_branches": 7,
+          "covered_branches": 135,
+          "missing_branches": 7,
+          "percent_branches_covered": 95.07042253521126,
+          "percent_branches_covered_display": "95.07"
+        },
+        "coverage_functions_supported_by_tool": "Statement/Line/Branch; raw function profile separately measured on PR37",
+        "test_command": [
+          "/Users/zen/miniconda3/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--tb=short",
+          "-m",
+          "not integration",
+          "--cov=app",
+          "--cov-branch",
+          "--cov-report=term-missing",
+          "--cov-report=json:/tmp/novelops-20261021-pr37-kernel-lifecycle-coverage.json",
+          "--junitxml=/tmp/novelops-20261021-pr37-kernel-lifecycle-junit.xml"
+        ],
+        "ruff_command": [
+          "/tmp/novelops-ruff-20261008/bin/ruff",
+          "check",
+          "app",
+          "tests"
+        ]
+      }
+    ],
+    "goal_complete": false
+  },
+  "current_legacy_pipeline_verification": {
+    "report": "2026-10-21-legacy-pipeline-config-and-resources.md",
+    "new_cases": 32,
+    "source": "81f96d9d0ee823ac496d7fa15d54246a2022fc6a",
+    "native": {
+      "source": {
+        "pr": 37,
+        "branch": "codex/zen-41-chapter-review-desk",
+        "base": "codex/zen-40-chapter-loop",
+        "previous_published_head": "c9ac990254bd1b3f3e821b75f4e930228742e261",
+        "source_commit": "81f96d9d0ee823ac496d7fa15d54246a2022fc6a",
+        "path": "/tmp/novelops-legacy-pr37-81f96d9d",
+        "app_tree": "95b799dbf3d31bfb0b5d2eeed1d887034eb37bf9",
+        "tests_tree": "58cbae8c196cbacdd3559c097378f3177f8aef82",
+        "coverage_config_tree": "962cd14e2d776b7644069ad0166dad9aebfd6517",
+        "frontend_tree": "5d1da703d2d9709d195bfe4e900e05038adcf7fd"
+      },
+      "status": "legacy_readonly_http_verified",
+      "started_at": 1792570964.328437,
+      "finished_at": 1792571036.967089,
+      "baseline_exact_before": 452,
+      "baseline_exact_after": 452,
+      "api_results": [
+        {
+          "method": "GET",
+          "path": "/api/pipelines/PR-d08205083d74413dcf8e967175bab826",
+          "status": 200,
+          "expected_status": 200,
+          "body": {
+            "created_at": "2026-10-21T01:26:58.956811+00:00",
+            "definition_json": "{\"book_id\":\"\",\"source_hotspot_id\":\"\",\"steps\":[{\"depends_on\":[],\"handler\":\"acceptance.approval_identity\",\"input\":{\"action\":\"approve\",\"synthetic\":true},\"kind\":\"service\",\"requires_approval\":true,\"step_key\":\"review\"}],\"workflow_type\":\"approval_identity_acceptance\"}",
+            "pipeline_run_id": "PR-d08205083d74413dcf8e967175bab826",
+            "pipeline_type": "approval_identity_acceptance",
+            "status": "completed",
+            "updated_at": "2026-10-21T01:44:46.935090+00:00",
+            "record_id": "reczz28PsXwseVma",
+            "step_runs": [
+              {
+                "finished_at": "2026-10-21T01:27:53.672037+00:00",
+                "handler": "acceptance.approval_identity",
+                "input_json": "{\"action\":\"approve\",\"synthetic\":true}",
+                "kind": "service",
+                "output_json": "{\"result\":\"ready\",\"synthetic\":true}",
+                "output_version": 1,
+                "pipeline_run_id": "PR-d08205083d74413dcf8e967175bab826",
+                "requires_approval": true,
+                "retry_count": 0,
+                "started_at": "2026-10-21T01:27:36.038205+00:00",
+                "status": "success",
+                "step_key": "review",
+                "step_run_id": "SR-26eb45f6a691499bd210a66118f99fb5",
+                "record_id": "reczz28PsY38FX38"
+              }
+            ]
+          },
+          "route_clients_created": 1,
+          "external_requests": 3
+        },
+        {
+          "method": "GET",
+          "path": "/api/pipelines/PR-d08205083d74413dcf8e967175bab826/steps",
+          "status": 200,
+          "expected_status": 200,
+          "body": [
+            {
+              "finished_at": "2026-10-21T01:27:53.672037+00:00",
+              "handler": "acceptance.approval_identity",
+              "input_json": "{\"action\":\"approve\",\"synthetic\":true}",
+              "kind": "service",
+              "output_json": "{\"result\":\"ready\",\"synthetic\":true}",
+              "output_version": 1,
+              "pipeline_run_id": "PR-d08205083d74413dcf8e967175bab826",
+              "requires_approval": true,
+              "retry_count": 0,
+              "started_at": "2026-10-21T01:27:36.038205+00:00",
+              "status": "success",
+              "step_key": "review",
+              "step_run_id": "SR-26eb45f6a691499bd210a66118f99fb5",
+              "record_id": "reczz28PsY38FX38"
+            }
+          ],
+          "route_clients_created": 1,
+          "external_requests": 2
+        },
+        {
+          "method": "GET",
+          "path": "/api/pipelines/PR-no-such-legacy-acceptance-20261021",
+          "status": 404,
+          "expected_status": 404,
+          "body": {
+            "detail": "Pipeline run not found"
+          },
+          "route_clients_created": 1,
+          "external_requests": 2
+        },
+        {
+          "method": "POST",
+          "path": "/api/pipelines",
+          "status": 422,
+          "expected_status": 422,
+          "body": {
+            "detail": "step_defs must not be empty"
+          },
+          "route_clients_created": 1,
+          "external_requests": 0
+        },
+        {
+          "method": "GET",
+          "path": "/api/pipelines/PR-d08205083d74413dcf8e967175bab826",
+          "status": 401,
+          "expected_status": 401,
+          "body": {
+            "detail": "Invalid or missing API key"
+          },
+          "route_clients_created": 0,
+          "external_requests": 0
+        }
+      ],
+      "route_clients": [
+        {
+          "ordinal": 1,
+          "closed": true
+        },
+        {
+          "ordinal": 2,
+          "closed": true
+        },
+        {
+          "ordinal": 3,
+          "closed": true
+        },
+        {
+          "ordinal": 4,
+          "closed": true
+        }
+      ],
+      "all_route_clients_closed": true,
+      "model_requests": 0,
+      "external_record_mutations": 0,
+      "server_running_after_exit": false,
+      "scheduler_running_after_exit": false,
+      "snapshot_failures": []
+    },
+    "scope": "Actual local Uvicorn/HTTP → configured app credentials → real Feishu reads. Only route client construction instrumented to attach read-only outbound guard and track closure, without replacing methods or transport. Invalid POST422 before external IO; no successful live legacy create/worker execution and no new model/business workflow acceptance claimed."
+  },
+  "linear_current_read_attempt": {
+    "status": "success",
+    "evidence": "2026-10-21 freshly read13targetissues",
+    "all13_in_review": true,
+    "updated_at_unchanged": true
+  },
+  "current_foundation_boundary_verification": {
+    "report": "2026-10-21-foundation-boundaries-and-effect-observation.md",
+    "new_cases": 38,
+    "production_changes": false,
+    "owners": [
+      {
+        "linear": "ZEN-104",
+        "issue": 20,
+        "pr": 24,
+        "change": "35 actual legacy/application boundary cases"
+      },
+      {
+        "linear": "ZEN-36",
+        "issue": 9,
+        "pr": 30,
+        "change": "Settle immediate creative history effects before observing nested controls"
+      },
+      {
+        "linear": "ZEN-38",
+        "issue": 11,
+        "pr": 32,
+        "change": "3 exact book projection query contracts"
+      },
+      {
+        "linear": "ZEN-107",
+        "issue": 33,
+        "pr": 34,
+        "change": "Await actual reveal effect and flush effects before negative scroll assertions"
+      }
+    ],
+    "native_scope": {
+      "prior_report": "2026-10-21-legacy-pipeline-config-and-resources.md",
+      "actual_native_source": "81f96d9d0ee823ac496d7fa15d54246a2022fc6a",
+      "actual_native_app_tree": "95b799dbf3d31bfb0b5d2eeed1d887034eb37bf9",
+      "current_app_tree_identical": true,
+      "old452_exact_as_of_that_probe": true,
+      "source_production_unchanged_this_wave": true,
+      "new_native_probe_this_wave": false,
+      "new_actual_record_mutations": 0,
+      "new_actual_model_requests": 0,
+      "prior_helpers_terminal": true,
+      "prior_approval_recovery_report": "2026-10-21-approval-identity-and-recovery.md",
+      "no_second_chapter_semantic_success_claim": true
+    },
+    "function_scope_diagnostic": {
+      "all_unentered_raw_functions_are_protocol_ellipsis_declarations": true,
+      "declarations": [
+        {
+          "file": "generation.py",
+          "name": "ModelProvider.complete"
+        },
+        {
+          "file": "storage.py",
+          "name": "StorageProvider.get"
+        },
+        {
+          "file": "storage.py",
+          "name": "StorageProvider.get_many"
+        },
+        {
+          "file": "storage.py",
+          "name": "StorageProvider.list"
+        },
+        {
+          "file": "storage.py",
+          "name": "StorageProvider.ensure"
+        },
+        {
+          "file": "storage.py",
+          "name": "StorageProvider.update"
+        },
+        {
+          "file": "storage.py",
+          "name": "StorageProvider.delete"
+        }
+      ],
+      "raw_metric_not_changed": true,
+      "no_stub_calls_to_manufacture_coverage": true,
+      "note": "Raw function entry diagnostic remains below100; all executable named/lambda entries were entered. This distinction is disclosed,not a replacement whole-project100 claim."
+    },
+    "frontend_full_tests": 343,
+    "frontend_four_metrics": {
+      "lines": {
+        "total": 1017,
+        "covered": 988,
+        "skipped": 0,
+        "pct": 97.14
+      },
+      "statements": {
+        "total": 1207,
+        "covered": 1143,
+        "skipped": 0,
+        "pct": 94.69
+      },
+      "functions": {
+        "total": 339,
+        "covered": 321,
+        "skipped": 0,
+        "pct": 94.69
+      },
+      "branches": {
+        "total": 1432,
+        "covered": 1362,
+        "skipped": 0,
+        "pct": 95.11
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "local_build_environment_limitation": "Canonical npm run check/build failed at Turbopack process/port EPERM evenwithformal commands;ordinaryNode explicitloopback/defaultportprobes passed,so exactunderlyingcauseunresolved. Lint/typespassed;no alternatebuilderorCIgateweakening. Exact-headGitHubcanonicalbuildrequired before successfuldelivery claim."
+  },
+  "github_current_scope_read": {
+    "13_original_bodies_sha256_unchanged": true,
+    "comments": 0,
+    "complete_pagination": true,
+    "original_51_extra_checks_retained": true
+  }
+}

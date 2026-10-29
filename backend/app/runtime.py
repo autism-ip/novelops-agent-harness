@@ -44,6 +44,8 @@ def build_runtime(settings):
             names += ("books", "story_states")
         if settings.STORY_PLANNING_ENABLED:
             names += ("chapter_versions",)
+        if settings.CHAPTER_LOOP_ENABLED:
+            names += ("revision_tasks",)
         repositories = {name: BaseRepository(client, config.app_token, config.get_table_id(name), FIELD_MAPS[name])
                         for name in names}
         storage = FeishuStorageProvider(repositories, {name: next(iter(FIELD_MAPS[name])) for name in names})
@@ -82,7 +84,9 @@ def build_runtime(settings):
         if settings.CHAPTER_LOOP_ENABLED:
             from app.chapter_loop import ChapterLoopService
             kernel.chapter_loop = ChapterLoopService(kernel, max_rewrites=settings.CHAPTER_MAX_REWRITES,
-                                                     max_estimated_cost=settings.CHAPTER_MAX_ESTIMATED_COST)
+                                                     max_estimated_cost=settings.CHAPTER_MAX_ESTIMATED_COST,
+                                                     review_first_n=settings.CHAPTER_REVIEW_FIRST_N,
+                                                     review_score_threshold=settings.CHAPTER_REVIEW_SCORE_THRESHOLD)
         return kernel, client
     except Exception:
         if "kernel" in locals() and getattr(kernel, "model_router", None):

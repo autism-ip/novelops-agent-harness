@@ -16,6 +16,9 @@ Node 24（`.nvmrc`）。`npm ci` 安装锁定依赖；`npm run check` 依次执�
 `src/components/books/chapter-generation.tsx` 提供 ZEN-40 章节生成、Critic 摘要、全版本历史与来源/模型细节；读取上下文起锁定操作并显示准备进度；检查历史后的本地清除失败保留精确命令和存储恢复指引；`chapter-state.ts` 校验待重放章节命令的 Book/章节/源版本身份。
 
 `src/components/books/book-bootstrap.tsx` 从批准来源创建书籍；检查 Books 后的本地清除失败显示原因和恢复指引，并保留原请求，恢复存储后可再次清除。
+`src/components/books/chapter-review-desk.tsx` 提供 ZEN-41 Book 内章节审阅台：正文与历史、所读版本 Artifact ID、Critic/Verifier、批准/拒绝/退修/终锁、选择性人工关卡和折叠的来源/模型细节；切换 Book/章节时由 `chapter-generation.tsx` 的 key 重置本地审阅表单；`review-state.ts` 校验待重放命令的精确版本身份。实测飞书审稿读取和批准/终锁均超过十秒；审稿 GET 与精确版本 POST 使用 120 秒有界限时，覆盖完整响应正文。保存中显示等待状态，超时保留原命令供重放；检查历史后的本地清除失败显示错误并保留命令，恢复存储后可再次清除；代理声明 120 秒执行预算，部署平台实际限时仍需验收。其他浏览器请求保留默认十秒。
+
+`src/app/books/[bookId]/chapters/[chapterNo]/review/page.tsx` 提供独立章节审稿入口，校验 Book 路径与 1–10000 的规范章节号；`focused-chapter-review.tsx` 只挂载同一真实审稿组件，不加载全书/Bible/Brief 历史或启动生成。章节生成区提供可发现链接，独立页保留返回书籍、手动刷新及精确审批/重放语义。`tests/focused-chapter-review.test.tsx` 使用真实 hook、ApiClient 和审稿台验证读取预算、关卡静默及版本绑定。
 
 `/sign-in` 与全局导航提供所有页面的登录恢复入口；验证仅允许已知站内页面返回，成功后回到原 Book/章节。密码仅 POST 到既有登录端点，不写入 URL/浏览器存储；失败可修正重试，保存中的精确业务命令不清除。`workspace-sign-in.test.tsx` 覆盖返回路径安全、并发提交、错误恢复和原命令保护。
 
@@ -78,17 +81,23 @@ ZEN-37 的研究退修和标题/封面反馈再生成均通过工作台异步请
 planning 请求读存储失败时使用独立不可用状态与公开重查。提交前、异步上下文后、POST 完成后检查保存字节的所有权；变化或不可读时保留原数据并提示，检查历史后的清理也使用相同校验。原生 DOMException 清理原因可见，操作中禁用清理。回归见 `tests/story-planning-contract.test.tsx`。
 
 chapter 请求读存储失败时使用独立不可用状态与公开重查。提交前、异步上下文后、POST 完成后检查保存字节的所有权；变化或不可读时保留原数据并提示，检查历史后的清理也使用相同校验。原生 DOMException 清理原因可见，操作中禁用清理。回归见 `tests/chapter-generation-contract.test.tsx`。
+
+review 请求读存储失败时使用独立不可用状态与公开重查。提交前、异步上下文后、POST 完成后检查保存字节的所有权；变化或不可读时保留原数据并提示，检查历史后的清理也使用相同校验。原生 DOMException 清理原因可见，操作中禁用清理。回归见 `tests/chapter-review-contract.test.tsx`。
 建书来源核验与幂等 POST 使用各自 120 秒客户端预算，与代理 maxDuration 对齐；超过预算仍保留原请求字节，必须由用户显式重试，不自动重发。测试覆盖实测量级的 23 秒读取、119 秒写入与有界超时恢复。该预算不是部署平台支持或可接受生产延迟的证明。
 
 故事规划历史、上下文与写入采用各自120秒有界预算；轮询仍在上一请求结算后等待5秒，不按墙钟叠加。慢读取不提前中止并排队，提交仍保存同一来源与版本，超时不自动重新生成。
 
 章节生成的上下文、精确触发、最新状态与 eligible brief 采用各自120秒有界请求；真实上下文曾耗时56.41秒。轮询等上一读取结算再等待5秒，终态停止规则不变。慢请求不重建命令或自动付费重试。
+
+`tests/book-workspace.test.tsx` 经真实 Books/Book 路由、BookList/BookDetail 与 API 客户端验证空书架、旧书/初始化状态、编码链接、规范来源与规则展示、无 brief 时禁止生成及读取错误；仅替换 HTTP 边界，不模拟业务组件。
 真实手机验收发现慢规划读取与5秒书籍轮询竞争。书籍详情改为读取结算后60秒再轮询，单次120秒有界，并提供原生 Refresh book；稳定或等待人工决策的规划历史停止空闲轮询，只有 creating/pending/running 保持5秒更新。新增 `book-read-budget.test.tsx` 和历史状态回归，慢运行测试继续严格验证不重叠及按时恢复轮询。
 
 eligible brief 是只读来源，在空闲状态改为上一请求结算后60秒读取一次；Refresh chapter 仍立即刷新来源，不会自动生成或提交付费命令。运行中的 generation 状态保持5秒结算后更新，终态/人工门停止规则保留。
 工作流观察页：`workflow-monitor.tsx` 让 `/pipelines` 与 `/agents` 通过受保护GET读取真实WorkflowRun及选中步骤，20条本地分页，未知/失败不显示假空；Agents仅展示所选流程的agent步骤，不新建独立AgentState。选中后焦点进入详情；异步内容到达后只在超出可见范围时定位一次，返回列表或轮询/刷新不会反复滚动。窄屏可直接阅读并返回流程列表。`health-indicator.tsx` 复用有界读取，分开显示HTTP与调度器状态/最后tick；`workflow-status-pages.test.tsx` 覆盖正常、失败恢复、401、缺步骤/分类和分页。所有操作只读。
 
 工作流滚动测试在正文进入DOM后继续等待实际React effect完成；正向仍要求指定参数恰好一次，刷新/桌面/返回列表的零额外滚动断言在act清空待执行效果后核验。不得用“正文已出现”推断异步滚动效果已执行，不替换生产effect或增加测试重试掩盖竞态。
+
+审稿待重放命令必须同时匹配当前审稿台的Book和章节，且章节号保持1–10000的规范范围。其他Book/章节的合法命令也不能在本页重放：保留原字节，要求检查历史后清理；同范围的批准/拒绝/退修/终锁保留原目标与署名，支持边界章节。真实组件、sessionStorage与ApiClient的HTTP边界回归见`tests/chapter-review-scope.test.tsx`。
 
 章节生成待重放意图必须属于当前Book，路径和正文的章节须匹配且在1–10000范围；整本书工作台仍可重放本书其他章节的原命令，不随当前输入框重建目标。跨书或越界意图保留原字节，检查历史后才清理；真实组件/Storage/ApiClient合同见`tests/chapter-generation-scope.test.tsx`。
 
